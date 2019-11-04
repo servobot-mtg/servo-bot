@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>MooseBot commands</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="/style/main.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="/script/main.js"></script>
+</head>
+<body>
+    <h1>Commands</h1>
+    <table>
+        <th:block th:each="command : ${commands}">
+            <tr>
+                <td th:text="${command.key}"/>
+                <td th:text="${command.value.name}"/>
+            </tr>
+        </th:block>
+    </table>
+    <h1>Reactions</h1>
+    <table>
+        <th:block th:each="reaction : ${reactions}">
+            <tr>
+                <td th:text="${reaction.emoteName}"/>
+                <td>
+                    <th:block th:each="pattern : ${reaction.patterns}">
+                        <span th:text="${pattern}" />
+                    </th:block>
+                </td>
+            </tr>
+        </th:block>
+    </table>
+</body>
+</html>

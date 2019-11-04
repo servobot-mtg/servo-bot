@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.1.5.RELEASE'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group 'com.ryan_mtg'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+configurations {
+    compile.exclude module: 'spring-boot-starter-logging'
+}
+
+dependencies {
+    compile ('net.dv8tion:JDA:4.0.0_52') {
+        exclude module: 'opus-java'
+    }
+    compile 'org.hibernate:hibernate-core:5.4.2.Final'
+    compile 'org.springframework.boot:spring-boot-devtools'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.data:spring-data-jpa:2.1.8.RELEASE'
+
+    compile 'mysql:mysql-connector-java:8.0.16'
+
+    compile 'com.google.guava:guava:28.1-jre'
+
+    testCompile 'junit:junit'
+}
+
+bootJar {
+    baseName = 'moose-bot'
+    mainClassName = 'com.ryan_mtg.servobot.Application'
+}
+
+bootRun {
+    main = 'com.ryan_mtg.servobot.Application'
+}

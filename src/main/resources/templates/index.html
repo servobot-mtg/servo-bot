@@ -1,0 +1,12 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Servobot Home</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <th:block th:each="home : ${bot.homes}">
+            Documentation for <a th:href="'/' + ${home.homeName}" th:text="${home.homeName}"></a>
+        </th:block>
+    </body>
+</html>
