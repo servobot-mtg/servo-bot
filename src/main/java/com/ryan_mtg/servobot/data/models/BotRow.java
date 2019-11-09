@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.data.models;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +15,9 @@ public class BotRow {
     private int id;
     private String name;
     private String token;
+
+    @Column(name = "twitch_token")
+    private String twitchToken;
 
     public int getId() {
         return id;
@@ -33,5 +37,9 @@ public class BotRow {
 
     public void setToken(final String token) {
         this.token = token;
+    }
+
+    public String getTwitchToken() {
+        return twitchToken;
     }
 }

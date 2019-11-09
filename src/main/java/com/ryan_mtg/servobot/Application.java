@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot;
 
-import com.ryan_mtg.servobot.discord.bot.Bot;
-import com.ryan_mtg.servobot.discord.bot.BotHome;
+import com.ryan_mtg.servobot.model.Bot;
+import com.ryan_mtg.servobot.model.BotHome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 
 import javax.annotation.PostConstruct;
-import javax.security.auth.login.LoginException;
 
 @SpringBootApplication
 public class Application {
@@ -55,7 +54,7 @@ public class Application {
     private CommitToDatabase committer;
 
     @PostConstruct
-    public void startApplication() throws LoginException {
+    public void startApplication() throws Exception {
         LOGGER.info("use database: " + useDatabase);
         bot.startBot();
         LOGGER.info("commit to database? " + shouldCommit);

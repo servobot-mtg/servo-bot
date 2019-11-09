@@ -2,12 +2,12 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
-import com.ryan_mtg.servobot.discord.commands.Command;
-import com.ryan_mtg.servobot.discord.commands.CommandVisitor;
-import com.ryan_mtg.servobot.discord.commands.FactsCommand;
-import com.ryan_mtg.servobot.discord.commands.MessageChannelCommand;
-import com.ryan_mtg.servobot.discord.commands.TextCommand;
-import com.ryan_mtg.servobot.discord.commands.TierCommand;
+import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.CommandVisitor;
+import com.ryan_mtg.servobot.commands.FactsCommand;
+import com.ryan_mtg.servobot.commands.MessageChannelCommand;
+import com.ryan_mtg.servobot.commands.TextCommand;
+import com.ryan_mtg.servobot.commands.TierCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -61,7 +61,7 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitMessageChannelCommmand(MessageChannelCommand messageChannelCommand) {
+        public void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand) {
             saveCommand(messageChannelCommand, commandRow -> {
                 commandRow.setStringParameter(messageChannelCommand.getChannelName());
                 commandRow.setStringParameter2(messageChannelCommand.getMessage());

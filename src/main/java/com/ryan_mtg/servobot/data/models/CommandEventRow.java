@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.data.models;
 
-import com.ryan_mtg.servobot.discord.commands.CommandEvent;
+import com.ryan_mtg.servobot.commands.CommandEvent;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

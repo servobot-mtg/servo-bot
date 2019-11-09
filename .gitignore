@@ -4,8 +4,9 @@
 # IntelliJ directory
 .idea/
 
-# build directory
+# build directories
 build/
+out/
 
 # Compiled class file
 *.class

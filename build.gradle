@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.1.5.RELEASE'
@@ -14,6 +16,9 @@ targetCompatibility = 1.8
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url 'https://oss.jfrog.org/artifactory/libs-release'
+    }
 }
 
 configurations {
@@ -21,9 +26,14 @@ configurations {
 }
 
 dependencies {
+    compile 'com.google.guava:guava:28.1-jre'
+    compile 'com.github.twitch4j:twitch4j:1.0.0-alpha.17'
+    compile 'mysql:mysql-connector-java:8.0.16'
+
     compile ('net.dv8tion:JDA:4.0.0_52') {
         exclude module: 'opus-java'
     }
+
     compile 'org.hibernate:hibernate-core:5.4.2.Final'
     compile 'org.springframework.boot:spring-boot-devtools'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
@@ -31,15 +41,12 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.data:spring-data-jpa:2.1.8.RELEASE'
 
-    compile 'mysql:mysql-connector-java:8.0.16'
-
-    compile 'com.google.guava:guava:28.1-jre'
-
     testCompile 'junit:junit'
 }
 
 bootJar {
-    baseName = 'moose-bot'
+    archiveBaseName = 'servo-bot'
+
     mainClassName = 'com.ryan_mtg.servobot.Application'
 }
 

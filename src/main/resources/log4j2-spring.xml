@@ -15,7 +15,7 @@
         <AppenderRef ref="console"/>
     </Root>
 
-    <Logger name="com.ryan_mtg" level="info">
+    <Logger name="com.ryan_mtg" level="warn">
     </Logger>
 </Loggers>
 

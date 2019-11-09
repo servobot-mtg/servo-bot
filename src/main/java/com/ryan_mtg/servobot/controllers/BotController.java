@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
-import com.ryan_mtg.servobot.discord.bot.Bot;
-import com.ryan_mtg.servobot.discord.bot.BotHome;
+import com.ryan_mtg.servobot.model.Bot;
+import com.ryan_mtg.servobot.model.BotHome;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -22,10 +22,10 @@ public class BotController {
     }
 
     @GetMapping("/{home}")
-    public String showHome(final Model model, @PathVariable("home")  final String home) {
-        BotHome mooseHome = bot.getHome(home);
-        model.addAttribute("commands", mooseHome.getCommandTable().getCommandList());
-        model.addAttribute("reactions", mooseHome.getReactionTable());
+    public String showHome(final Model model, @PathVariable("home")  final String homeName) {
+        BotHome home = bot.getHome(homeName);
+        model.addAttribute("commands", home.getCommandTable().getCommandList());
+        model.addAttribute("reactions", home.getReactionTable());
         return "bot_home";
     }
 }

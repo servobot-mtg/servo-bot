@@ -2,8 +2,8 @@ package com.ryan_mtg.servobot;
 
 import com.ryan_mtg.servobot.data.factories.CommandTableSerializer;
 import com.ryan_mtg.servobot.data.factories.ReactionTableSerializer;
-import com.ryan_mtg.servobot.discord.bot.Bot;
-import com.ryan_mtg.servobot.discord.bot.BotHome;
+import com.ryan_mtg.servobot.model.Bot;
+import com.ryan_mtg.servobot.model.BotHome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
