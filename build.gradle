@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.tasks.bundling.BootJar
-
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.1.5.RELEASE'
@@ -52,4 +50,34 @@ bootJar {
 
 bootRun {
     main = 'com.ryan_mtg.servobot.Application'
+}
+
+def deployDir = "${buildDir}/generated/deploy"
+
+task deploy (type: Zip) {
+    group = 'build'
+    description = 'Creates a source zip file for AWS deployment.'
+
+    doFirst {
+        // Create Buildfile and Procfile for AWS deployment
+        mkdir deployDir
+        new File(deployDir, 'Buildfile').text = 'build: gradle build'
+        new File(deployDir, 'Procfile').text = "web: java -jar ${bootJar.archiveFileName.get()}"
+    }
+
+    into('src') {
+        from fileTree('src')
+    }
+
+    into ('') {
+        from fileTree(project.projectDir)
+        include '*.gradle'
+        exclude '.gradle'
+    }
+
+    into ('') {
+        from fileTree(deployDir)
+    }
+
+    archiveBaseName = 'servo-bot-deploy'
 }
