@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class BotFactory {
@@ -41,15 +41,15 @@ public class BotFactory {
     private ServiceHomeSerializer serviceHomeSerializer;
 
     public Bot createBot(final BotRow botRow) {
-        List<Service> services = new ArrayList<>();
+        Map<Integer, Service> services = new HashMap<>();
+
         if (botRow.getToken() != null) {
-            services.add(new DiscordService(botRow.getToken()));
+            services.put(DiscordService.TYPE, new DiscordService(botRow.getToken()));
         }
 
         if (botRow.getTwitchToken() != null) {
-            services.add(new TwitchService(botRow.getTwitchToken()));
+            services.put(TwitchService.TYPE, new TwitchService(botRow.getTwitchToken()));
         }
-
         Bot bot = new Bot(services);
 
         Iterable<BotHomeRow> botHomeRows = botHomeRepository.findAll();
@@ -60,9 +60,10 @@ public class BotFactory {
             CommandTable commandTable = commandTableSerializer.createCommandTable(botHomeId);
             ReactionTable reactionTable = reactionTableSerializer.createReactionTable(botHomeId);
 
-            List<ServiceHome> serviceHomes = new ArrayList<>();
+            Map<Integer, ServiceHome> serviceHomes = new HashMap<>();
             for (ServiceHomeRow serviceHomeRow : serviceHomeRepository.findAllByBotHomeId(botHomeId)) {
-                serviceHomes.add(serviceHomeSerializer.createServiceHome(serviceHomeRow));
+                ServiceHome serviceHome = serviceHomeSerializer.createServiceHome(serviceHomeRow);
+                serviceHomes.put(serviceHome.getServiceType() , serviceHome);
             }
 
             BotHome botHome = new BotHome(homeName, botHomeId, commandTable, reactionTable, serviceHomes);

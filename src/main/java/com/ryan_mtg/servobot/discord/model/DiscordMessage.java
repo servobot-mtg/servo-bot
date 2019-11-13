@@ -24,6 +24,11 @@ public class DiscordMessage implements Message {
     }
 
     @Override
+    public int getServiceType() {
+        return DiscordService.TYPE;
+    }
+
+    @Override
     public Home getHome() {
         return new DiscordHome(message.getGuild());
     }

@@ -3,11 +3,13 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class DiscordService implements Service {
     public static final int TYPE = 2;
     private String token;
+    private JDA jda;
 
     private Map<Long, Integer> homeIdMap = new HashMap<>();
 
@@ -26,10 +29,9 @@ public class DiscordService implements Service {
 
     @Override
     public void register(final BotHome botHome) {
-        for (ServiceHome serviceHome : botHome.getServiceHomes()) {
-            if (serviceHome instanceof DiscordServiceHome) {
-                homeIdMap.put(((DiscordServiceHome) serviceHome).getGuildId(), botHome.getId());
-            }
+        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
+        if (serviceHome != null) {
+            homeIdMap.put(((DiscordServiceHome) serviceHome).getGuildId(), botHome.getId());
         }
     }
 
@@ -39,7 +41,13 @@ public class DiscordService implements Service {
         builder.setActivity(Activity.playing("Beta: " + now()));
 
         builder.addEventListeners(new DiscordEventAdapter(eventListener, homeIdMap));
-        JDA jda = builder.build();
+        jda = builder.build();
+    }
+
+    @Override
+    public Home getHome(final ServiceHome serviceHome) {
+        Guild guild = jda.getGuildById(((DiscordServiceHome)serviceHome).getGuildId());
+        return new DiscordHome(guild);
     }
 
     private static String now() {

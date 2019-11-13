@@ -28,7 +28,10 @@ public class DiscordHome implements Home {
     }
 
     @Override
-    public Channel getChannel(final String channelName) {
+    public Channel getChannel(final String channelName, final int serviceType) {
+        if (serviceType != DiscordService.TYPE) {
+            return null;
+        }
         List<TextChannel> channels = guild.getTextChannelsByName(channelName, false);
         if (channels.size() > 0) {
             return new DiscordChannel(this, channels.get(0));
@@ -42,18 +45,16 @@ public class DiscordHome implements Home {
     }
 
     @Override
-    public String getRole(User user) {
+    public String getRole(final User user, final int serviceType) {
+        if (serviceType != DiscordService.TYPE) {
+            return "Wanderer";
+        }
         Member member = guild.getMemberById(getDiscordId(user));
         List<Role> roles = member.getRoles();
         for (Role role : roles) {
             return role.getName();
         }
         return "Pleb";
-    }
-
-    @Override
-    public boolean hasEmotes() {
-        return true;
     }
 
     @Override

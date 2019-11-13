@@ -22,6 +22,8 @@ public class CommandRow {
     private String stringParameter;
     private String stringParameter2;
 
+    private Long longParameter;
+
     public int getId() {
         return id;
     }
@@ -60,5 +62,13 @@ public class CommandRow {
 
     public void setStringParameter2(final String stringParameter2) {
         this.stringParameter2 = stringParameter2;
+    }
+
+    public Long getLongParameter() {
+        return this.longParameter;
+    }
+
+    public void setLongParameter(final long longParameter) {
+        this.longParameter = longParameter;
     }
 }

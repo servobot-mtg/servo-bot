@@ -41,12 +41,6 @@ public class FactsCommand extends MessageCommand {
         MessageCommand.say(message, fact);
     }
 
-    @Override
-    public void perform(final net.dv8tion.jda.api.entities.Message message, final String arguments) {
-        String fact = facts.get(random.nextInt(facts.size()));
-        MessageCommand.say(message, fact);
-    }
-
     public String getFileName() {
         return fileName;
     }

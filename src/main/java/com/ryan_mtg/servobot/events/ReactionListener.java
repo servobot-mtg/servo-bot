@@ -43,4 +43,7 @@ public class ReactionListener implements EventListener {
 
     @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) { }
+
+    @Override
+    public void onAlert(final AlertEvent alertEvent) { }
 }

@@ -21,12 +21,17 @@ public class TwitchMessage implements Message {
 
     @Override
     public Channel getChannel() {
-        return new TwitchChannel(messageEvent.getTwitchChat(), messageEvent.getChannel());
+        return new TwitchChannel(messageEvent.getTwitchChat(), messageEvent.getChannel().getName());
+    }
+
+    @Override
+    public int getServiceType() {
+        return TwitchService.TYPE;
     }
 
     @Override
     public Home getHome() {
-        return new TwitchChannel(messageEvent.getTwitchChat(), messageEvent.getChannel());
+        return new TwitchChannel(messageEvent.getTwitchChat(), messageEvent.getChannel().getName());
     }
 
     @Override

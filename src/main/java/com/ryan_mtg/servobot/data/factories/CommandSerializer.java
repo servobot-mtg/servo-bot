@@ -28,7 +28,8 @@ public class CommandSerializer {
             case TierCommand.TYPE:
                 return new TierCommand(id);
             case MessageChannelCommand.TYPE:
-                return new MessageChannelCommand(id, commandRow.getStringParameter(), commandRow.getStringParameter2());
+                return new MessageChannelCommand(id, commandRow.getLongParameter().intValue(),
+                        commandRow.getStringParameter(), commandRow.getStringParameter2());
         }
         throw new IllegalArgumentException("Unsupported type: " + commandRow.getType());
     }
@@ -61,22 +62,23 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand) {
+        public void visitMessageChannelCommand(final MessageChannelCommand messageChannelCommand) {
             saveCommand(messageChannelCommand, commandRow -> {
+                commandRow.setLongParameter(messageChannelCommand.getServiceType());
                 commandRow.setStringParameter(messageChannelCommand.getChannelName());
                 commandRow.setStringParameter2(messageChannelCommand.getMessage());
             });
         }
 
         @Override
-        public void visitTextCommand(TextCommand textCommand) {
+        public void visitTextCommand(final TextCommand textCommand) {
             saveCommand(textCommand, commandRow -> {
                 commandRow.setStringParameter(textCommand.getText());
             });
         }
 
         @Override
-        public void visitTierCommand(TierCommand tierCommand) {
+        public void visitTierCommand(final TierCommand tierCommand) {
             saveCommand(tierCommand, commandRow -> {});
         }
 

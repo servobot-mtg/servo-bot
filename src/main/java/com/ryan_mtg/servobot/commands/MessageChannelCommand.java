@@ -1,15 +1,16 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.model.Home;
-import net.dv8tion.jda.api.entities.Guild;
 
 public class MessageChannelCommand extends HomeCommand {
     public static final int TYPE = 4;
+    private final int serviceType;
     private final String channelName;
     private final String message;
 
-    public MessageChannelCommand(final int id, final String channelName, final String message) {
+    public MessageChannelCommand(final int id, final int serviceType, final String channelName, final String message) {
         super(id);
+        this.serviceType = serviceType;
         this.channelName = channelName;
         this.message = message;
     }
@@ -26,17 +27,16 @@ public class MessageChannelCommand extends HomeCommand {
 
     @Override
     public void perform(final Home home) {
-        home.getChannel(channelName).say(message);
-    }
-
-    @Override
-    public void perform(final Guild home) {
-        HomeCommand.say(home, channelName, message);
+        home.getChannel(channelName, serviceType).say(message);
     }
 
     @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitMessageChannelCommand(this);
+    }
+
+    public int getServiceType() {
+        return serviceType;
     }
 
     public String getChannelName() {

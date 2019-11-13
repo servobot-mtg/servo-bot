@@ -4,7 +4,6 @@ import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class CommandListener implements EventListener {
         scanner.useDelimiter("\\z");
         String arguments = scanner.hasNext() ? scanner.next() : null;
 
-        MessageCommand messageCommand = commandTable.getCommand(command);
+        MessageCommand messageCommand = commandTable.getCommands(command);
 
         if (messageCommand != null) {
             LOGGER.info("Peforming " + command + " for " + message.getSender().getName() + " with arguments " + arguments);
@@ -57,8 +56,15 @@ public class CommandListener implements EventListener {
 
     @Override
     public void onStreamStart(final StreamStartEvent event) {
-        for (HomeCommand command : commandTable.getCommand(CommandEvent.Type.STREAM_START)) {
+        for (HomeCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START)) {
             command.perform(event.getHome());
+        }
+    }
+
+    @Override
+    public void onAlert(final AlertEvent alertEvent) {
+        for (HomeCommand command : commandTable.getCommandsFromToken(alertEvent.getAlertToken())) {
+            command.perform(alertEvent.getHome());
         }
     }
 }

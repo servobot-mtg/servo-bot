@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS bot (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARC
 CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), streamer_id BIGINT);
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
-                                    stringParameter VARCHAR(200), stringParameter2 VARCHAR(200));
+                                    stringParameter VARCHAR(200), stringParameter2 VARCHAR(200), longParameter BIGINT);
 
 CREATE TABLE IF NOT EXISTS command_alias (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER, alias VARCHAR(30));
 
@@ -22,3 +22,15 @@ CREATE TABLE IF NOT EXISTS reaction_pattern (id INTEGER AUTO_INCREMENT PRIMARY K
 
 CREATE TABLE IF NOT EXISTS service_home (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER,
                                          service_type INTEGER, long_value BIGINT);
+
+CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER,
+                    bot_home_id INTEGER, time INTEGER, time_zone VARCHAR(50), alert_token VARCHAR(50));
+
+CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
+                                          alert_token VARCHAR(50));
+
+CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER,
+                                            bot_home_id INTEGER, time INTEGER, time_zone VARCHAR(50), alert_token VARCHAR(50));
+
+CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
+                                          alert_token VARCHAR(50));

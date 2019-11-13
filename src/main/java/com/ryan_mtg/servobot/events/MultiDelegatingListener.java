@@ -32,4 +32,11 @@ public class MultiDelegatingListener implements EventListener {
             listener.onStreamStart(streamStartEvent);
         }
     }
+
+    @Override
+    public void onAlert(final AlertEvent alertEvent) {
+        for (EventListener listener : listeners) {
+            listener.onAlert(alertEvent);
+        }
+    }
 }

@@ -1,9 +1,14 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.Application;
+import com.ryan_mtg.servobot.commands.CommandAlert;
+import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
+import com.ryan_mtg.servobot.data.models.CommandAlertRow;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
 import com.ryan_mtg.servobot.data.models.CommandEventRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
+import com.ryan_mtg.servobot.data.repositories.AlertGeneratorRepository;
+import com.ryan_mtg.servobot.data.repositories.CommandAlertRepository;
 import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
 import com.ryan_mtg.servobot.data.repositories.CommandEventRepository;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
@@ -17,6 +22,8 @@ import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.model.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class CommandTableSerializer {
@@ -40,10 +49,19 @@ public class CommandTableSerializer {
     private CommandSerializer commandSerializer;
 
     @Autowired
+    private AlertGeneratorSerializer alertGeneratorSerializer;
+
+    @Autowired
     private CommandAliasRepository commandAliasRepository;
 
     @Autowired
     private CommandEventRepository commandEventRepository;
+
+    @Autowired
+    private CommandAlertRepository commandAlertRepository;
+
+    @Autowired
+    private AlertGeneratorRepository alertGeneratorRepository;
 
     @Autowired
     @Qualifier("useDatabase")
@@ -62,7 +80,7 @@ public class CommandTableSerializer {
         Map<Command, Integer> commandIdMap = new HashMap<>();
 
         for(CommandAlias alias : aliases) {
-            MessageCommand command = commandTable.getCommand(alias.getAlias());
+            MessageCommand command = commandTable.getCommands(alias.getAlias());
             aliasedCommands.add(command);
         }
 
@@ -73,7 +91,7 @@ public class CommandTableSerializer {
         }
 
         for(CommandAlias alias : aliases) {
-            MessageCommand command = commandTable.getCommand(alias.getAlias());
+            MessageCommand command = commandTable.getCommands(alias.getAlias());
             CommandAliasRow aliasRow = new CommandAliasRow(alias.getId(), commandIdMap.get(command), alias.getAlias());
             commandAliasRepository.save(aliasRow);
         }
@@ -82,7 +100,7 @@ public class CommandTableSerializer {
 
         List<CommandEvent> events = commandTable.getEvents();
         for (CommandEvent event : events) {
-            triggeredCommands.addAll(commandTable.getCommand(event.getEventType()));
+            triggeredCommands.addAll(commandTable.getCommands(event.getEventType()));
         }
 
         for(HomeCommand command : triggeredCommands) {
@@ -97,12 +115,12 @@ public class CommandTableSerializer {
                     event.getEventType());
             commandEventRepository.save(eventRow);
         }
-
     }
 
     private CommandTable createPersistedCommandTable(final int botHomeId) {
         Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
         CommandTable commandTable = new CommandTable(false);
+        Set<String> alertTokens = new HashSet<>();
 
         for (CommandRow commandRow : commandRows) {
             Command command = commandSerializer.createCommand(commandRow);
@@ -120,7 +138,23 @@ public class CommandTableSerializer {
                 HomeCommand homeCommand = (HomeCommand) command;
                 commandTable.registerCommand(homeCommand, new CommandEvent(event.getId(), event.getEventType()));
             }
+
+            Iterable<CommandAlertRow> alerts = commandAlertRepository.findAllByCommandId(commandRow.getId());
+            for (CommandAlertRow alert : alerts) {
+                HomeCommand homeCommand = (HomeCommand) command;
+                String alertToken = alert.getAlertToken();
+                commandTable.registerCommand(homeCommand, new CommandAlert(alert.getId(), alert.getAlertToken()));
+                alertTokens.add(alertToken);
+            }
         }
+
+        Iterable<AlertGeneratorRow> alertGeneratorRows = alertGeneratorRepository.findByBotHomeId(botHomeId);
+
+        List<AlertGenerator> alertGenerators = StreamSupport.stream(alertGeneratorRows.spliterator(), true)
+                .map(alertGeneratorRow -> alertGeneratorSerializer.createAlertGenerator(alertGeneratorRow))
+                .collect(Collectors.toList());
+
+        commandTable.setAlertGenerators(alertGenerators);
 
         return commandTable;
     }
@@ -146,7 +180,7 @@ public class CommandTableSerializer {
         commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "MoosersBot has facts on moose, Canada, servos, meese, and Frank. It will one day have facts on sloths, but those are coming slowly."), "factfacts");
 
         String channelName = Application.isTesting() ? "general" : "a-moose-ments";
-        HomeCommand streamStartCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, channelName,
+        HomeCommand streamStartCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, DiscordService.TYPE, channelName,
                     "@everyone should know that Linguine is going live! http://twitch.tv/themightylinguine");
 
         commandTable.registerCommand(streamStartCommand, new CommandEvent(CommandEvent.UNREGISTERED_ID, CommandEvent.Type.STREAM_START));

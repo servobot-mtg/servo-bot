@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.twitch.model;
 
 import com.github.twitch4j.chat.TwitchChat;
-import com.github.twitch4j.common.events.domain.EventChannel;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
@@ -9,11 +8,11 @@ import com.ryan_mtg.servobot.model.User;
 
 public class TwitchChannel implements Channel, Home {
     private TwitchChat twitchChat;
-    private EventChannel eventChannel;
+    private String channelName;
 
-    public TwitchChannel(final TwitchChat twitchChat, final EventChannel eventChannel) {
+    public TwitchChannel(final TwitchChat twitchChat, final String channelName) {
         this.twitchChat = twitchChat;
-        this.eventChannel = eventChannel;
+        this.channelName = channelName;
     }
 
     @Override
@@ -23,16 +22,19 @@ public class TwitchChannel implements Channel, Home {
 
     @Override
     public void say(final String message) {
-        twitchChat.sendMessage(eventChannel.getName(), message);
+        twitchChat.sendMessage(channelName, message);
     }
 
     @Override
     public String getName() {
-        return null;
+        return channelName;
     }
 
     @Override
-    public Channel getChannel(final String channelName) {
+    public Channel getChannel(final String channelName, final int serviceType) {
+        if (serviceType != TwitchService.TYPE) {
+            return null;
+        }
         if (channelName.equals(getName())) {
             return this;
         }
@@ -45,13 +47,8 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
-    public String getRole(final User user) {
+    public String getRole(final User user, final int serviceType) {
         return "Unable to determine";
-    }
-
-    @Override
-    public boolean hasEmotes() {
-        return false;
     }
 
     @Override

@@ -34,14 +34,6 @@ public class TextCommand extends MessageCommand {
         MessageCommand.say(message, finalText);
     }
 
-    @Override
-    public void perform(final net.dv8tion.jda.api.entities.Message message, final String arguments) {
-        String author = message.getAuthor().getName();
-
-        String finalText = text.replace("%user%", author) ;
-        MessageCommand.say(message, finalText);
-    }
-
     public String getText() {
         return text;
     }

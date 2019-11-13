@@ -31,6 +31,14 @@ public class HomeDelegatingListener implements EventListener {
         }
     }
 
+    @Override
+    public void onAlert(final AlertEvent alertEvent) {
+        EventListener listener = getListener(alertEvent.getHomeId());
+        if (listener != null) {
+            listener.onAlert(alertEvent);
+        }
+    }
+
     private EventListener getListener(final int homeId) {
         return botHomeMap.get(homeId);
     }

@@ -9,6 +9,11 @@ public class DiscordServiceHome implements ServiceHome {
         this.guildId = guildId;
     }
 
+    @Override
+    public int getServiceType() {
+        return DiscordService.TYPE;
+    }
+
     public long getGuildId() {
         return guildId;
     }
