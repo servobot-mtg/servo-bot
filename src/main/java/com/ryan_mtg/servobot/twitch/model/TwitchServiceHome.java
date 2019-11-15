@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.twitch.model;
 
+import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
@@ -24,13 +25,18 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public void start(final BotHome botHome) {
+        twitchService.joinChannel(channelId);
+    }
+
+    @Override
     public int getServiceType() {
         return TwitchService.TYPE;
     }
 
     @Override
     public String getDescription() {
-        return String.format("Channel %s ", getHome().getName());
+        return String.format("Channel %s ", twitchService.getChannelName(channelId));
     }
 
     public long getChannelId() {

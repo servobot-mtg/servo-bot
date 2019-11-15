@@ -50,10 +50,6 @@ public class TwitchService implements Service {
 
         client = TwitchClientBuilder.builder().withEnableHelix(true).withEnableChat(true)
                 .withClientId(clientId).withClientSecret(secret).withChatAccount(credential).build();
-        for (long channelId : homeIdMap.keySet()) {
-            String channelName = fetchChannelName(channelId);
-            client.getChat().joinChannel(channelName);
-        }
 
         generator = new TwitchEventGenerator(client, eventListener, homeIdMap);
     }
@@ -62,7 +58,7 @@ public class TwitchService implements Service {
         return new TwitchChannel(client.getChat(), getChannelName(channelId));
     }
 
-    private String getChannelName(final long channelId) {
+    public String getChannelName(final long channelId) {
         if (channelNameMap.containsKey(channelId)) {
             return channelNameMap.get(channelId);
         }
@@ -70,6 +66,11 @@ public class TwitchService implements Service {
         String channelName = fetchChannelName(channelId);
         channelNameMap.put(channelId, channelName);
         return channelName;
+    }
+
+    public void joinChannel(final long channelId) {
+        String channelName = getChannelName(channelId);
+        client.getChat().joinChannel(channelName);
     }
 
     private String fetchChannelName(final long channelId) {

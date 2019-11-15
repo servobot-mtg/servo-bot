@@ -5,4 +5,6 @@ public interface ServiceHome {
     String getDescription();
     Service getService();
     Home getHome();
+
+    void start(BotHome botHome);
 }

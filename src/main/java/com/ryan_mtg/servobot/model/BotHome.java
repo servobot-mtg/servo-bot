@@ -13,16 +13,18 @@ import java.util.Map;
 
 public class BotHome {
     private int id;
+    private String name;
     private String timeZone;
     private CommandTable commandTable;
     private ReactionTable reactionTable;
     private EventListener eventListener;
     private Map<Integer, ServiceHome> serviceHomes;
 
-    public BotHome(final int id, final String timeZone, final CommandTable commandTable,
+    public BotHome(final int id, final String name, final String timeZone, final CommandTable commandTable,
                    final ReactionTable reactionTable, final Map<Integer, ServiceHome> serviceHomes) {
-        this.timeZone = timeZone;
         this.id = id;
+        this.name = name;
+        this.timeZone = timeZone;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
         this.serviceHomes = serviceHomes;
@@ -34,6 +36,10 @@ public class BotHome {
 
     public int getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getTimeZone() {

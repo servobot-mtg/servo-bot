@@ -51,7 +51,7 @@ public class BotFactory {
             services.put(TwitchService.TYPE,
                     new TwitchService(botRow.getTwitchClientId(), botRow.getTwitchSecret(), botRow.getTwitchToken()));
         }
-        Bot bot = new Bot(services);
+        Bot bot = new Bot(botRow.getName(), services);
 
         Iterable<BotHomeRow> botHomeRows = botHomeRepository.findAll();
 
@@ -70,7 +70,7 @@ public class BotFactory {
                 serviceHomes.put(serviceType, serviceHome);
             }
 
-            BotHome botHome = new BotHome(botHomeId, timeZone, commandTable, reactionTable, serviceHomes);
+            BotHome botHome = new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, serviceHomes);
             bot.addHome(botHome);
         }
 

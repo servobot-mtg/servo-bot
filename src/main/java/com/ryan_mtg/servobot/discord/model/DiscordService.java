@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -47,11 +48,20 @@ public class DiscordService implements Service {
 
         builder.addEventListeners(new DiscordEventAdapter(eventListener, homeIdMap));
         jda = builder.build();
+        jda.awaitReady();
     }
 
     public Home getHome(final long guildId) {
         Guild guild = jda.getGuildById(guildId);
         return new DiscordHome(guild);
+    }
+
+    public void setNickName(final long guildId, final String name) {
+        Guild guild = jda.getGuildById(guildId);
+        Member self = guild.getSelfMember();
+        if (!name.equals(self.getNickname())) {
+            guild.modifyNickname(guild.getSelfMember(), name).queue();
+        }
     }
 
     private static String now() {

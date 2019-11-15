@@ -22,8 +22,7 @@ public class CommandEventRow {
     @Column(name = "event_type")
     private CommandEvent.Type eventType;
 
-    public CommandEventRow() {
-    }
+    public CommandEventRow() {}
 
     public CommandEventRow(final int id, final int commandId, final CommandEvent.Type eventType) {
         this.id = id;

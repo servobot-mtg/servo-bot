@@ -11,13 +11,19 @@ import java.util.List;
 import java.util.Map;
 
 public class Bot {
+    private String name;
     private List<BotHome> homes = new ArrayList<>();
     private HomeDelegatingListener listener = new HomeDelegatingListener();
     private Map<Integer, Service> services;
 
 
-    public Bot(final Map<Integer, Service> services) {
+    public Bot(final String name, final Map<Integer, Service> services) {
+        this.name = name;
         this.services = services;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void addHome(final BotHome home) {
@@ -30,6 +36,9 @@ public class Bot {
         for (Service service : services.values()) {
             service.start(listener);
         }
+
+        homes.stream().forEach(home ->
+                home.getServiceHomes().values().stream().forEach(serviceHome -> serviceHome.start(home)));
 
         startAlertQueue();
     }

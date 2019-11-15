@@ -43,9 +43,11 @@ public class Application {
     @EventListener(ApplicationReadyEvent.class)
     public void printAddress(final ApplicationReadyEvent event) {
         if (isTesting()) {
+            String botSite = String.format("http://localhost:%d", port);
+            LOGGER.info(String.format("Website link: %s", botSite));
             for (BotHome home : bot.getHomes()) {
-                String website = String.format("http://localhost:%d/%s", port, home.getId());
-                LOGGER.info(String.format("Website link: %s", website));
+                String homeSite = String.format("%s/%d", port, home.getId());
+                LOGGER.info(String.format("  - Home link: %s", homeSite));
             }
         }
     }

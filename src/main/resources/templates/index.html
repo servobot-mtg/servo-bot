@@ -1,12 +1,13 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Servobot Home</title>
+        <title th:text="${bot.name}" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     </head>
     <body>
+        <h1 th:text="${bot.name}" />
         <th:block th:each="home : ${bot.homes}">
-            Documentation for <a th:href="'/' + ${home.homeName}" th:text="${home.homeName}"></a>
+            Documentation for <a th:href="'/' + ${home.id}" th:text="${home.id}"></a>
         </th:block>
     </body>
 </html>
