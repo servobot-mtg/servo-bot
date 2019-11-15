@@ -43,7 +43,7 @@ public class BotFactory {
     public Bot createBot(final BotRow botRow) {
         Map<Integer, Service> services = new HashMap<>();
 
-        if (botRow.getToken() != null) {
+        if (botRow.getDiscordToken() != null) {
             services.put(DiscordService.TYPE, new DiscordService(botRow.getDiscordToken()));
         }
 

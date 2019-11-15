@@ -14,7 +14,6 @@ public class BotRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private String token;
 
     @Column(name = "discord_token")
     private String discordToken;
@@ -38,10 +37,6 @@ public class BotRow {
 
     public String getDiscordToken() {
         return discordToken;
-    }
-
-    public String getToken() {
-        return token;
     }
 
     public String getTwitchToken() {
