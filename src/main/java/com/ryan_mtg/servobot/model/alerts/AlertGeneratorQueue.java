@@ -1,5 +1,7 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.alerts;
 
+import com.ryan_mtg.servobot.model.Bot;
+import com.ryan_mtg.servobot.model.BotHome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

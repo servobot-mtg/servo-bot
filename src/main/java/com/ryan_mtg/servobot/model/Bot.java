@@ -1,7 +1,10 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.AlertEvent;
+import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.alerts.AlertGeneratorQueue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +23,6 @@ public class Bot {
     public void addHome(final BotHome home) {
         homes.add(home);
         listener.register(home);
-
         services.values().stream().forEach(service -> service.register(home));
     }
 
@@ -29,16 +31,16 @@ public class Bot {
             service.start(listener);
         }
 
-        startQueue();
+        startAlertQueue();
     }
 
     public List<BotHome> getHomes() {
         return homes;
     }
 
-    public BotHome getHome(final String homeName) {
+    public BotHome getHome(final int botHomeId) {
         for(BotHome home : homes) {
-            if (home.getHomeName().equals(homeName)) {
+            if (home.getId() == botHomeId) {
                 return home;
             }
         }
@@ -46,15 +48,16 @@ public class Bot {
     }
 
     public void alert(final BotHome botHome, final String alertToken) {
-        AlertEvent alertEvent = new BotHomeAlertEvent(botHome.getId(), alertToken,
-                new MultiServiceHome(services, botHome.getServiceHomes()));
+        AlertEvent alertEvent =
+                new BotHomeAlertEvent(botHome.getId(), alertToken, new MultiServiceHome(botHome.getServiceHomes()));
         listener.onAlert(alertEvent);
     }
 
-    private void startQueue() {
+    private void startAlertQueue() {
         AlertGeneratorQueue queue = new AlertGeneratorQueue(this);
         for(BotHome home : homes) {
             for (AlertGenerator alertGenerator : home.getAlertGenerators()) {
+                alertGenerator.setTimeZone(home.getTimeZone());
                 queue.add(home, alertGenerator);
             }
         }

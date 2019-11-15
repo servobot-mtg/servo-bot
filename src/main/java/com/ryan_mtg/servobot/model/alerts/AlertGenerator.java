@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.alerts;
 
 import java.time.Instant;
 
@@ -12,7 +12,13 @@ public abstract class AlertGenerator {
     }
 
     public abstract int getType();
+    public abstract String getDescription();
+    public abstract void setTimeZone(String timeZone);
     public abstract Instant getNextAlertTime(Instant now);
+
+    public int getId() {
+        return id;
+    }
 
     public String getAlertToken() {
         return alertToken;

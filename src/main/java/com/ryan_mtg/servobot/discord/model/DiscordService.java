@@ -28,6 +28,11 @@ public class DiscordService implements Service {
     }
 
     @Override
+    public String getName() {
+        return "Discord";
+    }
+
+    @Override
     public void register(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {
@@ -44,9 +49,8 @@ public class DiscordService implements Service {
         jda = builder.build();
     }
 
-    @Override
-    public Home getHome(final ServiceHome serviceHome) {
-        Guild guild = jda.getGuildById(((DiscordServiceHome)serviceHome).getGuildId());
+    public Home getHome(final long guildId) {
+        Guild guild = jda.getGuildById(guildId);
         return new DiscordHome(guild);
     }
 

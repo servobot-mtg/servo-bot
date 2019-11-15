@@ -17,8 +17,8 @@ public class BotHomeRow {
     @Column(name = "name")
     private String homeName;
 
-    @Column(name = "streamer_id")
-    private long streamerId;
+    @Column(name = "time_zone")
+    private String timeZone;
 
     public int getId() {
         return id;
@@ -28,15 +28,7 @@ public class BotHomeRow {
         return homeName;
     }
 
-    public void setHomeName(final String homeName) {
-        this.homeName = homeName;
-    }
-
-    public long getStreamerId() {
-        return streamerId;
-    }
-
-    public void setStreamerId(final long streamerId) {
-        this.streamerId = streamerId;
+    public String getTimeZone() {
+        return timeZone;
     }
 }

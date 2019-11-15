@@ -1,9 +1,9 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
-import com.ryan_mtg.servobot.model.AlertGenerator;
-import com.ryan_mtg.servobot.model.ContinualGenerator;
-import com.ryan_mtg.servobot.model.DailyGenerator;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.alerts.ContinualGenerator;
+import com.ryan_mtg.servobot.model.alerts.DailyGenerator;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -15,8 +15,7 @@ public class AlertGeneratorSerializer {
         switch (alertGeneratorRow.getType()) {
             case DailyGenerator.TYPE:
                 LocalTime time = convertToLocalTime(alertGeneratorRow.getTime());
-                return new DailyGenerator(alertGeneratorRow.getId(), alertGeneratorRow.getAlertToken(),
-                        time, alertGeneratorRow.getTimeZone());
+                return new DailyGenerator(alertGeneratorRow.getId(), alertGeneratorRow.getAlertToken(), time);
             case ContinualGenerator.TYPE:
                 Duration duration = Duration.ofSeconds(alertGeneratorRow.getTime());
                 return new ContinualGenerator(alertGeneratorRow.getId(), alertGeneratorRow.getAlertToken(), duration);

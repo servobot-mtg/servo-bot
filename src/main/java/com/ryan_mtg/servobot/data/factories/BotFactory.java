@@ -44,11 +44,12 @@ public class BotFactory {
         Map<Integer, Service> services = new HashMap<>();
 
         if (botRow.getToken() != null) {
-            services.put(DiscordService.TYPE, new DiscordService(botRow.getToken()));
+            services.put(DiscordService.TYPE, new DiscordService(botRow.getDiscordToken()));
         }
 
         if (botRow.getTwitchToken() != null) {
-            services.put(TwitchService.TYPE, new TwitchService(botRow.getTwitchToken()));
+            services.put(TwitchService.TYPE,
+                    new TwitchService(botRow.getTwitchClientId(), botRow.getTwitchSecret(), botRow.getTwitchToken()));
         }
         Bot bot = new Bot(services);
 
@@ -56,17 +57,20 @@ public class BotFactory {
 
         for (BotHomeRow botHomeRow : botHomeRows) {
             String homeName = botHomeRow.getHomeName();
+            String timeZone = botHomeRow.getTimeZone();
             int botHomeId = botHomeRow.getId();
             CommandTable commandTable = commandTableSerializer.createCommandTable(botHomeId);
             ReactionTable reactionTable = reactionTableSerializer.createReactionTable(botHomeId);
 
             Map<Integer, ServiceHome> serviceHomes = new HashMap<>();
             for (ServiceHomeRow serviceHomeRow : serviceHomeRepository.findAllByBotHomeId(botHomeId)) {
-                ServiceHome serviceHome = serviceHomeSerializer.createServiceHome(serviceHomeRow);
-                serviceHomes.put(serviceHome.getServiceType() , serviceHome);
+                int serviceType = serviceHomeRow.getServiceType();
+                Service service = services.get(serviceType);
+                ServiceHome serviceHome = serviceHomeSerializer.createServiceHome(serviceHomeRow, service);
+                serviceHomes.put(serviceType, serviceHome);
             }
 
-            BotHome botHome = new BotHome(homeName, botHomeId, commandTable, reactionTable, serviceHomes);
+            BotHome botHome = new BotHome(botHomeId, timeZone, commandTable, reactionTable, serviceHomes);
             bot.addHome(botHome);
         }
 

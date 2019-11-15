@@ -1,13 +1,27 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>MooseBot commands</title>
+    <title>Bot home</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link href="/style/main.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="/script/main.js"></script>
 </head>
 <body>
-    <h1>Commands</h1>
+    <h1>Bot Home</h1>
+    <ul>
+        <li th:text="'Id ' + ${botHome.id}"></li>
+        <li th:text="'Time Zone' + ${botHome.timeZone}"></li>
+    </ul>
+    <h2>Services</h2>
+    <table>
+        <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}">
+            <tr>
+                <td th:text="${serviceHomeEntry.value.service.name}"/>
+                <td th:text="${serviceHomeEntry.value.description}"/>
+            </tr>
+        </th:block>
+    </table>
+    <h2>Commands</h2>
     <table>
         <th:block th:each="command : ${commands}">
             <tr>
@@ -16,7 +30,7 @@
             </tr>
         </th:block>
     </table>
-    <h1>Reactions</h1>
+    <h2>Reactions</h2>
     <table>
         <th:block th:each="reaction : ${reactions}">
             <tr>
@@ -26,6 +40,15 @@
                         <span th:text="${pattern}" />
                     </th:block>
                 </td>
+            </tr>
+        </th:block>
+    </table>
+    <h2>Alerts</h2>
+    <table>
+        <th:block th:each="alert : ${alerts}">
+            <tr>
+                <td th:text="${alert.alertToken}"/>
+                <td th:text="${alert.description}"/>
             </tr>
         </th:block>
     </table>

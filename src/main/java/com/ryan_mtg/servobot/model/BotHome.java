@@ -1,43 +1,43 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.CommandListener;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.reaction.ReactionTable;
 
 import java.util.List;
 import java.util.Map;
 
 public class BotHome {
-    private String homeName;
     private int id;
+    private String timeZone;
     private CommandTable commandTable;
     private ReactionTable reactionTable;
     private EventListener eventListener;
     private Map<Integer, ServiceHome> serviceHomes;
 
-    public BotHome(final String homeName, final int id, final CommandTable commandTable,
+    public BotHome(final int id, final String timeZone, final CommandTable commandTable,
                    final ReactionTable reactionTable, final Map<Integer, ServiceHome> serviceHomes) {
-        this.homeName = homeName;
+        this.timeZone = timeZone;
         this.id = id;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
         this.serviceHomes = serviceHomes;
 
+        reactionTable.setTimeZone(timeZone);
         eventListener =
                 new MultiDelegatingListener(new CommandListener(commandTable), new ReactionListener(reactionTable));
     }
 
-    public String getHomeName() {
-        return homeName;
-    }
-
     public int getId() {
         return id;
+    }
+
+    public String getTimeZone() {
+        return timeZone;
     }
 
     public CommandTable getCommandTable() {

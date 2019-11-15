@@ -13,5 +13,6 @@ public abstract class Command {
     }
 
     public abstract int getType();
+    public abstract String getName();
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
 }

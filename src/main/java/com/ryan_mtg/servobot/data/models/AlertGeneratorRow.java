@@ -20,9 +20,6 @@ public class AlertGeneratorRow {
     private int type;
     private int time;
 
-    @Column(name = "time_zone")
-    private String timeZone;
-
     @Column(name = "alert_token")
     private String alertToken;
 
@@ -40,10 +37,6 @@ public class AlertGeneratorRow {
 
     public int getTime() {
         return time;
-    }
-
-    public String getTimeZone() {
-        return timeZone;
     }
 
     public String getAlertToken() {

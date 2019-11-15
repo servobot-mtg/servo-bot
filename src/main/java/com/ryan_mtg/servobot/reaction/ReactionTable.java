@@ -22,4 +22,8 @@ public class ReactionTable implements Iterable<Reaction>{
     public List<Reaction> getReactions() {
         return reactions;
     }
+
+    public void setTimeZone(final String timeZone) {
+        reactions.stream().forEach(reaction -> reaction.getFilter().setTimeZone(timeZone));
+    }
 }

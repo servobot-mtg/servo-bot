@@ -1,4 +1,6 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.alerts;
+
+import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -19,6 +21,14 @@ public class ContinualGenerator extends AlertGenerator {
     public int getType() {
         return TYPE;
     }
+
+    @Override
+    public String getDescription() {
+        return String.format("Alert every %s", DurationFormatUtils.formatDuration(duration.toMillis(), "H:mm:ss"));
+    }
+
+    @Override
+    public void setTimeZone(final String timeZone) {}
 
     @Override
     public Instant getNextAlertTime(final Instant now) {

@@ -7,6 +7,13 @@ import java.util.regex.Pattern;
 public class WatershedFilter extends AbstractReactionFilter {
     public static final int TYPE = 2;
 
+    private String timeZone;
+
+    @Override
+    public int getType() {
+        return TYPE;
+    }
+
     @Override
     public Pattern createPattern(final String patternString) {
         String curseWord = patternString;
@@ -19,17 +26,17 @@ public class WatershedFilter extends AbstractReactionFilter {
     }
 
     @Override
+    public void setTimeZone(final String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    @Override
     public boolean shouldReact() {
         return withinWaterShed();
     }
 
-    @Override
-    public int getType() {
-        return TYPE;
-    }
-
-    private static boolean withinWaterShed() {
-        int hour = ZonedDateTime.now(ZoneId.of("America/Vancouver")).getHour();
+    private boolean withinWaterShed() {
+        int hour = ZonedDateTime.now(ZoneId.of(timeZone)).getHour();
         return 6 <= hour && hour < 21;
     }
 }

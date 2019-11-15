@@ -1,6 +1,7 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.events.AlertEvent;
+import com.ryan_mtg.servobot.model.Home;
 
 public class BotHomeAlertEvent implements AlertEvent {
     private int homeId;

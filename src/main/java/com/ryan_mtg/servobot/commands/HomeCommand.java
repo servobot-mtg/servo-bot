@@ -11,6 +11,5 @@ public abstract class HomeCommand extends Command {
         super(id);
     }
 
-    public abstract String getName();
     public abstract void perform(Home home);
 }

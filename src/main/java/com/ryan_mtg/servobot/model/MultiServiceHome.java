@@ -3,11 +3,9 @@ package com.ryan_mtg.servobot.model;
 import java.util.Map;
 
 public class MultiServiceHome implements Home {
-    private Map<Integer, Service> services;
     private Map<Integer, ServiceHome> serviceHomes;
 
-    public MultiServiceHome(final Map<Integer, Service> services, final Map<Integer, ServiceHome> serviceHomes) {
-        this.services = services;
+    public MultiServiceHome(final Map<Integer, ServiceHome> serviceHomes) {
         this.serviceHomes = serviceHomes;
     }
 
@@ -18,11 +16,10 @@ public class MultiServiceHome implements Home {
 
     @Override
     public Channel getChannel(final String channelName, final int serviceType) {
-        Service service = services.get(serviceType);
         ServiceHome serviceHome = serviceHomes.get(serviceType);
 
-        if (service != null && serviceHome != null) {
-            return service.getHome(serviceHome).getChannel(channelName, serviceType);
+        if (serviceHome != null) {
+            return serviceHome.getHome().getChannel(channelName, serviceType);
         }
         return  null;
     }

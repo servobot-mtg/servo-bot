@@ -16,8 +16,17 @@ public class BotRow {
     private String name;
     private String token;
 
+    @Column(name = "discord_token")
+    private String discordToken;
+
     @Column(name = "twitch_token")
     private String twitchToken;
+
+    @Column(name = "twitch_client_id")
+    private String twitchClientId;
+
+    @Column(name = "twitch_secret")
+    private String twitchSecret;
 
     public int getId() {
         return id;
@@ -27,19 +36,23 @@ public class BotRow {
         return name;
     }
 
-    public void setName(final String name) {
-        this.name = name;
+    public String getDiscordToken() {
+        return discordToken;
     }
 
     public String getToken() {
         return token;
     }
 
-    public void setToken(final String token) {
-        this.token = token;
-    }
-
     public String getTwitchToken() {
         return twitchToken;
+    }
+
+    public String getTwitchClientId() {
+        return twitchClientId;
+    }
+
+    public String getTwitchSecret() {
+        return twitchSecret;
     }
 }

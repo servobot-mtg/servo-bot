@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.google.common.collect.ImmutableMap;
-import com.ryan_mtg.servobot.model.AlertGenerator;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

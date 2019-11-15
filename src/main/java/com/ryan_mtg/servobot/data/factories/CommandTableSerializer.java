@@ -23,7 +23,7 @@ import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.model.AlertGenerator;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.alerts;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +13,15 @@ public class DailyGenerator extends AlertGenerator {
     static Logger LOGGER = LoggerFactory.getLogger(DailyGenerator.class);
     public static final int TYPE = 2;
 
-    private ZoneId zoneId;
     private LocalTime time;
+    private String timeZone;
     private ZonedDateTime goal;
 
-    public DailyGenerator(final int id, final String alertToken, final LocalTime time, final String timeZone) {
+    public DailyGenerator(final int id, final String alertToken, final LocalTime time) {
         super(id, alertToken);
 
-        this.zoneId = ZoneId.of(timeZone);
         this.time = time;
+        ZoneId zoneId = ZoneId.of(timeZone);
 
         LOGGER.info("Daily alert at time {} for {}",  time, alertToken);
         ZonedDateTime now = ZonedDateTime.now(zoneId);
@@ -34,6 +34,16 @@ public class DailyGenerator extends AlertGenerator {
     @Override
     public int getType() {
         return TYPE;
+    }
+
+    @Override
+    public String getDescription() {
+        return String.format("Daily alert at %s(%s)", time, timeZone);
+    }
+
+    @Override
+    public void setTimeZone(final String timeZone) {
+        this.timeZone = timeZone;
     }
 
     @Override

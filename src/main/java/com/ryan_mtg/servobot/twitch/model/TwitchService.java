@@ -3,7 +3,6 @@ package com.ryan_mtg.servobot.twitch.model;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
-import com.github.twitch4j.helix.domain.UserList;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
@@ -18,14 +17,23 @@ import java.util.Map;
 public class TwitchService implements Service {
     public static final int TYPE = 1;
 
+    private String clientId;
+    private String secret;
     private String oauthToken;
     private TwitchEventGenerator generator;
     private Map<Long, Integer> homeIdMap = new HashMap<>();
     private Map<Long, String> channelNameMap = new HashMap<>();
     private TwitchClient client;
 
-    public TwitchService(final String oauthToken) {
+    public TwitchService(final String clientId, final String secret, final String oauthToken) {
+        this.clientId = clientId;
+        this.secret = secret;
         this.oauthToken = oauthToken;
+    }
+
+    @Override
+    public String getName() {
+        return "Twitch";
     }
 
     @Override
@@ -39,21 +47,19 @@ public class TwitchService implements Service {
     @Override
     public void start(final EventListener eventListener) throws Exception {
         OAuth2Credential credential = new OAuth2Credential("twitch", oauthToken);
+
         client = TwitchClientBuilder.builder().withEnableHelix(true).withEnableChat(true)
-                .withChatAccount(credential).build();
+                .withClientId(clientId).withClientSecret(secret).withChatAccount(credential).build();
         for (long channelId : homeIdMap.keySet()) {
-            UserList userList = client.getHelix().
-                    getUsers(oauthToken, Arrays.asList(Long.toString(channelId)), null).execute();
-            String channelName = userList.getUsers().get(0).getLogin();
+            String channelName = fetchChannelName(channelId);
             client.getChat().joinChannel(channelName);
         }
 
         generator = new TwitchEventGenerator(client, eventListener, homeIdMap);
     }
 
-    @Override
-    public Home getHome(final ServiceHome serviceHome) {
-        return new TwitchChannel(client.getChat(), getChannelName(((TwitchServiceHome) serviceHome).getChannelId()));
+    public Home getHome(final long channelId) {
+        return new TwitchChannel(client.getChat(), getChannelName(channelId));
     }
 
     private String getChannelName(final long channelId) {
@@ -61,10 +67,14 @@ public class TwitchService implements Service {
             return channelNameMap.get(channelId);
         }
 
-        String channelName = client.getHelix().
-                getUsers(oauthToken, Arrays.asList(Long.toString(channelId)), null).execute()
-                .getUsers().get(0).getLogin();
+        String channelName = fetchChannelName(channelId);
         channelNameMap.put(channelId, channelName);
         return channelName;
+    }
+
+    private String fetchChannelName(final long channelId) {
+        return client.getHelix().
+                getUsers(null, Arrays.asList(Long.toString(channelId)), null).execute()
+                .getUsers().get(0).getLogin();
     }
 }

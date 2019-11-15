@@ -12,4 +12,7 @@ public class AlwaysReact extends AbstractReactionFilter {
     public int getType() {
         return TYPE;
     }
+
+    @Override
+    public void setTimeZone(final String timeZone) {}
 }

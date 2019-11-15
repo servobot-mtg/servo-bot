@@ -22,10 +22,12 @@ public class BotController {
     }
 
     @GetMapping("/{home}")
-    public String showHome(final Model model, @PathVariable("home")  final String homeName) {
-        BotHome home = bot.getHome(homeName);
-        model.addAttribute("commands", home.getCommandTable().getCommandList());
-        model.addAttribute("reactions", home.getReactionTable());
+    public String showHome(final Model model, @PathVariable("home")  final int homeId) {
+        BotHome botHome = bot.getHome(homeId);
+        model.addAttribute("botHome", botHome);
+        model.addAttribute("commands", botHome.getCommandTable().getCommandList());
+        model.addAttribute("reactions", botHome.getReactionTable());
+        model.addAttribute("alerts", botHome.getCommandTable().getAlertGenerators());
         return "bot_home";
     }
 }
