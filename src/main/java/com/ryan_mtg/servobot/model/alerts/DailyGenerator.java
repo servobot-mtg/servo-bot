@@ -19,16 +19,7 @@ public class DailyGenerator extends AlertGenerator {
 
     public DailyGenerator(final int id, final String alertToken, final LocalTime time) {
         super(id, alertToken);
-
         this.time = time;
-        ZoneId zoneId = ZoneId.of(timeZone);
-
-        LOGGER.info("Daily alert at time {} for {}",  time, alertToken);
-        ZonedDateTime now = ZonedDateTime.now(zoneId);
-        LocalDate date = LocalDate.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth());
-        goal = ZonedDateTime.of(date, time, zoneId);
-
-        fix(now.toInstant());
     }
 
     @Override
@@ -38,12 +29,19 @@ public class DailyGenerator extends AlertGenerator {
 
     @Override
     public String getDescription() {
-        return String.format("Daily alert at %s(%s)", time, timeZone);
+        return String.format("Daily alert at %s(%s), with next alert at %s", time, timeZone, goal);
     }
 
     @Override
     public void setTimeZone(final String timeZone) {
         this.timeZone = timeZone;
+
+        ZoneId zoneId = ZoneId.of(timeZone);
+        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        LocalDate date = LocalDate.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth());
+        goal = ZonedDateTime.of(date, time, zoneId);
+
+        fix(now.toInstant());
     }
 
     @Override
