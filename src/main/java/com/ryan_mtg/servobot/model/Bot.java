@@ -5,17 +5,19 @@ import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertGeneratorQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Bot {
+    private static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
     private String name;
     private List<BotHome> homes = new ArrayList<>();
     private HomeDelegatingListener listener = new HomeDelegatingListener();
     private Map<Integer, Service> services;
-
 
     public Bot(final String name, final Map<Integer, Service> services) {
         this.name = name;
@@ -54,6 +56,10 @@ public class Bot {
             }
         }
         return null;
+    }
+
+    public Service getService(final int serviceType) {
+        return services.get(serviceType);
     }
 
     public void alert(final BotHome botHome, final String alertToken) {

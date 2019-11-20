@@ -36,6 +36,14 @@ public class TwitchService implements Service {
         return "Twitch";
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
     @Override
     public void register(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);

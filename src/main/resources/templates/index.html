@@ -5,9 +5,12 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     </head>
     <body>
+        <div th:include="fragments :: header" />
+        hello
         <h1 th:text="${bot.name}" />
         <th:block th:each="home : ${bot.homes}">
             Documentation for <a th:href="'/' + ${home.id}" th:text="${home.id}"></a>
         </th:block>
+        <div th:include="fragments :: footer" />
     </body>
 </html>

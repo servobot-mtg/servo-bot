@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.BotRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
+import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -16,6 +17,7 @@ import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -39,6 +41,12 @@ public class BotFactory {
 
     @Autowired
     private ServiceHomeSerializer serviceHomeSerializer;
+
+    @Bean
+    public TwitchService twitchService(final BotRepository botRepository) {
+        BotRow botRow = botRepository.findFirst().get();
+        return new TwitchService(botRow.getTwitchClientId(), botRow.getTwitchSecret(), botRow.getTwitchToken());
+    }
 
     public Bot createBot(final BotRow botRow) {
         Map<Integer, Service> services = new HashMap<>();

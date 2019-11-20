@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ public class BotController {
     @GetMapping("/")
     public String index(final Model model) {
         model.addAttribute("bot", bot);
+        model.addAttribute("twitchId", getTwitchId(bot));
         return "index";
     }
 
@@ -25,9 +27,11 @@ public class BotController {
     public String showHome(final Model model, @PathVariable("home")  final int homeId) {
         BotHome botHome = bot.getHome(homeId);
         model.addAttribute("botHome", botHome);
-        model.addAttribute("commands", botHome.getCommandTable().getCommandList());
-        model.addAttribute("reactions", botHome.getReactionTable());
-        model.addAttribute("alerts", botHome.getCommandTable().getAlertGenerators());
+        model.addAttribute("twitchId", getTwitchId(bot));
         return "bot_home";
+    }
+
+    private String getTwitchId(final Bot bot) {
+        return ((TwitchService)bot.getService(TwitchService.TYPE)).getClientId();
     }
 }
