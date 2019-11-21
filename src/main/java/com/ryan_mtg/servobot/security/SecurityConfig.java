@@ -42,13 +42,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .antMatcher("/**")
             .authorizeRequests()
-            .antMatchers("/", "/login/**", "/error**")
-            .permitAll()
+                .antMatchers("/**")
+                .permitAll()
             .anyRequest()
-            .authenticated()
+                .authenticated()
+            .and().oauth2Login().loginPage("/login")
             .and().logout().logoutSuccessUrl("/").permitAll()
             .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService());
-
-        //.and().addFilterBefore(twitchFilter, BasicAuthenticationFilter.class);
     }
 }

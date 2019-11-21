@@ -29,8 +29,6 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
 
         AuthorityUtils.createAuthorityList("ROLE_USER");
         Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-        //mappedAuthorities.add(new G)
-
         return new DefaultOAuth2User(user.getAuthorities(), newAttributes, "login");
     }
 }

@@ -29,6 +29,11 @@ public class DiscordService implements Service {
     }
 
     @Override
+    public int getType() {
+        return TYPE;
+    }
+
+    @Override
     public String getName() {
         return "Discord";
     }
