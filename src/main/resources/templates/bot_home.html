@@ -2,55 +2,57 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Bot home</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link href="/style/main.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="/script/main.js"></script>
+    <div th:include="fragments :: includes" />
 </head>
 <body>
-    <h1 th:text="${botHome.name} + ' Home'" />
-    <ul>
-        <li th:text="'Id ' + ${botHome.id}"></li>
-        <li th:text="'Time Zone' + ${botHome.timeZone}"></li>
-    </ul>
-    <h2>Services</h2>
-    <table>
-        <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}">
-            <tr>
-                <td th:text="${serviceHomeEntry.value.service.name}"/>
-                <td th:text="${serviceHomeEntry.value.description}"/>
-            </tr>
-        </th:block>
-    </table>
-    <h2>Commands</h2>
-    <table>
-        <th:block th:each="command : ${botHome.commandTable.commandList}">
-            <tr>
-                <td th:text="${command.key}"/>
-                <td th:text="${command.value.name}"/>
-            </tr>
-        </th:block>
-    </table>
-    <h2>Reactions</h2>
-    <table>
-        <th:block th:each="reaction : ${botHome.reactionTable.reactions}">
-            <tr>
-                <td th:text="${reaction.emoteName}"/>
-                <td>
-                    <th:block th:each="pattern : ${reaction.patterns}">
-                        <span th:text="${pattern}" />
-                    </th:block>
-                </td>
-            </tr>
-        </th:block>
-    </table>
-    <h2>Alerts</h2>
-    <table>
-        <th:block th:each="alert : ${botHome.alertGenerators}">
-            <tr>
-                <td th:text="${alert.alertToken}"/>
-                <td th:text="${alert.description}"/>
-            </tr>
-        </th:block>
-    </table>
+    <div th:include="fragments :: header" />
+    <div class="content">
+        <h1 th:text="${botHome.name} + ' Home'" />
+        <ul>
+            <li th:text="'Id ' + ${botHome.id}"></li>
+            <li th:text="'Time Zone' + ${botHome.timeZone}"></li>
+        </ul>
+        <h2>Services</h2>
+        <table>
+            <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}">
+                <tr>
+                    <td th:text="${serviceHomeEntry.value.service.name}"/>
+                    <td th:text="${serviceHomeEntry.value.description}"/>
+                </tr>
+            </th:block>
+        </table>
+        <h2>Commands</h2>
+        <table>
+            <th:block th:each="command : ${botHome.commandTable.commandList}">
+                <tr>
+                    <td th:text="${command.key}"/>
+                    <td th:text="${command.value.name}"/>
+                </tr>
+            </th:block>
+        </table>
+        <h2>Reactions</h2>
+        <table>
+            <th:block th:each="reaction : ${botHome.reactionTable.reactions}">
+                <tr>
+                    <td th:text="${reaction.emoteName}"/>
+                    <td>
+                        <th:block th:each="pattern : ${reaction.patterns}">
+                            <span th:text="${pattern}" />
+                        </th:block>
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+        <h2>Alerts</h2>
+        <table>
+            <th:block th:each="alert : ${botHome.alertGenerators}">
+                <tr>
+                    <td th:text="${alert.alertToken}"/>
+                    <td th:text="${alert.description}"/>
+                </tr>
+            </th:block>
+        </table>
+    </div>
+    <div th:include="fragments :: footer" />
 </body>
 </html>

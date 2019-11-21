@@ -4,6 +4,9 @@ USE botdb;
 CREATE TABLE IF NOT EXISTS bot (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), discord_token VARCHAR(60),
                                 twitch_token VARCHAR(50), twitch_client_id VARCHAR(30), twitch_secret VARCHAR(30));
 
+CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, token VARCHAR(60),
+                                    client_id VARCHAR(30), client_secret VARCHAR(30));
+
 CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), time_zone VARCHAR(60));
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
@@ -34,4 +37,3 @@ CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KE
 
 CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
                                           alert_token VARCHAR(50));
-

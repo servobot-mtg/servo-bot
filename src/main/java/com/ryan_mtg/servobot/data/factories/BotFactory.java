@@ -3,12 +3,14 @@ package com.ryan_mtg.servobot.data.factories;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.BotRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
+import com.ryan_mtg.servobot.data.models.ServiceRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
+import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
+import com.ryan_mtg.servobot.data.repositories.ServiceRepository;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.reaction.ReactionTable;
@@ -16,6 +18,7 @@ import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -32,27 +35,21 @@ public class BotFactory {
     private ServiceHomeRepository serviceHomeRepository;
 
     @Autowired
+    private ServiceRepository serviceRepository;
+
+    @Autowired
     private CommandTableSerializer commandTableSerializer;
 
     @Autowired
     private ReactionTableSerializer reactionTableSerializer;
 
     @Autowired
-    private ServiceHomeSerializer serviceHomeSerializer;
+    private ServiceSerializer serviceSerializer;
 
     public Bot createBot(final BotRow botRow) {
-        Map<Integer, Service> services = new HashMap<>();
+        Map<Integer, Service> services = serviceSerializer.getServiceMap();
 
-        if (botRow.getDiscordToken() != null) {
-            services.put(DiscordService.TYPE, new DiscordService(botRow.getDiscordToken()));
-        }
-
-        if (botRow.getTwitchToken() != null) {
-            services.put(TwitchService.TYPE,
-                    new TwitchService(botRow.getTwitchClientId(), botRow.getTwitchSecret(), botRow.getTwitchToken()));
-        }
         Bot bot = new Bot(botRow.getName(), services);
-
         Iterable<BotHomeRow> botHomeRows = botHomeRepository.findAll();
 
         for (BotHomeRow botHomeRow : botHomeRows) {
@@ -66,7 +63,7 @@ public class BotFactory {
             for (ServiceHomeRow serviceHomeRow : serviceHomeRepository.findAllByBotHomeId(botHomeId)) {
                 int serviceType = serviceHomeRow.getServiceType();
                 Service service = services.get(serviceType);
-                ServiceHome serviceHome = serviceHomeSerializer.createServiceHome(serviceHomeRow, service);
+                ServiceHome serviceHome = serviceSerializer.createServiceHome(serviceHomeRow, service);
                 serviceHomes.put(serviceType, serviceHome);
             }
 

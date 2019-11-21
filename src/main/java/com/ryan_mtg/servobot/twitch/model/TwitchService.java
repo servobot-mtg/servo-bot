@@ -32,8 +32,21 @@ public class TwitchService implements Service {
     }
 
     @Override
+    public int getType() {
+        return TYPE;
+    }
+
+    @Override
     public String getName() {
         return "Twitch";
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getSecret() {
+        return secret;
     }
 
     @Override

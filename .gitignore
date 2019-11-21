@@ -12,7 +12,7 @@ out/
 *.class
 
 # Application properties contains sensitive data
-application.properties
+application*.properties
 
 # Log file
 *.log
