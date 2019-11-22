@@ -13,7 +13,7 @@
                         <a href="#" th:href="@{/}"><img src="/images/moosers.png" height="28" width="32"></a>
                     </div></li>
 
-                    <li><div class="navitem" th:if="${home != null}" th:classappend="${page == 'home' ? 'active' : ''}">
+                    <li><div class="navitem" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
                         <a href="#" th:href="@{/1}" th:text="${botHome.name}"></a>
                         <span th:text="${page}"></span>
                     </div></li>
@@ -25,7 +25,6 @@
                     </div></li>
 
                     <li class="right" th:if="${user.authenticated}"><div class="navitem">
-
                         <a href="/logout" th:href="@{#}" onclick="logout('logout-form')">
                             Logout
                         </a>
@@ -34,7 +33,7 @@
 
 
                     <li class="right" th:if="${user.authenticated}"><div class="navitem">
-                        <span th:text="${user.name}"></span>
+                        <span th:text="${user.name}" th:classappend="${user.admin ? 'admin' : ''}"></span>
                     </div></li>
                 </ul>
             </div>

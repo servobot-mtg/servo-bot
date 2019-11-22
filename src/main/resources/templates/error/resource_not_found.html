@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error!</title>
+    <div th:include="fragments :: includes" />
+</head>
+<body>
+<div th:include="fragments :: header" />
+<div class="content">
+    <h1>Missing Resource</h1>
+    <span th:text="${resource}">
+</div>
+<div th:include="fragments :: footer" />
+</body>
+</html>

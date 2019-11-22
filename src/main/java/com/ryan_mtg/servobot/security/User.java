@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.security;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.security.Principal;
 
@@ -21,5 +23,14 @@ public class User implements Principal {
             return false;
         }
         return oAuth2AuthenticationToken.isAuthenticated();
+    }
+
+    public boolean isAdmin() {
+        if (oAuth2AuthenticationToken == null) {
+            return false;
+        }
+
+        return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
+                .filter(authority -> authority.getAuthority().equals("ROLE_ADMIN")).findAny().isPresent();
     }
 }

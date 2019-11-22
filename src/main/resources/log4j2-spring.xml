@@ -2,9 +2,6 @@
 <Configuration>
   <Appenders>
     <Console name="console" target="SYSTEM_OUT">
-        <!--PatternLayout
-            pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
-            -->
       <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
     </Console>
 </Appenders>
@@ -15,8 +12,8 @@
         <AppenderRef ref="console"/>
     </Root>
 
-    <Logger name="com.github.twitch4j" level="warn" />
-    <Logger name="com.ryan_mtg" level="warn" />
+    <Logger name="com.github.twitch4j" level="warn"/>
+    <Logger name="com.ryan_mtg" level="warn"/>
 </Loggers>
 
 </Configuration>

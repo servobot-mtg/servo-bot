@@ -87,6 +87,10 @@ body {
     color: white;
 }
 
+.admin {
+    color: maroon;
+}
+
 table {
     border-collapse: collapse;
     border: 2px solid black;

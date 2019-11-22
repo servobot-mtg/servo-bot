@@ -5,15 +5,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Configuration
 @EnableOAuth2Client
+@ControllerAdvice
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {
@@ -49,5 +54,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and().oauth2Login().loginPage("/login")
             .and().logout().logoutSuccessUrl("/").permitAll()
             .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService());
+    }
+
+    @ModelAttribute
+    private void addUser(final Model model, final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
+        model.addAttribute("user", new User(oAuth2AuthenticationToken));
     }
 }
