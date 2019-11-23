@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.security;
 
+import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,6 +22,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @EnableOAuth2Client
 @ControllerAdvice
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private UserSerializer userSerializer;
+
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {
         return new InMemoryClientRegistrationRepository(clientRegistration);
@@ -53,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated()
             .and().oauth2Login().loginPage("/login")
             .and().logout().logoutSuccessUrl("/").permitAll()
-            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService());
+            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userSerializer));
     }
 
     @ModelAttribute

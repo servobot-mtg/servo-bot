@@ -112,4 +112,7 @@ public class CommandTable {
     private String cannonicalize(final String token) {
         return isCaseSensitive ? token : token.toLowerCase();
     }
+
+    public void setTimeZone(final String timeZone) {
+    }
 }

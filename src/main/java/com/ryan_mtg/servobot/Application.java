@@ -45,7 +45,7 @@ public class Application {
             String botSite = String.format("http://localhost:%d", port);
             LOGGER.info(String.format("Website link: %s", botSite));
             for (BotHome home : bot.getHomes()) {
-                String homeSite = String.format("%s/%d", botSite, home.getId());
+                String homeSite = String.format("%s/home/%d", botSite, home.getId());
                 LOGGER.info(String.format("  - Home link: %s", homeSite));
             }
         }

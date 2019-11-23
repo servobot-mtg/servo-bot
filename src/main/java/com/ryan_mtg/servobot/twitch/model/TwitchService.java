@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.twitch.model;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
@@ -24,11 +25,14 @@ public class TwitchService implements Service {
     private Map<Long, Integer> homeIdMap = new HashMap<>();
     private Map<Long, String> channelNameMap = new HashMap<>();
     private TwitchClient client;
+    private UserSerializer userSerializer;
 
-    public TwitchService(final String clientId, final String secret, final String oauthToken) {
+    public TwitchService(final String clientId, final String secret, final String oauthToken,
+                         final UserSerializer userSerializer) {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
+        this.userSerializer = userSerializer;
     }
 
     @Override
@@ -64,7 +68,7 @@ public class TwitchService implements Service {
         client = TwitchClientBuilder.builder().withEnableHelix(true).withEnableChat(true)
                 .withClientId(clientId).withClientSecret(secret).withChatAccount(credential).build();
 
-        generator = new TwitchEventGenerator(client, eventListener, homeIdMap);
+        generator = new TwitchEventGenerator(client, eventListener, homeIdMap, userSerializer);
     }
 
     public Home getHome(final long channelId) {

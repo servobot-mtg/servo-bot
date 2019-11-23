@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface BotHomeRepository extends CrudRepository<BotHomeRow, Integer> {
     @Override
     Iterable<BotHomeRow> findAll();
+
+    BotHomeRow findById(int id);
 }

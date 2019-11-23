@@ -11,11 +11,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 public class BotController {
     @Autowired
     @Qualifier("bot")
     private Bot bot;
+
+    private List<TimeZoneDescriptor> timeZones = new ArrayList<>();
+
+    public BotController() {
+        timeZones.add(new TimeZoneDescriptor("America/New_York", "Eastern"));
+        timeZones.add(new TimeZoneDescriptor("America/Chicago", "Central"));
+        timeZones.add(new TimeZoneDescriptor("America/Denver", "Mountain"));
+        timeZones.add(new TimeZoneDescriptor("America/Vancouver", "Pacific"));
+    }
 
     @GetMapping("/")
     public String index(final Model model) {
@@ -31,11 +43,30 @@ public class BotController {
             throw new ResourceNotFoundException(String.format("No bot home with id %d", homeId));
         }
         model.addAttribute("botHome", botHome);
+        model.addAttribute("timeZones", timeZones);
         return "bot_home";
     }
 
     @ModelAttribute
     private void addBot(final Model model) {
         model.addAttribute("bot", bot);
+    }
+
+    public static class TimeZoneDescriptor {
+        private String value;
+        private String display;
+
+        public TimeZoneDescriptor(final String value, final String display)  {
+            this.value = value;
+            this.display = display;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getDisplay() {
+            return display;
+        }
     }
 }

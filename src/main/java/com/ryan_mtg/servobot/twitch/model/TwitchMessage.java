@@ -1,27 +1,27 @@
 package com.ryan_mtg.servobot.twitch.model;
 
-import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.twitch.event.TwitchMessageSentEvent;
 
 public class TwitchMessage implements Message {
-    private ChannelMessageEvent messageEvent;
+    private TwitchMessageSentEvent messageSentEvent;
 
-    public TwitchMessage(final ChannelMessageEvent messageEvent) {
-        this.messageEvent = messageEvent;
+    public TwitchMessage(final TwitchMessageSentEvent messageSentEvent) {
+        this.messageSentEvent = messageSentEvent;
     }
 
     @Override
     public String getContent() {
-        return messageEvent.getMessage();
+        return messageSentEvent.getContent();
     }
 
     @Override
     public Channel getChannel() {
-        return new TwitchChannel(messageEvent.getTwitchChat(), messageEvent.getChannel().getName());
+        return messageSentEvent.getChannel();
     }
 
     @Override
@@ -31,12 +31,12 @@ public class TwitchMessage implements Message {
 
     @Override
     public Home getHome() {
-        return new TwitchChannel(messageEvent.getTwitchChat(), messageEvent.getChannel().getName());
+        return messageSentEvent.getChannel();
     }
 
     @Override
     public User getSender() {
-        return new TwitchUser(messageEvent.getUser());
+        return messageSentEvent.getSender();
     }
 
     @Override

@@ -1,10 +1,11 @@
 package com.ryan_mtg.servobot.security;
 
-import org.springframework.security.core.GrantedAuthority;
+import com.google.common.collect.Lists;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class User implements Principal {
     private OAuth2AuthenticationToken oAuth2AuthenticationToken;
@@ -32,5 +33,14 @@ public class User implements Principal {
 
         return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
                 .filter(authority -> authority.getAuthority().equals("ROLE_ADMIN")).findAny().isPresent();
+    }
+
+    public List<String> getRoles() {
+        if (oAuth2AuthenticationToken == null) {
+            return Lists.newArrayList();
+        }
+
+        return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
+                .map(authority -> authority.getAuthority()).collect(Collectors.toList());
     }
 }

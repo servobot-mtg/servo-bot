@@ -4,13 +4,22 @@
     <title>Bot home</title>
     <div th:include="fragments :: includes" />
 </head>
-<body>
+<body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}">
     <div th:include="fragments :: header" />
     <div class="content">
         <h1 th:text="${botHome.name} + ' Home'" />
         <ul>
             <li th:text="'Id ' + ${botHome.id}"></li>
-            <li th:text="'Time Zone' + ${botHome.timeZone}"></li>
+            <li th:if="${!privledged}" th:text="'Time Zone: ' + ${botHome.timeZone}"></li>
+            <li th:if="${privledged}">Time Zone
+                <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'"
+                        th:attr="data-token=${_csrf.token}, data-header=${_csrf.headerName}">
+                    <th:block th:each="timeZone : ${timeZones}">
+                        <option th:value="${timeZone.value}" th:text="${timeZone.display}"
+                                th:selected="${timeZone.value == botHome.timeZone}"/>
+                    </th:block>
+                </select> <span id="time-zone-updated" />
+            </li>
         </ul>
         <h2>Services</h2>
         <table>

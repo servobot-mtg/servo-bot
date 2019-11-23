@@ -31,4 +31,8 @@ public class BotHomeRow {
     public String getTimeZone() {
         return timeZone;
     }
+
+    public void setTimeZone(final String timeZone) {
+        this.timeZone = timeZone;
+    }
 }

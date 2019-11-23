@@ -37,3 +37,9 @@ CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KE
 
 CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
                                           alert_token VARCHAR(50));
+
+CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, twitch_id INTEGER, discord_id BIGINT,
+                                 twitch_username VARCHAR(50));
+
+# state: twitch mod, twitch sub/discord admin
+CREATE TABLE IF NOT EXISTS user_home (bot_home_id INTEGER, user_id INTEGER, state INTEGER);

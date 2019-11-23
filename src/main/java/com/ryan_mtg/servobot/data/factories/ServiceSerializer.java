@@ -21,6 +21,9 @@ public class ServiceSerializer {
     @Autowired
     private ServiceRepository serviceRepository;
 
+    @Autowired
+    private UserSerializer userSerializer;
+
     private Map<Integer, Service> serviceMap = new HashMap<>();
 
     @Bean
@@ -48,7 +51,8 @@ public class ServiceSerializer {
             case DiscordService.TYPE:
                 return new DiscordService(serviceRow.getToken());
             case TwitchService.TYPE:
-                return new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(), serviceRow.getToken());
+                return new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(), serviceRow.getToken(),
+                                         userSerializer);
         }
         throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());
     }

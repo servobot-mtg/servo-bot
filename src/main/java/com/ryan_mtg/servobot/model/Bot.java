@@ -1,10 +1,10 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
-import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
-import com.ryan_mtg.servobot.model.alerts.AlertGeneratorQueue;
+import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +18,13 @@ public class Bot {
     private List<BotHome> homes = new ArrayList<>();
     private HomeDelegatingListener listener = new HomeDelegatingListener();
     private Map<Integer, Service> services;
+    private SerializerContainer serializers;
+    private AlertQueue alertQueue = new AlertQueue(this);
 
-    public Bot(final String name, final Map<Integer, Service> services) {
+    public Bot(final String name, final Map<Integer, Service> services, final SerializerContainer serializers) {
         this.name = name;
         this.services = services;
+        this.serializers = serializers;
     }
 
     public String getName() {
@@ -58,8 +61,12 @@ public class Bot {
         return null;
     }
 
-    public Service getService(final int serviceType) {
-        return services.get(serviceType);
+    public SerializerContainer getSerializers() {
+        return serializers;
+    }
+
+    public AlertQueue getAlertQueue() {
+        return alertQueue;
     }
 
     public void alert(final BotHome botHome, final String alertToken) {
@@ -69,13 +76,9 @@ public class Bot {
     }
 
     private void startAlertQueue() {
-        AlertGeneratorQueue queue = new AlertGeneratorQueue(this);
         for(BotHome home : homes) {
-            for (AlertGenerator alertGenerator : home.getAlertGenerators()) {
-                alertGenerator.setTimeZone(home.getTimeZone());
-                queue.add(home, alertGenerator);
-            }
+            alertQueue.update(home);
         }
-        queue.start();
+        alertQueue.start();
     }
 }
