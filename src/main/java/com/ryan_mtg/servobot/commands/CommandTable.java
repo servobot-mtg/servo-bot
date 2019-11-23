@@ -114,5 +114,8 @@ public class CommandTable {
     }
 
     public void setTimeZone(final String timeZone) {
+        for (AlertGenerator alertGenerator : alertGenerators) {
+            alertGenerator.setTimeZone(timeZone);
+        }
     }
 }
