@@ -59,23 +59,42 @@ bootRun {
 
 def deployDir = "${buildDir}/generated/deploy"
 
+// Make sure config files have production values
+task fixConfigFiles (type: Copy) {
+    from ('src/main/resources') {
+        include '**/application.properties'
+        include '**/log4j2-spring.xml'
+    }
+
+    into deployDir + '/src/main/resources'
+
+    filter {
+        String line ->  line.replaceAll("spring.profiles.active = .*", "spring.profiles.active = prod")
+                            .replaceAll("level=\"\\w+\"", "level=\"warn\"")
+    }
+}
+
 task deploy (type: Zip) {
     group = 'build'
     description = 'Creates a source zip file for AWS deployment.'
+    dependsOn(fixConfigFiles)
 
     doFirst {
         // Create Buildfile and Procfile for AWS deployment
         mkdir deployDir
         new File(deployDir, 'Buildfile').text = 'build: gradle build'
-        new File(deployDir, 'Procfile').text = "web: java -jar ${bootJar.archiveFileName.get()}"
+        def archiveFile = projectDir.relativePath(bootJar.archiveFile.get().asFile)
+        new File(deployDir, 'Procfile').text = "web: java -jar ${archiveFile}"
     }
 
     into('src') {
         from fileTree('src')
+        exclude '**/application.properties'
+        exclude '**/log4j2-spring.xml'
     }
 
     into ('') {
-        from fileTree(project.projectDir)
+        from fileTree(projectDir)
         include '*.gradle'
         exclude '.gradle'
     }
