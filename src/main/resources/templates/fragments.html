@@ -6,39 +6,38 @@
 <body>
     <!-- header -->
     <div th:fragment="header">
-        <div class="container">
-            <div class="navbar">
-                <ul>
-                    <li><div class="navitem" th:classappend="${page == 'index' ? 'active' : ''}">
-                        <a href="#" th:href="@{/}"><img src="/images/moosers.png" height="28" width="32"></a>
-                    </div></li>
+        <span id="security-token" th:attr="data-token=${_csrf.token}, data-header=${_csrf.headerName}"/>
+        <div class="navbar">
+            <ul>
+                <li><div class="navitem" th:classappend="${page == 'index' ? 'active' : ''}">
+                    <a href="#" th:href="@{/}"><img src="/images/moosers.png" height="28" width="32"></a>
+                </div></li>
 
-                    <li><div class="navitem" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
-                        <a href="#" th:href="@{/home/{id}(id=${botHome.id})}" th:text="${botHome.name}"></a>
-                        <span th:text="${page}"></span>
-                    </div></li>
+                <li><div class="navitem" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
+                    <a href="#" th:href="@{/home/{id}(id=${botHome.id})}" th:text="${botHome.name}"></a>
+                    <span th:text="${page}"></span>
+                </div></li>
 
-                    <li class="right" th:if="${!user.authenticated}"><div class="navitem twitch">
-                        <a th:href="@{/oauth2/authorization/twitch}">
-                            <img src="/images/glitch.png" height="28" width="32">
-                        </a>
-                    </div></li>
+                <li class="right" th:if="${!user.authenticated}"><div class="navitem twitch">
+                    <a th:href="@{/oauth2/authorization/twitch}">
+                        <img src="/images/glitch.png" height="28" width="32">
+                    </a>
+                </div></li>
 
-                    <li class="right" th:if="${user.authenticated}"><div class="navitem">
-                        <a href="/logout" th:href="@{#}" onclick="logout('logout-form')">
-                            Logout
-                        </a>
-                        <form style="visibility: hidden" id="logout-form" method="post" action="#" th:action="@{/logout}"></form>
-                    </div></li>
+                <li class="right" th:if="${user.authenticated}"><div class="navitem">
+                    <a href="/logout" th:href="@{#}" onclick="logout('logout-form')">
+                        Logout
+                    </a>
+                    <form style="visibility: hidden" id="logout-form" method="post" action="#" th:action="@{/logout}"></form>
+                </div></li>
 
-                    <li class="right" th:if="${user.authenticated}">
-                        <div class="navitem" th:classappend="${user.admin ? 'admin ' : ' '} +
-                             ${botHome != null && user.roles.contains('ROLE_MOD:' + botHome.id) ? 'mod' : ''}">
-                            <span th:text="${user.name}" ></span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+                <li class="right" th:if="${user.authenticated}">
+                    <div class="navitem" th:classappend="${user.admin ? 'admin ' : ' '} +
+                         ${botHome != null && user.roles.contains('ROLE_MOD:' + botHome.id) ? 'mod' : ''}">
+                        <span th:title="${user.roles}" th:text="${user.name}" ></span>
+                    </div>
+                </li>
+            </ul>
         </div>
     </div>
 

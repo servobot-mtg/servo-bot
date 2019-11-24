@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 public abstract class HomeCommand extends Command {
     static Logger LOGGER = LoggerFactory.getLogger(HomeCommand.class);
 
-    public HomeCommand(final int id) {
-        super(id);
+    public HomeCommand(final int id, final boolean secure) {
+        super(id, secure);
     }
 
     public abstract void perform(Home home);

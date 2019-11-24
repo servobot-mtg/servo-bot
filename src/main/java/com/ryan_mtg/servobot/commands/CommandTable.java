@@ -16,6 +16,8 @@ public class CommandTable {
 
     private boolean isCaseSensitive;
 
+    private Map<Integer, Command> idToCommandMap = new HashMap<>();
+
     private Map<String, MessageCommand> commandMap = new HashMap<>();
     private List<CommandAlias> aliases = new ArrayList<>();
 
@@ -34,6 +36,7 @@ public class CommandTable {
     }
 
     public void registerCommand(final MessageCommand command, final CommandAlias commandAlias) {
+        registerCommand(command);
         String alias = cannonicalize(commandAlias.getAlias());
         if (commandMap.containsKey(alias)) {
             LOGGER.warn("Command " + alias + " is already registered");
@@ -44,12 +47,14 @@ public class CommandTable {
     }
 
     public void registerCommand(final HomeCommand homeCommand, final CommandEvent commandEvent) {
+        registerCommand(homeCommand);
         eventCommandMap.put(commandEvent, homeCommand);
         eventMap.computeIfAbsent(commandEvent.getEventType(), type -> new ArrayList<>()).add(commandEvent);
         events.add(commandEvent);
     }
 
     public void registerCommand(final HomeCommand homeCommand, final CommandAlert commandAlert) {
+        registerCommand(homeCommand);
         alertCommandMap.put(commandAlert, homeCommand);
         alertMap.computeIfAbsent(commandAlert.getAlertToken(), type -> new ArrayList<>()).add(commandAlert);
         alerts.add(commandAlert);
@@ -117,5 +122,15 @@ public class CommandTable {
         for (AlertGenerator alertGenerator : alertGenerators) {
             alertGenerator.setTimeZone(timeZone);
         }
+    }
+
+    public Command secureCommand(int commandId, boolean secure) {
+        Command command = idToCommandMap.get(commandId);
+        command.setSecure(secure);
+        return command;
+    }
+
+    private void registerCommand(final Command command) {
+        idToCommandMap.put(command.getId(), command);
     }
 }

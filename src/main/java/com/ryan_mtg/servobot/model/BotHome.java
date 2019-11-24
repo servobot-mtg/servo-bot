@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
@@ -8,6 +9,7 @@ import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.reaction.Reaction;
 import com.ryan_mtg.servobot.reaction.ReactionTable;
 
 import javax.transaction.Transactional;
@@ -89,5 +91,17 @@ public class BotHome {
         BotHomeRow botHomeRow = botHomeRepository.findById(id);
         botHomeRow.setTimeZone(timeZone);
         botHomeRepository.save(botHomeRow);
+    }
+
+    public boolean secureCommand(int commandId, boolean secure) {
+        Command command = commandTable.secureCommand(commandId, secure);
+        parentBot.getSerializers().getCommandSerializer().saveCommand(id, command);
+        return command.isSecure();
+    }
+
+    public boolean secureReaction(int reactionId, boolean secure) {
+        Reaction reaction = reactionTable.secureReaction(reactionId, secure);
+        parentBot.getSerializers().getReactionSerializer().saveReaction(id, reaction);
+        return reaction.isSecure();
     }
 }

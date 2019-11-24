@@ -6,8 +6,8 @@ public class TextCommand extends MessageCommand {
     public static final int TYPE = 1;
     private final String text;
 
-    public TextCommand(final int id, final String text) {
-        super(id);
+    public TextCommand(final int id, final boolean secure, final String text) {
+        super(id, secure);
         this.text = text;
     }
 

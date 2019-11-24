@@ -21,6 +21,8 @@ public class ReactionRow {
 
     private String emote;
 
+    private boolean secure;
+
     public int getId() {
         return id;
     }
@@ -51,5 +53,13 @@ public class ReactionRow {
 
     public void setEmote(String emote) {
         this.emote = emote;
+    }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(final boolean secure) {
+        this.secure = secure;
     }
 }

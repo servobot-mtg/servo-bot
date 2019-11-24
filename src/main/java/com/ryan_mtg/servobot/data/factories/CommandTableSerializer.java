@@ -27,7 +27,6 @@ import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -161,26 +160,26 @@ public class CommandTableSerializer {
 
     private CommandTable getMooseCommandTable() {
         CommandTable commandTable = new CommandTable(false);
-        commandTable.registerCommand(new TierCommand(Command.UNREGISTERED_ID), "tier");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, "MooseFacts"), "mooseFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, "MooseLies"), "mooseLies", "meeseFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, "ServoFacts"), "servofacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, "CanadaFacts"), "canadaFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, "FrankFacts"), "frankFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, "CommandFacts"), "commandFacts");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "Hello %user%, I am MoosersBot!"), "hello", "moose","hi");
+        commandTable.registerCommand(new TierCommand(Command.UNREGISTERED_ID, false), "tier");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseFacts"), "mooseFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseLies"), "mooseLies", "meeseFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "ServoFacts"), "servofacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CanadaFacts"), "canadaFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "FrankFacts"), "frankFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CommandFacts"), "commandFacts");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "Hello %user%, I am MoosersBot!"), "hello", "moose","hi");
 
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "You found it, duh!"), "discord");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "themightylinguine is a little less the on twitter: https://twitter.com/MightyLinguine"), "twitter");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "You found it, duh!"), "discord");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "themightylinguine is a little less the on twitter: https://twitter.com/MightyLinguine"), "twitter");
 
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "Carolyn is on the FAM: Friends and Magic Podcast. Use !googlecast !applecast or !spotifycast for links."), "podcast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "https://open.spotify.com/show/0smeuYeWNKjpdw0AfdI9Eq"), "spotifycast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "https://podcasts.google.com/?feed=aHR0cHM6Ly9hbmNob3IuZm0vcy9mMjg5ODZjL3BvZGNhc3QvcnNz"), "googlecast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "https://podcasts.apple.com/us/podcast/fam-friends-and-magic/id1482838493"), "applecast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, "MoosersBot has facts on moose, Canada, servos, meese, and Frank. It will one day have facts on sloths, but those are coming slowly."), "factfacts");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "Carolyn is on the FAM: Friends and Magic Podcast. Use !googlecast !applecast or !spotifycast for links."), "podcast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "https://open.spotify.com/show/0smeuYeWNKjpdw0AfdI9Eq"), "spotifycast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "https://podcasts.google.com/?feed=aHR0cHM6Ly9hbmNob3IuZm0vcy9mMjg5ODZjL3BvZGNhc3QvcnNz"), "googlecast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "https://podcasts.apple.com/us/podcast/fam-friends-and-magic/id1482838493"), "applecast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "MoosersBot has facts on moose, Canada, servos, meese, and Frank. It will one day have facts on sloths, but those are coming slowly."), "factfacts");
 
         String channelName = Application.isTesting() ? "general" : "a-moose-ments";
-        HomeCommand streamStartCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, DiscordService.TYPE, channelName,
+        HomeCommand streamStartCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, false, DiscordService.TYPE, channelName,
                     "@everyone should know that Linguine is going live! http://twitch.tv/themightylinguine");
 
         commandTable.registerCommand(streamStartCommand, new CommandEvent(CommandEvent.UNREGISTERED_ID, CommandEvent.Type.STREAM_START));

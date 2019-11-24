@@ -2,26 +2,97 @@ function logout(formName) {
     document.getElementById(formName).submit();
 }
 
-function updateTimeZone(event, botHomeId, resultElementId) {
-    var element = event.target;
-    var dataset = element.dataset;
-    postTimeZone(botHomeId, element.value, dataset.header, dataset.token, document.getElementById(resultElementId));
+function decodeHtmlEntity(html) {
+	let txt = document.createElement('textarea');
+	txt.innerHTML = html;
+	return txt.value;
 }
 
-async function postTimeZone(botHomeId, timeZone, header, token, resultElement) {
-    const settings = {
+const lockedIcon = '&#x1F512;';
+const unlockedIcon = '&#x1F511;';
+const decodedLockedIcon = decodeHtmlEntity('&#x1F512;');
+
+function secureCommand(event, botHomeId, commandId) {
+    postSecureCommand(botHomeId, commandId, event.currentTarget.dataset.label);
+}
+
+async function postSecureCommand(botHomeId, commandId, label) {
+    return postSecureObject('/api/secure_command', botHomeId, commandId, label);
+}
+
+function secureReaction(event, botHomeId, reactionId) {
+    postSecureReaction(botHomeId, reactionId, event.currentTarget.dataset.label);
+}
+
+async function postSecureReaction(botHomeId, reactionId, label) {
+    return postSecureObject('/api/secure_reaction', botHomeId, reactionId, label);
+}
+
+async function postSecureObject(endPoint, botHomeId, objectId, label) {
+    let valueElements = document.getElementsByClassName(label + '-secured');
+    const secure = valueElements[0].innerText != decodedLockedIcon;
+    const parameters = {botHomeId: botHomeId, objectId: objectId, secure: secure};
+    const responseElements = document.getElementById(label + '-response');
+    let response = await makePost(endPoint,parameters, responseElements, false);
+    if (response.ok) {
+        setSecure(document.getElementsByClassName(label + '-row'), valueElements, await response.json());
+    }
+}
+
+function setSecure(rowElements, iconElements, secure) {
+    if (secure) {
+        Array.from(iconElements).forEach((iconElement) => iconElement.innerHTML = lockedIcon);
+        Array.from(rowElements).forEach((rowElement) => rowElement.classList.add('secure'));
+    } else {
+        Array.from(iconElements).forEach((iconElement) => iconElement.innerHTML = unlockedIcon);
+        Array.from(rowElements).forEach((rowElement) => rowElement.classList.remove('secure'));
+    }
+}
+
+function updateTimeZone(event, botHomeId, responseElementId) {
+    postTimeZone(botHomeId, event.target.value, document.getElementById(responseElementId));
+}
+
+async function postTimeZone(botHomeId, timeZone, responseElement) {
+    const parameters = {botHomeId: botHomeId, timeZone: timeZone};
+    makePost('/api/set_home_time_zone', parameters, [responseElement], true);
+}
+
+async function makePost(endpoint, parameters, responseElements, showOk) {
+    const settings = getPostSettings(parameters);
+
+    let response = await fetch(endpoint, settings);
+    let set = false;
+    if (response.ok) {
+        if(showOk) {
+            Array.from(responseElements).forEach((responseElement) => responseElement.innerHTML = '&#x2705;');
+            set = true;
+        }
+    } else {
+        Array.from(responseElements).forEach((responseElement) => responseElement.innerHTML = '&#x274C;');
+        set = true;
+    }
+    if (set) {
+        window.setTimeout(function () {
+            Array.from(responseElements).forEach((responseElement) => responseElement.innerHTML = '');
+        }, 1500);
+    }
+    return response;
+}
+
+function getPostSettings(parameters) {
+    let settings = {
         method: 'POST',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ botHomeId: botHomeId, timeZone: timeZone})
+        body: JSON.stringify(parameters)
     };
-    settings.headers[header] = token;
-    var response = await fetch('/api/set_home_time_zone', settings);
-    resultElement.innerHTML = 'Saved';
-    resultElement.style.color = 'red';
-    window.setTimeout(function () {
-        resultElement.innerHTML = '';
-    }, 1500);
+
+    const securityElement = document.getElementById('security-token');
+    const security = securityElement.dataset;
+
+    settings.headers[security.header] = security.token;
+    return settings;
 }

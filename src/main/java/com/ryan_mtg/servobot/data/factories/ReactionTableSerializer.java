@@ -38,7 +38,7 @@ public class ReactionTableSerializer {
     public void saveReactionTable(final ReactionTable reactionTable, final int botHomeId) {
         List<Reaction> reactions = reactionTable.getReactions();
         for (Reaction reaction : reactions) {
-            ReactionRow reactionRow = reactionSerializer.saveReaction(reaction, botHomeId);
+            ReactionRow reactionRow = reactionSerializer.saveReaction(botHomeId, reaction);
             for (String pattern : reaction.getPatterns()) {
                 ReactionPatternRow reactionPatternRow = new ReactionPatternRow();
                 reactionPatternRow.setPattern(pattern);
@@ -70,12 +70,12 @@ public class ReactionTableSerializer {
 
     private ReactionTable getMooseReactionTable() {
         ReactionTable reactionTable = new ReactionTable();
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "OMG", "graze it", "sloth", "grazer"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "LUL", "moose"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "Frank", "frank"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "pccb", "pumpkin"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "fast", "@fast"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "PG", new WatershedFilter(),
+        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "OMG", false, "graze it", "sloth", "grazer"));
+        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "LUL", false, "moose"));
+        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "Frank", false, "frank"));
+        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "pccb", false, "pumpkin"));
+        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "fast", false, "@fast"));
+        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "PG", true, new WatershedFilter(),
                 "!fuck", "@ass", "crap", "@hell", "!cunt", "shit", "!dick", "wanker", "!bitch", "damn",
                 "!nigger", "slut", "!twat", "!cock", "@trump", "assh"));
         return reactionTable;

@@ -10,15 +10,16 @@ CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, type 
 CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), time_zone VARCHAR(60));
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
-                                    stringParameter VARCHAR(200), stringParameter2 VARCHAR(200), longParameter BIGINT);
+                                    secure BIT, stringParameter VARCHAR(200), stringParameter2 VARCHAR(200),
+                                    longParameter BIGINT);
 
 CREATE TABLE IF NOT EXISTS command_alias (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER, alias VARCHAR(30));
 
 CREATE TABLE IF NOT EXISTS command_event (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
                                           event_type VARCHAR(30));
 
-CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emote VARCHAR(30), filter INTEGER,
-                                     bot_home_id INTEGER);
+CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emote VARCHAR(30), secure BIT,
+                                     filter INTEGER, bot_home_id INTEGER);
 
 CREATE TABLE IF NOT EXISTS reaction_pattern (id INTEGER AUTO_INCREMENT PRIMARY KEY, reaction_id INTEGER,
                                              pattern VARCHAR(30));

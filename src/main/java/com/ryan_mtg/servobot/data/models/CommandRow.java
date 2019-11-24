@@ -14,6 +14,8 @@ public class CommandRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    private boolean secure;
+
     private int type;
 
     @Column(name = "bot_home_id")
@@ -30,6 +32,14 @@ public class CommandRow {
 
     public void setId(final int id) {
         this.id = id;
+    }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(final boolean secure) {
+        this.secure = secure;
     }
 
     public int getType() {

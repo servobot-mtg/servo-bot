@@ -31,12 +31,20 @@ public class SerializerContainer {
         return botHomeRepository;
     }
 
+    public CommandSerializer getCommandSerializer() {
+        return commandSerializer;
+    }
+
     public CommandTableSerializer getCommandTableSerializer() {
         return commandTableSerializer;
     }
 
     public ReactionTableSerializer getReactionTableSerializer() {
         return reactionTableSerializer;
+    }
+
+    public ReactionSerializer getReactionSerializer() {
+        return reactionSerializer;
     }
 
     public ServiceSerializer getServiceSerializer() {

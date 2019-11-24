@@ -15,14 +15,16 @@ public class ReactionSerializer {
     private ReactionRepository reactionRepository;
 
     public Reaction createReaction(final ReactionRow reactionRow) {
-        return new Reaction(reactionRow.getId(), reactionRow.getEmote(), getFilter(reactionRow.getFilter()));
+        return new Reaction(reactionRow.getId(), reactionRow.getEmote(), reactionRow.isSecure(),
+                getFilter(reactionRow.getFilter()));
     }
 
-    public ReactionRow saveReaction(final Reaction reaction, final int botHomeId) {
+    public ReactionRow saveReaction(final int botHomeId, final Reaction reaction) {
         ReactionRow reactionRow = new ReactionRow();
         reactionRow.setId(reaction.getId());
         reactionRow.setBotHomeId(botHomeId);
         reactionRow.setEmote(reaction.getEmoteName());
+        reactionRow.setSecure(reaction.isSecure());
         reactionRow.setFilter(reaction.getFilter().getType());
         reactionRepository.save(reactionRow);
         return reactionRow;

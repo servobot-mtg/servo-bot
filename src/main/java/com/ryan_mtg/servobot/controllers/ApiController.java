@@ -32,4 +32,34 @@ public class ApiController {
             return timeZone;
         }
     }
+
+    @PostMapping(value = "/api/secure_command", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean secureCommand(@RequestBody final SecureRequest request) {
+        BotHome home = bot.getHome(request.getBotHomeId());
+        return home.secureCommand(request.getObjectId(), request.getSecure());
+    }
+
+    @PostMapping(value = "/api/secure_reaction", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean secureReaction(@RequestBody final SecureRequest request) {
+        BotHome home = bot.getHome(request.getBotHomeId());
+        return home.secureReaction(request.getObjectId(), request.getSecure());
+    }
+
+    public static class SecureRequest {
+        private int botHomeId;
+        private int objectId;
+        private boolean secure;
+
+        public int getBotHomeId() {
+            return botHomeId;
+        }
+
+        public int getObjectId() {
+            return objectId;
+        }
+
+        public boolean getSecure() {
+            return secure;
+        }
+    }
 }

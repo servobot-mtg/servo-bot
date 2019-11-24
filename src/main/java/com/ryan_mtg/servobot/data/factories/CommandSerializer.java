@@ -22,13 +22,13 @@ public class CommandSerializer {
         int id = commandRow.getId();
         switch (commandRow.getType()) {
             case TextCommand.TYPE:
-                return new TextCommand(id, commandRow.getStringParameter());
+                return new TextCommand(id, commandRow.isSecure(), commandRow.getStringParameter());
             case FactsCommand.TYPE:
-                return new FactsCommand(id, commandRow.getStringParameter());
+                return new FactsCommand(id, commandRow.isSecure(), commandRow.getStringParameter());
             case TierCommand.TYPE:
-                return new TierCommand(id);
+                return new TierCommand(id, commandRow.isSecure());
             case MessageChannelCommand.TYPE:
-                return new MessageChannelCommand(id, commandRow.getLongParameter().intValue(),
+                return new MessageChannelCommand(id, commandRow.isSecure(), commandRow.getLongParameter().intValue(),
                         commandRow.getStringParameter(), commandRow.getStringParameter2());
         }
         throw new IllegalArgumentException("Unsupported type: " + commandRow.getType());
@@ -84,6 +84,7 @@ public class CommandSerializer {
 
         private void saveCommand(final Command command, final Consumer<CommandRow> consumer) {
             commandRow.setId(command.getId());
+            commandRow.setSecure(command.isSecure());
             commandRow.setType(command.getType());
             commandRow.setBotHomeId(botHomeId);
             consumer.accept(commandRow);

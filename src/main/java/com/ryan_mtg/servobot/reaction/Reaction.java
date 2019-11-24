@@ -10,17 +10,20 @@ public class Reaction {
 
     private int id;
     private String emoteName;
+    private boolean secure;
     private List<Pattern> patterns = new ArrayList<>();
     private List<String> patternStrings = new ArrayList<>();
     private ReactionFilter filter;
 
-    public Reaction(final int id, final String emoteName, final String... patternStrings){
-        this(id, emoteName, ALWAYS_REACT, patternStrings);
+    public Reaction(final int id, final String emoteName, final boolean secure, final String... patternStrings){
+        this(id, emoteName, secure, ALWAYS_REACT, patternStrings);
     }
 
-    public Reaction(final int id, final String emoteName, final ReactionFilter filter, final String... patternStrings){
+    public Reaction(final int id, final String emoteName, final boolean secure, final ReactionFilter filter,
+                    final String... patternStrings){
         this.id = id;
         this.emoteName = emoteName;
+        this.secure = secure;
         this.filter = filter;
         for (String patternString : patternStrings) {
             addPattern(patternString);
@@ -33,6 +36,14 @@ public class Reaction {
 
     public String getEmoteName() {
         return emoteName;
+    }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(final boolean secure) {
+        this.secure = secure;
     }
 
     public ReactionFilter getFilter() {

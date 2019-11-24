@@ -12,8 +12,7 @@
             <li th:text="'Id ' + ${botHome.id}"></li>
             <li th:if="${!privledged}" th:text="'Time Zone: ' + ${botHome.timeZone}"></li>
             <li th:if="${privledged}">Time Zone
-                <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'"
-                        th:attr="data-token=${_csrf.token}, data-header=${_csrf.headerName}">
+                <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
                     <th:block th:each="timeZone : ${timeZones}">
                         <option th:value="${timeZone.value}" th:text="${timeZone.display}"
                                 th:selected="${timeZone.value == botHome.timeZone}"/>
@@ -23,6 +22,10 @@
         </ul>
         <h2>Services</h2>
         <table>
+            <thead><tr>
+                <th>Service</th>
+                <th>Details</th>
+            </tr></thead>
             <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}">
                 <tr>
                     <td th:text="${serviceHomeEntry.value.service.name}"/>
@@ -32,28 +35,59 @@
         </table>
         <h2>Commands</h2>
         <table>
+            <thead><tr>
+                <th>Key</th>
+                <th>Command description</th>
+                <th th:if="${privledged}">Secure</th>
+            </tr></thead>
             <th:block th:each="command : ${botHome.commandTable.commandList}">
-                <tr>
+                <tr th:if="${!command.value.secure || privledged}" th:with="label=${'command-' + command.value.id}"
+                    th:classappend="${(command.value.secure ? 'secure ' : ' ') + label + '-row'}">
                     <td th:text="${command.key}"/>
                     <td th:text="${command.value.name}"/>
+
+                    <td th:if="${privledged}"
+                        th:attr="data-label=${label}" class="pseudo-link"
+                        th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.value.id} + ')'">
+                        <span th:class="${label} + '-secured'"
+                              th:text="${command.value.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+                        <span th:class="${label} + '-response'"/>
+                    </td>
                 </tr>
             </th:block>
         </table>
         <h2>Reactions</h2>
         <table>
+            <thead><tr>
+                <th>Emoji</th>
+                <th>Reaction Trigger Words</th>
+                <th th:if="${privledged}">Secure</th>
+            </tr></thead>
             <th:block th:each="reaction : ${botHome.reactionTable.reactions}">
-                <tr>
+                <tr th:if="${!reaction.secure || privledged}" th:with="label=${'reaction-' + reaction.id}"
+                    th:classappend="${(reaction.secure ? 'secure ' : ' ') + label + '-row'}">
                     <td th:text="${reaction.emoteName}"/>
                     <td>
                         <th:block th:each="pattern : ${reaction.patterns}">
                             <span th:text="${pattern}" />
                         </th:block>
                     </td>
+
+                    <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"
+                        th:onclick="'secureReaction(event, ' + ${botHome.id} + ', ' + ${reaction.id} + ')'">
+                        <span th:class="${label} + '-secured'"
+                              th:text="${reaction.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+                        <span th:class="${label} + '-response'"/>
+                    </td>
                 </tr>
             </th:block>
         </table>
         <h2>Alerts</h2>
         <table>
+            <thead><tr>
+                <th>Keyword</th>
+                <th>Alert Description</th>
+            </tr></thead>
             <th:block th:each="alert : ${botHome.alertGenerators}">
                 <tr>
                     <td th:text="${alert.alertToken}"/>
