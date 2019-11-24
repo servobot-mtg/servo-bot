@@ -11,6 +11,7 @@ import com.ryan_mtg.servobot.commands.TierCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
 import java.util.function.Consumer;
 
 @Component
@@ -18,13 +19,15 @@ public class CommandSerializer {
     @Autowired
     private CommandRepository commandRepository;
 
+    private Random random = new Random();
+
     public Command createCommand(final CommandRow commandRow) {
         int id = commandRow.getId();
         switch (commandRow.getType()) {
             case TextCommand.TYPE:
                 return new TextCommand(id, commandRow.isSecure(), commandRow.getStringParameter());
             case FactsCommand.TYPE:
-                return new FactsCommand(id, commandRow.isSecure(), commandRow.getStringParameter());
+                return new FactsCommand(id, commandRow.isSecure(), commandRow.getStringParameter(), random);
             case TierCommand.TYPE:
                 return new TierCommand(id, commandRow.isSecure());
             case MessageChannelCommand.TYPE:

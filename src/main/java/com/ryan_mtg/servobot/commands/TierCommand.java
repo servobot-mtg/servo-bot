@@ -30,7 +30,7 @@ public class TierCommand extends MessageCommand {
     public void perform(final Message message, final String arguments) {
         User sender = message.getSender();
         String tier = getTier(message);
-        String text = String.format("Hello %s, your friendship tier is %s.", sender.getName(), tier);
+        String text = String.format("Hello, %s, your friendship tier is %s.", sender.getName(), tier);
         MessageCommand.say(message, text);
     }
 

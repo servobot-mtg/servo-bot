@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -161,12 +162,13 @@ public class CommandTableSerializer {
     private CommandTable getMooseCommandTable() {
         CommandTable commandTable = new CommandTable(false);
         commandTable.registerCommand(new TierCommand(Command.UNREGISTERED_ID, false), "tier");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseFacts"), "mooseFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseLies"), "mooseLies", "meeseFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "ServoFacts"), "servofacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CanadaFacts"), "canadaFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "FrankFacts"), "frankFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CommandFacts"), "commandFacts");
+        Random random = new Random();
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseFacts", random), "mooseFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseLies", random), "mooseLies", "meeseFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "ServoFacts", random), "servofacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CanadaFacts", random), "canadaFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "FrankFacts", random), "frankFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CommandFacts", random), "commandFacts");
         commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "Hello %user%, I am MoosersBot!"), "hello", "moose","hi");
 
         commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "You found it, duh!"), "discord");

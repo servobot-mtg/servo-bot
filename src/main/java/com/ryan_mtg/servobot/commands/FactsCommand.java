@@ -10,14 +10,15 @@ import java.util.Scanner;
 public class FactsCommand extends MessageCommand {
     public static final int TYPE = 2;
 
-    private static Random random = new Random();
+    private static Random random;
     private List<String> facts;
     private String fileName;
 
-    public FactsCommand(final int id, final boolean secure, final String name) {
+    public FactsCommand(final int id, final boolean secure, final String name, final Random random) {
         super(id, secure);
         facts = readFacts(String.format("/facts/%s.txt", name));
         fileName = name;
+        this.random = random;
     }
 
     @Override
