@@ -6,4 +6,6 @@ public interface Home {
     boolean isStreamer(User user);
     String getRole(User user, int serviceType);
     Emote getEmote(String emoteName);
+
+    HomeEditor getHomeEditor();
 }

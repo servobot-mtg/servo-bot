@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.commands.Permission;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +17,8 @@ public class CommandRow {
     private int id;
 
     private boolean secure;
+
+    private Permission permission;
 
     private int type;
 
@@ -40,6 +44,14 @@ public class CommandRow {
 
     public void setSecure(final boolean secure) {
         this.secure = secure;
+    }
+
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(final Permission permission) {
+        this.permission = permission;
     }
 
     public int getType() {

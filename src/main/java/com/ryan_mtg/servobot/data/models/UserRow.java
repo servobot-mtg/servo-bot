@@ -39,6 +39,10 @@ public class UserRow {
         return discordId;
     }
 
+    public void setDiscordId(final long discordId) {
+        this.discordId = discordId;
+    }
+
     public String getTwitchUsername() {
         return twitchUsername;
     }

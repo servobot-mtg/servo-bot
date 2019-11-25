@@ -49,6 +49,16 @@ function setSecure(rowElements, iconElements, secure) {
     }
 }
 
+function updateCommandPermission(event, botHomeId, commandId) {
+    postUpdateCommandPermission(botHomeId, commandId, event.target.value,
+        document.getElementById(event.target.dataset.label));
+}
+
+async function postUpdateCommandPermission(botHomeId, commandId, permission, responseElement) {
+    const parameters = {botHomeId: botHomeId, commandId: commandId, permission: permission};
+    makePost('/api/set_command_permission', parameters, [responseElement], true);
+}
+
 function updateTimeZone(event, botHomeId, responseElementId) {
     postTimeZone(botHomeId, event.target.value, document.getElementById(responseElementId));
 }

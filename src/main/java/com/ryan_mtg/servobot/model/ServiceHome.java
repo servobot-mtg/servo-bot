@@ -7,4 +7,5 @@ public interface ServiceHome {
     Home getHome();
 
     void start(BotHome botHome);
+    void setHomeEditor(HomeEditor homeEditor);
 }

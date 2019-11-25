@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VAR
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
                                     secure BIT, stringParameter VARCHAR(200), stringParameter2 VARCHAR(200),
-                                    longParameter BIGINT);
+                                    longParameter BIGINT, permission INT);
 
 CREATE TABLE IF NOT EXISTS command_alias (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER, alias VARCHAR(30));
 
@@ -42,5 +42,4 @@ CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY,
 CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, twitch_id INTEGER, discord_id BIGINT,
                                  twitch_username VARCHAR(50));
 
-# state: twitch mod, twitch sub/discord admin
 CREATE TABLE IF NOT EXISTS user_home (bot_home_id INTEGER, user_id INTEGER, state INTEGER);

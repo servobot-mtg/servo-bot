@@ -1,16 +1,22 @@
 package com.ryan_mtg.servobot.discord.model;
 
+import com.ryan_mtg.servobot.discord.event.DiscordMessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 
 public class DiscordMessage implements Message {
+    private DiscordMessageSentEvent event;
     private net.dv8tion.jda.api.entities.Message message;
+    private HomeEditor homeEditor;
 
-    public DiscordMessage(final net.dv8tion.jda.api.entities.Message message) {
+    public DiscordMessage(final DiscordMessageSentEvent event, final net.dv8tion.jda.api.entities.Message message, final HomeEditor homeEditor) {
+        this.event = event;
         this.message = message;
+        this.homeEditor = homeEditor;
     }
 
     @Override
@@ -20,7 +26,7 @@ public class DiscordMessage implements Message {
 
     @Override
     public Channel getChannel() {
-        return new DiscordChannel(new DiscordHome(message.getGuild()), message.getChannel());
+        return new DiscordChannel(new DiscordHome(message.getGuild(), homeEditor), message.getChannel());
     }
 
     @Override
@@ -30,12 +36,12 @@ public class DiscordMessage implements Message {
 
     @Override
     public Home getHome() {
-        return new DiscordHome(message.getGuild());
+        return new DiscordHome(message.getGuild(), homeEditor);
     }
 
     @Override
     public User getSender() {
-        return new DiscordUser(message.getMember());
+        return event.getSender();
     }
 
     @Override

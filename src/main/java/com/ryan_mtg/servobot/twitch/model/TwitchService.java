@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
@@ -71,8 +72,8 @@ public class TwitchService implements Service {
         generator = new TwitchEventGenerator(client, eventListener, homeIdMap, userSerializer);
     }
 
-    public Home getHome(final long channelId) {
-        return new TwitchChannel(client.getChat(), getChannelName(channelId));
+    public Home getHome(final long channelId, final HomeEditor homeEditor) {
+        return new TwitchChannel(client.getChat(), getChannelName(channelId), homeEditor);
     }
 
     public String getChannelName(final long channelId) {

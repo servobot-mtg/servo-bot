@@ -4,9 +4,11 @@ import java.util.Map;
 
 public class MultiServiceHome implements Home {
     private Map<Integer, ServiceHome> serviceHomes;
+    private HomeEditor homeEditor;
 
-    public MultiServiceHome(final Map<Integer, ServiceHome> serviceHomes) {
+    public MultiServiceHome(final Map<Integer, ServiceHome> serviceHomes, final HomeEditor homeEditor) {
         this.serviceHomes = serviceHomes;
+        this.homeEditor = homeEditor;
     }
 
     @Override
@@ -37,5 +39,10 @@ public class MultiServiceHome implements Home {
     @Override
     public Emote getEmote(final String emoteName) {
         return null;
+    }
+
+    @Override
+    public HomeEditor getHomeEditor() {
+        return homeEditor;
     }
 }

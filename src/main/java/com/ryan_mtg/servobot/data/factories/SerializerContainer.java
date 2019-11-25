@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
+import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -78,7 +78,7 @@ task fixConfigFiles (type: Copy) {
 task deploy (type: Zip) {
     group = 'build'
     description = 'Creates a source zip file for AWS deployment.'
-    dependsOn(fixConfigFiles)
+    dependsOn(fixConfigFiles, check)
 
     doFirst {
         // Create Buildfile and Procfile for AWS deployment

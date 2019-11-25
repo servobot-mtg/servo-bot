@@ -39,19 +39,33 @@
                 <th>Key</th>
                 <th>Command description</th>
                 <th th:if="${privledged}">Secure</th>
+                <th>Permissions</th>
             </tr></thead>
-            <th:block th:each="command : ${botHome.commandTable.commandList}">
-                <tr th:if="${!command.value.secure || privledged}" th:with="label=${'command-' + command.value.id}"
-                    th:classappend="${(command.value.secure ? 'secure ' : ' ') + label + '-row'}">
-                    <td th:text="${command.key}"/>
-                    <td th:text="${command.value.name}"/>
+            <th:block th:each="commandEntry : ${botHome.commandTable.commandList}"
+                      th:with="command=${commandEntry.value},alias=${commandEntry.key}" >
+                <tr th:if="${!command.secure || privledged}" th:with="label=${'command-' + command.id}"
+                    th:classappend="${(command.secure ? 'secure ' : ' ') + label + '-row'}">
+                    <td th:text="${alias}"/>
+                    <td th:text="${command.name}"/>
 
                     <td th:if="${privledged}"
                         th:attr="data-label=${label}" class="pseudo-link"
-                        th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.value.id} + ')'">
+                        th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
                         <span th:class="${label} + '-secured'"
-                              th:text="${command.value.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+                              th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
                         <span th:class="${label} + '-response'"/>
+                    </td>
+
+                    <td th:if="${!privledged}" th:text="${command.permission}"></td>
+                    <td th:if="${privledged}">
+                        <select th:attr="data-label=${label} + '-permission-updated'"
+                                th:onchange="'updateCommandPermission(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                            <th:block th:each="permission : ${permissions}">
+                                <option th:value="${permission}" th:text="${permission}"
+                                        th:selected="${permission == command.permission}"/>
+                            </th:block>
+                        </select>
+                        <span th:id="${label}+ '-permission-updated'"/>
                     </td>
                 </tr>
             </th:block>

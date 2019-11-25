@@ -21,10 +21,17 @@ public class TwitchUser implements User {
         return getName().toLowerCase().endsWith("bot");
     }
 
+    @Override
+    public boolean isAdmin() {
+        return user.isAdmin();
+    }
+
+    @Override
     public boolean isModerator() {
         return status.isModerator();
     }
 
+    @Override
     public boolean isSubscriber() {
         return status.isSubscriber();
     }

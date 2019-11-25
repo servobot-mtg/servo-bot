@@ -6,8 +6,8 @@ import com.ryan_mtg.servobot.model.Message;
 public abstract class MessageCommand extends Command {
     abstract public void perform(Message message, String arguments);
 
-    public MessageCommand(final int id, final boolean secure) {
-        super(id, secure);
+    public MessageCommand(final int id, final boolean secure, final Permission permission) {
+        super(id, secure, permission);
     }
 
     protected static void say(Message message, final String text) {

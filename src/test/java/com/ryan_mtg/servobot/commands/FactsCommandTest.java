@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 public class FactsCommandTest {
     private static final int ID = 1;
     private static final boolean SECURE = true;
+    private static final Permission PERMISSION = Permission.MOD;
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
@@ -21,7 +22,7 @@ public class FactsCommandTest {
         Random random = mock(Random.class);
         when(random.nextInt(2)).thenReturn(0);
 
-        FactsCommand command = new FactsCommand(ID, SECURE, "TestFacts", random);
+        FactsCommand command = new FactsCommand(ID, SECURE, PERMISSION, "TestFacts", random);
 
         Channel channel = mockChannel();
         Message message = mockMessage(channel);
@@ -36,7 +37,7 @@ public class FactsCommandTest {
         Random random = mock(Random.class);
         when(random.nextInt(2)).thenReturn(1);
 
-        FactsCommand command = new FactsCommand(ID, SECURE, "TestFacts", random);
+        FactsCommand command = new FactsCommand(ID, SECURE, PERMISSION, "TestFacts", random);
 
         Channel channel = mockChannel();
         Message message = mockMessage(channel);

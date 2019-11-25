@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends CrudRepository<UserRow, Integer> {
+    UserRow findById(int id);
     UserRow findByTwitchId(int twitchId);
-    UserRow findById(int twitchId);
+    UserRow findByDiscordId(long discordId);
 }

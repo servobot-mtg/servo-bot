@@ -33,4 +33,8 @@ public class User {
     public String getTwitchUsername() {
         return twitchUsername;
     }
+
+    public boolean isAdmin() {
+        return "ryan_mtg".equals(twitchUsername);
+    }
 }

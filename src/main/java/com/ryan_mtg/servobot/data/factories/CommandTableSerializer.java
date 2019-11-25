@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.Application;
 import com.ryan_mtg.servobot.commands.CommandAlert;
+import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
 import com.ryan_mtg.servobot.data.models.CommandAlertRow;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
@@ -77,23 +78,19 @@ public class CommandTableSerializer {
     public void saveCommandTable(final CommandTable commandTable, final int botHomeId) {
         List<CommandAlias> aliases = commandTable.getAliases();
         Set<MessageCommand> aliasedCommands = new HashSet<>();
-        Map<Command, Integer> commandIdMap = new HashMap<>();
 
         for(CommandAlias alias : aliases) {
-            MessageCommand command = commandTable.getCommands(alias.getAlias());
+            MessageCommand command = commandTable.getCommand(alias.getAlias());
             aliasedCommands.add(command);
         }
 
         for(MessageCommand command : aliasedCommands) {
-            CommandRow commandRow = commandSerializer.saveCommand(botHomeId, command);
-            commandRepository.save(commandRow);
-            commandIdMap.put(command, commandRow.getId());
+            commandSerializer.saveCommand(botHomeId, command);
         }
 
         for(CommandAlias alias : aliases) {
-            MessageCommand command = commandTable.getCommands(alias.getAlias());
-            CommandAliasRow aliasRow = new CommandAliasRow(alias.getId(), commandIdMap.get(command), alias.getAlias());
-            commandAliasRepository.save(aliasRow);
+            Command command = commandTable.getCommand(alias.getAlias());
+            commandSerializer.saveCommandAlias(command.getId(), alias);
         }
 
         Set<HomeCommand> triggeredCommands = new HashSet<>();
@@ -104,15 +101,12 @@ public class CommandTableSerializer {
         }
 
         for(HomeCommand command : triggeredCommands) {
-            CommandRow commandRow = commandSerializer.saveCommand(botHomeId, command);
-            commandRepository.save(commandRow);
-            commandIdMap.put(command, commandRow.getId());
+            commandSerializer.saveCommand(botHomeId, command);
         }
 
         for (CommandEvent event : events) {
             HomeCommand command = commandTable.getCommand(event);
-            CommandEventRow eventRow = new CommandEventRow(event.getId(), commandIdMap.get(command),
-                    event.getEventType());
+            CommandEventRow eventRow = new CommandEventRow(event.getId(), command.getId(), event.getEventType());
             commandEventRepository.save(eventRow);
         }
     }
@@ -161,27 +155,27 @@ public class CommandTableSerializer {
 
     private CommandTable getMooseCommandTable() {
         CommandTable commandTable = new CommandTable(false);
-        commandTable.registerCommand(new TierCommand(Command.UNREGISTERED_ID, false), "tier");
+        commandTable.registerCommand(new TierCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE), "tier");
         Random random = new Random();
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseFacts", random), "mooseFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "MooseLies", random), "mooseLies", "meeseFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "ServoFacts", random), "servofacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CanadaFacts", random), "canadaFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "FrankFacts", random), "frankFacts");
-        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, "CommandFacts", random), "commandFacts");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "Hello %user%, I am MoosersBot!"), "hello", "moose","hi");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "MooseFacts", random), "mooseFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "MooseLies", random), "mooseLies", "meeseFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "ServoFacts", random), "servofacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "CanadaFacts", random), "canadaFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "FrankFacts", random), "frankFacts");
+        commandTable.registerCommand(new FactsCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "CommandFacts", random), "commandFacts");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "Hello %user%, I am MoosersBot!"), "hello", "moose","hi");
 
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "You found it, duh!"), "discord");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "themightylinguine is a little less the on twitter: https://twitter.com/MightyLinguine"), "twitter");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "You found it, duh!"), "discord");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "themightylinguine is a little less the on twitter: https://twitter.com/MightyLinguine"), "twitter");
 
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "Carolyn is on the FAM: Friends and Magic Podcast. Use !googlecast !applecast or !spotifycast for links."), "podcast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "https://open.spotify.com/show/0smeuYeWNKjpdw0AfdI9Eq"), "spotifycast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "https://podcasts.google.com/?feed=aHR0cHM6Ly9hbmNob3IuZm0vcy9mMjg5ODZjL3BvZGNhc3QvcnNz"), "googlecast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "https://podcasts.apple.com/us/podcast/fam-friends-and-magic/id1482838493"), "applecast");
-        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, "MoosersBot has facts on moose, Canada, servos, meese, and Frank. It will one day have facts on sloths, but those are coming slowly."), "factfacts");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "Carolyn is on the FAM: Friends and Magic Podcast. Use !googlecast !applecast or !spotifycast for links."), "podcast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "https://open.spotify.com/show/0smeuYeWNKjpdw0AfdI9Eq"), "spotifycast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "https://podcasts.google.com/?feed=aHR0cHM6Ly9hbmNob3IuZm0vcy9mMjg5ODZjL3BvZGNhc3QvcnNz"), "googlecast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "https://podcasts.apple.com/us/podcast/fam-friends-and-magic/id1482838493"), "applecast");
+        commandTable.registerCommand(new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, "MoosersBot has facts on moose, Canada, servos, meese, and Frank. It will one day have facts on sloths, but those are coming slowly."), "factfacts");
 
         String channelName = Application.isTesting() ? "general" : "a-moose-ments";
-        HomeCommand streamStartCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, false, DiscordService.TYPE, channelName,
+        HomeCommand streamStartCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, DiscordService.TYPE, channelName,
                     "@everyone should know that Linguine is going live! http://twitch.tv/themightylinguine");
 
         commandTable.registerCommand(streamStartCommand, new CommandEvent(CommandEvent.UNREGISTERED_ID, CommandEvent.Type.STREAM_START));

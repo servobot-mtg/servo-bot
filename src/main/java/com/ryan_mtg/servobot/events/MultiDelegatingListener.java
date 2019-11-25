@@ -1,8 +1,5 @@
 package com.ryan_mtg.servobot.events;
 
-import com.ryan_mtg.servobot.model.Home;
-import com.ryan_mtg.servobot.model.Message;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +18,12 @@ public class MultiDelegatingListener implements EventListener {
 
     @Override
     public void onMessage(final MessageSentEvent messageSentEvent) {
-        for (EventListener listener : listeners) {
-            listener.onMessage(messageSentEvent);
+        try {
+            for (EventListener listener : listeners) {
+                listener.onMessage(messageSentEvent);
+            }
+        } catch (BotErrorException e) {
+            messageSentEvent.getMessage().getChannel().say(e.getErrorMessage());
         }
     }
 

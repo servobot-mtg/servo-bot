@@ -41,6 +41,8 @@ public class CommandTable {
         if (commandMap.containsKey(alias)) {
             LOGGER.warn("Command " + alias + " is already registered");
             throw new IllegalStateException("Command " + alias + " is already registered");
+        } else {
+            LOGGER.trace("Registering alias " + alias + " has keys: " + commandMap.keySet().toString());
         }
         commandMap.put(alias, command);
         aliases.add(commandAlias);
@@ -86,8 +88,12 @@ public class CommandTable {
         return ImmutableMap.copyOf(commandMap);
     }
 
-    public MessageCommand getCommands(final String token) {
+    public MessageCommand getCommand(final String token) {
         return commandMap.get(cannonicalize(token));
+    }
+
+    public boolean hasAlias(final String token) {
+        return commandMap.containsKey(cannonicalize(token));
     }
 
     public List<HomeCommand> getCommands(final CommandEvent.Type eventType) {
@@ -124,9 +130,15 @@ public class CommandTable {
         }
     }
 
-    public Command secureCommand(int commandId, boolean secure) {
+    public Command secureCommand(final int commandId, final boolean secure) {
         Command command = idToCommandMap.get(commandId);
         command.setSecure(secure);
+        return command;
+    }
+
+    public Command setCommandPermission(final int commandId, final Permission permission) {
+        Command command = idToCommandMap.get(commandId);
+        command.setPermission(permission);
         return command;
     }
 

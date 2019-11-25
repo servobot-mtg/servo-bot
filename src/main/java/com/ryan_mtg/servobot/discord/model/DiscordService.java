@@ -1,9 +1,11 @@
 package com.ryan_mtg.servobot.discord.model;
 
+import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import net.dv8tion.jda.api.JDA;
@@ -21,11 +23,13 @@ public class DiscordService implements Service {
     public static final int TYPE = 2;
     private String token;
     private JDA jda;
+    private UserSerializer userSerializer;
 
     private Map<Long, Integer> homeIdMap = new HashMap<>();
 
-    public DiscordService(final String token) {
+    public DiscordService(final String token, final UserSerializer userSerializer) {
         this.token = token;
+        this.userSerializer = userSerializer;
     }
 
     @Override
@@ -51,14 +55,14 @@ public class DiscordService implements Service {
         JDABuilder builder = new JDABuilder(token);
         builder.setActivity(Activity.playing("Beta: " + now()));
 
-        builder.addEventListeners(new DiscordEventAdapter(eventListener, homeIdMap));
+        builder.addEventListeners(new DiscordEventAdapter(eventListener, homeIdMap, userSerializer));
         jda = builder.build();
         jda.awaitReady();
     }
 
-    public Home getHome(final long guildId) {
+    public Home getHome(final long guildId, final HomeEditor homeEditor) {
         Guild guild = jda.getGuildById(guildId);
-        return new DiscordHome(guild);
+        return new DiscordHome(guild, homeEditor);
     }
 
     public void setNickName(final long guildId, final String name) {

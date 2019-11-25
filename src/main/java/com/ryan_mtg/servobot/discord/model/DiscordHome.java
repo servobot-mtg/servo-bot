@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -18,8 +19,11 @@ public class DiscordHome implements Home {
 
     private Guild guild;
 
-    public DiscordHome(final Guild guild) {
+    private HomeEditor homeEditor;
+
+    public DiscordHome(final Guild guild, final HomeEditor homeEditor) {
         this.guild = guild;
+        this.homeEditor = homeEditor;
     }
 
     @Override
@@ -67,6 +71,11 @@ public class DiscordHome implements Home {
 
         LOGGER.warn("Unable to find emote " + emoteName + " in " + guild);
         return null;
+    }
+
+    @Override
+    public HomeEditor getHomeEditor() {
+        return homeEditor;
     }
 
     private long getDiscordId(final User user) {

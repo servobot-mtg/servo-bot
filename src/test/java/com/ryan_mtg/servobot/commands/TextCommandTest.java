@@ -10,12 +10,13 @@ import static org.mockito.Mockito.verify;
 public class TextCommandTest {
     private static final int ID = 1;
     private static final boolean SECURE = true;
+    private static final Permission PERMISSION = Permission.MOD;
     private static final String TEXT = "text";
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
     public void testPerform() {
-        TextCommand command = new TextCommand(ID, SECURE, TEXT);
+        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, TEXT);
 
         Channel channel = mockChannel();
         Message message = mockMessage(channel);
@@ -27,7 +28,7 @@ public class TextCommandTest {
 
     @Test
     public void testPerformSubstitutesUserName() {
-        TextCommand command = new TextCommand(ID, SECURE, "Hello, %user%!");
+        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Hello, %user%!");
 
         Channel channel = mockChannel();
         Message message = mockMessage(channel, mockUser("name"));

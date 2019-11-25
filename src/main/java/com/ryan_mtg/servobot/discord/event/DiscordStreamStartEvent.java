@@ -15,6 +15,6 @@ public class DiscordStreamStartEvent extends DiscordEvent implements StreamStart
 
     @Override
     public Home getHome() {
-        return new DiscordHome(event.getGuild());
+        return new DiscordHome(event.getGuild(), getHomeEditor());
     }
 }

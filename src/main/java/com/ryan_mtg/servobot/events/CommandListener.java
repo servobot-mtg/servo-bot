@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class CommandListener implements EventListener {
     }
 
     @Override
-    public void onMessage(final MessageSentEvent messageSentEvent) {
+    public void onMessage(final MessageSentEvent messageSentEvent) throws BotErrorException {
         Message message = messageSentEvent.getMessage();
         User sender = messageSentEvent.getSender();
         if (sender.isBot()) {
@@ -42,13 +43,17 @@ public class CommandListener implements EventListener {
         String command = firstToken.substring(1);
 
         scanner.useDelimiter("\\z");
-        String arguments = scanner.hasNext() ? scanner.next() : null;
+        String arguments = scanner.hasNext() ? scanner.next().trim() : null;
 
-        MessageCommand messageCommand = commandTable.getCommands(command);
+        MessageCommand messageCommand = commandTable.getCommand(command);
 
         if (messageCommand != null) {
             LOGGER.info("Peforming " + command + " for " + message.getSender().getName() + " with arguments " + arguments);
-            messageCommand.perform(message, arguments);
+            if (hasPermissions(message.getHome(), sender, messageCommand)) {
+                messageCommand.perform(message, arguments);
+            } else {
+                throw new BotErrorException(String.format("%s is not allowed to %s.", sender.getName(), command));
+            }
         } else {
             LOGGER.warn("Unknown command " + command + " for " + message.getSender().getName() + " with arguments " + arguments);
         }
@@ -65,6 +70,23 @@ public class CommandListener implements EventListener {
     public void onAlert(final AlertEvent alertEvent) {
         for (HomeCommand command : commandTable.getCommandsFromToken(alertEvent.getAlertToken())) {
             command.perform(alertEvent.getHome());
+        }
+    }
+
+    private boolean hasPermissions(final Home home, final User sender, final MessageCommand messageCommand) {
+        switch (messageCommand.getPermission()) {
+            case ANYONE:
+                return true;
+            case ADMIN:
+                return sender.isAdmin();
+            case STREAMER:
+                return home.isStreamer(sender);
+            case MOD:
+                return sender.isModerator();
+            case SUB:
+                return sender.isSubscriber();
+            default:
+                throw new IllegalStateException("Unhandled permission: " + messageCommand.getPermission());
         }
     }
 }

@@ -1,14 +1,13 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
-import com.ryan_mtg.servobot.events.AlertEvent;
-import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +15,9 @@ public class Bot {
     private static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
     private String name;
     private List<BotHome> homes = new ArrayList<>();
-    private HomeDelegatingListener listener = new HomeDelegatingListener();
+    private HomeDelegatingListener listener;
     private Map<Integer, Service> services;
+    private Map<Integer, HomeEditor> homeEditorMap = new HashMap<>();
     private SerializerContainer serializers;
     private AlertQueue alertQueue = new AlertQueue(this);
 
@@ -25,6 +25,7 @@ public class Bot {
         this.name = name;
         this.services = services;
         this.serializers = serializers;
+        listener = new HomeDelegatingListener(homeEditorMap);
     }
 
     public String getName() {
@@ -33,6 +34,7 @@ public class Bot {
 
     public void addHome(final BotHome home) {
         homes.add(home);
+        homeEditorMap.put(home.getId(), new HomeEditor(this, home));
         listener.register(home);
         services.values().stream().forEach(service -> service.register(home));
     }
@@ -42,14 +44,16 @@ public class Bot {
             service.start(listener);
         }
 
-        homes.stream().forEach(home ->
-                home.getServiceHomes().values().stream().forEach(serviceHome -> serviceHome.start(home)));
-
+        homes.stream().forEach(home -> home.startServices(homeEditorMap.get(home.getId())));
         startAlertQueue();
     }
 
     public List<BotHome> getHomes() {
         return homes;
+    }
+
+    public HomeEditor getHomeEditor(final int botHomeId) {
+        return homeEditorMap.get(botHomeId);
     }
 
     public BotHome getHome(final int botHomeId) {
@@ -67,12 +71,6 @@ public class Bot {
 
     public AlertQueue getAlertQueue() {
         return alertQueue;
-    }
-
-    public void alert(final BotHome botHome, final String alertToken) {
-        AlertEvent alertEvent =
-                new BotHomeAlertEvent(botHome.getId(), alertToken, new MultiServiceHome(botHome.getServiceHomes()));
-        listener.onAlert(alertEvent);
     }
 
     private void startAlertQueue() {

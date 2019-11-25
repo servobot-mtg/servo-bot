@@ -4,15 +4,18 @@ import com.github.twitch4j.chat.TwitchChat;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 
 public class TwitchChannel implements Channel, Home {
     private TwitchChat twitchChat;
     private String channelName;
+    private HomeEditor homeEditor;
 
-    public TwitchChannel(final TwitchChat twitchChat, final String channelName) {
+    public TwitchChannel(final TwitchChat twitchChat, final String channelName, final HomeEditor homeEditor) {
         this.twitchChat = twitchChat;
         this.channelName = channelName;
+        this.homeEditor = homeEditor;
     }
 
     @Override
@@ -54,5 +57,10 @@ public class TwitchChannel implements Channel, Home {
     @Override
     public Emote getEmote(final String emoteName) {
         return null;
+    }
+
+    @Override
+    public HomeEditor getHomeEditor() {
+        return homeEditor;
     }
 }

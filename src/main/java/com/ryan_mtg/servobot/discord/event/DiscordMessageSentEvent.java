@@ -9,19 +9,21 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class DiscordMessageSentEvent extends DiscordEvent implements MessageSentEvent {
     private GuildMessageReceivedEvent event;
+    private User sender;
 
-    public DiscordMessageSentEvent(final GuildMessageReceivedEvent event, final int homeId) {
+    public DiscordMessageSentEvent(final GuildMessageReceivedEvent event, final int homeId, final User sender) {
         super(homeId);
         this.event = event;
+        this.sender = sender;
     }
 
     @Override
     public Message getMessage() {
-        return new DiscordMessage(event.getMessage());
+        return new DiscordMessage(this, event.getMessage(), getHomeEditor());
     }
 
     @Override
     public User getSender() {
-        return new DiscordUser(event.getMember());
+        return sender;
     }
 }

@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.data.repositories.UserHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.UserRepository;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,14 +57,30 @@ public class UserSerializer {
         return createUser(userRow);
     }
 
+    public User lookupByDiscordId(final long discordId) {
+        UserRow userRow = userRepository.findByDiscordId(discordId);
+
+        if (userRow == null) {
+            userRow = new UserRow();
+            userRow.setDiscordId(discordId);
+            userRepository.save(userRow);
+        }
+
+        return createUser(userRow);
+    }
+
     public List<Integer> getHomesModerated(final int userId) {
         List<UserHomeRow> userHomeRows = userHomeRepository.findByUserId(userId);
         return userHomeRows.stream().filter(userHomeRow -> new TwitchUserStatus(userHomeRow.getState()).isModerator())
                 .map(userHomeRow -> userHomeRow.getBotHomeId()).collect(Collectors.toList());
     }
 
-    private User createUser(final UserRow userRow)  {
-        return new User(userRow.getId(), userRow.getTwitchId(), userRow.getTwitchUsername(), userRow.getDiscordId());
+    public UserStatus getStatus(final User user, final int botHomeId) {
+        UserHomeRow userHomeRow = userHomeRepository.findByUserIdAndBotHomeId(user.getId(), botHomeId);
+        if (userHomeRow == null) {
+            return new UserStatus();
+        }
+        return new UserStatus(userHomeRow.getState());
     }
 
     @Transactional
@@ -94,6 +111,9 @@ public class UserSerializer {
         }
 
         userHomeRepository.save(userHomeRow);
+    }
 
+    private User createUser(final UserRow userRow)  {
+        return new User(userRow.getId(), userRow.getTwitchId(), userRow.getTwitchUsername(), userRow.getDiscordId());
     }
 }

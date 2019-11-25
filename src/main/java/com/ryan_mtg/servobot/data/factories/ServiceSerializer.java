@@ -49,7 +49,7 @@ public class ServiceSerializer {
 
         switch (serviceRow.getType()) {
             case DiscordService.TYPE:
-                return new DiscordService(serviceRow.getToken());
+                return new DiscordService(serviceRow.getToken(), userSerializer);
             case TwitchService.TYPE:
                 return new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(), serviceRow.getToken(),
                                          userSerializer);

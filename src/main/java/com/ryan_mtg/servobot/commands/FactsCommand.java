@@ -14,8 +14,9 @@ public class FactsCommand extends MessageCommand {
     private List<String> facts;
     private String fileName;
 
-    public FactsCommand(final int id, final boolean secure, final String name, final Random random) {
-        super(id, secure);
+    public FactsCommand(final int id, final boolean secure, final Permission permission, final String name,
+                        final Random random) {
+        super(id, secure, permission);
         facts = readFacts(String.format("/facts/%s.txt", name));
         fileName = name;
         this.random = random;

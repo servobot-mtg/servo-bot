@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.HomeEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,14 +11,19 @@ import java.util.Map;
 public class HomeDelegatingListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(HomeDelegatingListener.class);
     private Map<Integer, EventListener> botHomeMap = new HashMap<>();
+    private Map<Integer, HomeEditor> homeEditorMap;
+
+    public HomeDelegatingListener(final Map<Integer, HomeEditor> homeEditorMap) {
+        this.homeEditorMap = homeEditorMap;
+    }
 
     public void register(final BotHome botHome) {
         botHomeMap.put(botHome.getId(), botHome.getListener());
     }
 
     @Override
-    public void onMessage(final MessageSentEvent messageSentEvent) {
-        EventListener listener = getListener(messageSentEvent.getHomeId());
+    public void onMessage(final MessageSentEvent messageSentEvent) throws BotErrorException {
+        EventListener listener = getListener(messageSentEvent);
         if (listener != null) {
             listener.onMessage(messageSentEvent);
         }
@@ -25,7 +31,7 @@ public class HomeDelegatingListener implements EventListener {
 
     @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
-        EventListener listener = getListener(streamStartEvent.getHomeId());
+        EventListener listener = getListener(streamStartEvent);
         if (listener != null) {
             listener.onStreamStart(streamStartEvent);
         }
@@ -33,13 +39,15 @@ public class HomeDelegatingListener implements EventListener {
 
     @Override
     public void onAlert(final AlertEvent alertEvent) {
-        EventListener listener = getListener(alertEvent.getHomeId());
+        EventListener listener = getListener(alertEvent);
         if (listener != null) {
             listener.onAlert(alertEvent);
         }
     }
 
-    private EventListener getListener(final int homeId) {
+    private EventListener getListener(final Event event) {
+        int homeId = event.getHomeId();
+        event.setHomeEditor(homeEditorMap.get(homeId));
         return botHomeMap.get(homeId);
     }
 }

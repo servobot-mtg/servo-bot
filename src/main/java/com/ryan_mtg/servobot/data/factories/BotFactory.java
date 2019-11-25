@@ -3,9 +3,7 @@ package com.ryan_mtg.servobot.data.factories;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.BotRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
-import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
-import com.ryan_mtg.servobot.data.repositories.ServiceRepository;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
@@ -52,7 +50,7 @@ public class BotFactory {
                 serviceHomes.put(serviceType, serviceHome);
             }
 
-            BotHome botHome = new BotHome(botHomeId, bot, homeName, timeZone, commandTable, reactionTable, serviceHomes);
+            BotHome botHome = new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, serviceHomes);
             bot.addHome(botHome);
         }
 

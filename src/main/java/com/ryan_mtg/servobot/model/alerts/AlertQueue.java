@@ -59,7 +59,7 @@ public class AlertQueue {
 
         public void alert() {
             LOGGER.info("Alerting {}", generator.getAlertToken());
-            bot.alert(home, generator.getAlertToken());
+            bot.getHomeEditor(home.getId()).alert(generator.getAlertToken());
             schedule(Instant.now());
         }
 
