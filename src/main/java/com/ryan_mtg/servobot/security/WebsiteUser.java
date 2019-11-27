@@ -7,10 +7,10 @@ import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class User implements Principal {
+public class WebsiteUser implements Principal {
     private OAuth2AuthenticationToken oAuth2AuthenticationToken;
 
-    public User(final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
+    public WebsiteUser(final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
         this.oAuth2AuthenticationToken = oAuth2AuthenticationToken;
     }
 

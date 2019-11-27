@@ -1,5 +1,5 @@
 body {
-    margin: 0px;
+    margin: 0;
 }
 
 .pseudo-link {
@@ -11,12 +11,25 @@ body {
 }
 
 .content {
-    padding: 0px 12px;
+    padding: 0 12px;
 }
 
 .navbar {
     border-bottom: black solid 1px;
 }
+
+.navbar .navitem.admin {
+    background-color: maroon;
+}
+
+.navbar .navitem.admin a {
+    color: whitesmoke;
+}
+
+.navbar .navitem.admin-user {
+    color: maroon;
+}
+
 
 .twitch {
     border: #9146FF solid 1px;
@@ -93,10 +106,6 @@ body {
     /* Change the link color to #111 (black) on hover */
     background-color: dimgray;
     color: white;
-}
-
-.admin {
-    color: maroon;
 }
 
 table {

@@ -10,7 +10,7 @@
         <div class="navbar">
             <ul>
                 <li><div class="navitem" th:classappend="${page == 'index' ? 'active' : ''}">
-                    <a href="#" th:href="@{/}"><img src="/images/moosers.png" height="28" width="32"></a>
+                    <a href="#" th:href="@{/}"><img src="/images/moosers.png" alt="ServoBot" height="28" width="32"></a>
                 </div></li>
 
                 <li><div class="navitem" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
@@ -18,9 +18,15 @@
                     <span th:text="${page}"></span>
                 </div></li>
 
+                <li th:if="${user.authenticated && user.admin}"><div class="navitem admin">
+                    <a href="/admin">Admin</a>
+                    <form style="visibility: hidden" id="logout-form" method="post" action="#" th:action="@{/logout}"></form>
+                </div></li>
+
+
                 <li class="right" th:if="${!user.authenticated}"><div class="navitem twitch">
                     <a th:href="@{/oauth2/authorization/twitch}">
-                        <img src="/images/glitch.png" height="28" width="32">
+                        <img src="/images/glitch.png" alt="Twitch" height="28" width="32">
                     </a>
                 </div></li>
 
@@ -32,7 +38,7 @@
                 </div></li>
 
                 <li class="right" th:if="${user.authenticated}">
-                    <div class="navitem" th:classappend="${user.admin ? 'admin ' : ' '} +
+                    <div class="navitem" th:classappend="${user.admin ? 'admin-user ' : ' '} +
                          ${botHome != null && user.roles.contains('ROLE_MOD:' + botHome.id) ? 'mod' : ''}">
                         <span th:title="${user.roles}" th:text="${user.name}" ></span>
                     </div>
@@ -52,7 +58,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <link href="/style/main.css" rel="stylesheet" type="text/css">
         <script type="text/javascript" src="/script/main.js"></script>
-        <link rel="shortcut icon" href="images/favicon.ico"/>
+        <link rel="shortcut icon" href="/images/favicon.ico"/>
     </div>
 </body>
 </html>

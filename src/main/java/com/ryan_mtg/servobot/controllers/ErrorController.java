@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.controllers.exceptions.AccessDeniedException;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
@@ -28,6 +29,10 @@ public class ErrorController extends AbstractErrorController {
         if (status == HttpStatus.NOT_FOUND) {
             throw new ResourceNotFoundException(request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI).toString());
         }
+        if (status == HttpStatus.FORBIDDEN) {
+            throw new AccessDeniedException(request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI).toString());
+        }
+
         throw new ResponseStatusException(status);
     }
 

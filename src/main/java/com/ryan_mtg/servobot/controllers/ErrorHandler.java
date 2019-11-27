@@ -1,7 +1,8 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.controllers.exceptions.AccessDeniedException;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
-import com.ryan_mtg.servobot.security.User;
+import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -43,13 +44,17 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ModelAndView defaultExceptionHandler(final ResourceNotFoundException exception,
+    public ModelAndView resourceNotFoundHandler(final ResourceNotFoundException exception,
                                                 final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
-
-        ModelAndView modelAndView = setupModelAndView("error/resource_not_found",
+        return setupModelAndView("error/resource_not_found",
                 exception.getStatus(), exception, oAuth2AuthenticationToken);
+    }
 
-        return modelAndView;
+    @ExceptionHandler(AccessDeniedException.class)
+    public ModelAndView accessDeniedHandler(final AccessDeniedException exception,
+                                            final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
+        return setupModelAndView("error/access_denied",
+                exception.getStatus(), exception, oAuth2AuthenticationToken);
     }
 
     private ModelAndView setupModelAndView(final String viewName, final HttpStatus status, final Throwable exception,
@@ -58,7 +63,7 @@ public class ErrorHandler {
         modelAndView.setStatus(status);
         modelAndView.addObject("resource", exception.getMessage());
         modelAndView.addObject("stack_trace", extractStackTrace(exception));
-        modelAndView.addObject("user", new User(oAuth2AuthenticationToken));
+        modelAndView.addObject("user", new WebsiteUser(oAuth2AuthenticationToken));
 
         return modelAndView;
     }

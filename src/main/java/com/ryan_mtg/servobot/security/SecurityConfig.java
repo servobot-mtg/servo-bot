@@ -49,13 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        http
-            .antMatcher("/**")
-            .authorizeRequests()
-                .antMatchers("/**")
-                .permitAll()
-            .anyRequest()
-                .authenticated()
+        http.authorizeRequests()
+            .antMatchers("/admin**").hasRole("ADMIN")
+            .antMatchers("/bad**").hasRole("BAD")
+            .antMatchers("/login**", "/images/**", "/script/**", "/style/**").permitAll()
+            .anyRequest().permitAll()
             .and().oauth2Login().loginPage("/login")
             .and().logout().logoutSuccessUrl("/").permitAll()
             .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userSerializer));
@@ -63,6 +61,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @ModelAttribute
     private void addUser(final Model model, final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
-        model.addAttribute("user", new User(oAuth2AuthenticationToken));
+        model.addAttribute("user", new WebsiteUser(oAuth2AuthenticationToken));
     }
 }

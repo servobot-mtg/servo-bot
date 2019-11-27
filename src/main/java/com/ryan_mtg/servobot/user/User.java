@@ -4,22 +4,28 @@ public class User {
     public static final int UNREGISTERED_ID = 0;
 
     private int id;
-
+    private boolean admin;
     private int twitchId;
-
     private long discordId;
-
     private String twitchUsername;
+    private String discordUsername;
 
-    public User(final int id, final int twitchId, final String twitchUsername, final long discordId) {
+    public User(final int id, final boolean admin, final int twitchId, final String twitchUsername,
+                final long discordId, final String discordUsername) {
         this.id = id;
+        this.admin = admin;
         this.twitchId = twitchId;
         this.twitchUsername = twitchUsername;
         this.discordId = discordId;
+        this.discordUsername = discordUsername;
     }
 
     public int getId() {
         return id;
+    }
+
+    public boolean isAdmin() {
+        return admin;
     }
 
     public int getTwitchId() {
@@ -32,9 +38,5 @@ public class User {
 
     public String getTwitchUsername() {
         return twitchUsername;
-    }
-
-    public boolean isAdmin() {
-        return "ryan_mtg".equals(twitchUsername);
     }
 }

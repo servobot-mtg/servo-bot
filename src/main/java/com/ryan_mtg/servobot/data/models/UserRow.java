@@ -14,6 +14,8 @@ public class UserRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    private boolean admin;
+
     @Column(name = "twitch_id")
     private int twitchId;
 
@@ -25,6 +27,14 @@ public class UserRow {
 
     public int getId() {
         return id;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(final boolean admin) {
+        this.admin = admin;
     }
 
     public int getTwitchId() {

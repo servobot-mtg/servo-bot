@@ -2,19 +2,19 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.UserHomeRow;
 import com.ryan_mtg.servobot.data.models.UserRow;
-import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
-import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.UserHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.UserRepository;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class UserSerializer {
@@ -24,11 +24,10 @@ public class UserSerializer {
     @Autowired
     private UserHomeRepository userHomeRepository;
 
-    @Autowired
-    private BotHomeRepository botHomeRepository;
-
-    @Autowired
-    private ServiceHomeRepository serviceHomeRepository;
+    public List<User> getAllUsers() {
+        return StreamSupport.stream(userRepository.findAll(Sort.by("twitchUsername")).spliterator(), false)
+                .map(userRow -> createUser(userRow)).collect(Collectors.toList());
+    }
 
     public User lookupById(final int user_id) {
         UserRow userRow = userRepository.findById(user_id);
@@ -114,6 +113,7 @@ public class UserSerializer {
     }
 
     private User createUser(final UserRow userRow)  {
-        return new User(userRow.getId(), userRow.getTwitchId(), userRow.getTwitchUsername(), userRow.getDiscordId());
+        return new User(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
+                        userRow.getDiscordId(), null);
     }
 }

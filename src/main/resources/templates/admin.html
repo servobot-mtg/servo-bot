@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Administration</title>
+        <div th:include="fragments :: includes"/>
+    </head>
+    <body>
+        <div th:include="fragments :: header"/>
+        <div class="content">
+            <h1>Admin</h1>
+            <h2>Users</h2>
+            <table>
+                <thead><tr>
+                    <th>Id</th>
+                    <th>Twitch Name</th>
+                    <th>Twitch Id</th>
+                    <th>Discord Id</th>
+                    <th>Admin</th>
+                </tr></thead>
+                <th:block th:each="user : ${users}">
+                    <tr>
+                        <td th:text="${user.id}"/>
+                        <td th:text="${user.twitchUsername}"/>
+                        <td th:text="${user.twitchId}"/>
+                        <td th:text="${user.discordId}"/>
+                        <td th:text="${user.admin ? '&#x1F477;' : ''}"/>
+                    </tr>
+                </th:block>
+            </table>
+            <h2>Memory</h2>
+            <ul>
+                <li th:text="'Total: ' + ${total_memory}"/>
+                <li th:text="'used: ' + ${used_memory}"/>
+                <li th:text="'free: ' + ${free_memory}"/>
+            </ul>
+        </div>
+        <div th:include="fragments :: footer"/>
+    </body>
+</html>
