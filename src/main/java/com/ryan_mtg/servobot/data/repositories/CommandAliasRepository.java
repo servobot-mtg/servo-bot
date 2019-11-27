@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommandAliasRepository extends CrudRepository<CommandAliasRow, Integer> {
     Iterable<CommandAliasRow> findAllByCommandId(final int commandId);
+
+    void deleteCommandAliasById(int id);
 }

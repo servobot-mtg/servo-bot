@@ -1,14 +1,15 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandTable;
+import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.events.AlertEvent;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.reaction.Reaction;
 import org.slf4j.Logger;
@@ -56,18 +57,20 @@ public class HomeEditor {
 
     public void addCommand(final String alias, final MessageCommand command) {
         CommandTable commandTable = botHome.getCommandTable();
-        LOGGER.info("Adding command " + alias);
-        if (commandTable.hasAlias(alias)) {
-            LOGGER.info("Already seen :( " + alias);
-            throw new IllegalArgumentException("Already has alias " + alias);
-        }
-        CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, alias);
-        botHome.getCommandTable().registerCommand(command, commandAlias);
 
-        LOGGER.info("Saving command");
-        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
-        LOGGER.info("Saved command with id: " + command.getId());
-        serializers.getCommandSerializer().saveCommandAlias(command.getId(), commandAlias);
+        CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    public void deleteCommand(final String commandName) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandName);
+
+        if (commandTableEdit.getDeletedCommands().isEmpty()) {
+            throw new BotErrorException(String.format("Command '%s' not found.", commandName));
+        }
+        System.out.println("Got here");
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
     public void alert(final String alertToken) {

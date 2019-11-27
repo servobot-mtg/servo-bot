@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,8 @@ public class CommandTable {
     private Map<Integer, Command> idToCommandMap = new HashMap<>();
 
     private Map<String, MessageCommand> commandMap = new HashMap<>();
-    private List<CommandAlias> aliases = new ArrayList<>();
+    private Map<String, CommandAlias> aliasMap = new HashMap<>();
+    private Map<MessageCommand, List<CommandAlias>> reverseAliasMap = new HashMap<>();
 
     private List<CommandEvent> events = new ArrayList<>();
     private Map<CommandEvent, HomeCommand> eventCommandMap = new HashMap<>();
@@ -37,7 +39,7 @@ public class CommandTable {
 
     public void registerCommand(final MessageCommand command, final CommandAlias commandAlias) {
         registerCommand(command);
-        String alias = cannonicalize(commandAlias.getAlias());
+        String alias = canonicalize(commandAlias.getAlias());
         if (commandMap.containsKey(alias)) {
             LOGGER.warn("Command " + alias + " is already registered");
             throw new IllegalStateException("Command " + alias + " is already registered");
@@ -45,7 +47,45 @@ public class CommandTable {
             LOGGER.trace("Registering alias " + alias + " has keys: " + commandMap.keySet().toString());
         }
         commandMap.put(alias, command);
-        aliases.add(commandAlias);
+        aliasMap.put(alias, commandAlias);
+        reverseAliasMap.computeIfAbsent(command, newCommand -> new ArrayList<>()).add(commandAlias);
+    }
+
+    public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) {
+        CommandTableEdit commandTableEdit = deleteCommand(alias);
+        String canonicalAlias=canonicalize(alias);
+
+        commandMap.put(canonicalAlias, newCommand);
+        CommandAlias newAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, alias);
+        aliasMap.put(canonicalAlias, newAlias);
+        reverseAliasMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(newAlias);
+
+        commandTableEdit.save(newCommand, newAlias, command -> registerCommand(command));
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit deleteCommand(final String alias) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        String canonicalAlias=canonicalize(alias);
+
+        if (aliasMap.containsKey(canonicalAlias)) {
+            MessageCommand command = commandMap.get(canonicalAlias);
+            CommandAlias commandAlias = aliasMap.get(canonicalAlias);
+            List<CommandAlias> oldCommandsAliases = reverseAliasMap.get(command);
+
+            oldCommandsAliases.remove(commandAlias);
+            if (oldCommandsAliases.isEmpty()) {
+                commandTableEdit.delete(command);
+                reverseAliasMap.remove(command);
+
+                idToCommandMap.remove(command.getId());
+            }
+
+            commandMap.remove(canonicalAlias);
+            commandTableEdit.delete(commandAlias);
+        }
+
+        return commandTableEdit;
     }
 
     public void registerCommand(final HomeCommand homeCommand, final CommandEvent commandEvent) {
@@ -68,8 +108,8 @@ public class CommandTable {
         }
     }
 
-    public List<CommandAlias> getAliases() {
-        return aliases;
+    public Collection<CommandAlias> getAliases() {
+        return aliasMap.values();
     }
 
     public List<CommandEvent> getEvents() {
@@ -89,11 +129,7 @@ public class CommandTable {
     }
 
     public MessageCommand getCommand(final String token) {
-        return commandMap.get(cannonicalize(token));
-    }
-
-    public boolean hasAlias(final String token) {
-        return commandMap.containsKey(cannonicalize(token));
+        return commandMap.get(canonicalize(token));
     }
 
     public List<HomeCommand> getCommands(final CommandEvent.Type eventType) {
@@ -120,7 +156,7 @@ public class CommandTable {
         return alertCommandMap.get(alert);
     }
 
-    private String cannonicalize(final String token) {
+    private String canonicalize(final String token) {
         return isCaseSensitive ? token : token.toLowerCase();
     }
 

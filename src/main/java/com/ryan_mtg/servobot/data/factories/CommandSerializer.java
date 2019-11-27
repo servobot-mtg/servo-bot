@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.AddCommand;
 import com.ryan_mtg.servobot.commands.CommandAlias;
+import com.ryan_mtg.servobot.commands.DeleteCommand;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
@@ -49,6 +50,8 @@ public class CommandSerializer {
                         commandRow.getStringParameter2());
             case AddCommand.TYPE:
                 return new AddCommand(id, commandRow.isSecure(), commandRow.getPermission());
+            case DeleteCommand.TYPE:
+                return new DeleteCommand(id, commandRow.isSecure(), commandRow.getPermission());
         }
         throw new IllegalArgumentException("Unsupported type: " + commandRow.getType());
     }
@@ -81,6 +84,11 @@ public class CommandSerializer {
         @Override
         public void visitAddCommand(final AddCommand addCommand) {
             saveCommand(addCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitDeleteCommand(final DeleteCommand deleteCommand) {
+            saveCommand(deleteCommand, commandRow -> {});
         }
 
         @Override

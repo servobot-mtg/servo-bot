@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.Application;
 import com.ryan_mtg.servobot.commands.CommandAlert;
+import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
 import com.ryan_mtg.servobot.data.models.CommandAlertRow;
@@ -31,10 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,7 +76,7 @@ public class CommandTableSerializer {
     }
 
     public void saveCommandTable(final CommandTable commandTable, final int botHomeId) {
-        List<CommandAlias> aliases = commandTable.getAliases();
+        Collection<CommandAlias> aliases = commandTable.getAliases();
         Set<MessageCommand> aliasedCommands = new HashSet<>();
 
         for(CommandAlias alias : aliases) {
@@ -108,6 +108,23 @@ public class CommandTableSerializer {
             HomeCommand command = commandTable.getCommand(event);
             CommandEventRow eventRow = new CommandEventRow(event.getId(), command.getId(), event.getEventType());
             commandEventRepository.save(eventRow);
+        }
+    }
+
+    public void commit(final int botHomeId, final CommandTableEdit commandTableEdit) {
+        for (CommandAlias commandAlias : commandTableEdit.getDeletedAliases()) {
+            commandAliasRepository.deleteById(commandAlias.getId());
+        }
+
+        for (MessageCommand messageCommand : commandTableEdit.getDeletedCommands()) {
+            commandRepository.deleteById(messageCommand.getId());
+        }
+
+        for (MessageCommand messageCommand : commandTableEdit.getSavedCommands()) {
+            commandSerializer.saveCommand(botHomeId, messageCommand);
+            commandTableEdit.commandSaved(messageCommand);
+            CommandAlias commandAlias = commandTableEdit.getSavedAlias(messageCommand);
+            commandSerializer.saveCommandAlias(messageCommand.getId(), commandAlias);
         }
     }
 
