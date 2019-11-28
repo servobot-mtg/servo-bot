@@ -50,6 +50,8 @@ dependencies {
 }
 
 bootJar {
+    dependsOn check
+
     archiveBaseName = 'servo-bot'
 
     mainClassName = 'com.ryan_mtg.servobot.Application'

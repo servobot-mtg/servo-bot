@@ -9,7 +9,7 @@
     <div class="content">
         <h1 th:text="${botHome.name} + ' Home'" />
         <ul>
-            <li th:text="'Id ' + ${botHome.id}"></li>
+            <li th:if="${privledged}" th:text="'Id ' + ${botHome.id}"></li>
             <li th:if="${!privledged}" th:text="'Time Zone: ' + ${botHome.timeZone}"></li>
             <li th:if="${privledged}">Time Zone
                 <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
@@ -40,16 +40,17 @@
                 <th>Command description</th>
                 <th th:if="${privledged}">Secure</th>
                 <th>Permissions</th>
+                <th th:if="${privledged}">Delete</th>
             </tr></thead>
             <th:block th:each="commandEntry : ${botHome.commandTable.commandList}"
                       th:with="command=${commandEntry.value},alias=${commandEntry.key}" >
-                <tr th:if="${!command.secure || privledged}" th:with="label=${'command-' + command.id}"
+                <tr th:if="${!command.secure || privledged}" th:id="${'command-' + alias}"
+                    th:with="label=${'command-' + command.id}"
                     th:classappend="${(command.secure ? 'secure ' : ' ') + label + '-row'}">
                     <td th:text="${alias}"/>
                     <td th:text="${command.name}"/>
 
-                    <td th:if="${privledged}"
-                        th:attr="data-label=${label}" class="pseudo-link"
+                    <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"
                         th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
                         <span th:class="${label} + '-secured'"
                               th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
@@ -66,6 +67,10 @@
                             </th:block>
                         </select>
                         <span th:id="${label}+ '-permission-updated'"/>
+                    </td>
+                    <td th:if="${privledged}" th:onclick="'deleteCommand(event, ' + ${botHome.id} + ')'"
+                        th:attr="data-alias=${alias}" class="pseudo-link">
+                        &#x1F5D1;
                     </td>
                 </tr>
             </th:block>

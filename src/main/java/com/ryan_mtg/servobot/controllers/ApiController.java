@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,30 @@ public class ApiController {
 
         public Permission getPermission() {
             return permission;
+        }
+    }
+
+    @PostMapping(value = "/api/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteCommand(@RequestBody final DeleteCommandRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        try {
+            homeEditor.deleteCommand(request.getCommandName());
+            return true;
+        } catch (BotErrorException e) {
+            return false;
+        }
+    }
+
+    public static class DeleteCommandRequest {
+        private int botHomeId;
+        private String commandName;
+
+        public int getBotHomeId() {
+            return botHomeId;
+        }
+
+        public String getCommandName() {
+            return commandName;
         }
     }
 

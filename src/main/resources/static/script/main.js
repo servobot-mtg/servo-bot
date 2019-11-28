@@ -90,6 +90,23 @@ async function makePost(endpoint, parameters, responseElements, showOk) {
     return response;
 }
 
+function deleteCommand(event, botHomeId) {
+    const commandName = event.currentTarget.dataset.alias;
+    const performDelete = window.confirm('Are you sure you want to delete the ' + commandName + ' command?');
+    if (performDelete) {
+        postDeleteCommand(botHomeId, commandName);
+    }
+}
+
+async function postDeleteCommand(botHomeId, commandName) {
+    const parameters = {botHomeId: botHomeId, commandName: commandName};
+    let response = await makePost('/api/delete_command', parameters, [], false);
+    if (response.ok) {
+        let rowElement = document.getElementById('command-' + commandName);
+        rowElement.parentElement.removeChild(rowElement);
+    }
+}
+
 function getPostSettings(parameters) {
     let settings = {
         method: 'POST',
