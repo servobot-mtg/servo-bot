@@ -41,6 +41,6 @@ CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY,
                                           alert_token VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, admin BIT, twitch_id INTEGER, discord_id BIGINT,
-                                 twitch_username VARCHAR(50));
+                                 twitch_username VARCHAR(50), discord_username VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS user_home (bot_home_id INTEGER, user_id INTEGER, state INTEGER);

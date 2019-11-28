@@ -64,7 +64,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     private DiscordUser getUser(final Member member, final int botHomeId) {
-        User user = userSerializer.lookupByDiscordId(member.getIdLong());
+        User user = userSerializer.lookupByDiscordId(member.getIdLong(), member.getEffectiveName());
         LOGGER.info("User is {} with id {}", user.getTwitchUsername(), user.getId());
         UserStatus userStatus = userSerializer.getStatus(user, botHomeId);
         return new DiscordUser(user, member, userStatus);

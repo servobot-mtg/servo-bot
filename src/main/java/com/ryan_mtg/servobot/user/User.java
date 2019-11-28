@@ -39,4 +39,8 @@ public class User {
     public String getTwitchUsername() {
         return twitchUsername;
     }
+
+    public String getDiscordUsername() {
+        return discordUsername;
+    }
 }

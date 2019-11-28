@@ -14,6 +14,7 @@
                     <th>Id</th>
                     <th>Twitch Name</th>
                     <th>Twitch Id</th>
+                    <th>Discord Name</th>
                     <th>Discord Id</th>
                     <th>Admin</th>
                 </tr></thead>
@@ -22,6 +23,7 @@
                         <td th:text="${user.id}"/>
                         <td th:text="${user.twitchUsername}"/>
                         <td th:text="${user.twitchId}"/>
+                        <td th:text="${user.discordUsername}"/>
                         <td th:text="${user.discordId}"/>
                         <td th:text="${user.admin ? '&#x1F477;' : ''}"/>
                     </tr>

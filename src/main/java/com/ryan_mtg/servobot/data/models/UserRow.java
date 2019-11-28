@@ -25,6 +25,9 @@ public class UserRow {
     @Column(name = "twitch_username")
     private String twitchUsername;
 
+    @Column(name = "discord_username")
+    private String discordUsername;
+
     public int getId() {
         return id;
     }
@@ -59,5 +62,13 @@ public class UserRow {
 
     public void setTwitchUsername(final String twitchUsername) {
         this.twitchUsername = twitchUsername;
+    }
+
+    public String getDiscordUsername() {
+        return discordUsername;
+    }
+
+    public void setDiscordUsername(final String discordUsername) {
+        this.discordUsername = discordUsername;
     }
 }

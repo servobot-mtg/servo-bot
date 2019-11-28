@@ -29,16 +29,6 @@ public class UserSerializer {
                 .map(userRow -> createUser(userRow)).collect(Collectors.toList());
     }
 
-    public User lookupById(final int user_id) {
-        UserRow userRow = userRepository.findById(user_id);
-
-        if (userRow == null) {
-            return null;
-        }
-
-        return createUser(userRow);
-    }
-
     @Transactional
     public User lookupByTwitchId(final int twitchId, final String twitchUsername) {
         UserRow userRow = userRepository.findByTwitchId(twitchId);
@@ -57,13 +47,17 @@ public class UserSerializer {
         return createUser(userRow);
     }
 
-    public User lookupByDiscordId(final long discordId) {
+    public User lookupByDiscordId(final long discordId, final String discordUsername) {
         UserRow userRow = userRepository.findByDiscordId(discordId);
 
         if (userRow == null) {
             userRow = new UserRow();
             userRow.setDiscordId(discordId);
+            userRow.setDiscordUsername(discordUsername);
             userRow.setAdmin(false);
+            userRepository.save(userRow);
+        } else if (discordUsername != null && !discordUsername.equals(userRow.getDiscordUsername())) {
+            userRow.setDiscordUsername(discordUsername);
             userRepository.save(userRow);
         }
 
@@ -116,6 +110,6 @@ public class UserSerializer {
 
     private User createUser(final UserRow userRow)  {
         return new User(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
-                        userRow.getDiscordId(), null);
+                        userRow.getDiscordId(), userRow.getDiscordUsername());
     }
 }
