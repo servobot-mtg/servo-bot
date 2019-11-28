@@ -47,6 +47,7 @@ public class UserSerializer {
             userRow = new UserRow();
             userRow.setTwitchId(twitchId);
             userRow.setTwitchUsername(twitchUsername);
+            userRow.setAdmin(false);
             userRepository.save(userRow);
         } else if(twitchUsername != null && !twitchUsername.equals(userRow.getTwitchUsername())) {
             userRow.setTwitchUsername(twitchUsername);
@@ -62,6 +63,7 @@ public class UserSerializer {
         if (userRow == null) {
             userRow = new UserRow();
             userRow.setDiscordId(discordId);
+            userRow.setAdmin(false);
             userRepository.save(userRow);
         }
 
