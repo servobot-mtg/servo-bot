@@ -1,25 +1,26 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.model.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 public class FactsCommand extends MessageCommand {
     public static final int TYPE = 2;
 
-    private static Random random;
-    private List<String> facts;
-    private String fileName;
+    private Book book;
 
     public FactsCommand(final int id, final boolean secure, final Permission permission, final String name,
-                        final Random random) {
+                        final Book book) {
         super(id, secure, permission);
-        facts = readFacts(String.format("/facts/%s.txt", name));
-        fileName = name;
-        this.random = random;
+        if (book != null) {
+            this.book = book;
+        } else {
+            this.book = readBook(name);
+        }
     }
 
     @Override
@@ -29,7 +30,7 @@ public class FactsCommand extends MessageCommand {
 
     @Override
     public String getName() {
-        return fileName + " Command";
+        return book.getName() + " Command";
     }
 
     @Override
@@ -39,21 +40,33 @@ public class FactsCommand extends MessageCommand {
 
     @Override
     public void perform(final Message message, final String arguments) {
-        String fact = facts.get(random.nextInt(facts.size()));
-        MessageCommand.say(message, fact);
+        MessageCommand.say(message, book.getRandomLine());
     }
 
     public String getFileName() {
-        return fileName;
+        return book.getName();
     }
 
-    private static List<String> readFacts(final String resource) {
+    public Book getBook() {
+        return book;
+    }
+
+    public void setBook(final Book book) {
+        this.book = book;
+    }
+
+    private static Book readBook(final String name) {
+        List<Statement> lines = readFacts(String.format("/facts/%s.txt", name));
+        return new Book(Book.UNREGISTERED_ID, name, lines);
+    }
+
+    public static List<Statement> readFacts(final String resource) {
         Scanner scanner = new Scanner(FactsCommand.class.getResourceAsStream(resource));
-        List<String> facts = new ArrayList<>();
+        List<Statement> facts = new ArrayList<>();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();
             if (line.length() > 0) {
-                facts.add(line);
+                facts.add(new Statement(Statement.UNREGISTERED_ID, line));
             }
         }
         return facts;

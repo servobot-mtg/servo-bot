@@ -112,6 +112,31 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/api/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.deleteStatement(request.getBookId(), request.getStatementId());
+        return true;
+    }
+
+    public static class DeleteStatementRequest {
+        private int botHomeId;
+        private int bookId;
+        private int statementId;
+
+        public int getBotHomeId() {
+            return botHomeId;
+        }
+
+        public int getBookId() {
+            return bookId;
+        }
+
+        public int getStatementId() {
+            return statementId;
+        }
+    }
+
     private HomeEditor getHomeEditor(final int botHomeId) {
         return bot.getHomeEditor(botHomeId);
     }

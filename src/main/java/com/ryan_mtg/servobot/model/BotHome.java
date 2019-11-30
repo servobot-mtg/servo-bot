@@ -19,16 +19,18 @@ public class BotHome {
     private ReactionTable reactionTable;
     private EventListener eventListener;
     private Map<Integer, ServiceHome> serviceHomes;
+    private List<Book> books;
 
     public BotHome(final int id, final String name, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable,
-                   final Map<Integer, ServiceHome> serviceHomes) {
+                   final Map<Integer, ServiceHome> serviceHomes, final List<Book> books) {
         this.id = id;
         this.name = name;
         this.timeZone = timeZone;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
         this.serviceHomes = serviceHomes;
+        this.books = books;
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
@@ -70,6 +72,10 @@ public class BotHome {
 
     public ServiceHome getServiceHome(final int serviceType) {
         return serviceHomes.get(serviceType);
+    }
+
+    public List<Book> getBooks() {
+        return books;
     }
 
     public List<AlertGenerator> getAlertGenerators() {

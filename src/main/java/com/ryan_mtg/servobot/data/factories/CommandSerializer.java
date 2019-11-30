@@ -13,12 +13,13 @@ import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
+import com.ryan_mtg.servobot.model.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Component
@@ -31,17 +32,16 @@ public class CommandSerializer {
     @Autowired
     private CommandAliasRepository commandAliasRepository;
 
-    private Random random = new Random();
-
-    public Command createCommand(final CommandRow commandRow) {
+    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
         int id = commandRow.getId();
         switch (commandRow.getType()) {
             case TextCommand.TYPE:
                 return new TextCommand(id, commandRow.isSecure(), commandRow.getPermission(),
                                        commandRow.getStringParameter());
             case FactsCommand.TYPE:
+                int bookId = (int)(long) commandRow.getLongParameter();
                 return new FactsCommand(id, commandRow.isSecure(), commandRow.getPermission(),
-                                        commandRow.getStringParameter(), random);
+                                commandRow.getStringParameter(), bookMap.get(bookId));
             case TierCommand.TYPE:
                 return new TierCommand(id, commandRow.isSecure(), commandRow.getPermission());
             case MessageChannelCommand.TYPE:
@@ -95,6 +95,7 @@ public class CommandSerializer {
         public void visitFactsCommand(final FactsCommand factsCommand) {
             saveCommand(factsCommand, commandRow -> {
                 commandRow.setStringParameter(factsCommand.getFileName());
+                commandRow.setLongParameter(factsCommand.getBook().getId());
             });
         }
 

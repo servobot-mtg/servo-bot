@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, type 
 CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), time_zone VARCHAR(60));
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
-                                    secure BIT, stringParameter VARCHAR(200), stringParameter2 VARCHAR(200),
-                                    longParameter BIGINT, permission INT);
+                                    secure BIT, permission INT, stringParameter VARCHAR(200),
+                                    stringParameter2 VARCHAR(200), longParameter BIGINT);
 
 CREATE TABLE IF NOT EXISTS command_alias (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER, alias VARCHAR(30));
 
@@ -44,3 +44,7 @@ CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, admin BI
                                  twitch_username VARCHAR(50), discord_username VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS user_home (bot_home_id INTEGER, user_id INTEGER, state INTEGER);
+
+CREATE TABLE IF NOT EXISTS book (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, name VARCHAR(50));
+
+CREATE TABLE IF NOT EXISTS statement (id INTEGER AUTO_INCREMENT PRIMARY KEY, bookId INTEGER, text VARCHAR(256));

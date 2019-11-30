@@ -6,9 +6,7 @@ import com.ryan_mtg.servobot.data.repositories.ReactionPatternRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
 import com.ryan_mtg.servobot.reaction.Reaction;
 import com.ryan_mtg.servobot.reaction.ReactionTable;
-import com.ryan_mtg.servobot.reaction.WatershedFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,31 +22,7 @@ public class ReactionTableSerializer {
     @Autowired
     private ReactionPatternRepository reactionPatternRepository;
 
-    @Autowired
-    @Value("${startup.database}")
-    private boolean useDatabase;
-
     public ReactionTable createReactionTable(final int botHomeId) {
-        if (useDatabase) {
-            return createPersistedRegisteredTable(botHomeId);
-        }
-        return getMooseReactionTable();
-    }
-
-    public void saveReactionTable(final ReactionTable reactionTable, final int botHomeId) {
-        List<Reaction> reactions = reactionTable.getReactions();
-        for (Reaction reaction : reactions) {
-            ReactionRow reactionRow = reactionSerializer.saveReaction(botHomeId, reaction);
-            for (String pattern : reaction.getPatterns()) {
-                ReactionPatternRow reactionPatternRow = new ReactionPatternRow();
-                reactionPatternRow.setPattern(pattern);
-                reactionPatternRow.setReactionId(reactionRow.getId());
-                reactionPatternRepository.save(reactionPatternRow);
-            }
-        }
-    }
-
-    private ReactionTable createPersistedRegisteredTable(final int botHomeId) {
         Iterable<ReactionRow> reactionRows = reactionRepository.findAllByBotHomeId(botHomeId);
         ReactionTable reactionTable = new ReactionTable();
 
@@ -67,17 +41,16 @@ public class ReactionTableSerializer {
         return reactionTable;
     }
 
-
-    private ReactionTable getMooseReactionTable() {
-        ReactionTable reactionTable = new ReactionTable();
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "OMG", false, "graze it", "sloth", "grazer"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "LUL", false, "moose"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "Frank", false, "frank"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "pccb", false, "pumpkin"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "fast", false, "@fast"));
-        reactionTable.registerReaction(new Reaction(Reaction.UNREGISTERED_ID, "PG", true, new WatershedFilter(),
-                "!fuck", "@ass", "crap", "@hell", "!cunt", "shit", "!dick", "wanker", "!bitch", "damn",
-                "!nigger", "slut", "!twat", "!cock", "@trump", "assh"));
-        return reactionTable;
+    public void saveReactionTable(final ReactionTable reactionTable, final int botHomeId) {
+        List<Reaction> reactions = reactionTable.getReactions();
+        for (Reaction reaction : reactions) {
+            ReactionRow reactionRow = reactionSerializer.saveReaction(botHomeId, reaction);
+            for (String pattern : reaction.getPatterns()) {
+                ReactionPatternRow reactionPatternRow = new ReactionPatternRow();
+                reactionPatternRow.setPattern(pattern);
+                reactionPatternRow.setReactionId(reactionRow.getId());
+                reactionPatternRepository.save(reactionPatternRow);
+            }
+        }
     }
 }

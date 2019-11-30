@@ -8,6 +8,10 @@
         <div th:include="fragments :: header"/>
         <div class="content">
             <h1>Admin</h1>
+
+            <h2>Operations</h2>
+            <button onclick="runAdminTask()">Run Task</button><span id="run-task-response"/>
+
             <h2>Users</h2>
             <table>
                 <thead><tr>

@@ -107,6 +107,28 @@ async function postDeleteCommand(botHomeId, commandName) {
     }
 }
 
+function deleteStatement(event, botHomeId, bookId, statementId) {
+    postDeleteStatement(botHomeId, bookId, statementId);
+}
+
+async function postDeleteStatement(botHomeId, bookId, statementId) {
+    const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId};
+    let response = await makePost('/api/delete_statement', parameters, [], false);
+    if (response.ok) {
+        let rowElement = document.getElementById('statement-' + statementId + '-row');
+        rowElement.parentElement.removeChild(rowElement);
+    }
+}
+
+function runAdminTask() {
+    const responseElement = document.getElementById('run-task-response')
+    postRunAdminTask(responseElement);
+}
+
+async function postRunAdminTask(responseElement) {
+    await makePost('/admin/run', {}, [responseElement], true);
+}
+
 function getPostSettings(parameters) {
     let settings = {
         method: 'POST',

@@ -69,8 +69,14 @@ public class HomeEditor {
         if (commandTableEdit.getDeletedCommands().isEmpty()) {
             throw new BotErrorException(String.format("Command '%s' not found.", commandName));
         }
-        System.out.println("Got here");
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    public void deleteStatement(final int bookId, final int statementId) {
+        botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
+            book.deleteStatement(statementId);
+            serializers.getStatementRepository().deleteById(statementId);
+        });
     }
 
     public void alert(final String alertToken) {

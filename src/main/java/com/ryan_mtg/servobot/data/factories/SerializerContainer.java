@@ -1,12 +1,15 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
-import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
+import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SerializerContainer {
+    @Autowired
+    private BookSerializer bookSerializer;
+
     @Autowired
     private BotHomeRepository botHomeRepository;
 
@@ -26,7 +29,14 @@ public class SerializerContainer {
     private ServiceSerializer serviceSerializer;
 
     @Autowired
+    private StatementRepository statementRepository;
+
+    @Autowired
     private UserSerializer userSerializer;
+
+    public BookSerializer getBookSerializer() {
+        return bookSerializer;
+    }
 
     public BotHomeRepository getBotHomeRepository() {
         return botHomeRepository;
@@ -50,5 +60,9 @@ public class SerializerContainer {
 
     public ServiceSerializer getServiceSerializer() {
         return serviceSerializer;
+    }
+
+    public StatementRepository getStatementRepository() {
+        return statementRepository;
     }
 }
