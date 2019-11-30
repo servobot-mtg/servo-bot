@@ -39,9 +39,8 @@ public class CommandSerializer {
                 return new TextCommand(id, commandRow.isSecure(), commandRow.getPermission(),
                                        commandRow.getStringParameter());
             case FactsCommand.TYPE:
-                int bookId = (int)(long) commandRow.getLongParameter();
-                return new FactsCommand(id, commandRow.isSecure(), commandRow.getPermission(),
-                                commandRow.getStringParameter(), bookMap.get(bookId));
+                int bookId = (int) (long) commandRow.getLongParameter();
+                return new FactsCommand(id, commandRow.isSecure(), commandRow.getPermission(), bookMap.get(bookId));
             case TierCommand.TYPE:
                 return new TierCommand(id, commandRow.isSecure(), commandRow.getPermission());
             case MessageChannelCommand.TYPE:
@@ -94,7 +93,6 @@ public class CommandSerializer {
         @Override
         public void visitFactsCommand(final FactsCommand factsCommand) {
             saveCommand(factsCommand, commandRow -> {
-                commandRow.setStringParameter(factsCommand.getFileName());
                 commandRow.setLongParameter(factsCommand.getBook().getId());
             });
         }

@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 @Component
 public class AdminTask implements Runnable {
@@ -59,9 +61,21 @@ public class AdminTask implements Runnable {
 
     @Transactional
     public Book createBook(final int botHomeId, final String name) {
-        List<Statement> lines = FactsCommand.readFacts(String.format("/facts/%s.txt", name));
+        List<Statement> lines = readFacts(String.format("/facts/%s.txt", name));
         Book book = new Book(Book.UNREGISTERED_ID, name, lines);
         bookSerializer.saveBook(botHomeId, book);
         return book;
+    }
+
+    public static List<Statement> readFacts(final String resource) {
+        Scanner scanner = new Scanner(FactsCommand.class.getResourceAsStream(resource));
+        List<Statement> facts = new ArrayList<>();
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine().trim();
+            if (line.length() > 0) {
+                facts.add(new Statement(Statement.UNREGISTERED_ID, line));
+            }
+        }
+        return facts;
     }
 }
