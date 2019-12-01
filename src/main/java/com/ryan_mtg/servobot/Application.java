@@ -25,9 +25,6 @@ public class Application {
     @Value("${server.port}")
     private int port;
 
-    @Value("${startup.commit}")
-    private boolean shouldCommit;
-
     @Autowired
     @Qualifier("bot")
     private Bot bot;
@@ -51,16 +48,9 @@ public class Application {
         }
     }
 
-    @Autowired
-    private CommitToDatabase committer;
-
     @PostConstruct
     public void startApplication() throws Exception {
         bot.startBot();
-        LOGGER.info("commit to database? " + shouldCommit);
-        if (shouldCommit) {
-            committer.commit();
-        }
     }
 
     public static boolean isTesting() {

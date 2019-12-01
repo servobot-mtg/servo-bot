@@ -22,7 +22,7 @@ public class FactsCommandTest {
         Book book = mock(Book.class);
         when(book.getRandomLine()).thenReturn(LINE);
 
-        FactsCommand command = new FactsCommand(ID, SECURE, PERMISSION, "TestFacts", book);
+        FactsCommand command = new FactsCommand(ID, SECURE, PERMISSION, book);
 
         Channel channel = mockChannel();
         Message message = mockMessage(channel);

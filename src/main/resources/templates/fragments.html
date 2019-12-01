@@ -57,7 +57,8 @@
     <div th:fragment="includes">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <link href="/style/main.css" rel="stylesheet" type="text/css">
-        <script type="text/javascript" src="/script/main.js"></script>
+        <script type="text/javascript" src="/script/main.js"> </script>
+        <script th:if="${user.admin}" type="text/javascript" src="/script/admin.js"> </script>
         <link rel="shortcut icon" href="/images/favicon.ico"/>
     </div>
 </body>

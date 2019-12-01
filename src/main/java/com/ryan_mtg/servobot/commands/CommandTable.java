@@ -144,7 +144,7 @@ public class CommandTable {
         return eventCommandMap.get(event);
     }
 
-    public List<HomeCommand> getCommandsFromToken(final String alertToken) {
+    public List<HomeCommand> getCommandsFromAlertToken(final String alertToken) {
         List<CommandAlert> alerts = alertMap.get(alertToken);
         if (alerts != null) {
             return alerts.stream().map(alert -> getCommand(alert)).collect(Collectors.toList());
