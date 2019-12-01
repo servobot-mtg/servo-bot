@@ -30,11 +30,7 @@ public class BookSerializer {
         book.setId(bookId);
 
         for (Statement statement : book.getStatements()) {
-            StatementRow statementRow = new StatementRow(statement.getId(), bookId, statement.getText());
-
-            System.out.println(statement.getText().length() + ": " + statement.getText());
-            statementRepository.save(statementRow);
-            statement.setId(statementRow.getId());
+            saveStatement(bookId, statement);
         }
     }
 
@@ -47,5 +43,11 @@ public class BookSerializer {
             books.add(new Book(bookRow.getId(), bookRow.getName(), statements));
         }
         return books;
+    }
+
+    public void saveStatement(final int bookId, final Statement statement) {
+        StatementRow statementRow = new StatementRow(statement.getId(), bookId, statement.getText());
+        statementRepository.save(statementRow);
+        statement.setId(statementRow.getId());
     }
 }

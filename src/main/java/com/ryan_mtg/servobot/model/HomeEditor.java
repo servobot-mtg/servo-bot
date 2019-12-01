@@ -5,10 +5,14 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
+import com.ryan_mtg.servobot.data.models.StatementRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
+import com.ryan_mtg.servobot.data.repositories.BookRepository;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
+import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -78,6 +82,16 @@ public class HomeEditor {
         botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
             book.deleteStatement(statementId);
             serializers.getStatementRepository().deleteById(statementId);
+        });
+    }
+
+    public void modifyStatement(final int bookId, final int statementId, final String text) {
+        BookSerializer bookSerializer = serializers.getBookSerializer();
+        botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
+            book.getStatements().stream().filter(statement -> statement.getId() ==statementId).forEach(statement -> {
+                statement.setText(text);
+                bookSerializer.saveStatement(bookId, statement);
+            });
         });
     }
 

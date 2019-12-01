@@ -29,7 +29,7 @@ async function postSecureObject(endPoint, botHomeId, objectId, label) {
     const secure = valueElements[0].innerText != decodedLockedIcon;
     const parameters = {botHomeId: botHomeId, objectId: objectId, secure: secure};
     const responseElements = document.getElementById(label + '-response');
-    let response = await makePost(endPoint,parameters, responseElements, false);
+    let response = await makePost(endPoint, parameters, responseElements, false);
     if (response.ok) {
         setSecure(document.getElementsByClassName(label + '-row'), valueElements, await response.json());
     }
@@ -91,5 +91,41 @@ async function postDeleteStatement(botHomeId, bookId, statementId) {
     if (response.ok) {
         let rowElement = document.getElementById('statement-' + statementId + '-row');
         rowElement.parentElement.removeChild(rowElement);
+    }
+}
+
+function editStatement(event, statementId) {
+    let editElement = document.getElementById('statement-' + statementId + '-edit');
+    let displayElement = document.getElementById('statement-' + statementId + '-display');
+    displayElement.style.display = 'none';
+    editElement.style.display = 'block';
+}
+
+function modifyStatement(event, botHomeId, bookId, statementId) {
+    let inputElement = document.getElementById('statement-' + statementId + '-input');
+
+    let valueElement = document.getElementById('statement-' + statementId + '-value');
+
+    if (valueElement.innerText != inputElement.value) {
+        postModifyStatement(botHomeId, bookId, statementId, inputElement.value);
+    } else {
+        resetStatement(statementId);
+    }
+}
+
+function resetStatement(statementId) {
+    let editElement = document.getElementById('statement-' + statementId + '-edit');
+    editElement.style.display = 'none';
+    let displayElement = document.getElementById('statement-' + statementId + '-display');
+    displayElement.style.display = 'block';
+}
+
+async function postModifyStatement(botHomeId, bookId, statementId, text) {
+    const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId, text: text};
+    let response = await makePost('/api/modify_statement', parameters, [], false);
+    if (response.ok) {
+        let valueElement = document.getElementById('statement-' + statementId + '-value');
+        valueElement.innerText = text;
+        resetStatement(statementId);
     }
 }

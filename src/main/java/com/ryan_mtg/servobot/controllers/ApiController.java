@@ -137,6 +137,37 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/api/modify_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
+        return true;
+    }
+
+    public static class ModifyStatementRequest {
+        private int botHomeId;
+        private int bookId;
+        private int statementId;
+        private String text;
+
+        public int getBotHomeId() {
+            return botHomeId;
+        }
+
+        public int getBookId() {
+            return bookId;
+        }
+
+        public int getStatementId() {
+            return statementId;
+        }
+
+        public String getText() {
+            return text;
+        }
+    }
+
+
     private HomeEditor getHomeEditor(final int botHomeId) {
         return bot.getHomeEditor(botHomeId);
     }
