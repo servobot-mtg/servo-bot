@@ -7,7 +7,9 @@ import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
+import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
+import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
@@ -89,5 +91,18 @@ public class HomeEditor {
         Command command = botHome.getCommandTable().setCommandPermission(commandId, permission);
         serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
         return command.getPermission();
+    }
+
+    @Transactional
+    public void addSuggestion(final String command) {
+        String alias = command.toLowerCase();
+        SuggestionRepository suggestionRepository = serializers.getSuggestionRepository();
+        SuggestionRow suggestionRow = suggestionRepository.findByAlias(alias);
+        if (suggestionRow == null) {
+            suggestionRow = new SuggestionRow(alias, 1);
+        } else {
+            suggestionRow.setCount(suggestionRow.getCount() + 1);
+        }
+        suggestionRepository.save(suggestionRow);
     }
 }

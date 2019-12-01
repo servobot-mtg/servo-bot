@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
+import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,9 @@ public class AdministrationController {
     private UserSerializer userSerializer;
 
     @Autowired
+    private SuggestionRepository suggestionRepository;
+
+    @Autowired
     @Qualifier("adminTask")
     private Optional<Runnable> adminTask;
 
@@ -24,6 +28,7 @@ public class AdministrationController {
     public String index(final Model model) {
         model.addAttribute("page", "admin");
         model.addAttribute("users", userSerializer.getAllUsers());
+        model.addAttribute("suggestions", suggestionRepository.findAllByOrderByCountDescAliasAsc());
         return "admin";
     }
 
@@ -41,8 +46,20 @@ public class AdministrationController {
     public void addMemory(final Model model) {
         long totalMemory = Runtime.getRuntime().totalMemory();
         long freeMemory = Runtime.getRuntime().freeMemory();
-        model.addAttribute("total_memory", totalMemory);
-        model.addAttribute("free_memory", freeMemory);
-        model.addAttribute("used_memory", totalMemory-freeMemory);
+        model.addAttribute("total_memory", formatMemory(totalMemory));
+        model.addAttribute("free_memory", formatMemory(freeMemory));
+        model.addAttribute("used_memory", formatMemory(totalMemory-freeMemory));
+    }
+
+    private String formatMemory(final long amount) {
+        if (amount > 1024 * 1024) {
+            return String.format("%.2f MB", amount/1024./1024);
+        }
+
+        if (amount > 1024) {
+            return String.format("%.2f KB", amount/1024.);
+        }
+
+        return amount + " B";
     }
 }

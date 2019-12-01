@@ -33,6 +33,21 @@
                     </tr>
                 </th:block>
             </table>
+
+            <h2>Command Suggestions</h2>
+            <table>
+                <thead><tr>
+                    <th>Command</th>
+                    <th>Count</th>
+                </tr></thead>
+                <th:block th:each="suggestion : ${suggestions}">
+                    <tr>
+                        <td th:text="${suggestion.alias}"/>
+                        <td th:text="${suggestion.count}"/>
+                    </tr>
+                </th:block>
+            </table>
+
             <h2>Memory</h2>
             <ul>
                 <li th:text="'Total: ' + ${total_memory}"/>

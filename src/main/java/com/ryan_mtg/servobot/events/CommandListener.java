@@ -55,6 +55,7 @@ public class CommandListener implements EventListener {
                 throw new BotErrorException(String.format("%s is not allowed to %s.", sender.getName(), command));
             }
         } else {
+            messageSentEvent.getHomeEditor().addSuggestion(command);
             LOGGER.warn("Unknown command " + command + " for " + message.getSender().getName() + " with arguments " + arguments);
         }
     }

@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
+import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
+import com.ryan_mtg.servobot.model.HomeEditor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +32,9 @@ public class SerializerContainer {
 
     @Autowired
     private StatementRepository statementRepository;
+
+    @Autowired
+    private SuggestionRepository suggestionRepository;
 
     @Autowired
     private UserSerializer userSerializer;
@@ -64,5 +69,9 @@ public class SerializerContainer {
 
     public StatementRepository getStatementRepository() {
         return statementRepository;
+    }
+
+    public SuggestionRepository getSuggestionRepository() {
+        return suggestionRepository;
     }
 }
