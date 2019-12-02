@@ -35,6 +35,28 @@
                 </tr>
             </th:block>
         </table>
+
+        <h2>Users</h2>
+        <table>
+            <thead><tr>
+                <th>Twitch Name</th>
+                <th>Discord Name</th>
+                <th>Roles</th>
+            </tr></thead>
+            <th:block th:each="homedUser : ${users}">
+                <tr>
+                    <td th:text="${homedUser.twitchUsername}"/>
+                    <td th:text="${homedUser.discordUsername}"/>
+                    <td>
+                        <span title="Moderator" th:text="${homedUser.moderator ? '&#x1F46E;' : ''}"/>
+                        <span title="Subscriber" th:text="${homedUser.subscriber ? '&#x1F911;' : ''}"/>
+                        <span title="Admin" th:if="${user.admin}" th:text="${homedUser.admin ? '&#x1F477;' : ''}"/>
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+
+
         <h2>Commands</h2>
         <table>
             <thead><tr>

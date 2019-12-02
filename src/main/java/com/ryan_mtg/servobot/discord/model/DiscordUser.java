@@ -1,18 +1,16 @@
 package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.model.User;
-import com.ryan_mtg.servobot.user.UserStatus;
+import com.ryan_mtg.servobot.user.HomedUser;
 import net.dv8tion.jda.api.entities.Member;
 
 public class DiscordUser implements User {
-    private com.ryan_mtg.servobot.user.User user;
+    private HomedUser user;
     private Member member;
-    private UserStatus userStatus;
 
-    public DiscordUser(final com.ryan_mtg.servobot.user.User user, final Member member, final UserStatus userStatus) {
+    public DiscordUser(final HomedUser user, final Member member) {
         this.user = user;
         this.member = member;
-        this.userStatus = userStatus;
     }
 
     @Override
@@ -32,12 +30,12 @@ public class DiscordUser implements User {
 
     @Override
     public boolean isModerator() {
-        return userStatus.isModerator();
+        return user.isModerator();
     }
 
     @Override
     public boolean isSubscriber() {
-        return userStatus.isSubscriber();
+        return user.isSubscriber();
     }
 
     public long getDiscordId() {

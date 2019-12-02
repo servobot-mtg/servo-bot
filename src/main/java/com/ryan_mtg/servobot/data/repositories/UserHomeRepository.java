@@ -12,4 +12,5 @@ public interface UserHomeRepository extends CrudRepository<UserHomeRow, UserHome
     void deleteByUserIdAndBotHomeId(int userId, int botHomeId);
 
     List<UserHomeRow> findByUserId(int userId);
+    List<UserHomeRow> findByBotHomeId(int botHomeId);
 }

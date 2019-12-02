@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +48,12 @@ public class TwitchEventGenerator {
 
     private TwitchUser getUser(final EventUser eventUser, final Set<CommandPermission> permissions,
                                final int botHomeId) {
-        User user = userSerializer.lookupByTwitchId(Integer.parseInt(eventUser.getId()), eventUser.getName());
         boolean isModerator = permissions.contains(CommandPermission.MODERATOR);
         boolean isSubscriber = permissions.contains(CommandPermission.SUBSCRIBER);
         TwitchUserStatus status = new TwitchUserStatus(isModerator, isSubscriber);
-        userSerializer.updateStatus(user, botHomeId, status);
-        return new TwitchUser(user, status);
+
+        HomedUser user = userSerializer.lookupByTwitchId(botHomeId, Integer.parseInt(eventUser.getId()),
+                eventUser.getName(), status);
+        return new TwitchUser(user);
     }
 }

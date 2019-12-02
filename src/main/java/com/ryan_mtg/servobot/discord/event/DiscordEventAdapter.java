@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.model.DiscordUser;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -64,8 +65,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     private DiscordUser getUser(final Member member, final int botHomeId) {
-        User user = userSerializer.lookupByDiscordId(member.getIdLong(), member.getEffectiveName());
-        UserStatus userStatus = userSerializer.getStatus(user, botHomeId);
-        return new DiscordUser(user, member, userStatus);
+        HomedUser user = userSerializer.lookupByDiscordId(botHomeId, member.getIdLong(), member.getEffectiveName());
+        return new DiscordUser(user, member);
     }
 }

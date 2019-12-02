@@ -1,14 +1,13 @@
 package com.ryan_mtg.servobot.twitch.model;
 
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.user.HomedUser;
 
 public class TwitchUser implements User {
-    private com.ryan_mtg.servobot.user.User user;
-    private TwitchUserStatus status;
+    private HomedUser user;
 
-    public TwitchUser(final com.ryan_mtg.servobot.user.User user, final TwitchUserStatus status) {
+    public TwitchUser(final HomedUser user) {
         this.user = user;
-        this.status = status;
     }
 
     @Override
@@ -28,11 +27,11 @@ public class TwitchUser implements User {
 
     @Override
     public boolean isModerator() {
-        return status.isModerator();
+        return user.isModerator();
     }
 
     @Override
     public boolean isSubscriber() {
-        return status.isSubscriber();
+        return user.isSubscriber();
     }
 }

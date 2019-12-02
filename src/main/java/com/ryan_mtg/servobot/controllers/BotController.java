@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.controllers;
 import com.google.common.collect.Lists;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
+import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class BotController {
     @Autowired
     @Qualifier("bot")
     private Bot bot;
+
+    @Autowired
+    private UserSerializer userSerializer;
 
     private List<TimeZoneDescriptor> timeZones = new ArrayList<>();
 
@@ -46,6 +50,8 @@ public class BotController {
         }
         model.addAttribute("botHome", botHome);
         model.addAttribute("timeZones", timeZones);
+
+        model.addAttribute("users", userSerializer.getHomedUsers(homeId));
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
         return "bot_home";
