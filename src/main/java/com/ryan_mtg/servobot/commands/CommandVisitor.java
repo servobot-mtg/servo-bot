@@ -4,7 +4,11 @@ public interface CommandVisitor {
     void visitAddCommand(AddCommand addCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
     void visitFactsCommand(FactsCommand factsCommand);
+    void visitGameQueueCommand(GameQueueCommand gameQueueCommand);
+    void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
+    void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
+    void visitShowGameQueueCommand(ShowGameQueueCommand showGameQueueCommand);
     void visitTextCommand(TextCommand textCommand);
     void visitTierCommand(TierCommand tierCommand);
 }

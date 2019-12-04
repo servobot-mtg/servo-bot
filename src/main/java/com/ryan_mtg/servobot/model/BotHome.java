@@ -20,10 +20,12 @@ public class BotHome {
     private EventListener eventListener;
     private Map<Integer, ServiceHome> serviceHomes;
     private List<Book> books;
+    private List<GameQueue> gameQueues;
 
     public BotHome(final int id, final String name, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable,
-                   final Map<Integer, ServiceHome> serviceHomes, final List<Book> books) {
+                   final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
+                   final List<GameQueue> gameQueues) {
         this.id = id;
         this.name = name;
         this.timeZone = timeZone;
@@ -31,6 +33,7 @@ public class BotHome {
         this.reactionTable = reactionTable;
         this.serviceHomes = serviceHomes;
         this.books = books;
+        this.gameQueues = gameQueues;
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
@@ -87,5 +90,13 @@ public class BotHome {
             serviceHome.setHomeEditor(homeEditor);
             serviceHome.start(this);
         });
+    }
+
+    public List<GameQueue> getGameQueues() {
+        return gameQueues;
+    }
+
+    public GameQueue getGameQueue(final int gameQueueId) {
+        return gameQueues.stream().filter(gameQueue -> gameQueue.getId() == gameQueueId).findFirst().orElse(null);
     }
 }

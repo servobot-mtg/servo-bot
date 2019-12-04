@@ -8,20 +8,21 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
-import com.ryan_mtg.servobot.data.models.StatementRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
-import com.ryan_mtg.servobot.data.repositories.BookRepository;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
-import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.reaction.Reaction;
+import com.ryan_mtg.servobot.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
+import java.util.List;
+
+import static com.ryan_mtg.servobot.model.GameQueue.EMPTY_QUEUE;
 
 public class HomeEditor {
     private static Logger LOGGER = LoggerFactory.getLogger(HomeEditor.class);
@@ -118,5 +119,194 @@ public class HomeEditor {
             suggestionRow.setCount(suggestionRow.getCount() + 1);
         }
         suggestionRepository.save(suggestionRow);
+    }
+
+    public String startGameQueue(final int gameQueueId, final String name) throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+
+        if (gameQueue.getState() == GameQueue.State.PLAYING) {
+            if (name != null) {
+                setGameQueueName(gameQueueId, name);
+                return String.format("Game queue name changed to '%s.'", name);
+            }
+            throw new  BotErrorException(String.format("Game queue '%s' already started.", gameQueue.getName()));
+        }
+
+        gameQueue.setState(GameQueue.State.PLAYING);
+        if (name != null) {
+            gameQueue.setName(name);
+        }
+
+        serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
+        return String.format("Game queue '%s' started.", gameQueue.getName());
+    }
+
+    public String closeGameQueue(final int gameQueueId) throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+
+        if (gameQueue.getState() == GameQueue.State.CLOSED) {
+            throw new BotErrorException(String.format("Game queue '%s' is already closed.", gameQueue.getName()));
+        }
+
+        if (gameQueue.getState() != GameQueue.State.PLAYING) {
+            throw new BotErrorException(String.format("Game queue '%s' is not open.", gameQueue.getName()));
+        }
+
+        gameQueue.setState(GameQueue.State.CLOSED);
+
+        serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
+        return String.format("Queue '%s' is now closed.", gameQueue.getName());
+    }
+
+    public User popGameQueue(final int gameQueueId) throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        if (gameQueue.getState() == GameQueue.State.IDLE) {
+            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+        }
+
+        int nextPlayer = gameQueue.pop();
+        if (nextPlayer == EMPTY_QUEUE) {
+            throw new BotErrorException("No players in the queue.");
+        }
+
+        serializers.getGameQueueSerializer().removeEntry(gameQueue, nextPlayer);
+        return serializers.getUserSerializer().lookupById(gameQueue.getCurrentPlayerId());
+    }
+
+    public User peekGameQueue(final int gameQueueId) throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        if (gameQueue.getState() == GameQueue.State.IDLE) {
+            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+        }
+
+        int nextPlayer = gameQueue.getCurrentPlayerId();
+        if (nextPlayer == EMPTY_QUEUE) {
+            throw new BotErrorException("No players in the queue.");
+        }
+
+        return serializers.getUserSerializer().lookupById(gameQueue.getCurrentPlayerId());
+    }
+
+    public int joinGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
+            throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+
+        int playerId = player.getHomedUser().getId();
+
+        if (gameQueue.contains(playerId)) {
+            throw new BotErrorException(String.format("%s is already in the queue.", player.getName()));
+        }
+
+        if (gameQueue.getState() == GameQueue.State.IDLE) {
+            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+        }
+        if (gameQueue.getState() == GameQueue.State.CLOSED) {
+            throw new BotErrorException(String.format("Game queue '%s' is not allowing new players.",
+                    gameQueue.getName()));
+        }
+
+        GameQueueEntry gameQueueEntry = gameQueue.enqueue(playerId);
+
+        serializers.getGameQueueSerializer().addEntry(gameQueue, gameQueueEntry);
+        return gameQueueEntry.getPosition();
+    }
+
+    public void removeFromGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
+            throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+
+        int playerId = player.getHomedUser().getId();
+
+        if (gameQueue.getState() == GameQueue.State.IDLE) {
+            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+        }
+
+        if (gameQueue.getCurrentPlayerId() == playerId) {
+            throw new BotErrorException(String.format("%s is currently playing.", player.getName()));
+        }
+
+        if (!gameQueue.contains(playerId)) {
+            throw new BotErrorException(String.format("%s is not in the queue.", player.getName()));
+        }
+
+        gameQueue.remove(playerId);
+        serializers.getGameQueueSerializer().removeEntry(gameQueue, playerId);
+    }
+
+    public void setGameQueueName(final int gameQueueId, final String name) throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+
+        if (name.equals(gameQueue.getName())) {
+            return;
+        }
+
+        gameQueue.setName(name);
+
+        serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
+    }
+
+    public String stopGameQueue(int gameQueueId) throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        if (gameQueue.getState() == GameQueue.State.IDLE) {
+            throw new BotErrorException(String.format("Game queue '%s' has already been stopped.",
+                    gameQueue.getName()));
+        }
+
+        gameQueue.setState(GameQueue.State.IDLE);
+
+        serializers.getGameQueueSerializer().emptyGameQueue(gameQueue);
+        return String.format("Game queue '%s' stopped.", gameQueue.getName());
+    }
+
+    public String showGameQueue(final int gameQueueId) throws BotErrorException {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+
+        if (gameQueue.getState() == GameQueue.State.IDLE) {
+            return String.format("Game queue '%s' has been stopped.", gameQueue.getName());
+        }
+
+        StringBuilder response = new StringBuilder();
+
+        response.append("Game queue '").append(gameQueue.getName()).append('\'');
+
+        if (gameQueue.getState() == GameQueue.State.CLOSED) {
+            response.append(" is not accepting new players.");
+        } else {
+            response.append(".");
+        }
+
+        int currentPlayerId = gameQueue.getCurrentPlayerId();
+        if (currentPlayerId != EMPTY_QUEUE) {
+            response.append(" The current player is ").append(describePlayer(currentPlayerId)).append('.');
+        }
+
+        List<GameQueueEntry> queue = gameQueue.getFullQueue();
+        if (queue.isEmpty()) {
+            response.append(" The queue is empty.");
+        } else {
+            for (int i = 0; i < 5 && i < queue.size(); i++) {
+                GameQueueEntry entry = queue.get(i);
+                response.append(" (").append(entry.getPosition()).append(") ");
+                response.append(describePlayer(entry.getUserId()));
+            }
+        }
+
+        return response.toString();
+    }
+
+    private String describePlayer(final int userId) {
+        User user = serializers.getUserSerializer().lookupById(userId);
+        if (user.getTwitchUsername() != null) {
+            return user.getTwitchUsername();
+        }
+        return user.getDiscordUsername();
+    }
+
+    private GameQueue getGameQueue(final int gameQueueId) throws BotErrorException {
+        GameQueue gameQueue = botHome.getGameQueue(gameQueueId);
+        if (gameQueue == null) {
+            throw new BotErrorException("No Game Queue");
+        }
+        return gameQueue;
     }
 }

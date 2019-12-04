@@ -3,6 +3,10 @@ package com.ryan_mtg.servobot.data.factories;
 import com.ryan_mtg.servobot.commands.AddCommand;
 import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
+import com.ryan_mtg.servobot.commands.GameQueueCommand;
+import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
+import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
@@ -35,22 +39,35 @@ public class CommandSerializer {
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
         int id = commandRow.getId();
         switch (commandRow.getType()) {
+            case AddCommand.TYPE:
+                return new AddCommand(id, commandRow.isSecure(), commandRow.getPermission());
+            case DeleteCommand.TYPE:
+                return new DeleteCommand(id, commandRow.isSecure(), commandRow.getPermission());
             case TextCommand.TYPE:
                 return new TextCommand(id, commandRow.isSecure(), commandRow.getPermission(),
                                        commandRow.getStringParameter());
             case FactsCommand.TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
                 return new FactsCommand(id, commandRow.isSecure(), commandRow.getPermission(), bookMap.get(bookId));
-            case TierCommand.TYPE:
-                return new TierCommand(id, commandRow.isSecure(), commandRow.getPermission());
+            case GameQueueCommand.TYPE:
+                int gameQueueId = (int) (long) commandRow.getLongParameter();
+                return new GameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(), gameQueueId);
+            case JoinGameQueueCommand.TYPE:
+                gameQueueId = (int) (long) commandRow.getLongParameter();
+                return new JoinGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(), gameQueueId);
             case MessageChannelCommand.TYPE:
                 return new MessageChannelCommand(id, commandRow.isSecure(), commandRow.getPermission(),
                         commandRow.getLongParameter().intValue(), commandRow.getStringParameter(),
                         commandRow.getStringParameter2());
-            case AddCommand.TYPE:
-                return new AddCommand(id, commandRow.isSecure(), commandRow.getPermission());
-            case DeleteCommand.TYPE:
-                return new DeleteCommand(id, commandRow.isSecure(), commandRow.getPermission());
+            case RemoveFromGameQueueCommand.TYPE:
+                gameQueueId = (int) (long) commandRow.getLongParameter();
+                return new RemoveFromGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(),
+                        gameQueueId);
+            case ShowGameQueueCommand.TYPE:
+                gameQueueId = (int) (long) commandRow.getLongParameter();
+                return new ShowGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(), gameQueueId);
+            case TierCommand.TYPE:
+                return new TierCommand(id, commandRow.isSecure(), commandRow.getPermission());
         }
         throw new IllegalArgumentException("Unsupported type: " + commandRow.getType());
     }
@@ -98,11 +115,39 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitGameQueueCommand(final GameQueueCommand gameQueueCommand) {
+            saveCommand(gameQueueCommand, commandRow -> {
+                commandRow.setLongParameter(gameQueueCommand.getGameQueueId());
+            });
+        }
+
+        @Override
+        public void visitJoinGameQueueCommand(final JoinGameQueueCommand joinGameQueueCommand) {
+            saveCommand(joinGameQueueCommand, commandRow -> {
+                commandRow.setLongParameter(joinGameQueueCommand.getGameQueueId());
+            });
+        }
+
+        @Override
         public void visitMessageChannelCommand(final MessageChannelCommand messageChannelCommand) {
             saveCommand(messageChannelCommand, commandRow -> {
                 commandRow.setLongParameter(messageChannelCommand.getServiceType());
                 commandRow.setStringParameter(messageChannelCommand.getChannelName());
                 commandRow.setStringParameter2(messageChannelCommand.getMessage());
+            });
+        }
+
+        @Override
+        public void visitRemoveFromGameQueueCommand(final RemoveFromGameQueueCommand removeFromGameQueueCommand) {
+            saveCommand(removeFromGameQueueCommand, commandRow -> {
+                commandRow.setLongParameter(removeFromGameQueueCommand.getGameQueueId());
+            });
+        }
+
+        @Override
+        public void visitShowGameQueueCommand(final ShowGameQueueCommand showGameQueueCommand) {
+            saveCommand(showGameQueueCommand, commandRow -> {
+                commandRow.setLongParameter(showGameQueueCommand.getGameQueueId());
             });
         }
 

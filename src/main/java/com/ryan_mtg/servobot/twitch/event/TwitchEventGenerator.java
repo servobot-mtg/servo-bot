@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.twitch.event;
 
 import com.github.twitch4j.TwitchClient;
+import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.enums.CommandPermission;
 import com.github.twitch4j.common.events.domain.EventUser;
@@ -10,7 +11,6 @@ import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 import com.ryan_mtg.servobot.user.HomedUser;
-import com.ryan_mtg.servobot.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +35,13 @@ public class TwitchEventGenerator {
     private void handleMessageEvent(final ChannelMessageEvent event) {
         try {
             int botHomeId = resolveBotHomeId(event.getChannel().getId());
-            TwitchUser sender = getUser(event.getUser(), event.getPermissions(), botHomeId);
+            TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHomeId);
             eventListener.onMessage(new TwitchMessageSentEvent(event, botHomeId, sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        } catch (Exception e) {
+            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -46,14 +49,14 @@ public class TwitchEventGenerator {
         return homeIdMap.get(Long.parseLong(channelId));
     }
 
-    private TwitchUser getUser(final EventUser eventUser, final Set<CommandPermission> permissions,
-                               final int botHomeId) {
+    private TwitchUser getUser(final TwitchChat chat, final EventUser eventUser,
+                               final Set<CommandPermission> permissions, final int botHomeId) {
         boolean isModerator = permissions.contains(CommandPermission.MODERATOR);
         boolean isSubscriber = permissions.contains(CommandPermission.SUBSCRIBER);
         TwitchUserStatus status = new TwitchUserStatus(isModerator, isSubscriber);
 
         HomedUser user = userSerializer.lookupByTwitchId(botHomeId, Integer.parseInt(eventUser.getId()),
                 eventUser.getName(), status);
-        return new TwitchUser(user);
+        return new TwitchUser(chat, user);
     }
 }

@@ -30,6 +30,10 @@ public class UserSerializer {
                 .map(userRow -> createUser(userRow)).collect(Collectors.toList());
     }
 
+    public User lookupById(final int id) {
+        return createUser(userRepository.findById(id));
+    }
+
     @Transactional
     public User lookupByTwitchId(final int twitchId, final String twitchUsername) {
         UserRow userRow = lookupUserRowByTwitchId(twitchId, twitchUsername);

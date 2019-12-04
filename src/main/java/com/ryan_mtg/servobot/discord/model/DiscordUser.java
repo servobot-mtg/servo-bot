@@ -19,6 +19,11 @@ public class DiscordUser implements User {
     }
 
     @Override
+    public HomedUser getHomedUser() {
+        return user;
+    }
+
+    @Override
     public boolean isBot() {
         return member.getUser().isBot();
     }
@@ -36,6 +41,11 @@ public class DiscordUser implements User {
     @Override
     public boolean isSubscriber() {
         return user.isSubscriber();
+    }
+
+    @Override
+    public void whisper(final String message) {
+        member.getUser().openPrivateChannel().complete().sendMessage(message).queue();
     }
 
     public long getDiscordId() {

@@ -1,18 +1,30 @@
 package com.ryan_mtg.servobot.twitch.model;
 
+import com.github.twitch4j.chat.TwitchChat;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TwitchUser implements User {
+    static Logger LOGGER = LoggerFactory.getLogger(TwitchUser.class);
+
+    private TwitchChat chat;
     private HomedUser user;
 
-    public TwitchUser(final HomedUser user) {
+    public TwitchUser(final TwitchChat chat, final HomedUser user) {
+        this.chat = chat;
         this.user = user;
     }
 
     @Override
     public String getName() {
         return user.getTwitchUsername();
+    }
+
+    @Override
+    public HomedUser getHomedUser() {
+        return user;
     }
 
     @Override
@@ -33,5 +45,13 @@ public class TwitchUser implements User {
     @Override
     public boolean isSubscriber() {
         return user.isSubscriber();
+    }
+
+    @Override
+    public void whisper(final String message) {
+        LOGGER.info("Trying to whisper to: " + user.getTwitchUsername());
+        chat.sendPrivateMessage(user.getTwitchUsername(), message);
+
+        LOGGER.info("Done trying to whisper to: " + user.getTwitchUsername());
     }
 }

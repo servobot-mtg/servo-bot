@@ -48,9 +48,10 @@ public class BotController {
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with id %d", homeId));
         }
+
         model.addAttribute("botHome", botHome);
         model.addAttribute("timeZones", timeZones);
-
+        model.addAttribute("userSerializer", userSerializer);
         model.addAttribute("users", userSerializer.getHomedUsers(homeId));
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));

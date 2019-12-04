@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY,
                                           alert_token VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, admin BIT, twitch_id INTEGER, discord_id BIGINT,
-                                 twitch_username VARCHAR(50), discord_username VARCHAR(50));
+                                 twitch_username VARCHAR(50), discord_username VARCHAR(50), arena_username VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS user_home (bot_home_id INTEGER, user_id INTEGER, state INTEGER);
 
@@ -50,3 +50,8 @@ CREATE TABLE IF NOT EXISTS book (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home
 CREATE TABLE IF NOT EXISTS statement (id INTEGER AUTO_INCREMENT PRIMARY KEY, bookId INTEGER, text VARCHAR(256));
 
 CREATE TABLE IF NOT EXISTS suggestion (id INTEGER AUTO_INCREMENT PRIMARY KEY, count INTEGER, alias VARCHAR(30));
+
+CREATE TABLE IF NOT EXISTS game_queue (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, name VARCHAR(30),
+                                       state INTEGER, next INTEGER, current_player_id INTEGER);
+
+CREATE TABLE IF NOT EXISTS game_queue_entry (game_queue_id INTEGER, spot INTEGER, user_id INTEGER);

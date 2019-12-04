@@ -1,9 +1,10 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
+import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
+import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,15 @@ public class SerializerContainer {
 
     @Autowired
     private CommandTableSerializer commandTableSerializer;
+
+    @Autowired
+    private GameQueueRepository gameQueueRepository;
+
+    @Autowired
+    private GameQueueSerializer gameQueueSerializer;
+
+    @Autowired
+    private GameQueueEntryRepository gameQueueEntryRepository;
 
     @Autowired
     private ReactionSerializer reactionSerializer;
@@ -55,6 +65,18 @@ public class SerializerContainer {
         return commandTableSerializer;
     }
 
+    public GameQueueRepository getGameQueueRepository() {
+        return gameQueueRepository;
+    }
+
+    public GameQueueSerializer getGameQueueSerializer() {
+        return gameQueueSerializer;
+    }
+
+    public GameQueueEntryRepository getGameQueueEntryRepository() {
+        return gameQueueEntryRepository;
+    }
+
     public ReactionTableSerializer getReactionTableSerializer() {
         return reactionTableSerializer;
     }
@@ -73,5 +95,9 @@ public class SerializerContainer {
 
     public SuggestionRepository getSuggestionRepository() {
         return suggestionRepository;
+    }
+
+    public UserSerializer getUserSerializer() {
+        return userSerializer;
     }
 }
