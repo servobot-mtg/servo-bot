@@ -13,6 +13,10 @@
             <button onclick="runAdminTask()">Run Task</button><span id="run-task-response"/>
 
             <h2>Users</h2>
+            <div id="merge-users" style="display: none">
+                <button onclick="mergeUsers()">Merge Users</button>
+                <span id="merge-users-response"/>
+            </div>
             <table>
                 <thead><tr>
                     <th>Id</th>
@@ -21,15 +25,17 @@
                     <th>Discord Name</th>
                     <th>Discord Id</th>
                     <th>Admin</th>
+                    <th>Select</th>
                 </tr></thead>
-                <th:block th:each="user : ${users}">
-                    <tr>
+                <th:block th:each="user : ${users}" th:with="label=${'user-' + user.id}">
+                    <tr th:id="${label} + '-row'">
                         <td th:text="${user.id}"/>
-                        <td th:text="${user.twitchUsername}"/>
-                        <td th:text="${user.twitchId}"/>
-                        <td th:text="${user.discordUsername}"/>
-                        <td th:text="${user.discordId}"/>
-                        <td th:text="${user.admin ? '&#x1F477;' : ''}"/>
+                        <td th:id="${label} + '-twitch-username'" th:text="${user.twitchUsername}"/>
+                        <td th:id="${label} + '-twitch-id'" th:text="${user.twitchId}"/>
+                        <td th:id="${label} + '-discord-username'" th:text="${user.discordUsername}"/>
+                        <td th:id="${label} + '-discord-id'" th:text="${user.discordId}"/>
+                        <td th:id="${label} + '-admin'" th:text="${user.admin ? '&#x1F477;' : ''}"/>
+                        <td><input type="checkbox" th:onchange="'selectUser(event, ' + ${user.id} + ')'"></td>
                     </tr>
                 </th:block>
             </table>

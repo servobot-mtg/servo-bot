@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.models.UserHomeRow;
 import com.ryan_mtg.servobot.data.models.UserRow;
 import com.ryan_mtg.servobot.data.repositories.UserHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.UserRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -134,6 +136,51 @@ public class UserSerializer {
         }
 
         return userRow;
+    }
+
+    @Transactional
+    public User mergeUsers(final List<Integer> userIds) throws BotErrorException {
+        Iterable<UserRow> userRows = userRepository.findAllById(userIds);
+
+        UserRow mergedUser = userRows.iterator().next();
+        List<UserRow> usersToDeleete = new ArrayList<>();
+
+        for (UserRow userRow : userRows) {
+            if (mergedUser.getTwitchId() == 0) {
+                mergedUser.setTwitchId(userRow.getTwitchId());
+            } else if (userRow.getTwitchId() != 0 && userRow.getTwitchId() != mergedUser.getTwitchId()) {
+                throw new BotErrorException("Twitch Ids do not match");
+            }
+
+            if (mergedUser.getDiscordId() == 0) {
+                mergedUser.setDiscordId(userRow.getDiscordId());
+            } else if (userRow.getDiscordId() != 0 && userRow.getDiscordId() != mergedUser.getDiscordId()) {
+                throw new BotErrorException("Discord Ids do not match");
+            }
+
+            if (mergedUser.getTwitchUsername() == null) {
+                mergedUser.setTwitchUsername(userRow.getTwitchUsername());
+            } else if (userRow.getTwitchUsername() != null
+                    && !userRow.getTwitchUsername().equals(mergedUser.getTwitchUsername())) {
+                throw new BotErrorException("Twitch usernames do not match");
+            }
+
+            if (mergedUser.getDiscordUsername() == null) {
+                mergedUser.setDiscordUsername(userRow.getDiscordUsername());
+            } else if (userRow.getDiscordUsername() != null
+                    && !userRow.getDiscordUsername().equals(mergedUser.getDiscordUsername())) {
+                throw new BotErrorException("Discord usernames do not match");
+            }
+
+            if (userRow.getId() != mergedUser.getId()) {
+                usersToDeleete.add(userRow);
+            }
+        }
+
+        userRepository.save(mergedUser);
+        userRepository.deleteAll(usersToDeleete);
+
+        return createUser(mergedUser);
     }
 
     private User createUser(final UserRow userRow)  {
