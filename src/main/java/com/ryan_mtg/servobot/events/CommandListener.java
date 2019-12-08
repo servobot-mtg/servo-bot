@@ -78,16 +78,26 @@ public class CommandListener implements EventListener {
         switch (messageCommand.getPermission()) {
             case ANYONE:
                 return true;
-            case ADMIN:
-                return sender.isAdmin();
-            case STREAMER:
-                return home.isStreamer(sender);
-            case MOD:
-                return sender.isModerator();
             case SUB:
-                return sender.isSubscriber();
+                if (sender.isSubscriber()) {
+                    return true;
+                }
+            case MOD:
+                if (sender.isModerator()) {
+                    return true;
+                }
+            case STREAMER:
+                if (home.isStreamer(sender)) {
+                    return true;
+                }
+            case ADMIN:
+                if (sender.isAdmin()) {
+                    return true;
+                }
+                break;
             default:
                 throw new IllegalStateException("Unhandled permission: " + messageCommand.getPermission());
         }
+        return false;
     }
 }
