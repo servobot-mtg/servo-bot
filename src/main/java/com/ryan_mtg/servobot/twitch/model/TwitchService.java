@@ -69,6 +69,8 @@ public class TwitchService implements Service {
         client = TwitchClientBuilder.builder().withEnableHelix(true).withEnableChat(true)
                 .withClientId(clientId).withClientSecret(secret).withChatAccount(credential).build();
 
+        client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
+
         generator = new TwitchEventGenerator(client, eventListener, homeIdMap, userSerializer);
     }
 
