@@ -5,14 +5,11 @@ import com.ryan_mtg.servobot.discord.model.DiscordUser;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.user.HomedUser;
-import com.ryan_mtg.servobot.user.User;
-import com.ryan_mtg.servobot.user.UserStatus;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
-import net.dv8tion.jda.api.events.user.update.GenericUserPresenceEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
@@ -26,6 +23,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     private EventListener listener;
     private Map<Long, Integer> homeIdMap;
     private UserSerializer userSerializer;
+    private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
 
     public DiscordEventAdapter(final EventListener listener, final Map<Long, Integer> homeIdMap,
                                final UserSerializer userSerializer) {
@@ -46,18 +44,20 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     @Override
+    public void onUserActivityEnd(@Nonnull final UserActivityEndEvent event) {
+        streamStartRegulator.endActivity(event, resolveHomeId(event.getGuild()));
+    }
+
+    @Override
     public void onUserActivityStart(@Nonnull final UserActivityStartEvent event) {
-        if (event.getNewActivity().getType() == Activity.ActivityType.STREAMING && isStreamer(event)) {
-            listener.onStreamStart(new DiscordStreamStartEvent(event, resolveHomeId(event.getGuild())));
+        int botHomeId = resolveHomeId(event.getGuild());
+        if (streamStartRegulator.startActivity(event, botHomeId)) {
+            listener.onStreamStart(new DiscordStreamStartEvent(event, botHomeId));
         }
     }
 
     @Override
     public void onUserUpdateOnlineStatus(@Nonnull UserUpdateOnlineStatusEvent event) {
-    }
-
-    private boolean isStreamer(final GenericUserPresenceEvent event) {
-        return event.getMember().getIdLong() == event.getGuild().getOwnerIdLong();
     }
 
     private int resolveHomeId(final Guild guild) {

@@ -12,8 +12,8 @@
         <AppenderRef ref="console"/>
     </Root>
 
-    <Logger name="com.github.twitch4j" level="debug"/>
-    <Logger name="com.ryan_mtg" level="warn"/>
+    <Logger name="com.github.twitch4j" level="warn"/>
+    <Logger name="com.ryan_mtg" level="info"/>
 </Loggers>
 
 </Configuration>
