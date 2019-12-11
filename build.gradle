@@ -61,6 +61,19 @@ bootRun {
     main = 'com.ryan_mtg.servobot.Application'
 }
 
+task validateApplicationProperties {
+    doLast {
+        File f = file('src/main/resources/config/application.properties')
+        f.readLines().each {
+            if (it.startsWith('spring.profiles.active') && !it.contains('prod')) {
+                throw new GradleException('Invalid spring.profiles.active setting, should be "prod"')
+            }
+        }
+    }
+}
+
+check.dependsOn validateApplicationProperties
+
 def deployDir = "${buildDir}/generated/deploy"
 
 // Make sure config files have production values
