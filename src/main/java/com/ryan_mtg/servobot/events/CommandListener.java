@@ -48,15 +48,15 @@ public class CommandListener implements EventListener {
         MessageCommand messageCommand = commandTable.getCommand(command);
 
         if (messageCommand != null) {
-            LOGGER.info("Peforming " + command + " for " + message.getSender().getName() + " with arguments " + arguments);
-            if (hasPermissions(message.getHome(), sender, messageCommand)) {
-                messageCommand.perform(message, arguments);
+            LOGGER.info("Peforming " + command + " for " + sender.getName() + " with arguments " + arguments);
+            if (hasPermissions(messageSentEvent.getHome(), sender, messageCommand)) {
+                messageCommand.perform(messageSentEvent, arguments);
             } else {
                 throw new BotErrorException(String.format("%s is not allowed to %s.", sender.getName(), command));
             }
         } else {
             messageSentEvent.getHomeEditor().addSuggestion(command);
-            LOGGER.warn("Unknown command " + command + " for " + message.getSender().getName() + " with arguments " + arguments);
+            LOGGER.warn("Unknown command " + command + " for " + messageSentEvent.getSender().getName() + " with arguments " + arguments);
         }
     }
 

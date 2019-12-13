@@ -172,6 +172,13 @@ public class UserSerializer {
                 throw new BotErrorException("Discord usernames do not match");
             }
 
+            if (mergedUser.getArenaUsername() == null) {
+                mergedUser.setArenaUsername(userRow.getArenaUsername());
+            } else if (userRow.getArenaUsername() != null
+                    && !userRow.getArenaUsername().equals(mergedUser.getArenaUsername())) {
+                throw new BotErrorException("Arena usernames do not match");
+            }
+
             if (userRow.getId() != mergedUser.getId()) {
                 usersToDeleete.add(userRow);
             }
@@ -183,13 +190,20 @@ public class UserSerializer {
         return createUser(mergedUser);
     }
 
+    @Transactional
+    public void setArenaUsername(final int id, final String arenaUsername) {
+        UserRow userRow = userRepository.findById(id);
+        userRow.setArenaUsername(arenaUsername);
+        userRepository.save(userRow);
+    }
+
     private User createUser(final UserRow userRow)  {
         return new User(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
-                        userRow.getDiscordId(), userRow.getDiscordUsername());
+                        userRow.getDiscordId(), userRow.getDiscordUsername(), userRow.getArenaUsername());
     }
 
     private HomedUser createHomedUser(final UserRow userRow, final UserStatus userStatus)  {
         return new HomedUser(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
-                userRow.getDiscordId(), userRow.getDiscordUsername(), userStatus);
+                userRow.getDiscordId(), userRow.getDiscordUsername(), userRow.getArenaUsername(), userStatus);
     }
 }

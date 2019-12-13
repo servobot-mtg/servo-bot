@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Message;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.*;
@@ -19,9 +19,9 @@ public class TextCommandTest {
         TextCommand command = new TextCommand(ID, SECURE, PERMISSION, TEXT);
 
         Channel channel = mockChannel();
-        Message message = mockMessage(channel);
+        MessageSentEvent event = mockMessageSentEvent(channel);
 
-        command.perform(message, ARGUMENTS);
+        command.perform(event, ARGUMENTS);
 
         verify(channel).say(TEXT);
     }
@@ -31,9 +31,9 @@ public class TextCommandTest {
         TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Hello, %user%!");
 
         Channel channel = mockChannel();
-        Message message = mockMessage(channel, mockUser("name"));
+        MessageSentEvent event = mockMessageSentEvent(channel, mockUser("name"));
 
-        command.perform(message, ARGUMENTS);
+        command.perform(event, ARGUMENTS);
 
         verify(channel).say("Hello, name!");
     }

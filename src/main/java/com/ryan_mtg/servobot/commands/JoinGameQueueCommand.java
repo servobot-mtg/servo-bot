@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.User;
 
 public class JoinGameQueueCommand extends MessageCommand {
@@ -15,10 +15,10 @@ public class JoinGameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final Message message, final String arguments) throws BotErrorException {
-        User user = message.getSender();
-        int position = message.getHome().getHomeEditor().joinGameQueue(gameQueueId, user);
-        message.getChannel().say(String.format("%s joined the queue in position %d", user.getName(), position));
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        User user = event.getSender();
+        int position = event.getHomeEditor().joinGameQueue(gameQueueId, user);
+        MessageCommand.say(event,String.format("%s joined the queue in position %d", user.getName(), position));
     }
 
     @Override

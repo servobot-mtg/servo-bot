@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.events;
 
+import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import org.slf4j.Logger;
@@ -10,10 +11,13 @@ import java.util.Map;
 
 public class HomeDelegatingListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(HomeDelegatingListener.class);
-    private Map<Integer, EventListener> botHomeMap = new HashMap<>();
+    private BotEditor botEditor;
     private Map<Integer, HomeEditor> homeEditorMap;
+    private Map<Integer, EventListener> botHomeMap = new HashMap<>();
 
-    public HomeDelegatingListener(final Map<Integer, HomeEditor> homeEditorMap) {
+
+    public HomeDelegatingListener(final BotEditor botEditor, final Map<Integer, HomeEditor> homeEditorMap) {
+        this.botEditor = botEditor;
         this.homeEditorMap = homeEditorMap;
     }
 
@@ -47,6 +51,7 @@ public class HomeDelegatingListener implements EventListener {
 
     private EventListener getListener(final Event event) {
         int homeId = event.getHomeId();
+        event.setBotEditor(botEditor);
         event.setHomeEditor(homeEditorMap.get(homeId));
         return botHomeMap.get(homeId);
     }

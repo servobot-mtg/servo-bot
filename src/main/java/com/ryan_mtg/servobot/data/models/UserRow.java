@@ -28,6 +28,9 @@ public class UserRow {
     @Column(name = "discord_username")
     private String discordUsername;
 
+    @Column(name = "arena_username")
+    private String arenaUsername;
+
     public int getId() {
         return id;
     }
@@ -70,5 +73,13 @@ public class UserRow {
 
     public void setDiscordUsername(final String discordUsername) {
         this.discordUsername = discordUsername;
+    }
+
+    public String getArenaUsername() {
+        return arenaUsername;
+    }
+
+    public void setArenaUsername(final String arenaUsername) {
+        this.arenaUsername = arenaUsername;
     }
 }

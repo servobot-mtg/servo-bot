@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 
 public class ShowGameQueueCommand extends MessageCommand {
     public static final int TYPE = 9;
@@ -14,9 +14,9 @@ public class ShowGameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final Message message, final String arguments) throws BotErrorException {
-        String response = message.getHome().getHomeEditor().showGameQueue(gameQueueId);
-        message.getChannel().say(response);
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        String response = event.getHomeEditor().showGameQueue(gameQueueId);
+        MessageCommand.say(event, response);
     }
 
     @Override

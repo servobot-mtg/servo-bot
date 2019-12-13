@@ -9,15 +9,17 @@ public class User {
     private long discordId;
     private String twitchUsername;
     private String discordUsername;
+    private String arenaUsername;
 
     public User(final int id, final boolean admin, final int twitchId, final String twitchUsername,
-                final long discordId, final String discordUsername) {
+                final long discordId, final String discordUsername, final String arenaUsername) {
         this.id = id;
         this.admin = admin;
         this.twitchId = twitchId;
         this.twitchUsername = twitchUsername;
         this.discordId = discordId;
         this.discordUsername = discordUsername;
+        this.arenaUsername = arenaUsername;
     }
 
     public int getId() {
@@ -42,5 +44,9 @@ public class User {
 
     public String getDiscordUsername() {
         return discordUsername;
+    }
+
+    public String getArenaUsername() {
+        return arenaUsername;
     }
 }

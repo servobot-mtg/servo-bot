@@ -25,7 +25,7 @@ public class Bot {
         this.name = name;
         this.services = services;
         this.serializers = serializers;
-        listener = new HomeDelegatingListener(homeEditorMap);
+        listener = new HomeDelegatingListener(new BotEditor(this), homeEditorMap);
     }
 
     public String getName() {

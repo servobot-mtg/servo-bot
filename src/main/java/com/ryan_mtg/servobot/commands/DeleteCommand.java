@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Message;
 
 public class DeleteCommand extends MessageCommand{
     public static final int TYPE = 6;
@@ -12,8 +12,8 @@ public class DeleteCommand extends MessageCommand{
     }
 
     @Override
-    public void perform(final Message message, final String arguments) throws BotErrorException {
-        HomeEditor homeEditor = message.getHome().getHomeEditor();
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        HomeEditor homeEditor = event.getHomeEditor();
 
         if (arguments.isEmpty()) {
             throw new BotErrorException("Missing command name.");
@@ -31,7 +31,7 @@ public class DeleteCommand extends MessageCommand{
 
         homeEditor.deleteCommand(commandName);
 
-        MessageCommand.say(message, String.format("Command %s deleted.", commandName));
+        MessageCommand.say(event, String.format("Command %s deleted.", commandName));
     }
 
     @Override

@@ -1,10 +1,9 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Message;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -27,11 +26,10 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
 
         HomeEditor homeEditor = mockHomeEditor();
-        Home home = mockHome(homeEditor);
         Channel channel = mockChannel();
-        Message message = mockMessage(home, channel);
+        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
 
-        command.perform(message, String.format("!%s %s", COMMAND_NAME, ARGUMENTS));
+        command.perform(event, String.format("!%s %s", COMMAND_NAME, ARGUMENTS));
 
         verify(channel).say(String.format("Command %s added.", COMMAND_NAME));
         ArgumentCaptor<MessageCommand> commandCaptor = ArgumentCaptor.forClass(MessageCommand.class);
@@ -48,10 +46,10 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
 
         Channel channel = mockChannel();
-        Message message = mockMessage(channel);
+        MessageSentEvent event = mockMessageSentEvent(channel);
 
         try {
-            command.perform(message, String.format("%s %s", COMMAND_NAME, ARGUMENTS));
+            command.perform(event, String.format("%s %s", COMMAND_NAME, ARGUMENTS));
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -62,10 +60,10 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
 
         Channel channel = mockChannel();
-        Message message = mockMessage(channel);
+        MessageSentEvent event = mockMessageSentEvent(channel);
 
         try {
-            command.perform(message, String.format("!%s %s", "", ARGUMENTS));
+            command.perform(event, String.format("!%s %s", "", ARGUMENTS));
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -76,10 +74,10 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
 
         Channel channel = mockChannel();
-        Message message = mockMessage(channel);
+        MessageSentEvent event = mockMessageSentEvent(channel);
 
         try {
-            command.perform(message, String.format("!%s%s", COMMAND_NAME, ""));
+            command.perform(event, String.format("!%s%s", COMMAND_NAME, ""));
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -90,10 +88,10 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
 
         Channel channel = mockChannel();
-        Message message = mockMessage(channel);
+        MessageSentEvent event = mockMessageSentEvent(channel);
 
         try {
-            command.perform(message, String.format("!%s %s", COMMAND_NAME, " "));
+            command.perform(event, String.format("!%s %s", COMMAND_NAME, " "));
         } finally {
             verify(channel, never()).say(anyString());
         }

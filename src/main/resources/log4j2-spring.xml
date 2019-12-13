@@ -8,11 +8,11 @@
 
 <Loggers>
     <!-- LOG everything at WARN level -->
-    <Root level="warn">
+    <Root level="info">
         <AppenderRef ref="console"/>
     </Root>
 
-    <Logger name="com.github.twitch4j" level="warn"/>
+    <Logger name="com.github.twitch4j" level="info"/>
     <Logger name="com.ryan_mtg" level="info"/>
 </Loggers>
 

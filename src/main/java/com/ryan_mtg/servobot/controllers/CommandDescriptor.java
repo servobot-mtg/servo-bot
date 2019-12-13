@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
@@ -114,19 +115,19 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitGameQueueCommand(GameQueueCommand gameQueueCommand) {
+        public void visitGameQueueCommand(final GameQueueCommand gameQueueCommand) {
             type = "Game Queue Command";
             description = "Has subcommands to manipulate the game queue";
         }
 
         @Override
-        public void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand) {
+        public void visitJoinGameQueueCommand(final JoinGameQueueCommand joinGameQueueCommand) {
             type = "Join Game Queue Command";
             description = "Adds the user to the end of the game queue";
         }
 
         @Override
-        public void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand) {
+        public void visitMessageChannelCommand(final MessageChannelCommand messageChannelCommand) {
             type = "Message Channel Command";
             description = String.format("Sends the message '%s' to #%s", messageChannelCommand.getMessage(),
                     messageChannelCommand.getChannelName());
@@ -134,26 +135,32 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand) {
+        public void visitRemoveFromGameQueueCommand(final RemoveFromGameQueueCommand removeFromGameQueueCommand) {
             type = "Remove From Game Queue Command";
             description = "Removes the user from the game queue";
         }
 
         @Override
-        public void visitShowGameQueueCommand(ShowGameQueueCommand showGameQueueCommand) {
+        public void visitSetArenaUsernameCommand(final SetArenaUsernameCommand setArenaUsernameCommand) {
+            type = "Set Arena Username Command";
+            description = "Stores the user's arena username";
+        }
+
+        @Override
+        public void visitShowGameQueueCommand(final ShowGameQueueCommand showGameQueueCommand) {
             type = "Show Game Queue Command";
             description = "Shows who is in the game queue";
         }
 
         @Override
-        public void visitTextCommand(TextCommand textCommand) {
+        public void visitTextCommand(final TextCommand textCommand) {
             type = "Respond Command";
             description = String.format("Responds with the message '%s'", textCommand.getText());
             edit = textCommand.getText();
         }
 
         @Override
-        public void visitTierCommand(TierCommand tierCommand) {
+        public void visitTierCommand(final TierCommand tierCommand) {
             type = "Respond Command";
             description = "Gives the user's friendship tier";
         }

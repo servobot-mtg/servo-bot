@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.events;
 
+import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 
@@ -7,6 +8,7 @@ public class BotHomeAlertEvent implements AlertEvent {
     private int homeId;
     private String alertToken;
     private Home home;
+    private BotEditor botEditor;
     private HomeEditor homeEditor;
 
     public BotHomeAlertEvent(final int homeId, final String alertToken, final Home home) {
@@ -28,6 +30,16 @@ public class BotHomeAlertEvent implements AlertEvent {
     @Override
     public Home getHome() {
         return home;
+    }
+
+    @Override
+    public BotEditor getBotEditor() {
+        return botEditor;
+    }
+
+    @Override
+    public void setBotEditor(final BotEditor botEditor) {
+        this.botEditor = botEditor;
     }
 
     @Override

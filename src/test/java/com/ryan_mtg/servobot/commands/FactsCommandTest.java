@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Message;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.*;
@@ -25,9 +25,9 @@ public class FactsCommandTest {
         FactsCommand command = new FactsCommand(ID, SECURE, PERMISSION, book);
 
         Channel channel = mockChannel();
-        Message message = mockMessage(channel);
+        MessageSentEvent event = mockMessageSentEvent(channel);
 
-        command.perform(message, ARGUMENTS);
+        command.perform(event, ARGUMENTS);
 
         verify(channel).say(LINE);
     }

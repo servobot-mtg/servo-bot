@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 
@@ -15,10 +16,10 @@ public class RemoveFromGameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final Message message, final String arguments) throws BotErrorException {
-        User user = message.getSender();
-        message.getHome().getHomeEditor().removeFromGameQueue(gameQueueId, user);
-        message.getChannel().say(String.format("%s removed from the queue", user.getName()));
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        User user = event.getSender();
+        event.getHomeEditor().removeFromGameQueue(gameQueueId, user);
+        MessageCommand.say(event, String.format("%s removed from the queue", user.getName()));
     }
 
     @Override

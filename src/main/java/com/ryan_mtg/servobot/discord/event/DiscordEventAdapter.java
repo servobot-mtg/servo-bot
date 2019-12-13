@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
@@ -30,6 +31,13 @@ public class DiscordEventAdapter extends ListenerAdapter {
         this.listener = listener;
         this.homeIdMap = homeIdMap;
         this.userSerializer = userSerializer;
+    }
+
+    @Override
+    public void onPrivateMessageReceived(@Nonnull final PrivateMessageReceivedEvent event) {
+        LOGGER.info("Got event with message: {} ", event.getMessage().getContentRaw());
+        LOGGER.info("Got event with channel: {} ", event.getMessage().getChannel().getName());
+        LOGGER.info("Got event with user: {} ", event.getAuthor().getName());
     }
 
     @Override

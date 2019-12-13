@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,8 @@ public class GameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final Message message, final String arguments) throws BotErrorException {
-        HomeEditor homeEditor = message.getHome().getHomeEditor();
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        HomeEditor homeEditor = event.getHomeEditor();
         //TODO: Check for errors in arguments format
 
         switch (arguments.toLowerCase()) {
@@ -44,32 +44,32 @@ public class GameQueueCommand extends MessageCommand {
             case "start":
                 String responseMessage = homeEditor.startGameQueue(gameQueueId, null);
                 if (responseMessage != null) {
-                    message.getChannel().say(responseMessage);
+                    event.getChannel().say(responseMessage);
                 }
                 return;
             case "pop":
             case "next":
                 User nextPlayer = homeEditor.popGameQueue(gameQueueId);
                 String response = String.format("The next player is %s ", nextPlayer.getTwitchUsername());
-                message.getChannel().say(response);
+                MessageCommand.say(event, response);
                 return;
             case "peek":
             case "playing":
             case "current":
                 User currentPlayer = homeEditor.peekGameQueue(gameQueueId);
                 response = String.format("The current player is %s ", currentPlayer.getTwitchUsername());
-                message.getChannel().say(response);
+                MessageCommand.say(event, response);
                 return;
             case "close":
                 responseMessage = homeEditor.closeGameQueue(gameQueueId);
                 if (responseMessage != null) {
-                    message.getChannel().say(responseMessage);
+                    MessageCommand.say(event, responseMessage);
                 }
                 return;
             case "stop":
                 responseMessage = homeEditor.stopGameQueue(gameQueueId);
                 if (responseMessage != null) {
-                    message.getChannel().say(responseMessage);
+                    MessageCommand.say(event, responseMessage);
                 }
                 return;
             default:

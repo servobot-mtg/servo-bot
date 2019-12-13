@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Book;
-import com.ryan_mtg.servobot.model.Message;
 
 public class FactsCommand extends MessageCommand {
     public static final int TYPE = 2;
@@ -24,12 +24,8 @@ public class FactsCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final Message message, final String arguments) {
-        MessageCommand.say(message, book.getRandomLine());
-    }
-
-    public String getFileName() {
-        return book.getName();
+    public void perform(final MessageSentEvent event, final String arguments) {
+        MessageCommand.say(event, book.getRandomLine());
     }
 
     public Book getBook() {

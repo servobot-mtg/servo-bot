@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;
@@ -26,11 +27,12 @@ public class TierCommandTest {
         Home home = mockHome();
         Channel channel = mockChannel();
         User user = mockUser(USER_NAME);
-        Message message = mockMessage(home, channel, user, SERVICE_TYPE);
+        Message message = mockMessage(SERVICE_TYPE);
+        MessageSentEvent event = mockMessageSentEvent(home, channel, user, message);
+
         when(home.getRole(user, SERVICE_TYPE)).thenReturn(ROLE);
 
-        command.perform(message, ARGUMENTS);
-
+        command.perform(event, ARGUMENTS);
 
         verify(channel).say(String.format("Hello, %s, your friendship tier is %s.", USER_NAME, ROLE));
     }

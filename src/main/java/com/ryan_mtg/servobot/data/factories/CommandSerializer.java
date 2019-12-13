@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.commands.DeleteCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.data.models.CommandAlertRow;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
@@ -75,6 +76,8 @@ public class CommandSerializer {
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new RemoveFromGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(),
                         gameQueueId);
+            case SetArenaUsernameCommand.TYPE:
+                return new SetArenaUsernameCommand(id, commandRow.isSecure(), commandRow.getPermission());
             case ShowGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new ShowGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(), gameQueueId);
@@ -170,6 +173,11 @@ public class CommandSerializer {
             saveCommand(removeFromGameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(removeFromGameQueueCommand.getGameQueueId());
             });
+        }
+
+        @Override
+        public void visitSetArenaUsernameCommand(final SetArenaUsernameCommand setArenaUsernameCommand) {
+            saveCommand(setArenaUsernameCommand, commandRow -> {});
         }
 
         @Override

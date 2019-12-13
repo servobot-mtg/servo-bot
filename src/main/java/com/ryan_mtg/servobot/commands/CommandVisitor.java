@@ -8,6 +8,7 @@ public interface CommandVisitor {
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
+    void visitSetArenaUsernameCommand(SetArenaUsernameCommand setArenaUsernameCommand);
     void visitShowGameQueueCommand(ShowGameQueueCommand showGameQueueCommand);
     void visitTextCommand(TextCommand textCommand);
     void visitTierCommand(TierCommand tierCommand);

@@ -34,6 +34,7 @@ async function postMergeUsers(responseElement) {
         setElementValue(label + '-twitch-id', mergedUser.twitchId);
         setElementValue(label + '-discord-username', mergedUser.discordUsername);
         setElementValue(label + '-discord-id', mergedUser.discordId);
+        setElementValue(label + '-arena-username', mergedUser.arenaUsername);
         setElementValue(label + '-admin', mergedUser.admin ? '&#x1F477;' : '');
     }
 }

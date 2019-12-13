@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Message;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -26,7 +26,7 @@ public class AddCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final Message message, final String arguments) throws BotErrorException {
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
         Scanner scanner = new Scanner(arguments);
 
         String firstToken = scanner.next();
@@ -56,10 +56,10 @@ public class AddCommand extends MessageCommand {
             throw new BotErrorException(String.format("%s doesn't do anything.", command));
         }
 
-        HomeEditor homeEditor = message.getHome().getHomeEditor();
+        HomeEditor homeEditor = event.getHomeEditor();
         homeEditor.addCommand(command, new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, text));
 
         String finalText = String.format("Command %s added.", command);
-        MessageCommand.say(message, finalText);
+        MessageCommand.say(event, finalText);
     }
 }

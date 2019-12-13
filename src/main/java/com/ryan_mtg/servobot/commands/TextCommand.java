@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
-import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.events.MessageSentEvent;
 
 public class TextCommand extends MessageCommand {
     public static final int TYPE = 1;
@@ -12,6 +12,14 @@ public class TextCommand extends MessageCommand {
     }
 
     @Override
+    public void perform(final MessageSentEvent event, final String arguments) {
+        String sender = event.getSender().getName();
+
+        String finalText = text.replace("%user%", sender) ;
+        MessageCommand.say(event, finalText);
+    }
+
+    @Override
     public int getType() {
         return TYPE;
     }
@@ -19,14 +27,6 @@ public class TextCommand extends MessageCommand {
     @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitTextCommand(this);
-    }
-
-    @Override
-    public void perform(final Message message, final String arguments) {
-        String author = message.getSender().getName();
-
-        String finalText = text.replace("%user%", author) ;
-        MessageCommand.say(message, finalText);
     }
 
     public String getText() {
