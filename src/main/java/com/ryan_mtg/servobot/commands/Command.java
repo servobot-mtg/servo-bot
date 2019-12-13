@@ -36,8 +36,6 @@ public abstract class Command {
         this.permission = permission;
     }
 
-
     public abstract int getType();
-    public abstract String getName();
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
 }

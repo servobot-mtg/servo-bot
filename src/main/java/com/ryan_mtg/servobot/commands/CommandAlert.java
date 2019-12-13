@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import java.util.Objects;
+
 public class CommandAlert {
     public static final int UNREGISTERED_ID = 0;
 
@@ -18,5 +20,19 @@ public class CommandAlert {
 
     public String getAlertToken() {
         return alertToken;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommandAlert that = (CommandAlert) o;
+        return id == that.id &&
+                alertToken.equals(that.alertToken);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, alertToken);
     }
 }

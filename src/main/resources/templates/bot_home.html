@@ -23,7 +23,7 @@
             </li>
         </ul>
         <h2>Services</h2>
-        <table>
+        <table class="data-table">
             <thead><tr>
                 <th>Service</th>
                 <th>Details</th>
@@ -44,7 +44,7 @@
                 <BR>
                 <div th:if="${queue.fullQueue.empty}">The queue is empty.</div>
 
-                <table th:if="${!queue.fullQueue.empty}">
+                <table class="data-table" th:if="${!queue.fullQueue.empty}">
                     <thead><tr>
                         <th>Position</th>
                         <th>Player</th>
@@ -62,7 +62,7 @@
         </th:block>
 
         <h2>Users</h2>
-        <table>
+        <table class="data-table">
             <thead><tr>
                 <th>Twitch Name</th>
                 <th>Discord Name</th>
@@ -81,23 +81,65 @@
             </th:block>
         </table>
 
-
         <h2>Commands</h2>
-        <table>
+        <table class="data-table">
             <thead><tr>
-                <th>Command</th>
-                <th>Command description</th>
+                <th>Id</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Triggers</th>
                 <th th:if="${privledged}">Secure</th>
                 <th>Permissions</th>
                 <th th:if="${privledged}">Delete</th>
             </tr></thead>
-            <th:block th:each="commandEntry : ${botHome.commandTable.commandList}"
-                      th:with="command=${commandEntry.value},alias=${commandEntry.key}" >
-                <tr th:if="${!command.secure || privledged}" th:id="${'command-' + alias}"
-                    th:with="label=${'command-' + command.id}"
-                    th:classappend="${(command.secure ? 'secure ' : ' ') + label + '-row'}">
-                    <td th:text="${alias}"/>
-                    <td th:text="${command.name}"/>
+            <th:block th:each="descriptor : ${commandDescriptors}" th:with="command=${descriptor.command}">
+                <tr th:if="${!command.secure || privledged}" th:with="label=${'command-' + command.id}"
+                    th:id="${label + '-row'}" th:classappend="${command.secure ? 'secure ' : ''}">
+
+                    <td th:text="${command.id}"/>
+                    <td th:text="${descriptor.type}"/>
+                    <td th:text="${descriptor.description}"/>
+                    <td>
+                        <th:block th:each="alias : ${descriptor.aliases}">
+                            <span th:if="${!privledged}" class="alias-label label" th:text="${alias.alias}"/>
+                            <table th:if="${privledged}" class="alias-label label label-table"
+                                   th:id="${'alias-' + alias.id}">
+                                <tr>
+                                    <td th:text="${alias.alias}"/>
+                                    <td class="pseudo-link alias-delete"
+                                        th:onclick="'deleteAlias(' + ${botHome.id} + ',' + ${alias.id} + ')'">x</td>
+                                </tr>
+                            </table>
+                        </th:block>
+
+                        <th:block th:each="event : ${descriptor.events}">
+                            <span th:if="${!privledged}" class="event-label label" th:text="${event.eventType}"/>
+                            <table th:if="${privledged}" class="event-label label label-table"
+                                   th:id="${'event-' + event.id}">
+                                <tr>
+                                    <td th:text="${event.eventType}"/>
+                                    <td class="pseudo-link event-delete"
+                                        th:onclick="'deleteEvent(' + ${botHome.id} + ',' + ${event.id} + ')'">x</td>
+                                </tr>
+                            </table>
+                        </th:block>
+
+                        <th:block th:each="alert : ${descriptor.alerts}">
+                            <span th:if="${!privledged}" class="alert-label label">
+                                    <a th:href="${'#alert-' + alert.alertToken}" th:text="${alert.alertToken}"/>
+                            </span>
+                            <table th:if="${privledged}" class="alert-label label label-table"
+                                   th:id="${'alert-' + alert.id}">
+                                <tr>
+                                    <td>
+                                        <a th:href="${'#alert-' + alert.alertToken}" th:text="${alert.alertToken}"/>
+                                    </td>
+                                    <td class="pseudo-link alert-delete"
+                                        th:onclick="'deleteAlert(' + ${botHome.id} + ',' + ${alert.id} + ')'">x</td>
+                                </tr>
+                            </table>
+                        </th:block>
+                    </td>
 
                     <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"
                         th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
@@ -117,15 +159,17 @@
                         </select>
                         <span th:id="${label}+ '-permission-updated'"/>
                     </td>
-                    <td th:if="${privledged}" th:onclick="'deleteCommand(event, ' + ${botHome.id} + ')'"
-                        th:attr="data-alias=${alias}" class="pseudo-link">
+
+                    <td th:if="${privledged}" class="pseudo-link"
+                        th:onclick="'deleteCommand(' + ${botHome.id} + ',' + ${command.id} + ')'">
                         &#x1F5D1;
                     </td>
                 </tr>
             </th:block>
         </table>
+
         <h2>Reactions</h2>
-        <table>
+        <table class="data-table">
             <thead><tr>
                 <th>Emoji</th>
                 <th>Reaction Trigger Words</th>
@@ -151,14 +195,17 @@
             </th:block>
         </table>
         <h2>Alerts</h2>
-        <table>
+        <table class="data-table">
             <thead><tr>
                 <th>Keyword</th>
                 <th>Alert Description</th>
             </tr></thead>
             <th:block th:each="alert : ${botHome.alertGenerators}">
                 <tr>
-                    <td th:text="${alert.alertToken}"/>
+                    <td>
+                        <span th:text="${alert.alertToken}"/>
+                        <a th:name="${'alert-' + alert.alertToken}"/>
+                    </td>
                     <td th:text="${alert.description}"/>
                 </tr>
             </th:block>
@@ -167,7 +214,7 @@
         <h2>Books</h2>
         <th:block th:each="book : ${botHome.books}">
             <h3 th:text="${book.name}"/>
-            <table>
+            <table class="data-table">
                 <thead><tr>
                     <th>Text</th>
                     <th th:if="${privledged}">Delete</th>

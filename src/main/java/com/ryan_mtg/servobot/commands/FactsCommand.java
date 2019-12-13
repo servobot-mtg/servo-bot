@@ -19,11 +19,6 @@ public class FactsCommand extends MessageCommand {
     }
 
     @Override
-    public String getName() {
-        return book.getName() + " Command";
-    }
-
-    @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitFactsCommand(this);
     }

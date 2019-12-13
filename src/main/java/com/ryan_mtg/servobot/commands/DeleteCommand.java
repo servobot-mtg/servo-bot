@@ -40,11 +40,6 @@ public class DeleteCommand extends MessageCommand{
     }
 
     @Override
-    public String getName() {
-        return "Delete Command";
-    }
-
-    @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitDeleteCommand(this);
     }

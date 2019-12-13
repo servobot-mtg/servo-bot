@@ -1,15 +1,21 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.AddCommand;
+import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandAlias;
+import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
+import com.ryan_mtg.servobot.data.models.CommandAlertRow;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
+import com.ryan_mtg.servobot.data.models.CommandEventRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
+import com.ryan_mtg.servobot.data.repositories.CommandAlertRepository;
 import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
+import com.ryan_mtg.servobot.data.repositories.CommandEventRepository;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
@@ -35,6 +41,12 @@ public class CommandSerializer {
 
     @Autowired
     private CommandAliasRepository commandAliasRepository;
+
+    @Autowired
+    private CommandEventRepository commandEventRepository;
+
+    @Autowired
+    private CommandAlertRepository commandAlertRepository;
 
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
         int id = commandRow.getId();
@@ -83,6 +95,22 @@ public class CommandSerializer {
     public void saveCommandAlias(final int commandId, final CommandAlias commandAlias) {
         CommandAliasRow aliasRow = new CommandAliasRow(commandAlias.getId(), commandId, commandAlias.getAlias());
         commandAliasRepository.save(aliasRow);
+        commandAlias.setId(aliasRow.getId());
+    }
+
+    public CommandAlias getAlias(final int aliasId) {
+        CommandAliasRow commandAliasRow = commandAliasRepository.findById(aliasId).get();
+        return new CommandAlias(commandAliasRow.getId(), commandAliasRow.getAlias());
+    }
+
+    public CommandEvent getCommandEvent(int eventId) {
+        CommandEventRow commandEventRow = commandEventRepository.findById(eventId).get();
+        return new CommandEvent(commandEventRow.getId(), commandEventRow.getEventType());
+    }
+
+    public CommandAlert getCommandAlert(int alertId) {
+        CommandAlertRow commandAlertRow = commandAlertRepository.findById(alertId).get();
+        return new CommandAlert(commandAlertRow.getId(), commandAlertRow.getAlertToken());
     }
 
     private class CommandSerializationVisitor implements CommandVisitor {

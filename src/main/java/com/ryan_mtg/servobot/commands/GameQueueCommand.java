@@ -23,11 +23,6 @@ public class GameQueueCommand extends MessageCommand {
         return TYPE;
     }
 
-    @Override
-    public String getName() {
-        return "Queue Command";
-    }
-
     public int getGameQueueId() {
         return gameQueueId;
     }

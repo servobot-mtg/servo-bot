@@ -22,11 +22,6 @@ public class MessageChannelCommand extends HomeCommand {
     }
 
     @Override
-    public String getName() {
-        return "MessageChannelCommand";
-    }
-
-    @Override
     public void perform(final Home home) {
         home.getChannel(channelName, serviceType).say(message);
     }

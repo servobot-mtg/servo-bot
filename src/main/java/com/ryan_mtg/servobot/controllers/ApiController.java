@@ -4,6 +4,8 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ApiController {
+    private static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
+
     @Autowired
     private Bot bot;
 
@@ -21,13 +25,16 @@ public class ApiController {
         homeEditor.setTimeZone(request.getTimeZone());
     }
 
-    public static class SetBotHomeTimeZoneRequest {
+    public static abstract class AbstractBotHomeRequest {
         private int botHomeId;
-        private String timeZone;
 
         public int getBotHomeId() {
             return botHomeId;
         }
+    }
+
+    public static class SetBotHomeTimeZoneRequest extends AbstractBotHomeRequest {
+        private String timeZone;
 
         public String getTimeZone() {
             return timeZone;
@@ -46,14 +53,9 @@ public class ApiController {
         return homeEditor.secureReaction(request.getObjectId(), request.getSecure());
     }
 
-    public static class SecureRequest {
-        private int botHomeId;
+    public static class SecureRequest extends AbstractBotHomeRequest {
         private int objectId;
         private boolean secure;
-
-        public int getBotHomeId() {
-            return botHomeId;
-        }
 
         public int getObjectId() {
             return objectId;
@@ -70,14 +72,9 @@ public class ApiController {
         return homeEditor.setCommandPermission(request.getCommandId(), request.getPermission());
     }
 
-    public static class SetPermissionRequest {
-        private int botHomeId;
+    public static class SetPermissionRequest extends AbstractBotHomeRequest {
         private int commandId;
         private Permission permission;
-
-        public int getBotHomeId() {
-            return botHomeId;
-        }
 
         public int getCommandId() {
             return commandId;
@@ -88,30 +85,6 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteCommand(@RequestBody final DeleteCommandRequest request) {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        try {
-            homeEditor.deleteCommand(request.getCommandName());
-            return true;
-        } catch (BotErrorException e) {
-            return false;
-        }
-    }
-
-    public static class DeleteCommandRequest {
-        private int botHomeId;
-        private String commandName;
-
-        public int getBotHomeId() {
-            return botHomeId;
-        }
-
-        public String getCommandName() {
-            return commandName;
-        }
-    }
-
     @PostMapping(value = "/api/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -119,14 +92,9 @@ public class ApiController {
         return true;
     }
 
-    public static class DeleteStatementRequest {
-        private int botHomeId;
+    public static class DeleteStatementRequest extends AbstractBotHomeRequest {
         private int bookId;
         private int statementId;
-
-        public int getBotHomeId() {
-            return botHomeId;
-        }
 
         public int getBookId() {
             return bookId;
@@ -144,15 +112,10 @@ public class ApiController {
         return true;
     }
 
-    public static class ModifyStatementRequest {
-        private int botHomeId;
+    public static class ModifyStatementRequest extends AbstractBotHomeRequest {
         private int bookId;
         private int statementId;
         private String text;
-
-        public int getBotHomeId() {
-            return botHomeId;
-        }
 
         public int getBookId() {
             return bookId;
@@ -167,6 +130,63 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/api/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteCommand(@RequestBody final DeleteObjectRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deleteCommand(request.getObjectId());
+        });
+    }
+
+    @PostMapping(value = "/api/delete_alias", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteAlias(@RequestBody final DeleteObjectRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deleteAlias(request.getObjectId());
+        });
+    }
+
+    @PostMapping(value = "/api/delete_event", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteEvent(@RequestBody final DeleteObjectRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deleteEvent(request.getObjectId());
+        });
+    }
+
+    @PostMapping(value = "/api/delete_alert", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteAlert(@RequestBody final DeleteObjectRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deleteAlert(request.getObjectId());
+        });
+    }
+
+    public static class DeleteObjectRequest extends AbstractBotHomeRequest {
+        private int objectId;
+
+        public int getObjectId() {
+            return objectId;
+        }
+    }
+
+    private interface ApiCall {
+        void call() throws BotErrorException;
+    }
+
+    private boolean wrapCall(final ApiCall operation) {
+        try {
+            operation.call();
+            return true;
+        } catch (BotErrorException e) {
+            LOGGER.warn("Oops" ,e);
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     private HomeEditor getHomeEditor(final int botHomeId) {
         return bot.getHomeEditor(botHomeId);

@@ -7,12 +7,46 @@ body {
 }
 
 .secure {
-    background-color: darksalmon;
+    background-color: #FFDDDD;
 }
 
 .content {
     padding: 0 12px;
 }
+
+.label {
+    border-radius: 4px;
+    padding: 0 4px 0 4px;
+    border: 0;
+}
+
+.alias-label {
+    background-color: #BBDDFF;
+}
+
+.alias-delete:hover {
+    background-color: white;
+    color: black;
+}
+
+.event-label {
+    background-color: #DDFFDD;
+}
+
+.event-delete:hover {
+    background-color: white;
+    color: black;
+}
+
+.alert-label {
+    background-color: peachpuff;
+}
+
+.alert-delete:hover {
+    background-color: white;
+    color: black;
+}
+
 
 .navbar {
     border-bottom: black solid 1px;
@@ -113,8 +147,20 @@ table {
     border: 2px solid black;
 }
 
-td {
+.data-table td {
     padding: 2px 15px;
     border-collapse: collapse;
     border: 1px solid black;
 }
+
+.label-table {
+    display: inline-block;
+}
+
+.label-table td {
+    line-height: 20px;
+    padding: 0 4px 0 4px;
+    border-collapse: collapse;
+    border: 0;
+}
+

@@ -35,7 +35,7 @@
                         <td th:id="${label} + '-discord-username'" th:text="${user.discordUsername}"/>
                         <td th:id="${label} + '-discord-id'" th:text="${user.discordId}"/>
                         <td th:id="${label} + '-admin'" th:text="${user.admin ? '&#x1F477;' : ''}"/>
-                        <td><input type="checkbox" th:onchange="'selectUser(event, ' + ${user.id} + ')'"></td>
+                        <td><input type="checkbox" th:onchange="'selectUser(event, ' + ${user.id} + ')'"/></td>
                     </tr>
                 </th:block>
             </table>

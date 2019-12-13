@@ -17,11 +17,6 @@ public class TextCommand extends MessageCommand {
     }
 
     @Override
-    public String getName() {
-        return "Command to say " + text;
-    }
-
-    @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitTextCommand(this);
     }

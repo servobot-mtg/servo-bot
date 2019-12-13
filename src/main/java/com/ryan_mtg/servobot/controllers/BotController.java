@@ -1,6 +1,13 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.google.common.collect.Lists;
+import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.CommandAlert;
+import com.ryan_mtg.servobot.commands.CommandAlias;
+import com.ryan_mtg.servobot.commands.CommandEvent;
+import com.ryan_mtg.servobot.commands.CommandMapping;
+import com.ryan_mtg.servobot.commands.HomeCommand;
+import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
@@ -15,7 +22,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Controller
 public class BotController {
@@ -50,6 +60,8 @@ public class BotController {
         }
 
         model.addAttribute("botHome", botHome);
+        model.addAttribute("commandDescriptors",
+                getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
         model.addAttribute("timeZones", timeZones);
         model.addAttribute("userSerializer", userSerializer);
         model.addAttribute("users", userSerializer.getHomedUsers(homeId));
@@ -79,5 +91,37 @@ public class BotController {
         public String getDisplay() {
             return display;
         }
+    }
+
+    private List<CommandDescriptor> getCommandDescriptors(final CommandMapping commandMapping) {
+        List<CommandDescriptor> commands = new ArrayList<>();
+        Map<Command, CommandDescriptor> commandMap = new HashMap<>();
+
+        Function<Command, CommandDescriptor> createCommandDescriptor = command -> {
+            CommandDescriptor newDescriptor = new CommandDescriptor(command);
+            commands.add(newDescriptor);
+            return newDescriptor;
+        };
+
+        for (Map.Entry<Integer, Command> entry : commandMapping.getIdtoCommandMap().entrySet()) {
+            commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
+        }
+
+        for (Map.Entry<CommandAlias, MessageCommand> entry : commandMapping.getAliasCommandMap().entrySet()) {
+            CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
+            descriptor.addAlias(entry.getKey());
+        }
+
+        for (Map.Entry<CommandEvent, HomeCommand> entry : commandMapping.getEventCommandMap().entrySet()) {
+            CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
+            descriptor.addEvent(entry.getKey());
+        }
+
+        for (Map.Entry<CommandAlert, HomeCommand> entry : commandMapping.getAlertCommandMap().entrySet()) {
+            CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
+            descriptor.addAlert(entry.getKey());
+        }
+
+        return commands;
     }
 }

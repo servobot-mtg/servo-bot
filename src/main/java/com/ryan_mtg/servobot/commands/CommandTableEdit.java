@@ -7,13 +7,15 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class CommandTableEdit {
-    private List<MessageCommand> deletedCommands = new ArrayList<>();
-    private List<MessageCommand> savedCommands = new ArrayList<>();
+    private List<Command> deletedCommands = new ArrayList<>();
+    private List<Command> savedCommands = new ArrayList<>();
     private List<CommandAlias> deletedAliases = new ArrayList<>();
-    private Map<MessageCommand, CommandAlias> savedAliases = new HashMap<>();
-    private Map<MessageCommand, Consumer<MessageCommand>> callbackMap = new HashMap<>();
+    private List<CommandEvent> deletedEvents = new ArrayList<>();
+    private List<CommandAlert> deletedAlerts = new ArrayList<>();
+    private Map<Command, CommandAlias> savedAliases = new HashMap<>();
+    private Map<Command, Consumer<Command>> callbackMap = new HashMap<>();
 
-    public void delete(final MessageCommand command) {
+    public void delete(final Command command) {
         deletedCommands.add(command);
     }
 
@@ -21,31 +23,45 @@ public class CommandTableEdit {
         deletedAliases.add(commandAlias);
     }
 
-    public void save(final MessageCommand command, final CommandAlias commandAlias,
-                     final Consumer<MessageCommand> saveCallback) {
+    public void delete(final CommandEvent commandEvent) {
+        deletedEvents.add(commandEvent);
+    }
+
+    public void delete(final CommandAlert commandAlert) {
+        deletedAlerts.add(commandAlert);
+    }
+
+    public void save(final Command command, final CommandAlias commandAlias, final Consumer<Command> saveCallback) {
         savedCommands.add(command);
         savedAliases.put(command, commandAlias);
         callbackMap.put(command, saveCallback);
     }
 
-    public List<MessageCommand> getDeletedCommands() {
+    public List<Command> getDeletedCommands() {
         return deletedCommands;
     }
 
-    public List<MessageCommand> getSavedCommands() {
+    public List<Command> getSavedCommands() {
         return savedCommands;
     }
 
-    public void commandSaved(final MessageCommand messageCommand) {
-        callbackMap.get(messageCommand).accept(messageCommand);
+    public void commandSaved(final Command command) {
+        callbackMap.get(command).accept(command);
     }
 
-    public CommandAlias getSavedAlias(final MessageCommand messageCommand) {
+    public CommandAlias getSavedAlias(final Command messageCommand) {
         return savedAliases.get(messageCommand);
-
     }
 
     public List<CommandAlias> getDeletedAliases() {
         return deletedAliases;
+    }
+
+    public List<CommandEvent> getDeletedEvents() {
+        return deletedEvents;
+    }
+
+    public List<CommandAlert> getDeletedAlerts() {
+        return deletedAlerts;
     }
 }

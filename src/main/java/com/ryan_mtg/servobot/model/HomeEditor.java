@@ -1,6 +1,9 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.CommandAlert;
+import com.ryan_mtg.servobot.commands.CommandAlias;
+import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.MessageCommand;
@@ -75,6 +78,49 @@ public class HomeEditor {
 
         if (commandTableEdit.getDeletedCommands().isEmpty()) {
             throw new BotErrorException(String.format("Command '%s' not found.", commandName));
+        }
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    public void deleteCommand(final int commandId) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandId);
+
+        if (commandTableEdit.getDeletedCommands().isEmpty()) {
+            throw new BotErrorException(String.format("Command '%d' not found.", commandId));
+        }
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    public void deleteAlias(final int aliasId) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandAlias commandAlias = serializers.getCommandSerializer().getAlias(aliasId);
+        CommandTableEdit commandTableEdit = commandTable.deleteAlias(commandAlias);
+
+        if (commandTableEdit.getDeletedAliases().isEmpty()) {
+            throw new BotErrorException(String.format("Alias '%d' not found.", aliasId));
+        }
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    public void deleteEvent(final int eventId) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandEvent commandEvent = serializers.getCommandSerializer().getCommandEvent(eventId);
+        CommandTableEdit commandTableEdit = commandTable.deleteEvent(commandEvent);
+
+        if (commandTableEdit.getDeletedEvents().isEmpty()) {
+            throw new BotErrorException(String.format("Event '%d' not found.", eventId));
+        }
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    public void deleteAlert(final int alertId) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandAlert commandAlert = serializers.getCommandSerializer().getCommandAlert(alertId);
+        CommandTableEdit commandTableEdit = commandTable.deleteAlert(commandAlert);
+
+        if (commandTableEdit.getDeletedAlerts().isEmpty()) {
+            throw new BotErrorException(String.format("Alert '%d' not found.", alertId));
         }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }

@@ -64,34 +64,41 @@ async function postTimeZone(botHomeId, timeZone, responseElement) {
     makePost('/api/set_home_time_zone', parameters, [responseElement], true);
 }
 
-function deleteCommand(event, botHomeId) {
-    const commandName = event.currentTarget.dataset.alias;
-    const performDelete = window.confirm('Are you sure you want to delete the ' + commandName + ' command?');
+function deleteCommand(botHomeId, commandId) {
+    const performDelete = window.confirm('Are you sure you want to delete the command?');
     if (performDelete) {
-        postDeleteCommand(botHomeId, commandName);
+        const parameters = {botHomeId: botHomeId, objectId: commandId};
+        postDelete('/api/delete_command', parameters, 'command-' + commandId + '-row');
     }
 }
 
-async function postDeleteCommand(botHomeId, commandName) {
-    const parameters = {botHomeId: botHomeId, commandName: commandName};
-    let response = await makePost('/api/delete_command', parameters, [], false);
+async function postDelete(endpoint, parameters, elementId) {
+    let response = await makePost(endpoint, parameters, [], false);
     if (response.ok) {
-        let rowElement = document.getElementById('command-' + commandName);
-        rowElement.parentElement.removeChild(rowElement);
+        let element = document.getElementById(elementId);
+        element.parentElement.removeChild(element);
     }
 }
+
+function deleteAlias(botHomeId, aliasId) {
+    const parameters = {botHomeId: botHomeId, objectId: aliasId};
+    postDelete('/api/delete_alias', parameters, 'alias-' + aliasId);
+}
+
+function deleteEvent(botHomeId, eventId) {
+    const parameters = {botHomeId: botHomeId, objectId: eventId};
+    postDelete('/api/delete_event', parameters, 'event-' + eventId);
+}
+
+function deleteAlert(botHomeId, alertId) {
+    const parameters = {botHomeId: botHomeId, objectId: alertId};
+    postDelete('/api/delete_alert', parameters, 'alert-' + alertId);
+}
+
 
 function deleteStatement(event, botHomeId, bookId, statementId) {
-    postDeleteStatement(botHomeId, bookId, statementId);
-}
-
-async function postDeleteStatement(botHomeId, bookId, statementId) {
     const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId};
-    let response = await makePost('/api/delete_statement', parameters, [], false);
-    if (response.ok) {
-        let rowElement = document.getElementById('statement-' + statementId + '-row');
-        rowElement.parentElement.removeChild(rowElement);
-    }
+    postDelete('/api/delete_statement', parameters, 'statement-' + statementId + '-row');
 }
 
 function editStatement(event, statementId) {

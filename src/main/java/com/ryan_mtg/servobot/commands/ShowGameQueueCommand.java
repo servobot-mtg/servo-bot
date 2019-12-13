@@ -24,11 +24,6 @@ public class ShowGameQueueCommand extends MessageCommand {
         return TYPE;
     }
 
-    @Override
-    public String getName() {
-        return "Join Game Queue Command";
-    }
-
     public int getGameQueueId() {
         return gameQueueId;
     }

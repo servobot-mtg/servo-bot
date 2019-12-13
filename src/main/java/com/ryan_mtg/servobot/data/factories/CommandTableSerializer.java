@@ -66,6 +66,8 @@ public class CommandTableSerializer {
         for (CommandRow commandRow : commandRows) {
             Command command = commandSerializer.createCommand(commandRow, bookMap);
 
+            commandTable.registerCommand(command);
+
             Iterable<CommandAliasRow> aliases = commandAliasRepository.findAllByCommandId(commandRow.getId());
             if (aliases.iterator().hasNext()) {
                 MessageCommand messageCommand = (MessageCommand) command;
@@ -141,15 +143,24 @@ public class CommandTableSerializer {
             commandAliasRepository.deleteById(commandAlias.getId());
         }
 
-        for (MessageCommand messageCommand : commandTableEdit.getDeletedCommands()) {
-            commandRepository.deleteById(messageCommand.getId());
+        for (CommandEvent commandEvent : commandTableEdit.getDeletedEvents()) {
+            commandEventRepository.deleteById(commandEvent.getId());
         }
 
-        for (MessageCommand messageCommand : commandTableEdit.getSavedCommands()) {
-            commandSerializer.saveCommand(botHomeId, messageCommand);
-            commandTableEdit.commandSaved(messageCommand);
-            CommandAlias commandAlias = commandTableEdit.getSavedAlias(messageCommand);
-            commandSerializer.saveCommandAlias(messageCommand.getId(), commandAlias);
+        for (CommandAlert commandAlert : commandTableEdit.getDeletedAlerts()) {
+            commandAlertRepository.deleteById(commandAlert.getId());
+        }
+
+        for (Command command : commandTableEdit.getDeletedCommands()) {
+            commandRepository.deleteById(command.getId());
+        }
+
+        for (Command command : commandTableEdit.getSavedCommands()) {
+            commandSerializer.saveCommand(botHomeId, command);
+            commandTableEdit.commandSaved(command);
+
+            CommandAlias commandAlias = commandTableEdit.getSavedAlias(command);
+            commandSerializer.saveCommandAlias(command.getId(), commandAlias);
         }
     }
 }

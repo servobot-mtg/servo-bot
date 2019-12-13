@@ -21,20 +21,27 @@ public class CommandTable {
 
     private Map<String, MessageCommand> commandMap = new HashMap<>();
     private Map<String, CommandAlias> aliasMap = new HashMap<>();
+    private Map<CommandAlias, MessageCommand> aliasCommandMap = new HashMap<>();
     private Map<MessageCommand, List<CommandAlias>> reverseAliasMap = new HashMap<>();
 
     private List<CommandEvent> events = new ArrayList<>();
     private Map<CommandEvent, HomeCommand> eventCommandMap = new HashMap<>();
     private Map<CommandEvent.Type, List<CommandEvent>> eventMap = new HashMap<>();
+    private Map<HomeCommand, List<CommandEvent>> reverseEventMap = new HashMap<>();
 
     private List<CommandAlert> alerts = new ArrayList<>();
     private Map<CommandAlert, HomeCommand> alertCommandMap = new HashMap<>();
     private Map<String, List<CommandAlert>> alertMap = new HashMap<>();
+    private Map<HomeCommand, List<CommandAlert>> reverseAlertMap = new HashMap<>();
 
     private List<AlertGenerator> alertGenerators;
 
     public CommandTable(final boolean isCaseSensitive) {
         this.isCaseSensitive = isCaseSensitive;
+    }
+
+    public void registerCommand(final Command command) {
+        idToCommandMap.put(command.getId(), command);
     }
 
     public void registerCommand(final MessageCommand command, final CommandAlias commandAlias) {
@@ -48,6 +55,7 @@ public class CommandTable {
         }
         commandMap.put(alias, command);
         aliasMap.put(alias, commandAlias);
+        aliasCommandMap.put(commandAlias, command);
         reverseAliasMap.computeIfAbsent(command, newCommand -> new ArrayList<>()).add(commandAlias);
     }
 
@@ -56,11 +64,12 @@ public class CommandTable {
         String canonicalAlias=canonicalize(alias);
 
         commandMap.put(canonicalAlias, newCommand);
-        CommandAlias newAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, alias);
-        aliasMap.put(canonicalAlias, newAlias);
-        reverseAliasMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(newAlias);
+        CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, alias);
+        aliasMap.put(canonicalAlias, commandAlias);
+        aliasCommandMap.put(commandAlias, newCommand);
+        reverseAliasMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(commandAlias);
 
-        commandTableEdit.save(newCommand, newAlias, command -> registerCommand(command));
+        commandTableEdit.save(newCommand, commandAlias, command -> registerCommand(command));
         return commandTableEdit;
     }
 
@@ -81,6 +90,8 @@ public class CommandTable {
                 idToCommandMap.remove(command.getId());
             }
 
+            aliasCommandMap.remove(commandAlias);
+            aliasMap.remove(canonicalAlias);
             commandMap.remove(canonicalAlias);
             commandTableEdit.delete(commandAlias);
         }
@@ -88,9 +99,70 @@ public class CommandTable {
         return commandTableEdit;
     }
 
+    public CommandTableEdit deleteCommand(final int commandId) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+
+        Command command = idToCommandMap.get(commandId);
+        idToCommandMap.remove(command.getId());
+        commandTableEdit.delete(command);
+
+        if (command instanceof MessageCommand) {
+            MessageCommand messageCommand = (MessageCommand) command;
+
+            if (reverseAliasMap.containsKey(messageCommand)) {
+                List<CommandAlias> aliases = new ArrayList<>(reverseAliasMap.get(messageCommand));
+
+                for (CommandAlias commandAlias : aliases) {
+                    deleteAlias(commandAlias, commandTableEdit);
+                }
+            }
+        }
+
+        if (command instanceof HomeCommand) {
+            HomeCommand homeCommand = (HomeCommand) command;
+
+            if (reverseEventMap.containsKey(homeCommand)) {
+                List<CommandEvent> events = new ArrayList<>(reverseEventMap.get(homeCommand));
+
+                for (CommandEvent commandEvent : events) {
+                    deleteEvent(commandEvent, commandTableEdit);
+                }
+            }
+
+            if (reverseAlertMap.containsKey(homeCommand)) {
+                List<CommandAlert> alerts = new ArrayList<>(reverseAlertMap.get(homeCommand));
+
+                for (CommandAlert commandAlert : alerts) {
+                    deleteAlert(commandAlert, commandTableEdit);
+                }
+            }
+        }
+
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit deleteAlias(final CommandAlias commandAlias) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        deleteAlias(commandAlias, commandTableEdit);
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit deleteEvent(CommandEvent commandEvent) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        deleteEvent(commandEvent, commandTableEdit);
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit deleteAlert(CommandAlert commandAlert) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        deleteAlert(commandAlert, commandTableEdit);
+        return commandTableEdit;
+    }
+
     public void registerCommand(final HomeCommand homeCommand, final CommandEvent commandEvent) {
         registerCommand(homeCommand);
         eventCommandMap.put(commandEvent, homeCommand);
+        reverseEventMap.computeIfAbsent(homeCommand, command -> new ArrayList<>()).add(commandEvent);
         eventMap.computeIfAbsent(commandEvent.getEventType(), type -> new ArrayList<>()).add(commandEvent);
         events.add(commandEvent);
     }
@@ -98,6 +170,7 @@ public class CommandTable {
     public void registerCommand(final HomeCommand homeCommand, final CommandAlert commandAlert) {
         registerCommand(homeCommand);
         alertCommandMap.put(commandAlert, homeCommand);
+        reverseAlertMap.computeIfAbsent(homeCommand, command -> new ArrayList<>()).add(commandAlert);
         alertMap.computeIfAbsent(commandAlert.getAlertToken(), type -> new ArrayList<>()).add(commandAlert);
         alerts.add(commandAlert);
     }
@@ -126,6 +199,10 @@ public class CommandTable {
 
     public Map<String, MessageCommand> getCommandList() {
         return ImmutableMap.copyOf(commandMap);
+    }
+
+    public CommandMapping getCommandMapping() {
+        return new CommandMapping(idToCommandMap, aliasCommandMap, eventCommandMap, alertCommandMap);
     }
 
     public MessageCommand getCommand(final String token) {
@@ -178,7 +255,47 @@ public class CommandTable {
         return command;
     }
 
-    private void registerCommand(final Command command) {
-        idToCommandMap.put(command.getId(), command);
+    private void deleteAlias(final CommandAlias commandAlias, final CommandTableEdit commandTableEdit) {
+        String canonicalAlias = canonicalize(commandAlias.getAlias());
+        MessageCommand messageCommand = aliasCommandMap.get(commandAlias);
+
+        commandMap.remove(canonicalAlias);
+        aliasMap.remove(canonicalAlias);
+        aliasCommandMap.remove(commandAlias);
+        removeMappedElement(reverseAliasMap, messageCommand, commandAlias);
+
+        commandTableEdit.delete(commandAlias);
+    }
+
+    private void deleteEvent(final CommandEvent commandEvent, final CommandTableEdit commandTableEdit) {
+        HomeCommand homeCommand = eventCommandMap.get(commandEvent);
+
+        events.remove(commandEvent);
+        eventCommandMap.remove(commandEvent);
+        removeMappedElement(eventMap, commandEvent.getEventType(), commandEvent);
+        removeMappedElement(reverseEventMap, homeCommand, commandEvent);
+
+        commandTableEdit.delete(commandEvent);
+    }
+
+    private void deleteAlert(final CommandAlert commandAlert, final CommandTableEdit commandTableEdit) {
+        HomeCommand homeCommand = alertCommandMap.get(commandAlert);
+
+        alerts.remove(commandAlert);
+        alertCommandMap.remove(commandAlert);
+
+        removeMappedElement(alertMap, commandAlert.getAlertToken(), commandAlert);
+        removeMappedElement(reverseAlertMap, homeCommand, commandAlert);
+
+        commandTableEdit.delete(commandAlert);
+    }
+
+    private <KeyType, ElementType> void removeMappedElement(final Map<KeyType, List<ElementType>> map,
+                                                            final KeyType key, final ElementType element) {
+        List<ElementType> mappedElements = map.get(key);
+        mappedElements.remove(element);
+        if (mappedElements.isEmpty()) {
+            eventMap.remove(key);
+        }
     }
 }

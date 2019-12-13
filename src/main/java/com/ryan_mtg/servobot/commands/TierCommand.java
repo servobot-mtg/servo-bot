@@ -17,11 +17,6 @@ public class TierCommand extends MessageCommand {
     }
 
     @Override
-    public String getName() {
-        return "Friendship Tier Command";
-    }
-
-    @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitTierCommand(this);
     }

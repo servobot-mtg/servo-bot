@@ -21,11 +21,6 @@ public class AddCommand extends MessageCommand {
     }
 
     @Override
-    public String getName() {
-        return "Add Command";
-    }
-
-    @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitAddCommand(this);
     }
