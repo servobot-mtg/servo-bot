@@ -5,6 +5,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends CrudRepository<UserRow, Integer> {
     UserRow findById(int id);
@@ -12,4 +14,6 @@ public interface UserRepository extends CrudRepository<UserRow, Integer> {
     UserRow findByDiscordId(long discordId);
 
     Iterable<UserRow> findAll(final Sort sort);
+
+    List<UserRow> findByArenaUsernameIsNotNull();
 }

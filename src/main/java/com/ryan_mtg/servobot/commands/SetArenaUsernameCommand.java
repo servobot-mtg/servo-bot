@@ -13,7 +13,6 @@ public class SetArenaUsernameCommand extends MessageCommand {
         super(id, secure, permission);
     }
 
-
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
         if (arguments.length() > 23 + 1 + 5) {

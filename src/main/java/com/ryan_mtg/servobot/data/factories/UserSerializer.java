@@ -204,6 +204,11 @@ public class UserSerializer {
         userRepository.save(userRow);
     }
 
+    public List<User> getArenaUsers() {
+        List<UserRow> userRows = userRepository.findByArenaUsernameIsNotNull();
+        return userRows.stream().map(userRow -> createUser(userRow)).collect(Collectors.toList());
+    }
+
     private User createUser(final UserRow userRow)  {
         return new User(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
                         userRow.getDiscordId(), userRow.getDiscordUsername(), userRow.getArenaUsername());

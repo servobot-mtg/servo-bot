@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
+import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
@@ -144,6 +145,12 @@ public class CommandDescriptor {
         public void visitSetArenaUsernameCommand(final SetArenaUsernameCommand setArenaUsernameCommand) {
             type = "Set Arena Username Command";
             description = "Stores the user's arena username";
+        }
+
+        @Override
+        public void visitShowArenaUsernamesCommand(final ShowArenaUsernamesCommand showArenaUsernamesCommand) {
+            type = "Show Arena Usernames Command";
+            description = "Shows the stored arena usernames";
         }
 
         @Override

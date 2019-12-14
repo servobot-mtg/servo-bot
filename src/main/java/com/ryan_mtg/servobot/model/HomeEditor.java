@@ -348,6 +348,10 @@ public class HomeEditor {
         return user.getDiscordUsername();
     }
 
+    public List<User> getArenaUsers() {
+        return serializers.getUserSerializer().getArenaUsers();
+    }
+
     private GameQueue getGameQueue(final int gameQueueId) throws BotErrorException {
         GameQueue gameQueue = botHome.getGameQueue(gameQueueId);
         if (gameQueue == null) {
