@@ -6,7 +6,7 @@
     </head>
     <body>
         <div th:include="fragments :: header"/>
-        <div class="content">
+        <span class="content">
             <h1>Admin</h1>
 
             <h2>Operations</h2>
@@ -35,7 +35,13 @@
                         <td th:id="${label} + '-twitch-id'" th:text="${user.twitchId}"/>
                         <td th:id="${label} + '-discord-username'" th:text="${user.discordUsername}"/>
                         <td th:id="${label} + '-discord-id'" th:text="${user.discordId}"/>
-                        <td th:id="${label} + '-arena-username'" th:text="${user.arenaUsername}"/>
+                        <td>
+                            <span th:id="${label} + '-arena-username'" th:text="${user.arenaUsername}"/>
+                            <span th:id="${label} + '-arena-username-delete-icon'"
+                                  class="pseudo-link" th:onclick="'deleteArenaUsername(' + ${user.id} + ')'">
+                                <span th:if="${user.arenaUsername}">&#x1F5D1;</span>
+                            </span>
+                        </td>
                         <td th:id="${label} + '-admin'" th:text="${user.admin ? '&#x1F477;' : ''}"/>
                         <td><input type="checkbox" th:onchange="'selectUser(event, ' + ${user.id} + ')'"/></td>
                     </tr>

@@ -197,6 +197,13 @@ public class UserSerializer {
         userRepository.save(userRow);
     }
 
+    @Transactional
+    public void deleteArenaUsername(final int id) {
+        UserRow userRow = userRepository.findById(id);
+        userRow.setArenaUsername(null);
+        userRepository.save(userRow);
+    }
+
     private User createUser(final UserRow userRow)  {
         return new User(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
                         userRow.getDiscordId(), userRow.getDiscordUsername(), userRow.getArenaUsername());

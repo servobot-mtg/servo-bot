@@ -14,6 +14,8 @@ function mergeUsers() {
     postMergeUsers(responseElement);
 }
 
+const deleteIcon = '&#x1F5D1;';
+
 async function postMergeUsers(responseElement) {
     const parameters = { userIds: selectedUsers};
     let response = await makePost('/admin/merge_users', parameters, [responseElement], true);
@@ -35,6 +37,9 @@ async function postMergeUsers(responseElement) {
         setElementValue(label + '-discord-username', mergedUser.discordUsername);
         setElementValue(label + '-discord-id', mergedUser.discordId);
         setElementValue(label + '-arena-username', mergedUser.arenaUsername);
+        if (mergedUser.arenaUsername) {
+            setElementValue(label + '-arena-username-delete-icon', deleteIcon);
+        }
         setElementValue(label + '-admin', mergedUser.admin ? '&#x1F477;' : '');
     }
 }
@@ -57,3 +62,19 @@ function selectUser(event, userId) {
         mergeUsersElement.style.display = 'none';
     }
 }
+
+function deleteArenaUsername(userId) {
+    postDeleteArenaUsername(userId);
+
+}
+
+async function postDeleteArenaUsername(userId) {
+    let response = await makePost('/admin/delete_arena_username',{userId: userId}, [],
+        false);
+    if (response.ok) {
+        const label = 'user-' + userId;
+        setElementValue(label + '-arena-username', '');
+        setElementValue(label + '-arena-username-delete-icon', '');
+    }
+}
+
