@@ -25,7 +25,7 @@ public class ApiController {
         homeEditor.setTimeZone(request.getTimeZone());
     }
 
-    public static abstract class AbstractBotHomeRequest {
+    public static class BotHomeRequest {
         private int botHomeId;
 
         public int getBotHomeId() {
@@ -33,7 +33,7 @@ public class ApiController {
         }
     }
 
-    public static class SetBotHomeTimeZoneRequest extends AbstractBotHomeRequest {
+    public static class SetBotHomeTimeZoneRequest extends BotHomeRequest {
         private String timeZone;
 
         public String getTimeZone() {
@@ -53,7 +53,7 @@ public class ApiController {
         return homeEditor.secureReaction(request.getObjectId(), request.getSecure());
     }
 
-    public static class SecureRequest extends AbstractBotHomeRequest {
+    public static class SecureRequest extends BotHomeRequest {
         private int objectId;
         private boolean secure;
 
@@ -72,7 +72,7 @@ public class ApiController {
         return homeEditor.setCommandPermission(request.getCommandId(), request.getPermission());
     }
 
-    public static class SetPermissionRequest extends AbstractBotHomeRequest {
+    public static class SetPermissionRequest extends BotHomeRequest {
         private int commandId;
         private Permission permission;
 
@@ -92,7 +92,7 @@ public class ApiController {
         return true;
     }
 
-    public static class DeleteStatementRequest extends AbstractBotHomeRequest {
+    public static class DeleteStatementRequest extends BotHomeRequest {
         private int bookId;
         private int statementId;
 
@@ -112,7 +112,7 @@ public class ApiController {
         return true;
     }
 
-    public static class ModifyStatementRequest extends AbstractBotHomeRequest {
+    public static class ModifyStatementRequest extends BotHomeRequest {
         private int bookId;
         private int statementId;
         private String text;
@@ -165,12 +165,22 @@ public class ApiController {
         });
     }
 
-    public static class DeleteObjectRequest extends AbstractBotHomeRequest {
+    public static class DeleteObjectRequest extends BotHomeRequest {
         private int objectId;
 
         public int getObjectId() {
             return objectId;
         }
+    }
+
+    @PostMapping(value = "/api/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean stopHome(@RequestBody final BotHomeRequest request) {
+        return wrapCall(() -> bot.getBotEditor().stopHome(request.getBotHomeId()));
+    }
+
+    @PostMapping(value = "/api/start_home", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean restartHome(@RequestBody final BotHomeRequest request) {
+        return wrapCall(() -> bot.getBotEditor().restartHome(request.getBotHomeId()));
     }
 
     private interface ApiCall {

@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,6 +38,20 @@ public class AlertQueue {
         }
     }
 
+    public void remove(final BotHome home) {
+        List<AlertGenerator> alertGeneratorsToRemove = new ArrayList<>();
+        for (Map.Entry<AlertGenerator, Alertable> entry : alertableMap.entrySet()) {
+            Alertable alertable = entry.getValue();
+            if (alertable !=  null && alertable.getHome() == home) {
+                alertable.cancel();
+                alertGeneratorsToRemove.add(entry.getKey());
+            }
+        }
+        for (AlertGenerator alertGenerator : alertGeneratorsToRemove) {
+            alertableMap.remove(alertGenerator);
+        }
+    }
+
     public void start() {
         active = true;
         Instant now = Instant.now();
@@ -57,15 +73,14 @@ public class AlertQueue {
             this.generator = generator;
         }
 
+        public BotHome getHome() {
+            return home;
+        }
+
         public void alert() {
             LOGGER.info("Alerting {}", generator.getAlertToken());
             bot.getHomeEditor(home.getId()).alert(generator.getAlertToken());
             schedule(Instant.now());
-        }
-
-        public Instant getNextTime(final Instant now) {
-            Instant result = generator.getNextAlertTime(now);
-            return result;
         }
 
         public void update(final Instant now) {
@@ -93,6 +108,12 @@ public class AlertQueue {
 
             alertTask = new AlertTask(this, goal);
             timer.schedule(alertTask, wait.toMillis());
+        }
+
+        public void cancel() {
+            if (alertTask != null) {
+                alertTask.kill();
+            }
         }
     }
 

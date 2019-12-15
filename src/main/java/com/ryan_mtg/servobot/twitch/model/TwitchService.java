@@ -63,6 +63,14 @@ public class TwitchService implements Service {
     }
 
     @Override
+    public void unregister(final BotHome botHome) {
+        ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);
+        if (serviceHome != null) {
+            homeIdMap.remove(((TwitchServiceHome) serviceHome).getChannelId());
+        }
+    }
+
+    @Override
     public void start(final EventListener eventListener) throws Exception {
         OAuth2Credential credential = new OAuth2Credential("twitch", oauthToken);
 
@@ -91,6 +99,11 @@ public class TwitchService implements Service {
     public void joinChannel(final long channelId) {
         String channelName = getChannelName(channelId);
         client.getChat().joinChannel(channelName);
+    }
+
+    public void leaveChannel(final long channelId) {
+        String channelName = getChannelName(channelId);
+        client.getChat().leaveChannel(channelName);
     }
 
     private String fetchChannelName(final long channelId) {

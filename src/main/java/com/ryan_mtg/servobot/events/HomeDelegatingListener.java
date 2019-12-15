@@ -25,6 +25,10 @@ public class HomeDelegatingListener implements EventListener {
         botHomeMap.put(botHome.getId(), botHome.getListener());
     }
 
+    public void unregister(BotHome botHome) {
+        botHomeMap.remove(botHome.getId());
+    }
+
     @Override
     public void onMessage(final MessageSentEvent messageSentEvent) throws BotErrorException {
         EventListener listener = getListener(messageSentEvent);

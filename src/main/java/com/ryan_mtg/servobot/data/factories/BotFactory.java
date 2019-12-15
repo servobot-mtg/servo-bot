@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,54 +36,66 @@ public class BotFactory {
     @Autowired
     private SerializerContainer serializers;
 
+    @PostConstruct
+    public void setFactoryProperty() {
+        serializers.setBotFactory(this);
+    }
+
     public Bot createBot(final BotRow botRow) {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
 
         Bot bot = new Bot(botRow.getName(), services, serializers);
-        Iterable<BotHomeRow> botHomeRows = serializers.getBotHomeRepository().findAll();
-
-        for (BotHomeRow botHomeRow : botHomeRows) {
-            String homeName = botHomeRow.getHomeName();
-            String timeZone = botHomeRow.getTimeZone();
-            int botHomeId = botHomeRow.getId();
-
-            List<Book> books = serializers.getBookSerializer().createBooks(botHomeId);
-            Map<Integer, Book> bookMap = new HashMap<>();
-            for (Book book : books) {
-                bookMap.put(book.getId(), book);
-            }
-
-            CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
-            ReactionTable reactionTable = serializers.getReactionTableSerializer().createReactionTable(botHomeId);
-
-            Map<Integer, ServiceHome> serviceHomes = new HashMap<>();
-            for (ServiceHomeRow serviceHomeRow : serviceHomeRepository.findAllByBotHomeId(botHomeId)) {
-                int serviceType = serviceHomeRow.getServiceType();
-                Service service = services.get(serviceType);
-                ServiceHome serviceHome = serviceSerializer.createServiceHome(serviceHomeRow, service);
-                serviceHomes.put(serviceType, serviceHome);
-            }
-
-            List<GameQueue> gameQueues = new ArrayList<>();
-            for (GameQueueRow gameQueueRow : serializers.getGameQueueRepository().findAllByBotHomeId(botHomeId)) {
-                GameQueue gameQueue = new GameQueue(gameQueueRow.getId(), gameQueueRow.getName(),
-                        gameQueueRow.getState(), gameQueueRow.getNext(), gameQueueRow.getCurrentPlayerId());
-
-                GameQueueEntryRepository gameQueueEntryRepository = serializers.getGameQueueEntryRepository();
-                for (GameQueueEntryRow gameQueueEntryRow :
-                        gameQueueEntryRepository.findByGameQueueIdOrderBySpotAsc(gameQueue.getId())) {
-                    gameQueue.enqueue(gameQueueEntryRow.getUserId(), gameQueueEntryRow.getSpot());
-                }
-
-                gameQueues.add(gameQueue);
-            }
-
-            BotHome botHome = new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, serviceHomes,
-                    books, gameQueues);
-            bot.addHome(botHome);
+        for (BotHomeRow botHomeRow : serializers.getBotHomeRepository().findAll()) {
+            bot.addHome(createBotHome(botHomeRow));
         }
 
         return bot;
+    }
+
+    public BotHome createBotHome(int botHomeId) {
+        return createBotHome(serializers.getBotHomeRepository().findById(botHomeId));
+    }
+
+    private BotHome createBotHome(final BotHomeRow botHomeRow) {
+        ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
+        Map<Integer, Service> services = serviceSerializer.getServiceMap();
+        String homeName = botHomeRow.getHomeName();
+        String timeZone = botHomeRow.getTimeZone();
+        int botHomeId = botHomeRow.getId();
+
+        List<Book> books = serializers.getBookSerializer().createBooks(botHomeId);
+        Map<Integer, Book> bookMap = new HashMap<>();
+        for (Book book : books) {
+            bookMap.put(book.getId(), book);
+        }
+
+        CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
+        ReactionTable reactionTable = serializers.getReactionTableSerializer().createReactionTable(botHomeId);
+
+        Map<Integer, ServiceHome> serviceHomes = new HashMap<>();
+        for (ServiceHomeRow serviceHomeRow : serviceHomeRepository.findAllByBotHomeId(botHomeId)) {
+            int serviceType = serviceHomeRow.getServiceType();
+            Service service = services.get(serviceType);
+            ServiceHome serviceHome = serviceSerializer.createServiceHome(serviceHomeRow, service);
+            serviceHomes.put(serviceType, serviceHome);
+        }
+
+        List<GameQueue> gameQueues = new ArrayList<>();
+        for (GameQueueRow gameQueueRow : serializers.getGameQueueRepository().findAllByBotHomeId(botHomeId)) {
+            GameQueue gameQueue = new GameQueue(gameQueueRow.getId(), gameQueueRow.getName(),
+                    gameQueueRow.getState(), gameQueueRow.getNext(), gameQueueRow.getCurrentPlayerId());
+
+            GameQueueEntryRepository gameQueueEntryRepository = serializers.getGameQueueEntryRepository();
+            for (GameQueueEntryRow gameQueueEntryRow :
+                    gameQueueEntryRepository.findByGameQueueIdOrderBySpotAsc(gameQueue.getId())) {
+                gameQueue.enqueue(gameQueueEntryRow.getUserId(), gameQueueEntryRow.getSpot());
+            }
+
+            gameQueues.add(gameQueue);
+        }
+
+        return new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, serviceHomes,
+                books, gameQueues);
     }
 }

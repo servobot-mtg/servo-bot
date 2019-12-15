@@ -32,6 +32,11 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public void stop(final BotHome botHome) {
+        twitchService.leaveChannel(channelId);
+    }
+
+    @Override
     public void setHomeEditor(final HomeEditor homeEditor) {
         this.homeEditor = homeEditor;
     }
@@ -44,6 +49,11 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public String getDescription() {
         return String.format("Channel %s ", twitchService.getChannelName(channelId));
+    }
+
+    @Override
+    public String getLink() {
+        return String.format("http://twitch.tv/%s", twitchService.getChannelName(channelId));
     }
 
     public long getChannelId() {

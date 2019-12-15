@@ -43,18 +43,25 @@ public class ServiceSerializer {
     }
 
     public Service createService(final ServiceRow serviceRow) {
-        if (serviceMap.containsKey(serviceRow.getType())) {
-            return serviceMap.get(serviceRow.getType());
+        int serviceType = serviceRow.getType();
+        if (serviceMap.containsKey(serviceType)) {
+            return serviceMap.get(serviceType);
         }
 
-        switch (serviceRow.getType()) {
+        Service service;
+        switch (serviceType) {
             case DiscordService.TYPE:
-                return new DiscordService(serviceRow.getToken(), userSerializer);
+                service = new DiscordService(serviceRow.getToken(), userSerializer);
+                break;
             case TwitchService.TYPE:
-                return new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(), serviceRow.getToken(),
-                                         userSerializer);
+                service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
+                        serviceRow.getToken(), userSerializer);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());
         }
-        throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());
+        serviceMap.put(serviceType, service);
+        return service;
     }
 
     public ServiceHome createServiceHome(final ServiceHomeRow serviceHomeRow, final Service service) {

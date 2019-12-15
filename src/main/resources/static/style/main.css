@@ -164,3 +164,29 @@ table {
     border: 0;
 }
 
+.home-status {
+    font-size: xx-large;
+    padding: 0 5px;
+    margin: 10px;
+    display: inline-block;
+}
+
+.home-control {
+    font-size: xx-large;
+    border: black solid 1px;
+    padding: 0 5px;
+    margin: 10px;
+    display: inline-block;
+}
+
+.home-controls {
+    border: black solid 1px;
+    display: inline-block;
+    float: left;
+    margin: 7px;
+    padding: 7px;
+}
+
+h2 {
+    clear: both;
+}

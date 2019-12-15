@@ -10,18 +10,30 @@
     <div th:include="fragments :: header" />
     <div class="content">
         <h1 th:text="${botHome.name} + ' Home'" />
-        <ul>
-            <li th:if="${privledged}" th:text="'Id ' + ${botHome.id}"></li>
-            <li th:if="${!privledged}" th:text="'Time Zone: ' + ${botHome.timeZone}"></li>
-            <li th:if="${privledged}">Time Zone
-                <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
-                    <th:block th:each="timeZone : ${timeZones}">
-                        <option th:value="${timeZone.value}" th:text="${timeZone.display}"
-                                th:selected="${timeZone.value == botHome.timeZone}"/>
-                    </th:block>
-                </select> <span id="time-zone-updated" />
-            </li>
-        </ul>
+        <div th:if="${privledged}">
+            <div class="home-controls">
+                <span class="home-status" id="status" th:text="${botHome.active ? '&#x2714;&#xFE0F' : '&#x274C;'}">
+                </span>
+                <span class="pseudo-link home-control" th:onclick="'startHome(' + ${botHome.id} + ')'" id="play-button">
+                    &#x25B6;
+                </span>
+                <span class="pseudo-link home-control" th:onclick="'stopHome(' + ${botHome.id} + ')'" id="stop-button"
+                      th:style="'display: ' + ${botHome.active ? 'inline-block' : 'none'}">
+                    &#x23F9;
+                </span>
+            </div>
+            <ul style="float: left;">
+                <li th:text="'Id ' + ${botHome.id}"></li>
+                <li>Time Zone
+                    <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
+                        <th:block th:each="timeZone : ${timeZones}">
+                            <option th:value="${timeZone.value}" th:text="${timeZone.display}"
+                                    th:selected="${timeZone.value == botHome.timeZone}"/>
+                        </th:block>
+                    </select> <span id="time-zone-updated" />
+                </li>
+            </ul>
+        </div>
         <h2>Services</h2>
         <table class="data-table">
             <thead><tr>
@@ -29,9 +41,12 @@
                 <th>Details</th>
             </tr></thead>
             <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}">
-                <tr>
-                    <td th:text="${serviceHomeEntry.value.service.name}"/>
-                    <td th:text="${serviceHomeEntry.value.description}"/>
+                <tr th:object="${serviceHomeEntry.value}">
+                    <td th:text="*{service.name}"/>
+                    <td th:if="*{link != null}">
+                        <a th:href="*{link}" th:text="*{description}" target="_blank"/>
+                    </td>
+                    <td th:if="*{link == null}" th:text="*{description}"/>
                 </tr>
             </th:block>
         </table>

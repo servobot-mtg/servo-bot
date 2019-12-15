@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SerializerContainer {
+    private BotFactory botFactory;
+
     @Autowired
     private BookSerializer bookSerializer;
 
@@ -51,6 +53,14 @@ public class SerializerContainer {
 
     public BookSerializer getBookSerializer() {
         return bookSerializer;
+    }
+
+    public BotFactory getBotFactory() {
+        return botFactory;
+    }
+
+    public void setBotFactory(final BotFactory botFactory) {
+        this.botFactory = botFactory;
     }
 
     public BotHomeRepository getBotHomeRepository() {

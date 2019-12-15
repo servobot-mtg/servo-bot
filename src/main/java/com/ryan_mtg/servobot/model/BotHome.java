@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.reaction.ReactionTable;
 
 import java.util.List;
@@ -17,10 +18,11 @@ public class BotHome {
     private String timeZone;
     private CommandTable commandTable;
     private ReactionTable reactionTable;
-    private EventListener eventListener;
+    private MultiDelegatingListener eventListener;
     private Map<Integer, ServiceHome> serviceHomes;
     private List<Book> books;
     private List<GameQueue> gameQueues;
+    private boolean active;
 
     public BotHome(final int id, final String name, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable,
@@ -47,6 +49,10 @@ public class BotHome {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     public String getTimeZone() {
@@ -85,18 +91,30 @@ public class BotHome {
         return commandTable.getAlertGenerators();
     }
 
-    public void startServices(final HomeEditor homeEditor) {
-        serviceHomes.values().forEach(serviceHome -> {
-            serviceHome.setHomeEditor(homeEditor);
-            serviceHome.start(this);
-        });
-    }
-
     public List<GameQueue> getGameQueues() {
         return gameQueues;
     }
 
     public GameQueue getGameQueue(final int gameQueueId) {
         return gameQueues.stream().filter(gameQueue -> gameQueue.getId() == gameQueueId).findFirst().orElse(null);
+    }
+
+    public void start(final HomeEditor homeEditor, final AlertQueue alertQueue) {
+        serviceHomes.values().forEach(serviceHome -> {
+            serviceHome.setHomeEditor(homeEditor);
+            serviceHome.start(this);
+        });
+        alertQueue.update(this);
+        active = true;
+        eventListener.setActive(active);
+    }
+
+    public void stop(final AlertQueue alertQueue) {
+        if (active) {
+            active = false;
+            eventListener.setActive(active);
+            serviceHomes.values().forEach(serviceHome -> serviceHome.stop(this));
+            alertQueue.remove(this);
+        }
     }
 }

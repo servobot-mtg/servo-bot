@@ -14,6 +14,7 @@ import java.util.Map;
 public class Bot {
     private static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
     private String name;
+    private BotEditor botEditor;
     private List<BotHome> homes = new ArrayList<>();
     private HomeDelegatingListener listener;
     private Map<Integer, Service> services;
@@ -25,11 +26,16 @@ public class Bot {
         this.name = name;
         this.services = services;
         this.serializers = serializers;
-        listener = new HomeDelegatingListener(new BotEditor(this), homeEditorMap);
+        botEditor = new BotEditor(this);
+        listener = new HomeDelegatingListener(botEditor, homeEditorMap);
     }
 
     public String getName() {
         return name;
+    }
+
+    public BotEditor getBotEditor() {
+        return botEditor;
     }
 
     public void addHome(final BotHome home) {
@@ -39,13 +45,12 @@ public class Bot {
         services.values().stream().forEach(service -> service.register(home));
     }
 
-    public void startBot() throws Exception {
-        for (Service service : services.values()) {
-            service.start(listener);
-        }
-
-        homes.stream().forEach(home -> home.startServices(homeEditorMap.get(home.getId())));
-        startAlertQueue();
+    public void removeHome(final BotHome home) {
+        home.stop(alertQueue);
+        services.values().stream().forEach(service -> service.unregister(home));
+        listener.unregister(home);
+        homeEditorMap.remove(home.getId());
+        homes.remove(home);
     }
 
     public List<BotHome> getHomes() {
@@ -73,10 +78,12 @@ public class Bot {
         return alertQueue;
     }
 
-    private void startAlertQueue() {
-        for(BotHome home : homes) {
-            alertQueue.update(home);
+    public void startBot() throws Exception {
+        for (Service service : services.values()) {
+            service.start(listener);
         }
+
+        homes.stream().forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
         alertQueue.start();
     }
 }

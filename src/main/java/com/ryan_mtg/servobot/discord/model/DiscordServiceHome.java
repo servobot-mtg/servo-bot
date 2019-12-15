@@ -27,6 +27,11 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public String getLink() {
+        return null;
+    }
+
+    @Override
     public Service getService() {
         return discordService;
     }
@@ -40,6 +45,9 @@ public class DiscordServiceHome implements ServiceHome {
     public void start(final BotHome botHome) {
         discordService.setNickName(guildId, botHome.getName());
     }
+
+    @Override
+    public void stop(final BotHome botHome) {}
 
     @Override
     public void setHomeEditor(final HomeEditor homeEditor) {

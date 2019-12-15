@@ -52,6 +52,14 @@ public class DiscordService implements Service {
     }
 
     @Override
+    public void unregister(final BotHome botHome) {
+        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
+        if (serviceHome != null) {
+            homeIdMap.remove(((DiscordServiceHome) serviceHome).getGuildId());
+        }
+    }
+
+    @Override
     public void start(final EventListener eventListener) throws Exception {
         JDABuilder builder = new JDABuilder(token);
         builder.setActivity(Activity.playing("Beta: " + now()));

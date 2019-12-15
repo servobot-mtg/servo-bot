@@ -1,10 +1,12 @@
 package com.ryan_mtg.servobot.events;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MultiDelegatingListener implements EventListener {
     private List<EventListener> listeners = new ArrayList<>();
+    private boolean active = false;
 
     public MultiDelegatingListener(final EventListener... listeners) {
         for (EventListener listener : listeners) {
@@ -19,7 +21,7 @@ public class MultiDelegatingListener implements EventListener {
     @Override
     public void onMessage(final MessageSentEvent messageSentEvent) {
         try {
-            for (EventListener listener : listeners) {
+            for (EventListener listener : getListeners()) {
                 listener.onMessage(messageSentEvent);
             }
         } catch (BotErrorException e) {
@@ -29,15 +31,26 @@ public class MultiDelegatingListener implements EventListener {
 
     @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
-        for (EventListener listener : listeners) {
+        for (EventListener listener : getListeners()) {
             listener.onStreamStart(streamStartEvent);
         }
     }
 
     @Override
     public void onAlert(final AlertEvent alertEvent) {
-        for (EventListener listener : listeners) {
+        for (EventListener listener : getListeners()) {
             listener.onAlert(alertEvent);
         }
+    }
+
+    public void setActive(final boolean active) {
+        this.active = active;
+    }
+
+    private List<EventListener> getListeners() {
+        if (active) {
+            return listeners;
+        }
+        return Collections.emptyList();
     }
 }

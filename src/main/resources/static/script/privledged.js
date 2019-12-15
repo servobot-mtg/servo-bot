@@ -7,6 +7,10 @@ function decodeHtmlEntity(html) {
 const lockedIcon = '&#x1F512;';
 const unlockedIcon = '&#x1F511;';
 const decodedLockedIcon = decodeHtmlEntity('&#x1F512;');
+const checkmarkIcon = '&#x2714;&#xFE0F;';
+const crossIcon = '&#x274C;';
+const yellowCircleIcon = '&#x1F7E1;';
+
 
 function secureCommand(event, botHomeId, commandId) {
     postSecureCommand(botHomeId, commandId, event.currentTarget.dataset.label);
@@ -134,5 +138,32 @@ async function postModifyStatement(botHomeId, bookId, statementId, text) {
         let valueElement = document.getElementById('statement-' + statementId + '-value');
         valueElement.innerText = text;
         resetStatement(statementId);
+    }
+}
+
+function startHome(botHomeId) {
+    postStartHome(botHomeId);
+}
+
+async function postStartHome(botHomeId) {
+    const parameters = {botHomeId: botHomeId};
+    document.getElementById('status').innerHTML = yellowCircleIcon;
+    let response = await makePost('/api/start_home', parameters, [], false);
+    if (response.ok) {
+        document.getElementById('stop-button').style.display = 'inline-block';
+        document.getElementById('status').innerHTML = checkmarkIcon;
+    }
+}
+
+function stopHome(botHomeId) {
+    postStopHome(botHomeId);
+}
+
+async function postStopHome(botHomeId) {
+    const parameters = {botHomeId: botHomeId};
+    let response = await makePost('/api/stop_home', parameters, [], false);
+    if (response.ok) {
+        document.getElementById('stop-button').style.display = 'none';
+        document.getElementById('status').innerHTML = crossIcon;
     }
 }
