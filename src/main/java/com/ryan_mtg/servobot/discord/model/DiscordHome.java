@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -91,6 +92,11 @@ public class DiscordHome implements Home {
     @Override
     public HomeEditor getHomeEditor() {
         return homeEditor;
+    }
+
+    @Override
+    public void setStatus(final String status) {
+        guild.getJDA().getPresence().setActivity(Activity.of(Activity.ActivityType.DEFAULT, status));
     }
 
     private long getDiscordId(final User user) {

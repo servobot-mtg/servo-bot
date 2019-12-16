@@ -69,4 +69,7 @@ public class TwitchChannel implements Channel, Home {
     public HomeEditor getHomeEditor() {
         return homeEditor;
     }
+
+    @Override
+    public void setStatus(final String status) {}
 }

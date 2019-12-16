@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
+import com.ryan_mtg.servobot.commands.SetStatusCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.data.models.CommandAlertRow;
@@ -80,6 +81,13 @@ public class CommandSerializer {
                         gameQueueId);
             case SetArenaUsernameCommand.TYPE:
                 return new SetArenaUsernameCommand(id, commandRow.isSecure(), commandRow.getPermission());
+            case SetRoleCommand.TYPE:
+                return new SetRoleCommand(id, commandRow.isSecure(), commandRow.getPermission(),
+                        commandRow.getStringParameter());
+            case SetStatusCommand.TYPE:
+                bookId = (int) (long) commandRow.getLongParameter();
+                return new SetStatusCommand(id, commandRow.isSecure(), commandRow.getPermission(),
+                        bookMap.get(bookId));
             case ShowArenaUsernamesCommand.TYPE:
                 return new ShowArenaUsernamesCommand(id, commandRow.isSecure(), commandRow.getPermission());
             case ShowGameQueueCommand.TYPE:
@@ -188,6 +196,13 @@ public class CommandSerializer {
         public void visitSetRoleCommand(final SetRoleCommand setRoleCommand) {
             saveCommand(setRoleCommand, commandRow -> {
                 commandRow.setStringParameter(setRoleCommand.getRole());
+            });
+        }
+
+        @Override
+        public void visitSetStatusCommand(final SetStatusCommand setStatusCommand) {
+            saveCommand(setStatusCommand, commandRow -> {
+                commandRow.setLongParameter(setStatusCommand.getBook().getId());
             });
         }
 

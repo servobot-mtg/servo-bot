@@ -1,7 +1,5 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
-
 import java.util.Map;
 
 public class MultiServiceHome implements Home {
@@ -51,5 +49,10 @@ public class MultiServiceHome implements Home {
     @Override
     public HomeEditor getHomeEditor() {
         return homeEditor;
+    }
+
+    @Override
+    public void setStatus(final String status) {
+        serviceHomes.values().forEach(serviceHome -> serviceHome.getHome().setStatus(status));
     }
 }

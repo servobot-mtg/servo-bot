@@ -13,4 +13,6 @@ public interface Home {
     Emote getEmote(String emoteName);
 
     HomeEditor getHomeEditor();
+
+    void setStatus(String status);
 }
