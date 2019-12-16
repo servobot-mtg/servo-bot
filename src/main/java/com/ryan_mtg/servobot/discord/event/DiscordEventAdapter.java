@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.user.HomedUser;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
@@ -66,6 +67,17 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onUserUpdateOnlineStatus(@Nonnull UserUpdateOnlineStatusEvent event) {
+    }
+
+    @Override
+    public void onGuildMemberJoin(@Nonnull final GuildMemberJoinEvent event) {
+        try {
+            int botHomeId = resolveHomeId(event.getGuild());
+            DiscordUser member = getUser(event.getMember(), botHomeId);
+            listener.onNewUser(new DiscordNewUserEvent(event, botHomeId, member));
+        } catch (BotErrorException e) {
+            LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        }
     }
 
     private int resolveHomeId(final Guild guild) {

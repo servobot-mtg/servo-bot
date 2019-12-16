@@ -112,7 +112,7 @@ public class BotController {
             descriptor.addAlias(entry.getKey());
         }
 
-        for (Map.Entry<CommandEvent, HomeCommand> entry : commandMapping.getEventCommandMap().entrySet()) {
+        for (Map.Entry<CommandEvent, Command> entry : commandMapping.getEventCommandMap().entrySet()) {
             CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
             descriptor.addEvent(entry.getKey());
         }

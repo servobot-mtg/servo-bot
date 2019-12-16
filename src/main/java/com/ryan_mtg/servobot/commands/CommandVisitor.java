@@ -9,6 +9,7 @@ public interface CommandVisitor {
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
     void visitSetArenaUsernameCommand(SetArenaUsernameCommand setArenaUsernameCommand);
+    void visitSetRoleCommand(SetRoleCommand setRoleCommand);
     void visitShowArenaUsernamesCommand(ShowArenaUsernamesCommand showArenaUsernamesCommand);
     void visitShowGameQueueCommand(ShowGameQueueCommand showGameQueueCommand);
     void visitTextCommand(TextCommand textCommand);

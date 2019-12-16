@@ -5,12 +5,12 @@ import java.util.Map;
 public class CommandMapping {
     private Map<Integer, Command> idtoCommandMap;
     private Map<CommandAlias, MessageCommand> aliasCommandMap;
-    private Map<CommandEvent, HomeCommand> eventCommandMap;
+    private Map<CommandEvent, Command> eventCommandMap;
     private Map<CommandAlert, HomeCommand> alertCommandMap;
 
     public CommandMapping(final Map<Integer, Command> idToCommandMap,
                           final Map<CommandAlias, MessageCommand> aliasCommandMap,
-                          final Map<CommandEvent, HomeCommand> eventCommandMap,
+                          final Map<CommandEvent, Command> eventCommandMap,
                           final Map<CommandAlert, HomeCommand> alertCommandMap) {
         this.idtoCommandMap = idToCommandMap;
         this.aliasCommandMap = aliasCommandMap;
@@ -26,7 +26,7 @@ public class CommandMapping {
         return aliasCommandMap;
     }
 
-    public Map<CommandEvent, HomeCommand> getEventCommandMap() {
+    public Map<CommandEvent, Command> getEventCommandMap() {
         return eventCommandMap;
     }
 

@@ -37,6 +37,13 @@ public class MultiDelegatingListener implements EventListener {
     }
 
     @Override
+    public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
+        for (EventListener listener : getListeners()) {
+            listener.onNewUser(newUserEvent);
+        }
+    }
+
+    @Override
     public void onAlert(final AlertEvent alertEvent) {
         for (EventListener listener : getListeners()) {
             listener.onAlert(alertEvent);

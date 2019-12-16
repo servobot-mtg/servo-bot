@@ -25,9 +25,9 @@ public class CommandTable {
     private Map<MessageCommand, List<CommandAlias>> reverseAliasMap = new HashMap<>();
 
     private List<CommandEvent> events = new ArrayList<>();
-    private Map<CommandEvent, HomeCommand> eventCommandMap = new HashMap<>();
+    private Map<CommandEvent, Command> eventCommandMap = new HashMap<>();
     private Map<CommandEvent.Type, List<CommandEvent>> eventMap = new HashMap<>();
-    private Map<HomeCommand, List<CommandEvent>> reverseEventMap = new HashMap<>();
+    private Map<Command, List<CommandEvent>> reverseEventMap = new HashMap<>();
 
     private List<CommandAlert> alerts = new ArrayList<>();
     private Map<CommandAlert, HomeCommand> alertCommandMap = new HashMap<>();
@@ -118,16 +118,16 @@ public class CommandTable {
             }
         }
 
+        if (reverseEventMap.containsKey(command)) {
+            List<CommandEvent> events = new ArrayList<>(reverseEventMap.get(command));
+
+            for (CommandEvent commandEvent : events) {
+                deleteEvent(commandEvent, commandTableEdit);
+            }
+        }
+
         if (command instanceof HomeCommand) {
             HomeCommand homeCommand = (HomeCommand) command;
-
-            if (reverseEventMap.containsKey(homeCommand)) {
-                List<CommandEvent> events = new ArrayList<>(reverseEventMap.get(homeCommand));
-
-                for (CommandEvent commandEvent : events) {
-                    deleteEvent(commandEvent, commandTableEdit);
-                }
-            }
 
             if (reverseAlertMap.containsKey(homeCommand)) {
                 List<CommandAlert> alerts = new ArrayList<>(reverseAlertMap.get(homeCommand));
@@ -209,15 +209,17 @@ public class CommandTable {
         return commandMap.get(canonicalize(token));
     }
 
-    public List<HomeCommand> getCommands(final CommandEvent.Type eventType) {
+    public <CommandType extends Command> List<CommandType> getCommands(final CommandEvent.Type eventType,
+                                                       final Class<CommandType> commandClass) {
         List<CommandEvent> events = eventMap.get(eventType);
         if (events != null) {
-            return events.stream().map(event -> getCommand(event)).collect(Collectors.toList());
+            return events.stream().map(event -> getCommand(event)).filter(command -> commandClass.isInstance(command))
+                    .map(command -> commandClass.cast(command)).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
 
-    public HomeCommand getCommand(final CommandEvent event) {
+    public Command getCommand(final CommandEvent event) {
         return eventCommandMap.get(event);
     }
 
@@ -268,12 +270,12 @@ public class CommandTable {
     }
 
     private void deleteEvent(final CommandEvent commandEvent, final CommandTableEdit commandTableEdit) {
-        HomeCommand homeCommand = eventCommandMap.get(commandEvent);
+        Command command = eventCommandMap.get(commandEvent);
 
         events.remove(commandEvent);
         eventCommandMap.remove(commandEvent);
         removeMappedElement(eventMap, commandEvent.getEventType(), commandEvent);
-        removeMappedElement(reverseEventMap, homeCommand, commandEvent);
+        removeMappedElement(reverseEventMap, command, commandEvent);
 
         commandTableEdit.delete(commandEvent);
     }

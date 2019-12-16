@@ -7,6 +7,7 @@ public class CommandEvent {
 
     public enum Type {
         STREAM_START,
+        NEW_USER,
     }
 
     private int id;

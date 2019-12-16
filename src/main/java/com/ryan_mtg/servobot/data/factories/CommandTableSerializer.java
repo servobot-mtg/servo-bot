@@ -120,19 +120,19 @@ public class CommandTableSerializer {
             commandSerializer.saveCommandAlias(command.getId(), alias);
         }
 
-        Set<HomeCommand> triggeredCommands = new HashSet<>();
+        Set<Command> triggeredCommands = new HashSet<>();
 
         List<CommandEvent> events = commandTable.getEvents();
         for (CommandEvent event : events) {
-            triggeredCommands.addAll(commandTable.getCommands(event.getEventType()));
+            triggeredCommands.addAll(commandTable.getCommands(event.getEventType(), Command.class));
         }
 
-        for(HomeCommand command : triggeredCommands) {
+        for(Command command : triggeredCommands) {
             commandSerializer.saveCommand(botHomeId, command);
         }
 
         for (CommandEvent event : events) {
-            HomeCommand command = commandTable.getCommand(event);
+            Command command = commandTable.getCommand(event);
             CommandEventRow eventRow = new CommandEventRow(event.getId(), command.getId(), event.getEventType());
             commandEventRepository.save(eventRow);
         }

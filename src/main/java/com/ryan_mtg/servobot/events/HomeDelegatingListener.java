@@ -46,6 +46,14 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
+    public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
+        EventListener listener = getListener(newUserEvent);
+        if (listener != null) {
+            listener.onNewUser(newUserEvent);
+        }
+    }
+
+    @Override
     public void onAlert(final AlertEvent alertEvent) {
         EventListener listener = getListener(alertEvent);
         if (listener != null) {

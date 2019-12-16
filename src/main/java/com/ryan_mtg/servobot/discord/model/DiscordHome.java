@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.discord.model;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
@@ -59,6 +60,20 @@ public class DiscordHome implements Home {
             return role.getName();
         }
         return "Pleb";
+    }
+
+    @Override
+    public void setRole(final User user, final String roleName) throws BotErrorException {
+        long discordId = user.getHomedUser().getDiscordId();
+        if (discordId == 0) {
+            throw new BotErrorException("User is not registered on Discord.");
+        }
+        Member member = guild.getMemberById(discordId);
+        List<Role> roles = guild.getRolesByName(roleName, false);
+        if (roles.isEmpty()) {
+            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
+        }
+        guild.addRoleToMember(member, roles.get(0)).queue();
     }
 
     @Override

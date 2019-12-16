@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.twitch.model;
 
 import com.github.twitch4j.chat.TwitchChat;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
@@ -52,6 +53,11 @@ public class TwitchChannel implements Channel, Home {
     @Override
     public String getRole(final User user, final int serviceType) {
         return "Unable to determine";
+    }
+
+    @Override
+    public void setRole(final User user, final String role) throws BotErrorException {
+        throw new BotErrorException("Twitch doesn't set roles");
     }
 
     @Override

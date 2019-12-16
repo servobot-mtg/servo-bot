@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.commands.UserCommand;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -61,9 +62,16 @@ public class CommandListener implements EventListener {
     }
 
     @Override
-    public void onStreamStart(final StreamStartEvent event) {
-        for (HomeCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START)) {
-            command.perform(event.getHome());
+    public void onStreamStart(final StreamStartEvent streamStartEvent) {
+        for (HomeCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, HomeCommand.class)) {
+            command.perform(streamStartEvent.getHome());
+        }
+    }
+
+    @Override
+    public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
+        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, UserCommand.class)) {
+            command.perform(newUserEvent.getHome(), newUserEvent.getUser());
         }
     }
 

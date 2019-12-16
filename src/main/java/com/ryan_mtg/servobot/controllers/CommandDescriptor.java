@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
+import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
@@ -145,6 +146,12 @@ public class CommandDescriptor {
         public void visitSetArenaUsernameCommand(final SetArenaUsernameCommand setArenaUsernameCommand) {
             type = "Set Arena Username Command";
             description = "Stores the user's arena username";
+        }
+
+        @Override
+        public void visitSetRoleCommand(final SetRoleCommand setRoleCommand) {
+            type = "Set Role Command";
+            description = String.format("Sets the user's role to '%s'", setRoleCommand.getRole());
         }
 
         @Override

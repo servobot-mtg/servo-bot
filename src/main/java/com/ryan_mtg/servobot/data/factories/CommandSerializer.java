@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
+import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.data.models.CommandAlertRow;
@@ -181,6 +182,13 @@ public class CommandSerializer {
         @Override
         public void visitSetArenaUsernameCommand(final SetArenaUsernameCommand setArenaUsernameCommand) {
             saveCommand(setArenaUsernameCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitSetRoleCommand(final SetRoleCommand setRoleCommand) {
+            saveCommand(setRoleCommand, commandRow -> {
+                commandRow.setStringParameter(setRoleCommand.getRole());
+            });
         }
 
         @Override
