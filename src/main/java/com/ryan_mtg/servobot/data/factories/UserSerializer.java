@@ -97,6 +97,7 @@ public class UserSerializer {
 
         if (userStatus.getState() != userHomeRow.getState() || save) {
             userHomeRow.setState(userStatus.getState());
+            userHomeRepository.save(userHomeRow);
         }
 
         return userStatus;

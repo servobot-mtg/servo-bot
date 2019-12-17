@@ -17,7 +17,7 @@ public class UserStatus {
 
     public UserStatus(int state) {
         twitchStatus = new TwitchUserStatus(state & TWITCH_BITS);
-        discordUserStatus = new DiscordUserStatus(state & DISCORD_BITS);
+        discordUserStatus = new DiscordUserStatus((state & DISCORD_BITS) >> DISCORD_SHIFT);
     }
 
     public boolean isMember() {
@@ -34,6 +34,10 @@ public class UserStatus {
 
     public boolean isVip() {
         return twitchStatus.isVip();
+    }
+
+    public boolean isStreamer() {
+        return twitchStatus.isStreamer() || discordUserStatus.isStreamer();
     }
 
     public int getState() {

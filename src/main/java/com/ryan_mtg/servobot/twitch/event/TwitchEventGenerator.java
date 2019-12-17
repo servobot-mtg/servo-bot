@@ -35,7 +35,8 @@ public class TwitchEventGenerator {
     private void handleMessageEvent(final ChannelMessageEvent event) {
         try {
             int botHomeId = resolveBotHomeId(event.getChannel().getId());
-            TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHomeId);
+            TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHomeId,
+                    event.getChannel().getName());
             eventListener.onMessage(new TwitchMessageSentEvent(event, botHomeId, sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
@@ -50,11 +51,13 @@ public class TwitchEventGenerator {
     }
 
     private TwitchUser getUser(final TwitchChat chat, final EventUser eventUser,
-                               final Set<CommandPermission> permissions, final int botHomeId) {
+                               final Set<CommandPermission> permissions, final int botHomeId,
+                               final String channelName) {
         boolean isModerator = permissions.contains(CommandPermission.MODERATOR);
         boolean isSubscriber = permissions.contains(CommandPermission.SUBSCRIBER);
         boolean isVip = permissions.contains(CommandPermission.VIP);
-        TwitchUserStatus status = new TwitchUserStatus(isModerator, isSubscriber, isVip);
+        boolean isStreamer = channelName.equalsIgnoreCase(eventUser.getName());
+        TwitchUserStatus status = new TwitchUserStatus(isModerator, isSubscriber, isVip, isStreamer);
 
         HomedUser user = userSerializer.lookupByTwitchId(botHomeId, Integer.parseInt(eventUser.getId()),
                 eventUser.getName(), status);

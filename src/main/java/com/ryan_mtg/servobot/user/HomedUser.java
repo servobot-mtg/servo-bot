@@ -25,4 +25,8 @@ public class HomedUser extends User {
     public boolean isMember() {
         return userStatus.isMember();
     }
+
+    public boolean isStreamer() {
+        return userStatus.isStreamer();
+    }
 }

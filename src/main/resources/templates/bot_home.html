@@ -93,7 +93,8 @@
                         <span title="Member" th:text="${homedUser.member ? '&#x1F464;' : ''}"/>
                         <span title="Moderator" th:text="${homedUser.moderator ? '&#x1F46E;' : ''}"/>
                         <span title="Subscriber" th:text="${homedUser.subscriber ? '&#x1F911;' : ''}"/>
-                        <span title="VIP" th:text="${homedUser.Vip ? '&#x1F929;' : ''}"/>
+                        <span title="VIP" th:text="${homedUser.vip ? '&#x1F929;' : ''}"/>
+                        <span title="Streamer" th:text="${homedUser.streamer ? '&#x1F9D9;' : ''}"/>
                         <span title="Admin" th:if="${user.admin}" th:text="${homedUser.admin ? '&#x1F477;' : ''}"/>
                     </td>
                 </tr>

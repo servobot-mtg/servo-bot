@@ -90,12 +90,12 @@ public class DiscordEventAdapter extends ListenerAdapter {
     private DiscordUser getUser(final Member member, final int botHomeId) {
         boolean isModerator = false;
         for(Role role : member.getRoles()) {
-            if (role.getPermissions().contains(Permission.ADMINISTRATOR)) {
+            if (role.getPermissions().contains(Permission.KICK_MEMBERS)) {
                 isModerator = true;
             }
         }
 
-        DiscordUserStatus status = new DiscordUserStatus(isModerator, false);
+        DiscordUserStatus status = new DiscordUserStatus(isModerator, false, member.isOwner());
         HomedUser user = userSerializer.lookupByDiscordId(botHomeId, member.getIdLong(), member.getEffectiveName(),
                 status);
         return new DiscordUser(user, member);

@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.discord.model;
 public class DiscordUserStatus {
     private static final int MOD_BIT = 1;
     private static final int SUB_BIT = 2;
+    private static final int STREAMER_BIT = 4;
 
     private int state;
 
@@ -10,13 +11,17 @@ public class DiscordUserStatus {
         this.state = state;
     }
 
-    public DiscordUserStatus(final boolean isModerator, final boolean isSubscriber) {
+    public DiscordUserStatus(final boolean isModerator, final boolean isSubscriber, final boolean isStreamer) {
         if (isModerator) {
             state |= MOD_BIT;
         }
 
         if (isSubscriber) {
             state |= SUB_BIT;
+        }
+
+        if (isStreamer) {
+            state |= STREAMER_BIT;
         }
     }
 
@@ -26,6 +31,10 @@ public class DiscordUserStatus {
 
     public boolean isSubscriber() {
         return (state & SUB_BIT) != 0;
+    }
+
+    public boolean isStreamer() {
+        return (state & STREAMER_BIT) != 0;
     }
 
     public int getState() {

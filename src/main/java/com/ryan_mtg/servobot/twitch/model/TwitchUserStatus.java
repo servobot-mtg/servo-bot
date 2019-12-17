@@ -4,6 +4,7 @@ public class TwitchUserStatus {
     private static final int MOD_BIT = 1;
     private static final int SUB_BIT = 2;
     private static final int VIP_BIT = 4;
+    private static final int STREAMER_BIT = 8;
 
     private int state;
 
@@ -11,7 +12,8 @@ public class TwitchUserStatus {
         this.state = state;
     }
 
-    public TwitchUserStatus(final boolean isModerator, final boolean isSubscriber, final boolean isVip) {
+    public TwitchUserStatus(final boolean isModerator, final boolean isSubscriber, final boolean isVip,
+                            final boolean isStreamer) {
         if (isModerator) {
             state |= MOD_BIT;
         }
@@ -22,6 +24,10 @@ public class TwitchUserStatus {
 
         if (isVip) {
             state |= VIP_BIT;
+        }
+
+        if (isStreamer) {
+            state |= STREAMER_BIT;
         }
     }
 
@@ -35,6 +41,10 @@ public class TwitchUserStatus {
 
     public boolean isVip() {
         return (state & VIP_BIT) != 0;
+    }
+
+    public boolean isStreamer() {
+        return (state & STREAMER_BIT) != 0;
     }
 
     public int getState() {
