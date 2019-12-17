@@ -2,11 +2,14 @@ package com.ryan_mtg.servobot.discord.event;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.model.DiscordUser;
+import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.user.HomedUser;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
@@ -85,7 +88,16 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     private DiscordUser getUser(final Member member, final int botHomeId) {
-        HomedUser user = userSerializer.lookupByDiscordId(botHomeId, member.getIdLong(), member.getEffectiveName());
+        boolean isModerator = false;
+        for(Role role : member.getRoles()) {
+            if (role.getPermissions().contains(Permission.ADMINISTRATOR)) {
+                isModerator = true;
+            }
+        }
+
+        DiscordUserStatus status = new DiscordUserStatus(isModerator, false);
+        HomedUser user = userSerializer.lookupByDiscordId(botHomeId, member.getIdLong(), member.getEffectiveName(),
+                status);
         return new DiscordUser(user, member);
     }
 }

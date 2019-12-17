@@ -53,7 +53,8 @@ public class TwitchEventGenerator {
                                final Set<CommandPermission> permissions, final int botHomeId) {
         boolean isModerator = permissions.contains(CommandPermission.MODERATOR);
         boolean isSubscriber = permissions.contains(CommandPermission.SUBSCRIBER);
-        TwitchUserStatus status = new TwitchUserStatus(isModerator, isSubscriber);
+        boolean isVip = permissions.contains(CommandPermission.VIP);
+        TwitchUserStatus status = new TwitchUserStatus(isModerator, isSubscriber, isVip);
 
         HomedUser user = userSerializer.lookupByTwitchId(botHomeId, Integer.parseInt(eventUser.getId()),
                 eventUser.getName(), status);

@@ -81,15 +81,19 @@
             <thead><tr>
                 <th>Twitch Name</th>
                 <th>Discord Name</th>
+                <th>Arena Name</th>
                 <th>Roles</th>
             </tr></thead>
             <th:block th:each="homedUser : ${users}">
                 <tr>
                     <td th:text="${homedUser.twitchUsername}"/>
                     <td th:text="${homedUser.discordUsername}"/>
+                    <td th:text="${homedUser.arenaUsername}"/>
                     <td>
+                        <span title="Member" th:text="${homedUser.member ? '&#x1F464;' : ''}"/>
                         <span title="Moderator" th:text="${homedUser.moderator ? '&#x1F46E;' : ''}"/>
                         <span title="Subscriber" th:text="${homedUser.subscriber ? '&#x1F911;' : ''}"/>
+                        <span title="VIP" th:text="${homedUser.Vip ? '&#x1F929;' : ''}"/>
                         <span title="Admin" th:if="${user.admin}" th:text="${homedUser.admin ? '&#x1F477;' : ''}"/>
                     </td>
                 </tr>

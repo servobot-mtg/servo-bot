@@ -78,8 +78,7 @@ public class CommandTableSerializer {
 
             Iterable<CommandEventRow> events = commandEventRepository.findAllByCommandId(commandRow.getId());
             for (CommandEventRow event : events) {
-                HomeCommand homeCommand = (HomeCommand) command;
-                commandTable.registerCommand(homeCommand, new CommandEvent(event.getId(), event.getEventType()));
+                commandTable.registerCommand(command, new CommandEvent(event.getId(), event.getEventType()));
             }
 
             Iterable<CommandAlertRow> alerts = commandAlertRepository.findAllByCommandId(commandRow.getId());

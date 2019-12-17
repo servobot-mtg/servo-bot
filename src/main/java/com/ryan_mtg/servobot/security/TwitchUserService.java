@@ -35,13 +35,12 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
 
         List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList("ROLE_USER");
 
-        String userName = attributes.get("login").toString();
-        if (userName.equals("ryan_mtg")) {
+        int twitchId = Integer.parseInt(attributes.get("id").toString());
+        User user = userSerializer.lookupByTwitchId(twitchId, attributes.get("display_name").toString());
+        if (user.isAdmin()) {
             authorityList.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
 
-        int twitchId = Integer.parseInt(attributes.get("id").toString());
-        User user = userSerializer.lookupByTwitchId(twitchId, attributes.get("display_name").toString());
         for (Integer homeId : userSerializer.getHomesModerated(user.getId())) {
             authorityList.add(new SimpleGrantedAuthority(String.format("ROLE_MOD:%d", homeId)));
         }

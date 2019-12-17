@@ -159,10 +159,10 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public void registerCommand(final HomeCommand homeCommand, final CommandEvent commandEvent) {
-        registerCommand(homeCommand);
-        eventCommandMap.put(commandEvent, homeCommand);
-        reverseEventMap.computeIfAbsent(homeCommand, command -> new ArrayList<>()).add(commandEvent);
+    public void registerCommand(final Command command, final CommandEvent commandEvent) {
+        registerCommand(command);
+        eventCommandMap.put(commandEvent, command);
+        reverseEventMap.computeIfAbsent(command, newCommand -> new ArrayList<>()).add(commandEvent);
         eventMap.computeIfAbsent(commandEvent.getEventType(), type -> new ArrayList<>()).add(commandEvent);
         events.add(commandEvent);
     }
@@ -173,12 +173,6 @@ public class CommandTable {
         reverseAlertMap.computeIfAbsent(homeCommand, command -> new ArrayList<>()).add(commandAlert);
         alertMap.computeIfAbsent(commandAlert.getAlertToken(), type -> new ArrayList<>()).add(commandAlert);
         alerts.add(commandAlert);
-    }
-
-    public void registerCommand(final MessageCommand command, final String... aliases) {
-        for (String alias : aliases) {
-            registerCommand(command, new CommandAlias(CommandAlias.UNREGISTERED_ID, alias));
-        }
     }
 
     public Collection<CommandAlias> getAliases() {

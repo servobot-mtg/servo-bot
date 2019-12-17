@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.models.UserHomeRow;
 import com.ryan_mtg.servobot.data.models.UserRow;
 import com.ryan_mtg.servobot.data.repositories.UserHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.UserRepository;
+import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -51,7 +53,8 @@ public class UserSerializer {
         return createHomedUser(userRow, userStatus);
     }
 
-    public HomedUser lookupByDiscordId(final int botHomeId, final long discordId, final String discordUsername) {
+    public HomedUser lookupByDiscordId(final int botHomeId, final long discordId, final String discordUsername,
+                                       final DiscordUserStatus discordUserStatus) {
         UserRow userRow = userRepository.findByDiscordId(discordId);
 
         if (userRow == null) {
@@ -65,7 +68,8 @@ public class UserSerializer {
             userRepository.save(userRow);
         }
 
-        return createHomedUser(userRow, getStatus(userRow.getId(), botHomeId));
+        UserStatus userStatus = updateStatus(userRow.getId(), botHomeId, discordUserStatus);
+        return createHomedUser(userRow, userStatus);
     }
 
     public List<Integer> getHomesModerated(final int userId) {
@@ -74,42 +78,36 @@ public class UserSerializer {
                 .map(userHomeRow -> userHomeRow.getBotHomeId()).collect(Collectors.toList());
     }
 
-    private UserStatus getStatus(final int userId, final int botHomeId) {
-        UserHomeRow userHomeRow = userHomeRepository.findByUserIdAndBotHomeId(userId, botHomeId);
-        if (userHomeRow == null) {
-            return new UserStatus();
-        }
-        return new UserStatus(userHomeRow.getState());
-    }
-
-    private UserStatus updateStatus(final int userId, final int botHomeId, final TwitchUserStatus status) {
-        int state = status.getState();
+    private UserStatus updateStatus(final int userId, final int botHomeId, final Consumer<UserStatus> mergeFunction) {
         UserHomeRow userHomeRow = userHomeRepository.findByUserIdAndBotHomeId(userId, botHomeId);
 
-        if (userHomeRow == null) {
-            if (state == 0 ) {
-                return new UserStatus(0);
-            }
+        boolean save = false;
 
+        if (userHomeRow == null) {
             userHomeRow = new UserHomeRow();
             userHomeRow.setUserId(userId);
             userHomeRow.setBotHomeId(botHomeId);
-            userHomeRow.setState(state);
-        } else {
-            if (state == 0) {
-                userHomeRepository.deleteByUserIdAndBotHomeId(userId, botHomeId);
-                return new UserStatus(0);
-            }
-
-            if (state == userHomeRow.getState()) {
-                return new UserStatus(state);
-            }
-
-            userHomeRow.setState(state);
+            userHomeRow.setState(0);
+            save = true;
         }
 
-        userHomeRepository.save(userHomeRow);
-        return new UserStatus(state);
+        UserStatus userStatus = new UserStatus(userHomeRow.getState());
+
+        mergeFunction.accept(userStatus);
+
+        if (userStatus.getState() != userHomeRow.getState() || save) {
+            userHomeRow.setState(userStatus.getState());
+        }
+
+        return userStatus;
+    }
+
+    private UserStatus updateStatus(final int userId, final int botHomeId, final TwitchUserStatus twitchStatus) {
+        return updateStatus(userId, botHomeId, userStatus -> userStatus.merge(twitchStatus));
+    }
+
+    private UserStatus updateStatus(final int userId, final int botHomeId, final DiscordUserStatus discordUserStatus) {
+        return updateStatus(userId, botHomeId, userStatus -> userStatus.merge(discordUserStatus));
     }
 
     public List<HomedUser> getHomedUsers(final int botHomeId) {

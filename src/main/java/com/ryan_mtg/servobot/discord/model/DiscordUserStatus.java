@@ -1,27 +1,22 @@
-package com.ryan_mtg.servobot.twitch.model;
+package com.ryan_mtg.servobot.discord.model;
 
-public class TwitchUserStatus {
+public class DiscordUserStatus {
     private static final int MOD_BIT = 1;
     private static final int SUB_BIT = 2;
-    private static final int VIP_BIT = 4;
 
     private int state;
 
-    public TwitchUserStatus(final int state) {
+    public DiscordUserStatus(final int state) {
         this.state = state;
     }
 
-    public TwitchUserStatus(final boolean isModerator, final boolean isSubscriber, final boolean isVip) {
+    public DiscordUserStatus(final boolean isModerator, final boolean isSubscriber) {
         if (isModerator) {
             state |= MOD_BIT;
         }
 
         if (isSubscriber) {
             state |= SUB_BIT;
-        }
-
-        if (isVip) {
-            state |= VIP_BIT;
         }
     }
 
@@ -31,10 +26,6 @@ public class TwitchUserStatus {
 
     public boolean isSubscriber() {
         return (state & SUB_BIT) != 0;
-    }
-
-    public boolean isVip() {
-        return (state & VIP_BIT) != 0;
     }
 
     public int getState() {

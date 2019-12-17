@@ -14,7 +14,15 @@ public class HomedUser extends User {
         return userStatus.isModerator();
     }
 
+    public boolean isVip() {
+        return userStatus.isVip();
+    }
+
     public boolean isSubscriber() {
         return userStatus.isSubscriber();
+    }
+
+    public boolean isMember() {
+        return userStatus.isMember();
     }
 }
