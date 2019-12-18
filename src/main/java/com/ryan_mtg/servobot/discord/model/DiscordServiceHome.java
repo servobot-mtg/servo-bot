@@ -43,7 +43,7 @@ public class DiscordServiceHome implements ServiceHome {
 
     @Override
     public void start(final BotHome botHome) {
-        discordService.setNickName(guildId, botHome.getName());
+        discordService.setNickName(guildId, botHome.getBot().getName());
     }
 
     @Override

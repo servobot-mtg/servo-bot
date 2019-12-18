@@ -14,15 +14,16 @@ import java.util.Map;
 
 public class BotHome {
     private int id;
+    private Bot bot;
     private String name;
     private String timeZone;
     private CommandTable commandTable;
     private ReactionTable reactionTable;
-    private MultiDelegatingListener eventListener;
     private Map<Integer, ServiceHome> serviceHomes;
     private List<Book> books;
     private List<GameQueue> gameQueues;
-    private boolean active;
+    private boolean active = false;
+    private MultiDelegatingListener eventListener;
 
     public BotHome(final int id, final String name, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable,
@@ -45,6 +46,14 @@ public class BotHome {
 
     public int getId() {
         return id;
+    }
+
+    public Bot getBot() {
+        return bot;
+    }
+
+    public void setBot(final Bot bot) {
+        this.bot = bot;
     }
 
     public String getName() {

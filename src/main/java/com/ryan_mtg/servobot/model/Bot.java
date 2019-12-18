@@ -40,6 +40,7 @@ public class Bot {
 
     public void addHome(final BotHome home) {
         homes.add(home);
+        home.setBot(this);
         homeEditorMap.put(home.getId(), new HomeEditor(this, home));
         listener.register(home);
         services.values().stream().forEach(service -> service.register(home));
@@ -51,6 +52,7 @@ public class Bot {
         listener.unregister(home);
         homeEditorMap.remove(home.getId());
         homes.remove(home);
+        home.setBot(null);
     }
 
     public List<BotHome> getHomes() {
