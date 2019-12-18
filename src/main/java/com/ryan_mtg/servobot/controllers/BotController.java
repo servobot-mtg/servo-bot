@@ -53,11 +53,11 @@ public class BotController {
     }
 
     @GetMapping("/home/{home}")
-    public String showHome(final Model model, @PathVariable("home") final int homeId) {
+    public String showHome(final Model model, @PathVariable("home") final String homeName) {
         model.addAttribute("page", "home");
-        BotHome botHome = bot.getHome(homeId);
+        BotHome botHome = bot.getHome(homeName);
         if (botHome == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with id %d", homeId));
+            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
         }
 
         model.addAttribute("botHome", botHome);
@@ -65,7 +65,7 @@ public class BotController {
                 getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
         model.addAttribute("timeZones", timeZones);
         model.addAttribute("userSerializer", userSerializer);
-        model.addAttribute("users", userSerializer.getHomedUsers(homeId));
+        model.addAttribute("users", userSerializer.getHomedUsers(botHome.getId()));
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
         return "bot_home";

@@ -70,6 +70,15 @@ public class Bot {
         return null;
     }
 
+    public BotHome getHome(final String homeName) {
+        for(BotHome home : homes) {
+            if (home.getName().equals(homeName)) {
+                return home;
+            }
+        }
+        return null;
+    }
+
     public SerializerContainer getSerializers() {
         return serializers;
     }
