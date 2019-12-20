@@ -24,6 +24,18 @@ async function makePost(endpoint, parameters, responseElements, showOk) {
     return response;
 }
 
+function hideElementById(elementId) {
+    document.getElementById(elementId).style.display = 'none';
+}
+
+function showElementById(elementId) {
+    document.getElementById(elementId).style.display = 'block';
+}
+
+function showElementInlineById(elementId) {
+    document.getElementById(elementId).style.display = 'inline-block';
+}
+
 function getPostSettings(parameters) {
     let settings = {
         method: 'POST',

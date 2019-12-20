@@ -10,7 +10,9 @@ const decodedLockedIcon = decodeHtmlEntity('&#x1F512;');
 const checkmarkIcon = '&#x2714;&#xFE0F;';
 const crossIcon = '&#x274C;';
 const yellowCircleIcon = '&#x1F7E1;';
-
+const trashcanIcon = '&#x1F5D1;';
+const penIcon = '&#x270F;&#xFE0F;';
+const bookIcon = '&#x1F4BE;';
 
 function secureCommand(event, botHomeId, commandId) {
     postSecureCommand(botHomeId, commandId, event.currentTarget.dataset.label);
@@ -106,10 +108,8 @@ function deleteStatement(event, botHomeId, bookId, statementId) {
 }
 
 function editStatement(event, statementId) {
-    let editElement = document.getElementById('statement-' + statementId + '-edit');
-    let displayElement = document.getElementById('statement-' + statementId + '-display');
-    displayElement.style.display = 'none';
-    editElement.style.display = 'block';
+    hideElementById('statement-' + statementId + '-display');
+    showElementById('statement-' + statementId + '-edit');
 }
 
 function modifyStatement(event, botHomeId, bookId, statementId) {
@@ -125,10 +125,8 @@ function modifyStatement(event, botHomeId, bookId, statementId) {
 }
 
 function resetStatement(statementId) {
-    let editElement = document.getElementById('statement-' + statementId + '-edit');
-    editElement.style.display = 'none';
-    let displayElement = document.getElementById('statement-' + statementId + '-display');
-    displayElement.style.display = 'block';
+    hideElementById('statement-' + statementId + '-edit');
+    showElementById('statement-' + statementId + '-display');
 }
 
 async function postModifyStatement(botHomeId, bookId, statementId, text) {
@@ -163,7 +161,86 @@ async function postStopHome(botHomeId) {
     const parameters = {botHomeId: botHomeId};
     let response = await makePost('/api/stop_home', parameters, [], false);
     if (response.ok) {
-        document.getElementById('stop-button').style.display = 'none';
+        hideElementById('stop-button');
         document.getElementById('status').innerHTML = crossIcon;
     }
 }
+
+function showAddStatementForm() {
+    hideElementById('add-statement-button');
+
+    document.getElementById('add-statement-text-input').value = '';
+    showElementInlineById('add-statement-form');
+}
+
+function addStatement(botHomeId, bookId) {
+    const text = document.getElementById('add-statement-text-input').value;
+    postAddStatement(botHomeId, bookId, text);
+}
+
+async function postAddStatement(botHomeId, bookId, text) {
+    const parameters = {botHomeId: botHomeId, bookId: bookId, text: text};
+    let response = await makePost('/api/add_statement', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById('add-statement-form');
+        showElementById('add-statement-button');
+
+        let statement = await response.json();
+
+        addStatementRow(statement, botHomeId, bookId);
+    }
+}
+
+function addStatementRow(statement, botHomeId, bookId) {
+    let statementTable = document.getElementById('book-' + bookId + '-table');
+    let newRow = statementTable.insertRow();
+
+    const label = 'statement-' + statement.id;
+    newRow.id = label + '-row';
+
+    let displayDiv = document.createElement("div");
+    displayDiv.id = label + '-display';
+    let textSpan = document.createElement('span');
+    textSpan.id = label + '-value';
+    textSpan.innerHTML = statement.text;
+    displayDiv.appendChild(textSpan);
+    let editButtonSpan = document.createElement('span');
+    editButtonSpan.classList.add('pseudo-link');
+    editButtonSpan.onclick = function(event) {
+        editStatement(event, statement.id);
+    };
+    editButtonSpan.innerHTML = penIcon;
+    displayDiv.appendChild(editButtonSpan);
+
+    let editDiv = document.createElement("div");
+    editDiv.id = label + '-edit';
+    editDiv.classList.add('hidden');
+
+    let textInput = document.createElement('input');
+    textInput.type = 'text';
+    textInput.value = statement.text;
+    textInput.size = statement.text.length;
+    textInput.id = label + '-input';
+    editDiv.appendChild(textInput);
+
+    let modifyButtonSpan = document.createElement('span');
+    modifyButtonSpan.classList.add('pseudo-link');
+    modifyButtonSpan.onclick = function(event) {
+        modifyStatement(event, botHomeId, bookId, statement.id);
+    };
+    modifyButtonSpan.innerHTML = bookIcon;
+    editDiv.appendChild(modifyButtonSpan);
+
+    let textCell = newRow.insertCell();
+    textCell.appendChild(displayDiv);
+    textCell.appendChild(editDiv);
+
+    let deleteCell = newRow.insertCell();
+    deleteCell.classList.add('pseudo-link');
+    deleteCell.innerHTML = trashcanIcon;
+    deleteCell.onclick = function (event) {
+        deleteStatement(event, botHomeId, bookId, statement.id);
+    };
+}
+

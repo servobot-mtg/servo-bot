@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +86,29 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/api/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Statement addStatement(@RequestBody final AddStatementRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addStatement(request.getBookId(), request.getText());
+    }
+
+    public static class BookRequest extends BotHomeRequest {
+        private int bookId;
+
+        public int getBookId() {
+            return bookId;
+        }
+    }
+
+    public static class AddStatementRequest extends BookRequest {
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+    }
+
     @PostMapping(value = "/api/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -92,13 +116,8 @@ public class ApiController {
         return true;
     }
 
-    public static class DeleteStatementRequest extends BotHomeRequest {
-        private int bookId;
+    public static class DeleteStatementRequest extends BookRequest {
         private int statementId;
-
-        public int getBookId() {
-            return bookId;
-        }
 
         public int getStatementId() {
             return statementId;
@@ -112,14 +131,9 @@ public class ApiController {
         return true;
     }
 
-    public static class ModifyStatementRequest extends BotHomeRequest {
-        private int bookId;
+    public static class ModifyStatementRequest extends BookRequest {
         private int statementId;
         private String text;
-
-        public int getBookId() {
-            return bookId;
-        }
 
         public int getStatementId() {
             return statementId;

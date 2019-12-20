@@ -125,18 +125,12 @@ public class HomeEditor {
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
+    public Statement addStatement(final int bookId, final String text) throws BotErrorException {
+        return addStatement(getBook(bookId), text);
+    }
+
     public void addStatement(final String bookName, final String text) throws BotErrorException {
-        BookSerializer bookSerializer = serializers.getBookSerializer();
-        Book book = botHome.getBooks().stream()
-                .filter(b -> b.getName().equalsIgnoreCase(bookName)).findFirst().orElse(null);
-
-        if (book == null) {
-            throw new BotErrorException(String.format("No book with name %s.", bookName));
-        }
-
-        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
-        bookSerializer.saveStatement(book.getId(), statement);
-        book.addStatement(statement);
+        addStatement(getBook(bookName), text);
     }
 
     public void deleteStatement(final int bookId, final int statementId) {
@@ -373,4 +367,29 @@ public class HomeEditor {
         }
         return gameQueue;
     }
+
+    private Book getBook(final String bookName) throws BotErrorException {
+        Book book = botHome.getBooks().stream()
+                .filter(b -> b.getName().equalsIgnoreCase(bookName)).findFirst().orElse(null);
+
+        if (book == null) {
+            throw new BotErrorException(String.format("No book with name %s.", bookName));
+        }
+
+        return book;
+    }
+
+    private Book getBook(final int bookId) {
+        return botHome.getBooks().stream().filter(b -> b.getId() == bookId).findFirst().orElse(null);
+    }
+
+    private Statement addStatement(final Book book, final String text) throws BotErrorException {
+        BookSerializer bookSerializer = serializers.getBookSerializer();
+
+        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
+        bookSerializer.saveStatement(book.getId(), statement);
+        book.addStatement(statement);
+        return statement;
+    }
+
 }
