@@ -9,12 +9,12 @@
         <span id="security-token" th:attr="data-token=${_csrf.token}, data-header=${_csrf.headerName}"/>
         <div class="navbar">
             <ul>
-                <li><div class="navitem" th:classappend="${page == 'index' ? 'active' : ''}">
-                    <a href="#" th:href="@{/}"><img src="/images/moosers.png" alt="ServoBot" height="28" width="32"></a>
+                <li><div class="navitem index">
+                    <a href="#" th:href="@{/}"><img src="/images/MoosersBot.png" alt="ServoBot" height="28" width="32"></a>
                 </div></li>
 
                 <li><div class="navitem" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
-                    <a href="#" th:href="@{/home/{id}(id=${botHome.id})}" th:text="${botHome.name}"></a>
+                    <a href="#" th:href="@{/home/{id}(id=${botHome.name})}" th:text="${botHome.name}"></a>
                     <span th:text="${page}"></span>
                 </div></li>
 
@@ -59,7 +59,7 @@
         <link href="/style/main.css" rel="stylesheet" type="text/css">
         <script type="text/javascript" src="/script/main.js"> </script>
         <script th:if="${user.admin}" type="text/javascript" src="/script/admin.js"> </script>
-        <link rel="shortcut icon" href="/images/favicon.ico"/>
+        <link rel="shortcut icon" type="image/png" href="/images/favicon.ico"/>
     </div>
 </body>
 </html>

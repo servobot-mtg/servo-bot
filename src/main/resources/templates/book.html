@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book</title>
+    <div th:include="fragments :: includes" />
+    <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
+            type="text/javascript" src="/script/privledged.js"></script>
+</head>
+<body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}">
+    <div th:include="fragments :: header" />
+    <div class="content">
+        <h1 th:text="${book.name}"/>
+        <table class="data-table">
+            <thead><tr>
+                <th>Text</th>
+                <th th:if="${privledged}">Delete</th>
+            </tr></thead>
+            <th:block th:each="statement : ${book.statements}" th:with="label=${'statement-' + statement.id}">
+                <tr th:id="${label} + '-row'">
+                    <td th:if="${privledged}">
+                        <div th:id="${label} + '-display'">
+                            <span th:text="${statement.text}" th:id="${label} + '-value'"/>
+                            <span class="pseudo-link" th:onclick="'editStatement(event, ' + ${statement.id} + ')'">
+                                    &#x270F;&#xFE0F;
+                                </span>
+                        </div>
+                        <div th:id="${label} + '-edit'" style="display: none;">
+                            <input type="text" th:value="${statement.text}" th:size="${statement.text.length()}"
+                                   th:id="${label} + '-input'"/>
+                            <span class="pseudo-link" th:onclick="'modifyStatement(event, ' + ${botHome.id} + ', '
+                                                          + ${book.id} + ', ' + ${statement.id} + ')'">
+                                    &#x1F4BE;
+                                </span>
+                        </div>
+                    </td>
+                    <td th:if="${!privledged}" th:text="${statement.text}"/>
+                    <td th:if="${privledged}" class="pseudo-link" th:onclick=
+                            "'deleteStatement(event, ' + ${botHome.id} + ', ' + ${book.id} + ', '+ ${statement.id} + ')'">
+                        &#x1F5D1;
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+    </div>
+    <div th:include="fragments :: footer" />
+</body>
+</html>

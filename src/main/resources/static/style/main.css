@@ -64,7 +64,6 @@ body {
     color: maroon;
 }
 
-
 .twitch {
     border: #9146FF solid 1px;
     color: #9146FF;
@@ -119,6 +118,11 @@ body {
     background-color: whitesmoke;
 }
 
+.navbar .index {
+    background-color: whitesmoke;
+    border: 0;
+}
+
 .navbar .right {
     float: right;
 }
@@ -142,6 +146,9 @@ body {
     color: white;
 }
 
+.navbar .index a:hover {
+    background-color: whitesmoke;
+}
 table {
     border-collapse: collapse;
     border: 2px solid black;

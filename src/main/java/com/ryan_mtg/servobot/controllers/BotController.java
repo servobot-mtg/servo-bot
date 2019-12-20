@@ -10,10 +10,10 @@ import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
+import com.ryan_mtg.servobot.data.factories.SerializerContainer;
+import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
-import com.ryan_mtg.servobot.user.HomedUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -35,7 +35,7 @@ public class BotController {
     private Bot bot;
 
     @Autowired
-    private UserSerializer userSerializer;
+    private SerializerContainer serializers;
 
     private List<TimeZoneDescriptor> timeZones = new ArrayList<>();
 
@@ -64,11 +64,31 @@ public class BotController {
         model.addAttribute("commandDescriptors",
                 getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
         model.addAttribute("timeZones", timeZones);
-        model.addAttribute("userSerializer", userSerializer);
-        model.addAttribute("users", userSerializer.getHomedUsers(botHome.getId()));
+        model.addAttribute("userSerializer", serializers.getUserSerializer());
+        model.addAttribute("users", serializers.getUserSerializer().getHomedUsers(botHome.getId()));
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
         return "bot_home";
+    }
+
+    @GetMapping("/home/{home}/book/{book}")
+    public String showBook(final Model model, @PathVariable("home") final String homeName,
+                           @PathVariable("book") final String bookName) {
+        model.addAttribute("page", "book");
+
+        BotHome botHome = bot.getHome(homeName);
+        if (botHome == null) {
+            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
+        }
+        model.addAttribute("botHome", botHome);
+
+        Book book = botHome.getBooks().stream().filter(b -> b.getName().equals(bookName)).findFirst().orElse(null);
+        if (book == null) {
+            throw new ResourceNotFoundException(String.format("No book home with name %s", bookName));
+        }
+        model.addAttribute("book", book);
+
+        return "book";
     }
 
     @ModelAttribute

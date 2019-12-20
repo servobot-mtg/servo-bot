@@ -232,40 +232,11 @@
         </table>
 
         <h2>Books</h2>
-        <th:block th:each="book : ${botHome.books}">
-            <h3 th:text="${book.name}"/>
-            <table class="data-table">
-                <thead><tr>
-                    <th>Text</th>
-                    <th th:if="${privledged}">Delete</th>
-                </tr></thead>
-                <th:block th:each="statement : ${book.statements}" th:with="label=${'statement-' + statement.id}">
-                    <tr th:id="${label} + '-row'">
-                        <td th:if="${privledged}">
-                            <div th:id="${label} + '-display'">
-                                <span th:text="${statement.text}" th:id="${label} + '-value'"/>
-                                <span class="pseudo-link" th:onclick="'editStatement(event, ' + ${statement.id} + ')'">
-                                    &#x270F;&#xFE0F;
-                                </span>
-                            </div>
-                            <div th:id="${label} + '-edit'" style="display: none;">
-                                <input type="text" th:value="${statement.text}" th:size="${statement.text.length()}"
-                                       th:id="${label} + '-input'"/>
-                                <span class="pseudo-link" th:onclick="'modifyStatement(event, ' + ${botHome.id} + ', '
-                                                          + ${book.id} + ', ' + ${statement.id} + ')'">
-                                    &#x1F4BE;
-                                </span>
-                            </div>
-                        </td>
-                        <td th:if="${!privledged}" th:text="${statement.text}"/>
-                        <td th:if="${privledged}" class="pseudo-link" th:onclick=
-                        "'deleteStatement(event, ' + ${botHome.id} + ', ' + ${book.id} + ', '+ ${statement.id} + ')'">
-                            &#x1F5D1;
-                        </td>
-                    </tr>
-                </th:block>
-            </table>
-        </th:block>
+        <ul>
+            <th:block th:each="book : ${botHome.books}">
+                <li><a th:href="${botHome.name} + '/book/' + ${book.name}" th:text="${book.name}"/><BR></li>
+            </th:block>
+        </ul>
     </div>
     <div th:include="fragments :: footer" />
 </body>
