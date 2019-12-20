@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.commands.AddCommand;
+import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandAlias;
@@ -102,6 +103,12 @@ public class CommandDescriptor {
         public void visitAddCommand(final AddCommand addCommand) {
             type = "Add Command";
             description = "Used to make new message commands";
+        }
+
+        @Override
+        public void visitAddStatementCommand(final AddStatementCommand addStatementCommand) {
+            type = "Add Statement Command";
+            description = "Used to make new statements";
         }
 
         @Override

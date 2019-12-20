@@ -37,6 +37,10 @@ public class Book {
         return statements.get(RANDOM.nextInt(statements.size())).getText();
     }
 
+    public void addStatement(final Statement statement) {
+        statements.add(statement);
+    }
+
     public void deleteStatement(final int statementId) {
         statements.removeIf(statement -> statement.getId() == statementId);
     }

@@ -125,6 +125,20 @@ public class HomeEditor {
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
+    public void addStatement(final String bookName, final String text) throws BotErrorException {
+        BookSerializer bookSerializer = serializers.getBookSerializer();
+        Book book = botHome.getBooks().stream()
+                .filter(b -> b.getName().equalsIgnoreCase(bookName)).findFirst().orElse(null);
+
+        if (book == null) {
+            throw new BotErrorException(String.format("No book with name %s.", bookName));
+        }
+
+        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
+        bookSerializer.saveStatement(book.getId(), statement);
+        book.addStatement(statement);
+    }
+
     public void deleteStatement(final int bookId, final int statementId) {
         botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
             book.deleteStatement(statementId);

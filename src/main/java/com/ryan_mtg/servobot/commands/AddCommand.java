@@ -31,11 +31,11 @@ public class AddCommand extends MessageCommand {
 
         String firstToken = scanner.next();
         if (firstToken.length() >= 1 && firstToken.charAt(0) != '!') {
-            throw new BotErrorException("Commands must start with a !");
+            throw new BotErrorException("Commands must start with a '!'.");
         }
 
         if (firstToken.length() <= 1) {
-            throw new BotErrorException("No command to add");
+            throw new BotErrorException("No command to add.");
         }
 
         String command = firstToken.substring(1);

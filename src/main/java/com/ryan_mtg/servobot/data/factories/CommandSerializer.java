@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.AddCommand;
+import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandEvent;
@@ -57,6 +58,8 @@ public class CommandSerializer {
         switch (commandRow.getType()) {
             case AddCommand.TYPE:
                 return new AddCommand(id, commandRow.isSecure(), commandRow.getPermission());
+            case AddStatementCommand.TYPE:
+                return new AddStatementCommand(id, commandRow.isSecure(), commandRow.getPermission());
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, commandRow.isSecure(), commandRow.getPermission());
             case TextCommand.TYPE:
@@ -143,6 +146,11 @@ public class CommandSerializer {
         @Override
         public void visitAddCommand(final AddCommand addCommand) {
             saveCommand(addCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitAddStatementCommand(final AddStatementCommand addStatementCommand) {
+            saveCommand(addStatementCommand, commandRow -> {});
         }
 
         @Override
