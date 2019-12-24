@@ -157,9 +157,11 @@ public class CommandTableSerializer {
         for (Command command : commandTableEdit.getSavedCommands()) {
             commandSerializer.saveCommand(botHomeId, command);
             commandTableEdit.commandSaved(command);
+        }
 
-            CommandAlias commandAlias = commandTableEdit.getSavedAlias(command);
-            commandSerializer.saveCommandAlias(command.getId(), commandAlias);
+        for (Map.Entry<CommandAlias, Integer> aliasEntry : commandTableEdit.getSavedAliases().entrySet()) {
+            commandSerializer.saveCommandAlias(aliasEntry.getValue(), aliasEntry.getKey());
+            commandTableEdit.aliasSaved(aliasEntry.getKey());
         }
     }
 }
