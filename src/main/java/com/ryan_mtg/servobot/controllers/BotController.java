@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.model.Book;
@@ -124,23 +125,13 @@ public class BotController {
             return newDescriptor;
         };
 
-        for (Map.Entry<Integer, Command> entry : commandMapping.getIdtoCommandMap().entrySet()) {
+        for (Map.Entry<Integer, Command> entry : commandMapping.getIdToCommandMap().entrySet()) {
             commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
         }
 
-        for (Map.Entry<CommandAlias, MessageCommand> entry : commandMapping.getAliasCommandMap().entrySet()) {
+        for (Map.Entry<Trigger, Command> entry : commandMapping.getTriggerCommandMap().entrySet()) {
             CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
-            descriptor.addAlias(entry.getKey());
-        }
-
-        for (Map.Entry<CommandEvent, Command> entry : commandMapping.getEventCommandMap().entrySet()) {
-            CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
-            descriptor.addEvent(entry.getKey());
-        }
-
-        for (Map.Entry<CommandAlert, HomeCommand> entry : commandMapping.getAlertCommandMap().entrySet()) {
-            CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
-            descriptor.addAlert(entry.getKey());
+            descriptor.addTrigger(entry.getKey());
         }
 
         return commands;

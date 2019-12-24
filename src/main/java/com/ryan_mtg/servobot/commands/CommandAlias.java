@@ -2,23 +2,14 @@ package com.ryan_mtg.servobot.commands;
 
 import java.util.Objects;
 
-public class CommandAlias {
-    public static final int UNREGISTERED_ID = 0;
+public class CommandAlias extends Trigger {
+    public static final int TYPE = 1;
 
-    private int id;
     private String alias;
 
     public CommandAlias(final int id, final String alias) {
-        this.id = id;
+        super(id);
         this.alias = alias;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
     }
 
     public String getAlias() {
@@ -30,12 +21,22 @@ public class CommandAlias {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CommandAlias that = (CommandAlias) o;
-        return id == that.id &&
+        return getId() == that.getId() &&
                 alias.equals(that.alias);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, alias);
+        return Objects.hash(getId(), alias);
+    }
+
+    @Override
+    public int getType() {
+        return 1;
+    }
+
+    @Override
+    public void acceptVisitor(final TriggerVisitor triggerVisitor) {
+        triggerVisitor.visitCommandAlias(this);
     }
 }

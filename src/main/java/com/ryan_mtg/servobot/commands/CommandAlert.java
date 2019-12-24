@@ -2,20 +2,14 @@ package com.ryan_mtg.servobot.commands;
 
 import java.util.Objects;
 
-public class CommandAlert {
-    public static final int UNREGISTERED_ID = 0;
-
-    private int id;
+public class CommandAlert extends Trigger {
+    public static final int TYPE = 3;
 
     private String alertToken;
 
     public CommandAlert(final int id, final String alertToken) {
-        this.id = id;
+        super(id);
         this.alertToken = alertToken;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getAlertToken() {
@@ -27,12 +21,22 @@ public class CommandAlert {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CommandAlert that = (CommandAlert) o;
-        return id == that.id &&
+        return getId() == that.getId() &&
                 alertToken.equals(that.alertToken);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, alertToken);
+        return Objects.hash(getId(), alertToken);
+    }
+
+    @Override
+    public int getType() {
+        return TYPE;
+    }
+
+    @Override
+    public void acceptVisitor(final TriggerVisitor triggerVisitor) {
+        triggerVisitor.visitCommandAlert(this);
     }
 }

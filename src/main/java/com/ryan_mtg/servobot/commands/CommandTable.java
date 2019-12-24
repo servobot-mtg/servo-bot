@@ -1,15 +1,14 @@
 package com.ryan_mtg.servobot.commands;
 
-import com.google.common.collect.ImmutableMap;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CommandTable {
@@ -19,20 +18,14 @@ public class CommandTable {
 
     private Map<Integer, Command> idToCommandMap = new HashMap<>();
 
-    private Map<String, MessageCommand> commandMap = new HashMap<>();
+    private Map<Trigger, Command> triggerCommandMap = new HashMap<>();
+    private Map<Command, List<Trigger>> reverseTriggerMap = new HashMap<>();
+    private List<Trigger> triggers = new ArrayList<>();
+
+    private Map<String, Command> commandMap = new HashMap<>();
     private Map<String, CommandAlias> aliasMap = new HashMap<>();
-    private Map<CommandAlias, MessageCommand> aliasCommandMap = new HashMap<>();
-    private Map<MessageCommand, List<CommandAlias>> reverseAliasMap = new HashMap<>();
-
-    private List<CommandEvent> events = new ArrayList<>();
-    private Map<CommandEvent, Command> eventCommandMap = new HashMap<>();
     private Map<CommandEvent.Type, List<CommandEvent>> eventMap = new HashMap<>();
-    private Map<Command, List<CommandEvent>> reverseEventMap = new HashMap<>();
-
-    private List<CommandAlert> alerts = new ArrayList<>();
-    private Map<CommandAlert, HomeCommand> alertCommandMap = new HashMap<>();
     private Map<String, List<CommandAlert>> alertMap = new HashMap<>();
-    private Map<HomeCommand, List<CommandAlert>> reverseAlertMap = new HashMap<>();
 
     private List<AlertGenerator> alertGenerators;
 
@@ -40,60 +33,31 @@ public class CommandTable {
         this.isCaseSensitive = isCaseSensitive;
     }
 
-    public void registerCommand(final Command command) {
-        idToCommandMap.put(command.getId(), command);
+    public Set<Command> getCommands() {
+        return reverseTriggerMap.keySet();
     }
 
-    public void registerCommand(final MessageCommand command, final CommandAlias commandAlias) {
-        registerCommand(command);
-        String alias = canonicalize(commandAlias.getAlias());
-        if (commandMap.containsKey(alias)) {
-            LOGGER.warn("Command " + alias + " is already registered");
-            throw new IllegalStateException("Command " + alias + " is already registered");
-        } else {
-            LOGGER.trace("Registering alias " + alias + " has keys: " + commandMap.keySet().toString());
-        }
-        commandMap.put(alias, command);
-        aliasMap.put(alias, commandAlias);
-        aliasCommandMap.put(commandAlias, command);
-        reverseAliasMap.computeIfAbsent(command, newCommand -> new ArrayList<>()).add(commandAlias);
+    public List<Trigger> getTriggers() {
+        return triggers;
+    }
+
+    public Command getCommand(final Trigger trigger) {
+        return triggerCommandMap.get(trigger);
+    }
+
+    public void registerCommand(final Command command) {
+        idToCommandMap.put(command.getId(), command);
     }
 
     public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
-        commandTableEdit.save(newCommand, commandAlias, this::registerCommand, this::aliasSaved);
+        commandTableEdit.save(newCommand, commandAlias, this::registerCommand, this::triggerSaved);
         return commandTableEdit;
     }
 
     public CommandTableEdit deleteCommand(final String alias) {
         return deleteAlias(alias, true);
-    }
-
-    private CommandTableEdit deleteAlias(final String alias, final boolean deleteUnreferencedCommand) {
-        CommandTableEdit commandTableEdit = new CommandTableEdit();
-        String canonicalAlias=canonicalize(alias);
-
-        if (aliasMap.containsKey(canonicalAlias)) {
-            MessageCommand command = commandMap.get(canonicalAlias);
-            CommandAlias commandAlias = aliasMap.get(canonicalAlias);
-            List<CommandAlias> oldCommandsAliases = reverseAliasMap.get(command);
-
-            oldCommandsAliases.remove(commandAlias);
-            if (oldCommandsAliases.isEmpty() && deleteUnreferencedCommand) {
-                commandTableEdit.delete(command);
-                reverseAliasMap.remove(command);
-
-                idToCommandMap.remove(command.getId());
-            }
-
-            aliasCommandMap.remove(commandAlias);
-            aliasMap.remove(canonicalAlias);
-            commandMap.remove(canonicalAlias);
-            commandTableEdit.delete(commandAlias);
-        }
-
-        return commandTableEdit;
     }
 
     public CommandTableEdit deleteCommand(final int commandId) {
@@ -103,35 +67,11 @@ public class CommandTable {
         idToCommandMap.remove(command.getId());
         commandTableEdit.delete(command);
 
-        if (command instanceof MessageCommand) {
-            MessageCommand messageCommand = (MessageCommand) command;
+        if (reverseTriggerMap.containsKey(command)) {
+            List<Trigger> triggers = new ArrayList<>(reverseTriggerMap.get(command));
 
-            if (reverseAliasMap.containsKey(messageCommand)) {
-                List<CommandAlias> aliases = new ArrayList<>(reverseAliasMap.get(messageCommand));
-
-                for (CommandAlias commandAlias : aliases) {
-                    deleteAlias(commandAlias, commandTableEdit);
-                }
-            }
-        }
-
-        if (reverseEventMap.containsKey(command)) {
-            List<CommandEvent> events = new ArrayList<>(reverseEventMap.get(command));
-
-            for (CommandEvent commandEvent : events) {
-                deleteEvent(commandEvent, commandTableEdit);
-            }
-        }
-
-        if (command instanceof HomeCommand) {
-            HomeCommand homeCommand = (HomeCommand) command;
-
-            if (reverseAlertMap.containsKey(homeCommand)) {
-                List<CommandAlert> alerts = new ArrayList<>(reverseAlertMap.get(homeCommand));
-
-                for (CommandAlert commandAlert : alerts) {
-                    deleteAlert(commandAlert, commandTableEdit);
-                }
+            for (Trigger trigger : triggers) {
+                deleteTrigger(trigger, commandTableEdit, false);
             }
         }
 
@@ -143,51 +83,22 @@ public class CommandTable {
 
         CommandTableEdit commandTableEdit = deleteAlias(text, false);
         CommandAlias commandAlias = createAlias(newCommand, text);
-        commandTableEdit.save(commandId, commandAlias, this::aliasSaved);
+        commandTableEdit.save(commandId, commandAlias, this::triggerSaved);
         return commandTableEdit;
-
     }
 
-    public CommandTableEdit deleteAlias(final CommandAlias commandAlias) {
+    public CommandTableEdit deleteTrigger(final Trigger trigger) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
-        deleteAlias(commandAlias, commandTableEdit);
+        deleteTrigger(trigger, commandTableEdit, false);
         return commandTableEdit;
     }
 
-    public CommandTableEdit deleteEvent(CommandEvent commandEvent) {
-        CommandTableEdit commandTableEdit = new CommandTableEdit();
-        deleteEvent(commandEvent, commandTableEdit);
-        return commandTableEdit;
-    }
-
-    public CommandTableEdit deleteAlert(CommandAlert commandAlert) {
-        CommandTableEdit commandTableEdit = new CommandTableEdit();
-        deleteAlert(commandAlert, commandTableEdit);
-        return commandTableEdit;
-    }
-
-    public void registerCommand(final Command command, final CommandEvent commandEvent) {
+    public void registerCommand(final Command command, final Trigger trigger) {
         registerCommand(command);
-        eventCommandMap.put(commandEvent, command);
-        reverseEventMap.computeIfAbsent(command, newCommand -> new ArrayList<>()).add(commandEvent);
-        eventMap.computeIfAbsent(commandEvent.getEventType(), type -> new ArrayList<>()).add(commandEvent);
-        events.add(commandEvent);
-    }
-
-    public void registerCommand(final HomeCommand homeCommand, final CommandAlert commandAlert) {
-        registerCommand(homeCommand);
-        alertCommandMap.put(commandAlert, homeCommand);
-        reverseAlertMap.computeIfAbsent(homeCommand, command -> new ArrayList<>()).add(commandAlert);
-        alertMap.computeIfAbsent(commandAlert.getAlertToken(), type -> new ArrayList<>()).add(commandAlert);
-        alerts.add(commandAlert);
-    }
-
-    public Collection<CommandAlias> getAliases() {
-        return aliasMap.values();
-    }
-
-    public List<CommandEvent> getEvents() {
-        return events;
+        triggerCommandMap.put(trigger, command);
+        reverseTriggerMap.computeIfAbsent(command, newCommand -> new ArrayList<>()).add(trigger);
+        triggers.add(trigger);
+        trigger.acceptVisitor(new RegisterTriggerVisitor(command));
     }
 
     public void setAlertGenerators(final List<AlertGenerator> alertGenerators) {
@@ -198,15 +109,11 @@ public class CommandTable {
         return alertGenerators;
     }
 
-    public Map<String, MessageCommand> getCommandList() {
-        return ImmutableMap.copyOf(commandMap);
-    }
-
     public CommandMapping getCommandMapping() {
-        return new CommandMapping(idToCommandMap, aliasCommandMap, eventCommandMap, alertCommandMap);
+        return new CommandMapping(idToCommandMap, triggerCommandMap);
     }
 
-    public MessageCommand getCommand(final String token) {
+    public Command getCommand(final String token) {
         return commandMap.get(canonicalize(token));
     }
 
@@ -214,20 +121,20 @@ public class CommandTable {
                                                        final Class<CommandType> commandClass) {
         List<CommandEvent> events = eventMap.get(eventType);
         if (events != null) {
-            return events.stream().map(event -> getCommand(event)).filter(command -> commandClass.isInstance(command))
-                    .map(command -> commandClass.cast(command)).collect(Collectors.toList());
+            return events.stream().map(event -> triggerCommandMap.get(event))
+                    .filter(command -> commandClass.isInstance(command)).map(command -> commandClass.cast(command))
+                    .collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
 
-    public Command getCommand(final CommandEvent event) {
-        return eventCommandMap.get(event);
-    }
-
-    public List<HomeCommand> getCommandsFromAlertToken(final String alertToken) {
+    public <CommandType extends Command> List<CommandType> getCommandsFromAlertToken(final String alertToken,
+                                                       final Class<CommandType> commandClass) {
         List<CommandAlert> alerts = alertMap.get(alertToken);
         if (alerts != null) {
-            return alerts.stream().map(alert -> getCommand(alert)).collect(Collectors.toList());
+            return alerts.stream().map(alert -> triggerCommandMap.get(alert))
+                    .filter(command -> commandClass.isInstance(command)).map(command -> commandClass.cast(command))
+                    .collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
@@ -250,10 +157,6 @@ public class CommandTable {
         return command;
     }
 
-    private HomeCommand getCommand(final CommandAlert alert) {
-        return alertCommandMap.get(alert);
-    }
-
     private String canonicalize(final String token) {
         return isCaseSensitive ? token : token.toLowerCase();
     }
@@ -263,48 +166,62 @@ public class CommandTable {
         commandMap.put(canonicalAlias, newCommand);
         CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, text);
         aliasMap.put(canonicalAlias, commandAlias);
-        reverseAliasMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(commandAlias);
+        reverseTriggerMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(commandAlias);
         return commandAlias;
     }
 
-    private void aliasSaved(final int commandId, final CommandAlias commandAlias) {
-        MessageCommand command = (MessageCommand) idToCommandMap.get(commandId);
-        aliasCommandMap.put(commandAlias, command);
+    private void triggerSaved(final int commandId, final Trigger trigger) {
+        Command command = idToCommandMap.get(commandId);
+        triggerCommandMap.put(trigger, command);
     }
 
-    private void deleteAlias(final CommandAlias commandAlias, final CommandTableEdit commandTableEdit) {
-        String canonicalAlias = canonicalize(commandAlias.getAlias());
-        MessageCommand messageCommand = aliasCommandMap.get(commandAlias);
+    private void deleteTrigger(final Trigger trigger, final CommandTableEdit commandTableEdit,
+                               final boolean deleteUnreferencedCommand) {
+        Command command = triggerCommandMap.get(trigger);
+        trigger.acceptVisitor(new TriggerDeleteVisitor());
 
-        commandMap.remove(canonicalAlias);
-        aliasMap.remove(canonicalAlias);
-        aliasCommandMap.remove(commandAlias);
-        removeMappedElement(reverseAliasMap, messageCommand, commandAlias);
+        triggers.remove(trigger);
+        triggerCommandMap.remove(trigger);
+        removeMappedElement(reverseTriggerMap, command, trigger);
 
-        commandTableEdit.delete(commandAlias);
+        commandTableEdit.delete(trigger);
+
+        if (!reverseTriggerMap.containsKey(command) && deleteUnreferencedCommand) {
+            commandTableEdit.delete(command);
+            idToCommandMap.remove(command.getId());
+        }
     }
 
-    private void deleteEvent(final CommandEvent commandEvent, final CommandTableEdit commandTableEdit) {
-        Command command = eventCommandMap.get(commandEvent);
+    private CommandTableEdit deleteAlias(final String alias, final boolean deleteUnreferencedCommand) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        String canonicalAlias=canonicalize(alias);
 
-        events.remove(commandEvent);
-        eventCommandMap.remove(commandEvent);
-        removeMappedElement(eventMap, commandEvent.getEventType(), commandEvent);
-        removeMappedElement(reverseEventMap, command, commandEvent);
+        if (aliasMap.containsKey(canonicalAlias)) {
+            CommandAlias commandAlias = aliasMap.get(canonicalAlias);
+            deleteTrigger(commandAlias, commandTableEdit, deleteUnreferencedCommand);
+        }
 
-        commandTableEdit.delete(commandEvent);
+        return commandTableEdit;
     }
 
-    private void deleteAlert(final CommandAlert commandAlert, final CommandTableEdit commandTableEdit) {
-        HomeCommand homeCommand = alertCommandMap.get(commandAlert);
 
-        alerts.remove(commandAlert);
-        alertCommandMap.remove(commandAlert);
+    private class TriggerDeleteVisitor implements TriggerVisitor {
+        @Override
+        public void visitCommandAlias(final CommandAlias commandAlias) {
+            String canonicalAlias = canonicalize(commandAlias.getAlias());
+            commandMap.remove(canonicalAlias);
+            aliasMap.remove(canonicalAlias);
+        }
 
-        removeMappedElement(alertMap, commandAlert.getAlertToken(), commandAlert);
-        removeMappedElement(reverseAlertMap, homeCommand, commandAlert);
+        @Override
+        public void visitCommandEvent(final CommandEvent commandEvent) {
+            removeMappedElement(eventMap, commandEvent.getEventType(), commandEvent);
+        }
 
-        commandTableEdit.delete(commandAlert);
+        @Override
+        public void visitCommandAlert(final CommandAlert commandAlert) {
+            removeMappedElement(alertMap, commandAlert.getAlertToken(), commandAlert);
+        }
     }
 
     private <KeyType, ElementType> void removeMappedElement(final Map<KeyType, List<ElementType>> map,
@@ -313,6 +230,39 @@ public class CommandTable {
         mappedElements.remove(element);
         if (mappedElements.isEmpty()) {
             eventMap.remove(key);
+        }
+    }
+
+    private class RegisterTriggerVisitor implements TriggerVisitor {
+        private Command command;
+
+        public RegisterTriggerVisitor(final Command command) {
+            this.command = command;
+        }
+
+        @Override
+        public void visitCommandAlias(final CommandAlias commandAlias) {
+            String canonicalAlias = canonicalize(commandAlias.getAlias());
+
+            if (commandMap.containsKey(canonicalAlias)) {
+                LOGGER.warn("Command " + canonicalAlias + " is already registered");
+                throw new IllegalStateException("Command " + canonicalAlias + " is already registered");
+            } else {
+                LOGGER.trace("Registering alias " + canonicalAlias + " has keys: " + commandMap.keySet().toString());
+            }
+
+            commandMap.put(canonicalAlias, command);
+            aliasMap.put(canonicalAlias, commandAlias);
+        }
+
+        @Override
+        public void visitCommandEvent(final CommandEvent commandEvent) {
+            eventMap.computeIfAbsent(commandEvent.getEventType(), type -> new ArrayList<>()).add(commandEvent);
+        }
+
+        @Override
+        public void visitCommandAlert(final CommandAlert commandAlert) {
+            alertMap.computeIfAbsent(commandAlert.getAlertToken(), type -> new ArrayList<>()).add(commandAlert);
         }
     }
 }

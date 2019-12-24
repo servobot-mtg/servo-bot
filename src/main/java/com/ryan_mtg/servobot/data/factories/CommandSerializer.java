@@ -14,6 +14,8 @@ import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
+import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.CommandAlertRow;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
 import com.ryan_mtg.servobot.data.models.CommandEventRow;
@@ -110,10 +112,39 @@ public class CommandSerializer {
         command.setId(commandRow.getId());
     }
 
-    public void saveCommandAlias(final int commandId, final CommandAlias commandAlias) {
-        CommandAliasRow aliasRow = new CommandAliasRow(commandAlias.getId(), commandId, commandAlias.getAlias());
-        commandAliasRepository.save(aliasRow);
-        commandAlias.setId(aliasRow.getId());
+    public void saveTrigger(final int commandId, final Trigger trigger) {
+        TriggerSerializationVisitor serializer = new TriggerSerializationVisitor(commandId);
+        trigger.acceptVisitor(serializer);
+    }
+
+    private class TriggerSerializationVisitor implements TriggerVisitor {
+        private int commandId;
+
+        public TriggerSerializationVisitor(final int commandId) {
+            this.commandId = commandId;
+        }
+
+        @Override
+        public void visitCommandAlias(final CommandAlias commandAlias) {
+            CommandAliasRow aliasRow = new CommandAliasRow(commandAlias.getId(), commandId, commandAlias.getAlias());
+            commandAliasRepository.save(aliasRow);
+            commandAlias.setId(aliasRow.getId());
+        }
+
+        @Override
+        public void visitCommandEvent(final CommandEvent commandEvent) {
+            CommandEventRow eventRow = new CommandEventRow(commandEvent.getId(), commandId, commandEvent.getEventType());
+            commandEventRepository.save(eventRow);
+            commandEvent.setId(eventRow.getId());
+        }
+
+        @Override
+        public void visitCommandAlert(CommandAlert commandAlert) {
+            CommandAlertRow alertRow =
+                    new CommandAlertRow(commandAlert.getId(), commandId, commandAlert.getAlertToken());
+            commandAlertRepository.save(alertRow);
+            commandAlert.setId(alertRow.getId());
+        }
     }
 
     public CommandAlias getAlias(final int aliasId) {

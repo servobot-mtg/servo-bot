@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
+import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
 import com.ryan_mtg.servobot.data.models.CommandAlertRow;
 import com.ryan_mtg.servobot.data.models.CommandAliasRow;
@@ -25,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -102,52 +103,22 @@ public class CommandTableSerializer {
     }
 
     public void saveCommandTable(final CommandTable commandTable, final int botHomeId) {
-        Collection<CommandAlias> aliases = commandTable.getAliases();
         Set<MessageCommand> aliasedCommands = new HashSet<>();
 
-        for(CommandAlias alias : aliases) {
-            MessageCommand command = commandTable.getCommand(alias.getAlias());
-            aliasedCommands.add(command);
-        }
-
-        for(MessageCommand command : aliasedCommands) {
+        for(Command command : commandTable.getCommands()) {
             commandSerializer.saveCommand(botHomeId, command);
         }
 
-        for(CommandAlias alias : aliases) {
-            Command command = commandTable.getCommand(alias.getAlias());
-            commandSerializer.saveCommandAlias(command.getId(), alias);
-        }
-
-        Set<Command> triggeredCommands = new HashSet<>();
-
-        List<CommandEvent> events = commandTable.getEvents();
-        for (CommandEvent event : events) {
-            triggeredCommands.addAll(commandTable.getCommands(event.getEventType(), Command.class));
-        }
-
-        for(Command command : triggeredCommands) {
-            commandSerializer.saveCommand(botHomeId, command);
-        }
-
-        for (CommandEvent event : events) {
-            Command command = commandTable.getCommand(event);
-            CommandEventRow eventRow = new CommandEventRow(event.getId(), command.getId(), event.getEventType());
-            commandEventRepository.save(eventRow);
+        for(Trigger trigger : commandTable.getTriggers()) {
+            Command command = commandTable.getCommand(trigger);
+            commandSerializer.saveTrigger(command.getId(), trigger);
         }
     }
 
     public void commit(final int botHomeId, final CommandTableEdit commandTableEdit) {
-        for (CommandAlias commandAlias : commandTableEdit.getDeletedAliases()) {
-            commandAliasRepository.deleteById(commandAlias.getId());
-        }
-
-        for (CommandEvent commandEvent : commandTableEdit.getDeletedEvents()) {
-            commandEventRepository.deleteById(commandEvent.getId());
-        }
-
-        for (CommandAlert commandAlert : commandTableEdit.getDeletedAlerts()) {
-            commandAlertRepository.deleteById(commandAlert.getId());
+        TriggerDeletionVisitor triggerDeletionVisitor = new TriggerDeletionVisitor();
+        for (Trigger trigger : commandTableEdit.getDeletedTriggers()) {
+            trigger.acceptVisitor(triggerDeletionVisitor);
         }
 
         for (Command command : commandTableEdit.getDeletedCommands()) {
@@ -159,9 +130,26 @@ public class CommandTableSerializer {
             commandTableEdit.commandSaved(command);
         }
 
-        for (Map.Entry<CommandAlias, Integer> aliasEntry : commandTableEdit.getSavedAliases().entrySet()) {
-            commandSerializer.saveCommandAlias(aliasEntry.getValue(), aliasEntry.getKey());
-            commandTableEdit.aliasSaved(aliasEntry.getKey());
+        for (Map.Entry<Trigger, Integer> aliasEntry : commandTableEdit.getSavedTriggers().entrySet()) {
+            commandSerializer.saveTrigger(aliasEntry.getValue(), aliasEntry.getKey());
+            commandTableEdit.triggerSaved(aliasEntry.getKey());
+        }
+    }
+
+    private class TriggerDeletionVisitor implements TriggerVisitor {
+        @Override
+        public void visitCommandAlias(final CommandAlias commandAlias) {
+            commandAliasRepository.deleteById(commandAlias.getId());
+        }
+
+        @Override
+        public void visitCommandEvent(final CommandEvent commandEvent) {
+            commandEventRepository.deleteById(commandEvent.getId());
+        }
+
+        @Override
+        public void visitCommandAlert(final CommandAlert commandAlert) {
+            commandAlertRepository.deleteById(commandAlert.getId());
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.events;
 
+import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.HomeCommand;
@@ -41,22 +42,23 @@ public class CommandListener implements EventListener {
             return;
         }
 
-        String command = firstToken.substring(1);
+        String commandString = firstToken.substring(1);
 
         scanner.useDelimiter("\\z");
         String arguments = scanner.hasNext() ? scanner.next().trim() : null;
 
-        MessageCommand messageCommand = commandTable.getCommand(command);
+        Command command = commandTable.getCommand(commandString);
 
-        if (messageCommand != null) {
+        if (command instanceof MessageCommand) {
+            MessageCommand messageCommand = (MessageCommand) command;
             LOGGER.info("Peforming " + command + " for " + sender.getName() + " with arguments " + arguments);
             if (hasPermissions(messageSentEvent.getHome(), sender, messageCommand)) {
                 messageCommand.perform(messageSentEvent, arguments);
             } else {
                 throw new BotErrorException(String.format("%s is not allowed to %s.", sender.getName(), command));
             }
-        } else {
-            messageSentEvent.getHomeEditor().addSuggestion(command);
+        } else if (command == null){
+            messageSentEvent.getHomeEditor().addSuggestion(commandString);
             LOGGER.warn("Unknown command " + command + " for " + messageSentEvent.getSender().getName() + " with arguments " + arguments);
         }
     }
@@ -77,7 +79,8 @@ public class CommandListener implements EventListener {
 
     @Override
     public void onAlert(final AlertEvent alertEvent) {
-        for (HomeCommand command : commandTable.getCommandsFromAlertToken(alertEvent.getAlertToken())) {
+        for (HomeCommand command :
+                commandTable.getCommandsFromAlertToken(alertEvent.getAlertToken(), HomeCommand.class)) {
             command.perform(alertEvent.getHome());
         }
     }

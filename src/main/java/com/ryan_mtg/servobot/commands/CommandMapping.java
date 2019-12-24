@@ -3,34 +3,19 @@ package com.ryan_mtg.servobot.commands;
 import java.util.Map;
 
 public class CommandMapping {
-    private Map<Integer, Command> idtoCommandMap;
-    private Map<CommandAlias, MessageCommand> aliasCommandMap;
-    private Map<CommandEvent, Command> eventCommandMap;
-    private Map<CommandAlert, HomeCommand> alertCommandMap;
+    private Map<Integer, Command> idToCommandMap;
+    private Map<Trigger, Command> triggerCommandMap;
 
-    public CommandMapping(final Map<Integer, Command> idToCommandMap,
-                          final Map<CommandAlias, MessageCommand> aliasCommandMap,
-                          final Map<CommandEvent, Command> eventCommandMap,
-                          final Map<CommandAlert, HomeCommand> alertCommandMap) {
-        this.idtoCommandMap = idToCommandMap;
-        this.aliasCommandMap = aliasCommandMap;
-        this.eventCommandMap = eventCommandMap;
-        this.alertCommandMap = alertCommandMap;
+    public CommandMapping(final Map<Integer, Command> idToCommandMap, final Map<Trigger, Command> triggerCommandMap) {
+        this.idToCommandMap = idToCommandMap;
+        this.triggerCommandMap = triggerCommandMap;
     }
 
-    public Map<Integer, Command> getIdtoCommandMap() {
-        return idtoCommandMap;
+    public Map<Integer, Command> getIdToCommandMap() {
+        return idToCommandMap;
     }
 
-    public Map<CommandAlias, MessageCommand> getAliasCommandMap() {
-        return aliasCommandMap;
-    }
-
-    public Map<CommandEvent, Command> getEventCommandMap() {
-        return eventCommandMap;
-    }
-
-    public Map<CommandAlert, HomeCommand> getAlertCommandMap() {
-        return alertCommandMap;
+    public Map<Trigger, Command> getTriggerCommandMap() {
+        return triggerCommandMap;
     }
 }

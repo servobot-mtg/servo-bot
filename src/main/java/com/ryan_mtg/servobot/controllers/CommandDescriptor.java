@@ -20,6 +20,8 @@ import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
+import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.TriggerVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,24 +64,33 @@ public class CommandDescriptor {
         return aliases;
     }
 
-    public void addAlias(final CommandAlias alias) {
-        aliases.add(alias);
-    }
-
     public List<CommandEvent> getEvents() {
         return events;
-    }
-
-    public void addEvent(final CommandEvent event) {
-        events.add(event);
     }
 
     public List<CommandAlert> getAlerts() {
         return alerts;
     }
 
-    public void addAlert(final CommandAlert alert) {
-        alerts.add(alert);
+    public void addTrigger(final Trigger trigger) {
+        trigger.acceptVisitor(new TriggerAddingVisitor());
+    }
+
+    private class TriggerAddingVisitor implements TriggerVisitor {
+        @Override
+        public void visitCommandAlias(final CommandAlias commandAlias) {
+            aliases.add(commandAlias);
+        }
+
+        @Override
+        public void visitCommandEvent(final CommandEvent commandEvent) {
+            events.add(commandEvent);
+        }
+
+        @Override
+        public void visitCommandAlert(final CommandAlert commandAlert) {
+            alerts.add(commandAlert);
+        }
     }
 
     private class DescriptorVisitor implements CommandVisitor {

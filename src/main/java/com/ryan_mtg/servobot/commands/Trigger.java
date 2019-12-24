@@ -1,19 +1,22 @@
 package com.ryan_mtg.servobot.commands;
 
-public class Trigger {
-    private int id;
-    private String alias;
+public abstract class Trigger {
+    public static final int UNREGISTERED_ID = 0;
 
-    public Trigger(final int id, final String alias) {
+    private int id;
+
+    public Trigger(final int id) {
         this.id = id;
-        this.alias = alias;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getAlias() {
-        return alias;
+    public void setId(final int id) {
+        this.id = id;
     }
+
+    public abstract int getType();
+    public abstract void acceptVisitor(TriggerVisitor triggerVisitor);
 }
