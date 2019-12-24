@@ -166,6 +166,54 @@ async function postStopHome(botHomeId) {
     }
 }
 
+function showAddTriggerForm(commandId) {
+    const label = 'add-trigger-' + commandId;
+    hideElementById(label + '-button');
+
+    document.getElementById(label + '-text-input').value = '';
+    showElementInlineById(label + '-form');
+}
+
+function addTrigger(botHomeId, commandId) {
+    const text = document.getElementById('add-trigger-' + commandId + '-text-input').value;
+    postAddTrigger(botHomeId, commandId, text);
+}
+
+async function postAddTrigger(botHomeId, commandId, text) {
+    const label = 'add-trigger-' + commandId;
+    const parameters = {botHomeId: botHomeId, commandId: commandId, text: text};
+    let response = await makePost('/api/add_trigger', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let addTriggerResponse = await response.json();
+        addTriggerTable(addTriggerResponse.addedTrigger, botHomeId, commandId);
+    }
+}
+
+function addTriggerTable(trigger, botHomeId, commandId) {
+    const label = 'alias-triggers-' + commandId;
+    let aliasTriggersSpan = document.getElementById(label);
+
+    let triggerTable = document.createElement('table');
+    triggerTable.classList.add('alias-label', 'label', 'label-table');
+    triggerTable.id = 'alias-' + trigger.id;
+    let row = triggerTable.insertRow();
+    let aliasCell = row.insertCell();
+    aliasCell.innerHTML = trigger.alias;
+
+    let deleteCell = row.insertCell();
+    deleteCell.classList.add('pseudo-link', 'alias-delete');
+    deleteCell.innerHTML = 'x';
+    deleteCell.onclick = function() {
+        deleteAlias(botHomeId, trigger.id);
+    }
+
+    aliasTriggersSpan.appendChild(triggerTable);
+}
+
 function showAddStatementForm() {
     hideElementById('add-statement-button');
 
@@ -199,7 +247,7 @@ function addStatementRow(statement, botHomeId, bookId) {
     const label = 'statement-' + statement.id;
     newRow.id = label + '-row';
 
-    let displayDiv = document.createElement("div");
+    let displayDiv = document.createElement('div');
     displayDiv.id = label + '-display';
     let textSpan = document.createElement('span');
     textSpan.id = label + '-value';
@@ -213,7 +261,7 @@ function addStatementRow(statement, botHomeId, bookId) {
     editButtonSpan.innerHTML = penIcon;
     displayDiv.appendChild(editButtonSpan);
 
-    let editDiv = document.createElement("div");
+    let editDiv = document.createElement('div');
     editDiv.id = label + '-edit';
     editDiv.classList.add('hidden');
 

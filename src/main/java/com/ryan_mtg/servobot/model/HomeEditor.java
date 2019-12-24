@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.ryan_mtg.servobot.model.GameQueue.EMPTY_QUEUE;
@@ -90,6 +92,25 @@ public class HomeEditor {
             throw new BotErrorException(String.format("Command '%d' not found.", commandId));
         }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    public List<Trigger> addTrigger(final int commandId, final int triggerType, final String text) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandTableEdit commandTableEdit = commandTable.addTrigger(commandId, triggerType, text);
+
+        if (commandTableEdit.getSavedAliases().size() != 1) {
+            throw new BotErrorException(String.format("Trigger '%s' not added.", text));
+        }
+
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        CommandAlias commandAlias = commandTableEdit.getSavedAliases().keySet().iterator().next();
+        List<Trigger> response = new ArrayList<>();
+        response.add(new Trigger(commandAlias.getId(), commandAlias.getAlias()));
+        if (!commandTableEdit.getDeletedAliases().isEmpty()) {
+            CommandAlias deletedCommandAlias = commandTableEdit.getDeletedAliases().get(0);
+            response.add(new Trigger(deletedCommandAlias.getId(), deletedCommandAlias.getAlias()));
+        }
+        return response;
     }
 
     public void deleteAlias(final int aliasId) throws BotErrorException {
@@ -391,5 +412,4 @@ public class HomeEditor {
         book.addStatement(statement);
         return statement;
     }
-
 }

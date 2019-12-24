@@ -61,19 +61,16 @@ public class CommandTable {
 
     public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
-        String canonicalAlias=canonicalize(alias);
-
-        commandMap.put(canonicalAlias, newCommand);
-        CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, alias);
-        aliasMap.put(canonicalAlias, commandAlias);
-        aliasCommandMap.put(commandAlias, newCommand);
-        reverseAliasMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(commandAlias);
-
-        commandTableEdit.save(newCommand, commandAlias, command -> registerCommand(command));
+        CommandAlias commandAlias = createAlias(newCommand, alias);
+        commandTableEdit.save(newCommand, commandAlias, this::registerCommand, this::aliasSaved);
         return commandTableEdit;
     }
 
     public CommandTableEdit deleteCommand(final String alias) {
+        return deleteAlias(alias, true);
+    }
+
+    private CommandTableEdit deleteAlias(final String alias, final boolean deleteUnreferencedCommand) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
         String canonicalAlias=canonicalize(alias);
 
@@ -83,7 +80,7 @@ public class CommandTable {
             List<CommandAlias> oldCommandsAliases = reverseAliasMap.get(command);
 
             oldCommandsAliases.remove(commandAlias);
-            if (oldCommandsAliases.isEmpty()) {
+            if (oldCommandsAliases.isEmpty() && deleteUnreferencedCommand) {
                 commandTableEdit.delete(command);
                 reverseAliasMap.remove(command);
 
@@ -139,6 +136,16 @@ public class CommandTable {
         }
 
         return commandTableEdit;
+    }
+
+    public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text) {
+        MessageCommand newCommand = (MessageCommand) idToCommandMap.get(commandId);
+
+        CommandTableEdit commandTableEdit = deleteAlias(text, false);
+        CommandAlias commandAlias = createAlias(newCommand, text);
+        commandTableEdit.save(commandId, commandAlias, this::aliasSaved);
+        return commandTableEdit;
+
     }
 
     public CommandTableEdit deleteAlias(final CommandAlias commandAlias) {
@@ -225,14 +232,6 @@ public class CommandTable {
         return new ArrayList<>();
     }
 
-    private HomeCommand getCommand(final CommandAlert alert) {
-        return alertCommandMap.get(alert);
-    }
-
-    private String canonicalize(final String token) {
-        return isCaseSensitive ? token : token.toLowerCase();
-    }
-
     public void setTimeZone(final String timeZone) {
         for (AlertGenerator alertGenerator : alertGenerators) {
             alertGenerator.setTimeZone(timeZone);
@@ -249,6 +248,28 @@ public class CommandTable {
         Command command = idToCommandMap.get(commandId);
         command.setPermission(permission);
         return command;
+    }
+
+    private HomeCommand getCommand(final CommandAlert alert) {
+        return alertCommandMap.get(alert);
+    }
+
+    private String canonicalize(final String token) {
+        return isCaseSensitive ? token : token.toLowerCase();
+    }
+
+    private CommandAlias createAlias(final MessageCommand newCommand, final String text) {
+        String canonicalAlias=canonicalize(text);
+        commandMap.put(canonicalAlias, newCommand);
+        CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, text);
+        aliasMap.put(canonicalAlias, commandAlias);
+        reverseAliasMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(commandAlias);
+        return commandAlias;
+    }
+
+    private void aliasSaved(final int commandId, final CommandAlias commandAlias) {
+        MessageCommand command = (MessageCommand) idToCommandMap.get(commandId);
+        aliasCommandMap.put(commandAlias, command);
     }
 
     private void deleteAlias(final CommandAlias commandAlias, final CommandTableEdit commandTableEdit) {

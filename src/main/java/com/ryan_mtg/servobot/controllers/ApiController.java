@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -9,9 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class ApiController {
@@ -144,6 +148,50 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/api/add_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public AddTriggerResponse addTrigger(@RequestBody final AddTriggerRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        List<Trigger> a = homeEditor.addTrigger(request.getCommandId(), request.getTriggerType(), request.getText());
+        return new AddTriggerResponse(a.get(0), a.size() > 1 ? a.get(1): null);
+    }
+
+    public static class AddTriggerRequest extends BotHomeRequest {
+        private int commandId;
+        private int triggerType;
+        private String text;
+
+        public int getCommandId() {
+            return commandId;
+        }
+
+        public int getTriggerType() {
+            return triggerType;
+        }
+
+        public String getText() {
+            return text;
+        }
+    }
+
+    public static class AddTriggerResponse {
+        private Trigger addedTrigger;
+        private Trigger deletedTrigger;
+
+        public AddTriggerResponse(final Trigger addedTrigger, final Trigger deletedTrigger) {
+            this.addedTrigger = addedTrigger;
+            this.deletedTrigger = deletedTrigger;
+        }
+
+        public Trigger getAddedTrigger() {
+            return addedTrigger;
+        }
+
+        public Trigger getDeletedTrigger() {
+            return deletedTrigger;
+        }
+    }
+
     @PostMapping(value = "/api/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteCommand(@RequestBody final DeleteObjectRequest request) {
@@ -214,5 +262,23 @@ public class ApiController {
 
     private HomeEditor getHomeEditor(final int botHomeId) {
         return bot.getHomeEditor(botHomeId);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public BotError botErrorHandler(final Exception exception) {
+        exception.printStackTrace();
+        return new BotError(exception.getMessage());
+    }
+
+    public class BotError {
+        private String message;
+
+        public BotError(final String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 }

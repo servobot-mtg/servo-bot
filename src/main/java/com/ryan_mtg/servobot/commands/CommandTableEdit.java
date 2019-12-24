@@ -2,8 +2,10 @@ package com.ryan_mtg.servobot.commands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class CommandTableEdit {
@@ -12,8 +14,10 @@ public class CommandTableEdit {
     private List<CommandAlias> deletedAliases = new ArrayList<>();
     private List<CommandEvent> deletedEvents = new ArrayList<>();
     private List<CommandAlert> deletedAlerts = new ArrayList<>();
-    private Map<Command, CommandAlias> savedAliases = new HashMap<>();
-    private Map<Command, Consumer<Command>> callbackMap = new HashMap<>();
+    private Map<CommandAlias, Integer> savedAliases = new IdentityHashMap<>();
+    private Map<Command, CommandAlias> savedCommandToAliasMap = new HashMap<>();
+    private Map<Command, Consumer<Command>> commandSaveCallbackMap = new HashMap<>();
+    private Map<CommandAlias, BiConsumer<Integer, CommandAlias>> aliasSaveCallbackMap = new IdentityHashMap<>();
 
     public void delete(final Command command) {
         deletedCommands.add(command);
@@ -31,10 +35,19 @@ public class CommandTableEdit {
         deletedAlerts.add(commandAlert);
     }
 
-    public void save(final Command command, final CommandAlias commandAlias, final Consumer<Command> saveCallback) {
+    public void save(final Command command, final CommandAlias commandAlias,
+                     final Consumer<Command> commandSaveCallback,
+                     final BiConsumer<Integer, CommandAlias> aliasSaveCallback) {
         savedCommands.add(command);
-        savedAliases.put(command, commandAlias);
-        callbackMap.put(command, saveCallback);
+        savedCommandToAliasMap.put(command, commandAlias);
+        commandSaveCallbackMap.put(command, commandSaveCallback);
+        aliasSaveCallbackMap.put(commandAlias, aliasSaveCallback);
+    }
+
+    public void save(final int commandId, final CommandAlias commandAlias,
+                     final BiConsumer<Integer, CommandAlias> aliasSaveCallback) {
+        savedAliases.put(commandAlias, commandId);
+        aliasSaveCallbackMap.put(commandAlias, aliasSaveCallback);
     }
 
     public List<Command> getDeletedCommands() {
@@ -46,11 +59,18 @@ public class CommandTableEdit {
     }
 
     public void commandSaved(final Command command) {
-        callbackMap.get(command).accept(command);
+        if (savedCommandToAliasMap.containsKey(command)) {
+            savedAliases.put(savedCommandToAliasMap.get(command), command.getId());
+        }
+        commandSaveCallbackMap.get(command).accept(command);
     }
 
-    public CommandAlias getSavedAlias(final Command messageCommand) {
-        return savedAliases.get(messageCommand);
+    public void aliasSaved(final CommandAlias commandAlias) {
+        aliasSaveCallbackMap.get(commandAlias).accept(savedAliases.get(commandAlias), commandAlias);
+    }
+
+    public Map<CommandAlias, Integer> getSavedAliases() {
+        return savedAliases;
     }
 
     public List<CommandAlias> getDeletedAliases() {

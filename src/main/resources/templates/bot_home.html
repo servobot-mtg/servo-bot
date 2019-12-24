@@ -120,17 +120,19 @@
                     <td th:text="${descriptor.type}"/>
                     <td th:text="${descriptor.description}"/>
                     <td>
-                        <th:block th:each="alias : ${descriptor.aliases}">
-                            <span th:if="${!privledged}" class="alias-label label" th:text="${alias.alias}"/>
-                            <table th:if="${privledged}" class="alias-label label label-table"
-                                   th:id="${'alias-' + alias.id}">
-                                <tr>
-                                    <td th:text="${alias.alias}"/>
-                                    <td class="pseudo-link alias-delete"
-                                        th:onclick="'deleteAlias(' + ${botHome.id} + ',' + ${alias.id} + ')'">x</td>
-                                </tr>
-                            </table>
-                        </th:block>
+                        <span th:id="'alias-triggers-' + ${command.id}">
+                            <th:block th:each="alias : ${descriptor.aliases}">
+                                <span th:if="${!privledged}" class="alias-label label" th:text="${alias.alias}"/>
+                                <table th:if="${privledged}" class="alias-label label label-table"
+                                       th:id="${'alias-' + alias.id}">
+                                    <tr>
+                                        <td th:text="${alias.alias}"/>
+                                        <td class="pseudo-link alias-delete"
+                                            th:onclick="'deleteAlias(' + ${botHome.id} + ',' + ${alias.id} + ')'">x</td>
+                                    </tr>
+                                </table>
+                            </th:block>
+                        </span>
 
                         <th:block th:each="event : ${descriptor.events}">
                             <span th:if="${!privledged}" class="event-label label" th:text="${event.eventType}"/>
@@ -159,6 +161,17 @@
                                 </tr>
                             </table>
                         </th:block>
+                        <span class="add-trigger" th:with="label=${'add-trigger-' + command.id}">
+                            <div th:if="${privledged}" th:id="${label} + '-button'" class="pseudo-link add-button"
+                                 th:onclick="'showAddTriggerForm(' + ${command.id} + ')'" title="Add a trigger">
+                                +
+                            </div>
+                            <form th:id="${label} + '-form'" class="add-trigger-form hidden"
+                                  th:onsubmit="'addTrigger(' + ${botHome.id} + ', ' + ${command.id} + '); return false;'">
+                                <input th:id="${label} + '-text-input'" type="text" name="trigger" size="5">
+                                <input type="submit" value="+">
+                            </form>
+                        </span>
                     </td>
 
                     <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"

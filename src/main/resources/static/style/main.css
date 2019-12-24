@@ -202,26 +202,31 @@ table {
     padding: 7px;
 }
 
-.add-button {
+.add-statement {
+    --add-button-size: 24px;
     margin: 12px;
+}
 
-    height: 24px;
-    width: 24px;
+.add-button {
+    height: var(--add-button-size, 12px);
+    width: var(--add-button-size, 12px);
     display: inline-block;
     background-color: white;
-    color: slateblue;
-    font-size: 24px;
+    color: midnightblue;
     font-weight: bold;
-    line-height: 24px;
+    line-height: var(--add-button-size, 12px);
     text-align: center;
-    border: slateblue solid 2px;
+    border: midnightblue solid 2px;
     border-radius: 50%;
+}
+
+.add-trigger-form {
 }
 
 .add-form {
     margin: 12px;
     padding: 12px;
-    border: slateblue solid 2px;
+    border: midnightblue solid 2px;
     width: border-box;
 }
 
