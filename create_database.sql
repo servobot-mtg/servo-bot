@@ -33,13 +33,6 @@ CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KE
 CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
                                           alert_token VARCHAR(50));
 
-CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER,
-                                            bot_home_id INTEGER, time INTEGER, time_zone VARCHAR(50),
-                                            alert_token VARCHAR(50));
-
-CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
-                                          alert_token VARCHAR(50));
-
 CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, admin BIT, twitch_id INTEGER, discord_id BIGINT,
                                  twitch_username VARCHAR(50), discord_username VARCHAR(50), arena_username VARCHAR(50));
 
@@ -55,3 +48,6 @@ CREATE TABLE IF NOT EXISTS game_queue (id INTEGER AUTO_INCREMENT PRIMARY KEY, bo
                                        state INTEGER, next INTEGER, current_player_id INTEGER);
 
 CREATE TABLE IF NOT EXISTS game_queue_entry (game_queue_id INTEGER, spot INTEGER, user_id INTEGER);
+
+CREATE TABLE IF NOT EXISTS command_trigger (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, command_id INTEGER,
+                                            text VARCHAR(50));

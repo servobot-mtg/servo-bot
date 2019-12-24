@@ -8,38 +8,41 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "command_alias")
-public class CommandAliasRow {
+@Table(name = "command_trigger")
+public class TriggerRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    private int type;
+
     @Column(name = "command_id")
     private int commandId;
 
-    private String alias;
+    private String text;
 
-    public CommandAliasRow() {}
+    public TriggerRow() {}
 
-    public CommandAliasRow(final int id, final int commandId, final String alias) {
+    public TriggerRow(final int id, final int type, final int commandId, final String text) {
         this.id = id;
+        this.type = type;
         this.commandId = commandId;
-        this.alias = alias;
+        this.text = text;
     }
 
     public int getId() {
         return id;
     }
 
+    public int getType() {
+        return type;
+    }
+
     public int getCommandId() {
         return commandId;
     }
 
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public String getText() {
+        return text;
     }
 }
