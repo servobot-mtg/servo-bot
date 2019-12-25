@@ -5,9 +5,11 @@ import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandEvent;
+import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
+import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -47,49 +50,49 @@ public class CommandSerializer {
 
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
         int id = commandRow.getId();
+        boolean isSecure = commandRow.isSecure();
+        Permission permission = commandRow.getPermission();
         switch (commandRow.getType()) {
             case AddCommand.TYPE:
-                return new AddCommand(id, commandRow.isSecure(), commandRow.getPermission());
+                return new AddCommand(id, isSecure, permission);
             case AddStatementCommand.TYPE:
-                return new AddStatementCommand(id, commandRow.isSecure(), commandRow.getPermission());
+                return new AddStatementCommand(id, isSecure, permission);
+            case DelayedAlertCommand.TYPE:
+                return new DelayedAlertCommand(id, isSecure, permission,
+                        Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter());
             case DeleteCommand.TYPE:
-                return new DeleteCommand(id, commandRow.isSecure(), commandRow.getPermission());
+                return new DeleteCommand(id, isSecure, permission);
             case TextCommand.TYPE:
-                return new TextCommand(id, commandRow.isSecure(), commandRow.getPermission(),
-                                       commandRow.getStringParameter());
+                return new TextCommand(id, isSecure, permission, commandRow.getStringParameter());
             case FactsCommand.TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
-                return new FactsCommand(id, commandRow.isSecure(), commandRow.getPermission(), bookMap.get(bookId));
+                return new FactsCommand(id, isSecure, permission, bookMap.get(bookId));
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new GameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(), gameQueueId);
+                return new GameQueueCommand(id, isSecure, permission, gameQueueId);
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new JoinGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(), gameQueueId);
+                return new JoinGameQueueCommand(id, isSecure, permission, gameQueueId);
             case MessageChannelCommand.TYPE:
-                return new MessageChannelCommand(id, commandRow.isSecure(), commandRow.getPermission(),
-                        commandRow.getLongParameter().intValue(), commandRow.getStringParameter(),
-                        commandRow.getStringParameter2());
+                return new MessageChannelCommand(id, isSecure, permission, commandRow.getLongParameter().intValue(),
+                        commandRow.getStringParameter(), commandRow.getStringParameter2());
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new RemoveFromGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(),
-                        gameQueueId);
+                return new RemoveFromGameQueueCommand(id, isSecure, permission, gameQueueId);
             case SetArenaUsernameCommand.TYPE:
-                return new SetArenaUsernameCommand(id, commandRow.isSecure(), commandRow.getPermission());
+                return new SetArenaUsernameCommand(id, isSecure, permission);
             case SetRoleCommand.TYPE:
-                return new SetRoleCommand(id, commandRow.isSecure(), commandRow.getPermission(),
-                        commandRow.getStringParameter());
+                return new SetRoleCommand(id, isSecure, permission, commandRow.getStringParameter());
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
-                return new SetStatusCommand(id, commandRow.isSecure(), commandRow.getPermission(),
-                        bookMap.get(bookId));
+                return new SetStatusCommand(id, isSecure, permission, bookMap.get(bookId));
             case ShowArenaUsernamesCommand.TYPE:
-                return new ShowArenaUsernamesCommand(id, commandRow.isSecure(), commandRow.getPermission());
+                return new ShowArenaUsernamesCommand(id, isSecure, permission);
             case ShowGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new ShowGameQueueCommand(id, commandRow.isSecure(), commandRow.getPermission(), gameQueueId);
+                return new ShowGameQueueCommand(id, isSecure, permission, gameQueueId);
             case TierCommand.TYPE:
-                return new TierCommand(id, commandRow.isSecure(), commandRow.getPermission());
+                return new TierCommand(id, isSecure, permission);
         }
         throw new IllegalArgumentException("Unsupported command type: " + commandRow.getType());
     }
@@ -177,6 +180,14 @@ public class CommandSerializer {
         @Override
         public void visitAddStatementCommand(final AddStatementCommand addStatementCommand) {
             saveCommand(addStatementCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitDelayedAlertCommand(final DelayedAlertCommand delayedAlertCommand) {
+            saveCommand(delayedAlertCommand, commandRow -> {
+                commandRow.setLongParameter(delayedAlertCommand.getDelay().getSeconds());
+                commandRow.setStringParameter(delayedAlertCommand.getAlertToken());
+            });
         }
 
         @Override

@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -145,6 +146,10 @@ public class HomeEditor {
                 bookSerializer.saveStatement(bookId, statement);
             });
         });
+    }
+
+    public void scheduleAlert(final Duration delay, final String alertToken) {
+        bot.getAlertQueue().scheduleAlert(botHome, delay, alertToken);
     }
 
     public void alert(final String alertToken) {

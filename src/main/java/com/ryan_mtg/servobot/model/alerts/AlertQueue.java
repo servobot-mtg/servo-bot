@@ -10,8 +10,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,18 +22,28 @@ public class AlertQueue {
 
     private Bot bot;
     boolean active = false;
-    private Map<AlertGenerator, Alertable> alertableMap = new HashMap<>();
+    private Map<AlertGenerator, RepeatingAlertable> alertableMap = new HashMap<>();
+    private Set<Alertable> alertables = new HashSet<>();
     private Timer timer = new Timer();
 
     public AlertQueue(final Bot bot) {
         this.bot = bot;
     }
 
+    public void scheduleAlert(final BotHome botHome, final Duration waitTime, final String alertToken) {
+        if (active) {
+            Alertable alertable = new OneShotAlertable(botHome, waitTime, alertToken);
+            alertables.add(alertable);
+            alertable.schedule(Instant.now());
+        }
+    }
+
     public void update(final BotHome home) {
         Instant now = Instant.now();
         for (AlertGenerator alertGenerator : home.getAlertGenerators()) {
-            Alertable alertable = alertableMap.computeIfAbsent(alertGenerator,
-                    ag -> new Alertable(home, alertGenerator));
+            RepeatingAlertable alertable = alertableMap.computeIfAbsent(alertGenerator,
+                    ag -> new RepeatingAlertable(home, alertGenerator));
+            alertables.add(alertable);
             if (active) {
                 alertable.update(now);
             }
@@ -40,10 +52,11 @@ public class AlertQueue {
 
     public void remove(final BotHome home) {
         List<AlertGenerator> alertGeneratorsToRemove = new ArrayList<>();
-        for (Map.Entry<AlertGenerator, Alertable> entry : alertableMap.entrySet()) {
-            Alertable alertable = entry.getValue();
-            if (alertable !=  null && alertable.getHome() == home) {
+        for (Map.Entry<AlertGenerator, RepeatingAlertable> entry : alertableMap.entrySet()) {
+            RepeatingAlertable alertable = entry.getValue();
+            if (alertable != null && alertable.getHome() == home) {
                 alertable.cancel();
+                alertables.remove(alertable);
                 alertGeneratorsToRemove.add(entry.getKey());
             }
         }
@@ -60,15 +73,60 @@ public class AlertQueue {
 
     public void stop() {
         active = false;
+        for (Alertable alertable : alertables) {
+            alertable.cancel();
+        }
         timer.cancel();
     }
 
-    private class Alertable {
+    private interface Alertable {
+        void alert();
+        void schedule(final Instant now);
+        void cancel();
+    }
+
+    private class OneShotAlertable implements Alertable {
+        private BotHome botHome;
+        private Duration waitTime;
+        private String alertToken;
+        private AlertTask alertTask;
+
+        public OneShotAlertable(final BotHome botHome, final Duration waitTime, final String alertToken) {
+            this.botHome = botHome;
+            this.waitTime = waitTime;
+            this.alertToken = alertToken;
+        }
+
+        @Override
+        public void alert() {
+            LOGGER.info("Alerting {}", alertToken);
+            bot.getHomeEditor(botHome.getId()).alert(alertToken);
+            alertables.remove(this);
+            alertTask = null;
+        }
+
+        @Override
+        public void schedule(final Instant now) {
+            Instant goal = now.plus(waitTime);
+
+            alertTask = new AlertTask(this, goal);
+            timer.schedule(alertTask, waitTime.toMillis());
+        }
+
+        @Override
+        public void cancel() {
+            if (alertTask != null) {
+                alertTask.kill();
+            }
+        }
+    }
+
+    private class RepeatingAlertable implements Alertable {
         private BotHome home;
         private AlertGenerator generator;
         private AlertTask alertTask;
 
-        public Alertable(final BotHome home, final AlertGenerator generator) {
+        public RepeatingAlertable(final BotHome home, final AlertGenerator generator) {
             this.home = home;
             this.generator = generator;
         }
@@ -77,6 +135,7 @@ public class AlertQueue {
             return home;
         }
 
+        @Override
         public void alert() {
             LOGGER.info("Alerting {}", generator.getAlertToken());
             bot.getHomeEditor(home.getId()).alert(generator.getAlertToken());
@@ -96,6 +155,7 @@ public class AlertQueue {
             }
         }
 
+        @Override
         public void schedule(final Instant now) {
             Instant goal = generator.getNextAlertTime(now);
             Duration wait = Duration.between(now, goal);
@@ -110,6 +170,7 @@ public class AlertQueue {
             timer.schedule(alertTask, wait.toMillis());
         }
 
+        @Override
         public void cancel() {
             if (alertTask != null) {
                 alertTask.kill();

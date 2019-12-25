@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
+import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
 import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
@@ -120,6 +121,14 @@ public class CommandDescriptor {
         public void visitAddStatementCommand(final AddStatementCommand addStatementCommand) {
             type = "Add Statement Command";
             description = "Used to make new statements";
+        }
+
+        @Override
+        public void visitDelayedAlertCommand(final DelayedAlertCommand delayedAlertCommand) {
+            type = "Delayed Alert Command";
+            description = String.format("Alerts '%s' after %s", delayedAlertCommand.getAlertToken(),
+                    delayedAlertCommand.getDelay().toString());
+            edit = delayedAlertCommand.getAlertToken();
         }
 
         @Override

@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.commands;
 public interface CommandVisitor {
     void visitAddCommand(AddCommand addCommand);
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);
+    void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
     void visitFactsCommand(FactsCommand factsCommand);
     void visitGameQueueCommand(GameQueueCommand gameQueueCommand);

@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,5 +97,6 @@ public class Bot {
 
         homes.stream().forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
         alertQueue.start();
+        homes.stream().forEach(home -> alertQueue.scheduleAlert(home, Duration.ofSeconds(30), "startup"));
     }
 }
