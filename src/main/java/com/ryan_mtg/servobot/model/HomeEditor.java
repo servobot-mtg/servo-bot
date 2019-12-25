@@ -1,9 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandAlert;
-import com.ryan_mtg.servobot.commands.CommandAlias;
-import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.MessageCommand;
@@ -114,18 +111,15 @@ public class HomeEditor {
     }
 
     public void deleteAlias(final int aliasId) throws BotErrorException {
-        CommandAlias commandAlias = serializers.getCommandSerializer().getAlias(aliasId);
-        deleteTrigger(commandAlias);
+        deleteTrigger(aliasId);
     }
 
     public void deleteEvent(final int eventId) throws BotErrorException {
-        CommandEvent commandEvent = serializers.getCommandSerializer().getCommandEvent(eventId);
-        deleteTrigger(commandEvent);
+        deleteTrigger(eventId);
     }
 
     public void deleteAlert(final int alertId) throws BotErrorException {
-        CommandAlert commandAlert = serializers.getCommandSerializer().getCommandAlert(alertId);
-        deleteTrigger(commandAlert);
+        deleteTrigger(alertId);
     }
 
     public Statement addStatement(final int bookId, final String text) throws BotErrorException {
@@ -395,7 +389,8 @@ public class HomeEditor {
         return statement;
     }
 
-    private void deleteTrigger(final Trigger trigger) throws BotErrorException {
+    private void deleteTrigger(final int triggerId) throws BotErrorException {
+        Trigger trigger = serializers.getCommandSerializer().getTrigger(triggerId);
         CommandTable commandTable = botHome.getCommandTable();
         CommandTableEdit commandTableEdit = commandTable.deleteTrigger(trigger);
 

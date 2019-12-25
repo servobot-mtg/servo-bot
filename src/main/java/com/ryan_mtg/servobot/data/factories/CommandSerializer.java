@@ -16,13 +16,8 @@ import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.commands.TriggerVisitor;
-import com.ryan_mtg.servobot.data.models.CommandAlertRow;
-import com.ryan_mtg.servobot.data.models.CommandAliasRow;
-import com.ryan_mtg.servobot.data.models.CommandEventRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
-import com.ryan_mtg.servobot.data.repositories.CommandAlertRepository;
-import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
-import com.ryan_mtg.servobot.data.repositories.CommandEventRepository;
+import com.ryan_mtg.servobot.data.models.TriggerRow;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
@@ -30,6 +25,7 @@ import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
+import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.model.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +43,7 @@ public class CommandSerializer {
     private CommandRepository commandRepository;
 
     @Autowired
-    private CommandAliasRepository commandAliasRepository;
-
-    @Autowired
-    private CommandEventRepository commandEventRepository;
-
-    @Autowired
-    private CommandAlertRepository commandAlertRepository;
+    private TriggerRepository triggerRepository;
 
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
         int id = commandRow.getId();
@@ -101,7 +91,20 @@ public class CommandSerializer {
             case TierCommand.TYPE:
                 return new TierCommand(id, commandRow.isSecure(), commandRow.getPermission());
         }
-        throw new IllegalArgumentException("Unsupported type: " + commandRow.getType());
+        throw new IllegalArgumentException("Unsupported command type: " + commandRow.getType());
+    }
+
+    public Trigger createTrigger(TriggerRow triggerRow) {
+        int id = triggerRow.getId();
+        switch (triggerRow.getType()) {
+            case CommandAlias.TYPE:
+                return new CommandAlias(id, triggerRow.getText());
+            case CommandEvent.TYPE:
+                return new CommandEvent(id, CommandEvent.Type.valueOf(triggerRow.getText()));
+            case CommandAlert.TYPE:
+                return new CommandAlert(id, triggerRow.getText());
+        }
+        throw new IllegalArgumentException("Unsupported trigger type: " + triggerRow.getType());
     }
 
     public void saveCommand(final int botHomeId, final Command command) {
@@ -126,40 +129,32 @@ public class CommandSerializer {
 
         @Override
         public void visitCommandAlias(final CommandAlias commandAlias) {
-            CommandAliasRow aliasRow = new CommandAliasRow(commandAlias.getId(), commandId, commandAlias.getAlias());
-            commandAliasRepository.save(aliasRow);
+            TriggerRow aliasRow =
+                    new TriggerRow(commandAlias.getId(), CommandAlias.TYPE, commandId, commandAlias.getAlias());
+            triggerRepository.save(aliasRow);
             commandAlias.setId(aliasRow.getId());
         }
 
         @Override
         public void visitCommandEvent(final CommandEvent commandEvent) {
-            CommandEventRow eventRow = new CommandEventRow(commandEvent.getId(), commandId, commandEvent.getEventType());
-            commandEventRepository.save(eventRow);
+            TriggerRow eventRow = new TriggerRow(commandEvent.getId(), CommandEvent.TYPE, commandId,
+                    commandEvent.getEventType().toString());
+            triggerRepository.save(eventRow);
             commandEvent.setId(eventRow.getId());
         }
 
         @Override
         public void visitCommandAlert(CommandAlert commandAlert) {
-            CommandAlertRow alertRow =
-                    new CommandAlertRow(commandAlert.getId(), commandId, commandAlert.getAlertToken());
-            commandAlertRepository.save(alertRow);
+            TriggerRow alertRow =
+                    new TriggerRow(commandAlert.getId(), CommandAlert.TYPE, commandId, commandAlert.getAlertToken());
+            triggerRepository.save(alertRow);
             commandAlert.setId(alertRow.getId());
         }
     }
 
-    public CommandAlias getAlias(final int aliasId) {
-        CommandAliasRow commandAliasRow = commandAliasRepository.findById(aliasId).get();
-        return new CommandAlias(commandAliasRow.getId(), commandAliasRow.getAlias());
-    }
-
-    public CommandEvent getCommandEvent(int eventId) {
-        CommandEventRow commandEventRow = commandEventRepository.findById(eventId).get();
-        return new CommandEvent(commandEventRow.getId(), commandEventRow.getEventType());
-    }
-
-    public CommandAlert getCommandAlert(int alertId) {
-        CommandAlertRow commandAlertRow = commandAlertRepository.findById(alertId).get();
-        return new CommandAlert(commandAlertRow.getId(), commandAlertRow.getAlertToken());
+    public Trigger getTrigger(int triggerId) {
+        TriggerRow triggerRow = triggerRepository.findById(triggerId).get();
+        return createTrigger(triggerRow);
     }
 
     private class CommandSerializationVisitor implements CommandVisitor {

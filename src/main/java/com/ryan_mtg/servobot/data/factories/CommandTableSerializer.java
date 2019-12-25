@@ -1,25 +1,16 @@
 package com.ryan_mtg.servobot.data.factories;
 
-import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.Trigger;
-import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
-import com.ryan_mtg.servobot.data.models.CommandAlertRow;
-import com.ryan_mtg.servobot.data.models.CommandAliasRow;
-import com.ryan_mtg.servobot.data.models.CommandEventRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
+import com.ryan_mtg.servobot.data.models.TriggerRow;
 import com.ryan_mtg.servobot.data.repositories.AlertGeneratorRepository;
-import com.ryan_mtg.servobot.data.repositories.CommandAlertRepository;
-import com.ryan_mtg.servobot.data.repositories.CommandAliasRepository;
-import com.ryan_mtg.servobot.data.repositories.CommandEventRepository;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
 import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandAlias;
-import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
@@ -48,13 +39,7 @@ public class CommandTableSerializer {
     private AlertGeneratorSerializer alertGeneratorSerializer;
 
     @Autowired
-    private CommandAliasRepository commandAliasRepository;
-
-    @Autowired
-    private CommandEventRepository commandEventRepository;
-
-    @Autowired
-    private CommandAlertRepository commandAlertRepository;
+    private TriggerRepository triggerRepository;
 
     @Autowired
     private AlertGeneratorRepository alertGeneratorRepository;
@@ -69,25 +54,9 @@ public class CommandTableSerializer {
 
             commandTable.registerCommand(command);
 
-            Iterable<CommandAliasRow> aliases = commandAliasRepository.findAllByCommandId(commandRow.getId());
-            if (aliases.iterator().hasNext()) {
-                MessageCommand messageCommand = (MessageCommand) command;
-                for (CommandAliasRow alias : aliases) {
-                    commandTable.registerCommand(messageCommand, new CommandAlias(alias.getId(), alias.getAlias()));
-                }
-            }
-
-            Iterable<CommandEventRow> events = commandEventRepository.findAllByCommandId(commandRow.getId());
-            for (CommandEventRow event : events) {
-                commandTable.registerCommand(command, new CommandEvent(event.getId(), event.getEventType()));
-            }
-
-            Iterable<CommandAlertRow> alerts = commandAlertRepository.findAllByCommandId(commandRow.getId());
-            for (CommandAlertRow alert : alerts) {
-                HomeCommand homeCommand = (HomeCommand) command;
-                String alertToken = alert.getAlertToken();
-                commandTable.registerCommand(homeCommand, new CommandAlert(alert.getId(), alert.getAlertToken()));
-                alertTokens.add(alertToken);
+            Iterable<TriggerRow> triggerRows = triggerRepository.findAllByCommandId(commandRow.getId());
+            for (TriggerRow triggerRow : triggerRows) {
+                commandTable.registerCommand(command, commandSerializer.createTrigger(triggerRow));
             }
         }
 
@@ -116,9 +85,8 @@ public class CommandTableSerializer {
     }
 
     public void commit(final int botHomeId, final CommandTableEdit commandTableEdit) {
-        TriggerDeletionVisitor triggerDeletionVisitor = new TriggerDeletionVisitor();
         for (Trigger trigger : commandTableEdit.getDeletedTriggers()) {
-            trigger.acceptVisitor(triggerDeletionVisitor);
+            triggerRepository.deleteById(trigger.getId());
         }
 
         for (Command command : commandTableEdit.getDeletedCommands()) {
@@ -133,23 +101,6 @@ public class CommandTableSerializer {
         for (Map.Entry<Trigger, Integer> aliasEntry : commandTableEdit.getSavedTriggers().entrySet()) {
             commandSerializer.saveTrigger(aliasEntry.getValue(), aliasEntry.getKey());
             commandTableEdit.triggerSaved(aliasEntry.getKey());
-        }
-    }
-
-    private class TriggerDeletionVisitor implements TriggerVisitor {
-        @Override
-        public void visitCommandAlias(final CommandAlias commandAlias) {
-            commandAliasRepository.deleteById(commandAlias.getId());
-        }
-
-        @Override
-        public void visitCommandEvent(final CommandEvent commandEvent) {
-            commandEventRepository.deleteById(commandEvent.getId());
-        }
-
-        @Override
-        public void visitCommandAlert(final CommandAlert commandAlert) {
-            commandAlertRepository.deleteById(commandAlert.getId());
         }
     }
 }

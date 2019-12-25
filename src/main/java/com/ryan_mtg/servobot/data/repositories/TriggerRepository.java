@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TriggerRepository extends CrudRepository<TriggerRow, Integer> {
+    Iterable<TriggerRow> findAllByCommandId(int commandId);
 }
