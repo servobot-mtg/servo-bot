@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -191,6 +192,58 @@ public class ApiController {
             return deletedTrigger;
         }
     }
+
+    @PostMapping(value = "/api/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        CommandRow commandRow = new CommandRow();
+        commandRow.setType(request.getType());
+        commandRow.setPermission(request.getPermission());
+        commandRow.setSecure(request.isSecure());
+        commandRow.setStringParameter(request.getStringParameter());
+        commandRow.setStringParameter2(request.getStringParameter2());
+        commandRow.setLongParameter(request.getLongParameter());
+        return homeEditor.addCommand(commandRow);
+    }
+
+    public static class AddCommandRequest extends BotHomeRequest {
+        private int type;
+        private Permission permission;
+        private boolean secure;
+        private String stringParameter;
+        private String stringParameter2;
+        private Long longParameter;
+
+        public int getType() {
+            return type;
+        }
+
+        public Permission getPermission() {
+            return permission;
+        }
+
+        public boolean isSecure() {
+            return secure;
+        }
+
+        public void setPermission(Permission permission) {
+            this.permission = permission;
+        }
+
+        public String getStringParameter() {
+            return stringParameter;
+        }
+
+        public String getStringParameter2() {
+            return stringParameter2;
+        }
+
+        public Long getLongParameter() {
+            return longParameter;
+        }
+    }
+
 
     @PostMapping(value = "/api/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)

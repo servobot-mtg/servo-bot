@@ -6,9 +6,11 @@ import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
+import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
@@ -23,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.ryan_mtg.servobot.model.GameQueue.EMPTY_QUEUE;
 
@@ -63,6 +67,21 @@ public class HomeEditor {
         Reaction reaction = botHome.getReactionTable().secureReaction(reactionId, secure);
         serializers.getReactionSerializer().saveReaction(botHome.getId(), reaction);
         return reaction.isSecure();
+    }
+
+    public CommandDescriptor addCommand(final CommandRow commandRow) {
+        Map<Integer, Book> bookMap = new HashMap<>();
+        for (Book book : botHome.getBooks()) {
+            bookMap.put(book.getId(), book);
+        }
+
+        Command command = serializers.getCommandSerializer().createCommand(commandRow, bookMap);
+
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandTableEdit commandTableEdit = commandTable.addCommand(command);
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+
+        return new CommandDescriptor(command);
     }
 
     public void addCommand(final String alias, final MessageCommand command) {

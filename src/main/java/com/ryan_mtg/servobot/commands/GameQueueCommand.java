@@ -8,8 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GameQueueCommand extends MessageCommand {
-    static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
     public static final int TYPE = 7;
+
+    private static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
 
     private int gameQueueId;
 

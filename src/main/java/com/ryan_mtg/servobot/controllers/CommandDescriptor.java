@@ -139,7 +139,7 @@ public class CommandDescriptor {
 
         @Override
         public void visitFactsCommand(final FactsCommand factsCommand) {
-            type = "Random Command";
+            type = "Random Statement Command";
             description = "Gives a random statement from " + factsCommand.getBook().getName();
             edit = factsCommand.getBook().getName();
         }
@@ -210,7 +210,7 @@ public class CommandDescriptor {
 
         @Override
         public void visitTierCommand(final TierCommand tierCommand) {
-            type = "Respond Command";
+            type = "Friendship Tier Command";
             description = "Gives the user's friendship tier";
         }
     }

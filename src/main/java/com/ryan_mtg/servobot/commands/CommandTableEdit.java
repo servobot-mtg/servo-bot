@@ -23,6 +23,11 @@ public class CommandTableEdit {
         deletedCommands.add(command);
     }
 
+    public void save(final Command command, final Consumer<Command> commandSaveCallback) {
+        savedCommands.add(command);
+        commandSaveCallbackMap.put(command, commandSaveCallback);
+    }
+
     public void save(final Command command, final Trigger trigger,
                      final Consumer<Command> commandSaveCallback,
                      final BiConsumer<Integer, Trigger> aliasSaveCallback) {

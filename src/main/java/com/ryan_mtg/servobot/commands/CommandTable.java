@@ -49,6 +49,13 @@ public class CommandTable {
         idToCommandMap.put(command.getId(), command);
     }
 
+    public CommandTableEdit addCommand(Command command) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        commandTableEdit.save(command, this::registerCommand);
+        return commandTableEdit;
+    }
+
+
     public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
@@ -203,7 +210,6 @@ public class CommandTable {
 
         return commandTableEdit;
     }
-
 
     private class TriggerDeleteVisitor implements TriggerVisitor {
         @Override

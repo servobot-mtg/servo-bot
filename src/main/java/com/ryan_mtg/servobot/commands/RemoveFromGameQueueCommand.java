@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 
 public class RemoveFromGameQueueCommand extends MessageCommand {

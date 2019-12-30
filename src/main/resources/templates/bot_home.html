@@ -51,12 +51,12 @@
             </th:block>
         </table>
 
-        <h2>GameQueues</h2>
+        <h2>Game Queues</h2>
         <th:block th:each="queue : ${botHome.gameQueues}">
             <h3 th:text="${queue.name} + ': ' + ${queue.state}"/>
             <div th:if="${queue.state != T(com.ryan_mtg.servobot.model.GameQueue.State).IDLE}">
                 <div th:text="'Current Player: ' + ${userSerializer.lookupById(queue.currentPlayerId).twitchUsername}"/>
-                <BR>
+                <br>
                 <div th:if="${queue.fullQueue.empty}">The queue is empty.</div>
 
                 <table class="data-table" th:if="${!queue.fullQueue.empty}">
@@ -102,7 +102,7 @@
         </table>
 
         <h2>Commands</h2>
-        <table class="data-table">
+        <table id="command-table" class="data-table">
             <thead><tr>
                 <th>Id</th>
                 <th>Type</th>
@@ -174,17 +174,16 @@
                         </span>
                     </td>
 
-                    <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"
+                    <td th:if="${privledged}" class="pseudo-link"
                         th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
-                        <span th:class="${label} + '-secured'"
+                        <span th:id="${label} + '-secured'"
                               th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
-                        <span th:class="${label} + '-response'"/>
+                        <span th:id="${label} + '-response'"/>
                     </td>
 
                     <td th:if="${!privledged}" th:text="${command.permission}"></td>
                     <td th:if="${privledged}">
-                        <select th:attr="data-label=${label} + '-permission-updated'"
-                                th:onchange="'updateCommandPermission(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                        <select th:onchange="'updateCommandPermission(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
                             <th:block th:each="permission : ${permissions}">
                                 <option th:value="${permission}" th:text="${permission}"
                                         th:selected="${permission == command.permission}"/>
@@ -200,6 +199,85 @@
                 </tr>
             </th:block>
         </table>
+
+        <div th:if="${privledged}" class="add-command">
+            <div id="add-command-button" class="pseudo-link add-button" onclick="showAddCommandForm()"
+                 title="Add a command">+</div>
+            <form id="add-command-form" class="add-form hidden"
+                  th:onsubmit="'addCommand(' + ${botHome.id} + '); return false;'">
+                <div>
+                    <label>Command Type</label><br>
+                    <select id='add-command-type-input' onchange="changeAddCommandType(this)">
+                        <option value="1" selected>Respond Command</option>
+                        <option value="2" th:if="${!botHome.books.empty}">Random Statement Command</option>
+                        <option value="4">Message Channel Command</option>
+                        <option value="5">Add Command</option>
+                        <option value="6">Delete Command</option>
+                        <option value="15" th:if="${!botHome.books.empty}">Add Statement Command</option>
+                        <option value="16">Delayed Alert Command</option>
+                        <option value="7" th:if="${!botHome.gameQueues.empty}">Game Queue Command</option>
+                        <option value="9" th:if="${!botHome.gameQueues.empty}">Show Game Queue Command</option>
+                        <option value="8" th:if="${!botHome.gameQueues.empty}">Join Game Queue Command</option>
+                        <option value="10" th:if="${!botHome.gameQueues.empty}">Remove From Game Queue Command</option>
+                        <option value="11">Set Arena Username Command</option>
+                        <option value="12">Show Arena Usernames Command</option>
+                        <option value="3">Friendship Tier Command</option>
+                        <option value="13">Set Role Command</option>
+                        <option value="14">Set Status Command</option>
+                    </select><br>
+                </div>
+                <div>
+                    <label>Permissions</label><br>
+                    <select id="add-command-permissions-input">
+                        <th:block th:each="permission : ${permissions}">
+                            <option th:value="${permission}" th:text="${permission}"/>
+                        </th:block>
+                    </select><br>
+                </div>
+                <div>
+                    <label>Hide</label><br>
+                    <input type="checkbox" id="add-command-secure-input"><br>
+                </div>
+                <br id="add-command-break">
+                <div id="add-command-text-div">
+                    <label id="add-command-text-label">Text</label><br>
+                    <input id="add-command-text-input" type="text" name="text"><br>
+                </div><br id="add-command-break-2" class="hidden">
+                <div id="add-command-text-2-div" class="hidden">
+                    <label id="add-command-text-2-label">Text 2</label><br>
+                    <input id="add-command-text-2-input" type="text" name="text-2"><br>
+                </div><br id="add-command-break-3" class="hidden">
+                <div id="add-command-integer-div" class="hidden">
+                    <label id="add-command-integer-label">Integer</label><br>
+                    <input id="add-command-integer-input" type="number" name="text" step="1"><br>
+                </div>
+                <div id="add-command-book-div" class="hidden">
+                    <label id="add-command-book-label">Book</label><br>
+                    <select id="add-command-book-input">
+                        <th:block th:each="book : ${botHome.books}">
+                            <option th:value="${book.id}" th:text="${book.name}"/>
+                        </th:block>
+                    </select><br>
+                </div>
+                <div id="add-command-game-queue-div" class="hidden">
+                    <label id="add-command-game-queue-label">Game Queue</label><br>
+                    <select id="add-command-game-queue-input">
+                        <th:block th:each="queue : ${botHome.gameQueues}">
+                            <option th:value="${queue.id}" th:text="${queue.name}"/>
+                        </th:block>
+                    </select><br>
+                </div>
+                <div id="add-command-service-div" class="hidden">
+                    <label id="add-command-service-label">Service</label><br>
+                    <select id="add-command-service-input">
+                        <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}" th:object="${serviceHomeEntry.value}">
+                            <option th:value="*{service.type}" th:text="*{service.name}"/>
+                        </th:block>
+                    </select>
+                </div>
+                <input type="submit" value="Submit Command">
+            </form>
+        </div>
 
         <h2>Reactions</h2>
         <table class="data-table">
@@ -247,7 +325,7 @@
         <h2>Books</h2>
         <ul>
             <th:block th:each="book : ${botHome.books}">
-                <li><a th:href="${botHome.name} + '/book/' + ${book.name}" th:text="${book.name}"/><BR></li>
+                <li><a th:href="${botHome.name} + '/book/' + ${book.name}" th:text="${book.name}"/><br></li>
             </th:block>
         </ul>
     </div>
