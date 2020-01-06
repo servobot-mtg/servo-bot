@@ -1,0 +1,297 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+<!-- services -->
+<div th:fragment="services">
+    <h2>Services</h2>
+    <table class="data-table">
+        <thead><tr>
+            <th>Service</th>
+            <th>Details</th>
+        </tr></thead>
+        <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}">
+            <tr th:object="${serviceHomeEntry.value}">
+                <td th:text="*{service.name}"/>
+                <td th:if="*{link != null}">
+                    <a th:href="*{link}" th:text="*{description}" target="_blank"/>
+                </td>
+                <td th:if="*{link == null}" th:text="*{description}"/>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+<!-- users -->
+<div th:fragment="users (title)">
+    <h2 th:text="${title}"/>
+    <table class="data-table">
+        <thead><tr>
+            <th>Twitch Name</th>
+            <th>Discord Name</th>
+            <th>Arena Name</th>
+            <th>Roles</th>
+        </tr></thead>
+        <th:block th:each="homedUser : ${users}">
+            <tr>
+                <td th:text="${homedUser.twitchUsername}"/>
+                <td th:text="${homedUser.discordUsername}"/>
+                <td th:text="${homedUser.arenaUsername}"/>
+                <td>
+                    <span title="Member" th:text="${homedUser.member ? '&#x1F464;' : ''}"/>
+                    <span title="Moderator" th:text="${homedUser.moderator ? '&#x1F46E;' : ''}"/>
+                    <span title="Subscriber" th:text="${homedUser.subscriber ? '&#x1F911;' : ''}"/>
+                    <span title="VIP" th:text="${homedUser.vip ? '&#x1F929;' : ''}"/>
+                    <span title="Streamer" th:text="${homedUser.streamer ? '&#x1F9D9;' : ''}"/>
+                    <span title="Admin" th:if="${user.admin}" th:text="${homedUser.admin ? '&#x1F477;' : ''}"/>
+                </td>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+<!-- commands -->
+<div th:fragment="commands">
+    <h2>Commands</h2>
+    <table id="command-table" class="data-table">
+        <thead><tr>
+            <th>Id</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Triggers</th>
+            <th th:if="${privledged}">Secure</th>
+            <th>Permissions</th>
+            <th th:if="${privledged}">Delete</th>
+        </tr></thead>
+        <th:block th:each="descriptor : ${commandDescriptors}" th:with="command=${descriptor.command}">
+            <tr th:if="${!command.secure || privledged}" th:with="label=${'command-' + command.id}"
+                th:id="${label + '-row'}" th:classappend="${command.secure ? 'secure ' : ''}">
+
+                <td th:text="${command.id}"/>
+                <td th:text="${descriptor.type}"/>
+                <td th:text="${descriptor.description}"/>
+                <td>
+                        <span th:id="'alias-triggers-' + ${command.id}">
+                            <th:block th:each="alias : ${descriptor.aliases}">
+                                <span th:if="${!privledged}" class="alias-label label" th:text="${alias.alias}"/>
+                                <table th:if="${privledged}" class="alias-label label label-table"
+                                       th:id="${'alias-' + alias.id}">
+                                    <tr>
+                                        <td th:text="${alias.alias}"/>
+                                        <td class="pseudo-link alias-delete"
+                                            th:onclick="'deleteAlias(' + ${botHome.id} + ',' + ${alias.id} + ')'">x</td>
+                                    </tr>
+                                </table>
+                            </th:block>
+                        </span>
+
+                    <th:block th:each="event : ${descriptor.events}">
+                        <span th:if="${!privledged}" class="event-label label" th:text="${event.eventType}"/>
+                        <table th:if="${privledged}" class="event-label label label-table"
+                               th:id="${'event-' + event.id}">
+                            <tr>
+                                <td th:text="${event.eventType}"/>
+                                <td class="pseudo-link event-delete"
+                                    th:onclick="'deleteEvent(' + ${botHome.id} + ',' + ${event.id} + ')'">x</td>
+                            </tr>
+                        </table>
+                    </th:block>
+
+                    <th:block th:each="alert : ${descriptor.alerts}">
+                            <span th:if="${!privledged}" class="alert-label label" th:text="${alert.alertToken}"/>
+                        <table th:if="${privledged}" class="alert-label label label-table"
+                               th:id="${'alert-' + alert.id}">
+                            <tr>
+                                <td>
+                                    <a th:href="${botHome.name + '/hub#alert-' + alert.alertToken}"
+                                       th:text="${alert.alertToken}"/>
+                                </td>
+                                <td class="pseudo-link alert-delete"
+                                    th:onclick="'deleteAlert(' + ${botHome.id} + ',' + ${alert.id} + ')'">x</td>
+                            </tr>
+                        </table>
+                    </th:block>
+                    <span class="add-trigger" th:with="label=${'add-trigger-' + command.id}">
+                            <div th:if="${privledged}" th:id="${label} + '-button'" class="pseudo-link add-button"
+                                 th:onclick="'showAddTriggerForm(' + ${command.id} + ')'" title="Add a trigger">
+                                +
+                            </div>
+                            <form th:id="${label} + '-form'" class="add-trigger-form hidden"
+                                  th:onsubmit="'addTrigger(' + ${botHome.id} + ', ' + ${command.id} + '); return false;'">
+                                <input th:id="${label} + '-text-input'" type="text" name="trigger" size="5">
+                                <input type="submit" value="+">
+                            </form>
+                        </span>
+                </td>
+
+                <td th:if="${privledged}" class="pseudo-link"
+                    th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                        <span th:id="${label} + '-secured'"
+                              th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+                    <span th:id="${label} + '-response'"/>
+                </td>
+
+                <td th:if="${!privledged}" th:text="${command.permission}"></td>
+                <td th:if="${privledged}">
+                    <select th:onchange="'updateCommandPermission(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                        <th:block th:each="permission : ${permissions}">
+                            <option th:value="${permission}" th:text="${permission}"
+                                    th:selected="${permission == command.permission}"/>
+                        </th:block>
+                    </select>
+                    <span th:id="${label}+ '-permission-updated'"/>
+                </td>
+
+                <td th:if="${privledged}" class="pseudo-link"
+                    th:onclick="'deleteCommand(' + ${botHome.id} + ',' + ${command.id} + ')'">
+                    &#x1F5D1;
+                </td>
+            </tr>
+        </th:block>
+    </table>
+
+    <div th:if="${privledged}" class="add-command">
+        <div id="add-command-button" class="pseudo-link add-button" onclick="showAddCommandForm()"
+             title="Add a command">+</div>
+        <form id="add-command-form" class="add-form hidden"
+              th:onsubmit="'addCommand(' + ${botHome.id} + '); return false;'">
+            <div>
+                <label>Command Type</label><br>
+                <select id='add-command-type-input' onchange="changeAddCommandType(this)">
+                    <option value="1" selected>Respond Command</option>
+                    <option value="2" th:if="${!botHome.books.empty}">Random Statement Command</option>
+                    <option value="4">Message Channel Command</option>
+                    <option value="5">Add Command</option>
+                    <option value="6">Delete Command</option>
+                    <option value="15" th:if="${!botHome.books.empty}">Add Statement Command</option>
+                    <option value="16">Delayed Alert Command</option>
+                    <option value="7" th:if="${!botHome.gameQueues.empty}">Game Queue Command</option>
+                    <option value="9" th:if="${!botHome.gameQueues.empty}">Show Game Queue Command</option>
+                    <option value="8" th:if="${!botHome.gameQueues.empty}">Join Game Queue Command</option>
+                    <option value="10" th:if="${!botHome.gameQueues.empty}">Remove From Game Queue Command</option>
+                    <option value="11">Set Arena Username Command</option>
+                    <option value="12">Show Arena Usernames Command</option>
+                    <option value="3">Friendship Tier Command</option>
+                    <option value="13">Set Role Command</option>
+                    <option value="14">Set Status Command</option>
+                </select><br>
+            </div>
+            <div>
+                <label>Permissions</label><br>
+                <select id="add-command-permissions-input">
+                    <th:block th:each="permission : ${permissions}">
+                        <option th:value="${permission}" th:text="${permission}"/>
+                    </th:block>
+                </select><br>
+            </div>
+            <div>
+                <label>Hide</label><br>
+                <input type="checkbox" id="add-command-secure-input"><br>
+            </div>
+            <br id="add-command-break">
+            <div id="add-command-text-div">
+                <label id="add-command-text-label">Text</label><br>
+                <input id="add-command-text-input" type="text" name="text"><br>
+            </div><br id="add-command-break-2" class="hidden">
+            <div id="add-command-text-2-div" class="hidden">
+                <label id="add-command-text-2-label">Text 2</label><br>
+                <input id="add-command-text-2-input" type="text" name="text-2"><br>
+            </div><br id="add-command-break-3" class="hidden">
+            <div id="add-command-integer-div" class="hidden">
+                <label id="add-command-integer-label">Integer</label><br>
+                <input id="add-command-integer-input" type="number" name="text" step="1"><br>
+            </div>
+            <div id="add-command-book-div" class="hidden">
+                <label id="add-command-book-label">Book</label><br>
+                <select id="add-command-book-input">
+                    <th:block th:each="book : ${botHome.books}">
+                        <option th:value="${book.id}" th:text="${book.name}"/>
+                    </th:block>
+                </select><br>
+            </div>
+            <div id="add-command-game-queue-div" class="hidden">
+                <label id="add-command-game-queue-label">Game Queue</label><br>
+                <select id="add-command-game-queue-input">
+                    <th:block th:each="queue : ${botHome.gameQueues}">
+                        <option th:value="${queue.id}" th:text="${queue.name}"/>
+                    </th:block>
+                </select><br>
+            </div>
+            <div id="add-command-service-div" class="hidden">
+                <label id="add-command-service-label">Service</label><br>
+                <select id="add-command-service-input">
+                    <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}" th:object="${serviceHomeEntry.value}">
+                        <option th:value="*{service.type}" th:text="*{service.name}"/>
+                    </th:block>
+                </select>
+            </div>
+            <input type="submit" value="Submit Command">
+        </form>
+    </div>
+</div>
+
+<!-- reactions -->
+<div th:fragment="reactions">
+    <h2>Reactions</h2>
+    <table class="data-table">
+        <thead><tr>
+            <th>Emoji</th>
+            <th>Reaction Trigger Words</th>
+            <th th:if="${privledged}">Secure</th>
+        </tr></thead>
+        <th:block th:each="reaction : ${botHome.reactionTable.reactions}">
+            <tr th:if="${!reaction.secure || privledged}" th:with="label=${'reaction-' + reaction.id}"
+                th:classappend="${(reaction.secure ? 'secure ' : ' ') + label + '-row'}">
+                <td th:text="${reaction.emoteName}"/>
+                <td>
+                    <th:block th:each="pattern : ${reaction.patterns}">
+                        <span th:text="${pattern}" />
+                    </th:block>
+                </td>
+
+                <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"
+                    th:onclick="'secureReaction(event, ' + ${botHome.id} + ', ' + ${reaction.id} + ')'">
+                        <span th:class="${label} + '-secured'"
+                              th:text="${reaction.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+                    <span th:class="${label} + '-response'"/>
+                </td>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+<!-- alerts -->
+<div th:fragment="alerts">
+    <h2>Alerts</h2>
+    <table class="data-table">
+        <thead><tr>
+            <th>Keyword</th>
+            <th>Alert Description</th>
+        </tr></thead>
+        <th:block th:each="alert : ${botHome.alertGenerators}">
+            <tr>
+                <td>
+                    <span th:text="${alert.alertToken}"/>
+                    <a th:name="${'alert-' + alert.alertToken}"/>
+                </td>
+                <td th:text="${alert.description}"/>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+
+<!-- books -->
+<div th:fragment="books">
+    <h2>Books</h2>
+    <ul>
+        <th:block th:each="book : ${botHome.books}">
+            <li><a th:href="'book/' + ${book.name}" th:text="${book.name}"/><br></li>
+        </th:block>
+    </ul>
+</div>
+
+</body>
+</html>

@@ -119,6 +119,14 @@ public class UserSerializer {
         }).collect(Collectors.toList());
     }
 
+    public List<HomedUser> getModerators(final int botHomeId) {
+        List<UserHomeRow> userHomeRows = userHomeRepository.findByBotHomeId(botHomeId);
+        return userHomeRows.stream().map(userHomeRow -> {
+            UserRow userRow = userRepository.findById(userHomeRow.getUserId());
+            return createHomedUser(userRow, new UserStatus(userHomeRow.getState()));
+        }).filter(user -> user.isModerator()).collect(Collectors.toList());
+    }
+
     @Transactional
     public UserRow lookupUserRowByTwitchId(final int twitchId, final String twitchUsername) {
         UserRow userRow = userRepository.findByTwitchId(twitchId);

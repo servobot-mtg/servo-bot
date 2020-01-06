@@ -55,7 +55,7 @@ public class CommandListener implements EventListener {
             if (hasPermissions(messageSentEvent.getHome(), sender, messageCommand)) {
                 messageCommand.perform(messageSentEvent, arguments);
             } else {
-                throw new BotErrorException(String.format("%s is not allowed to %s.", sender.getName(), command));
+                throw new BotErrorException(String.format("%s is not allowed to %s.", sender.getName(), commandString));
             }
         } else if (command == null){
             messageSentEvent.getHomeEditor().addSuggestion(commandString);

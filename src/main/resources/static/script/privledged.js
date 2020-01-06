@@ -145,11 +145,14 @@ function startHome(botHomeId) {
 
 async function postStartHome(botHomeId) {
     const parameters = {botHomeId: botHomeId};
-    document.getElementById('status').innerHTML = yellowCircleIcon;
+    let statusElement = document.getElementById('status');
+    statusElement.innerHTML = yellowCircleIcon;
+    statusElement.title = 'Restarting';
     let response = await makePost('/api/start_home', parameters, [], false);
     if (response.ok) {
-        document.getElementById('stop-button').style.display = 'inline-block';
-        document.getElementById('status').innerHTML = checkmarkIcon;
+        showElementInlineById('stop-button');
+        statusElement.innerHTML = checkmarkIcon;
+        statusElement.title = 'Active';
     }
 }
 
@@ -162,7 +165,9 @@ async function postStopHome(botHomeId) {
     let response = await makePost('/api/stop_home', parameters, [], false);
     if (response.ok) {
         hideElementById('stop-button');
-        document.getElementById('status').innerHTML = crossIcon;
+        let statusElement = document.getElementById('status');
+        statusElement.innerHTML = crossIcon;
+        statusElement.title = 'Idle';
     }
 }
 
