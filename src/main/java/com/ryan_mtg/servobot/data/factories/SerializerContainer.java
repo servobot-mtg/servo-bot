@@ -46,6 +46,12 @@ public class SerializerContainer {
     private StatementRepository statementRepository;
 
     @Autowired
+    private StorageTableSerializer storageTableSerializer;
+
+    @Autowired
+    private StorageValueSerializer storageValueSerializer;
+
+    @Autowired
     private SuggestionRepository suggestionRepository;
 
     @Autowired
@@ -101,6 +107,14 @@ public class SerializerContainer {
 
     public StatementRepository getStatementRepository() {
         return statementRepository;
+    }
+
+    public StorageTableSerializer getStorageTableSerializer() {
+        return storageTableSerializer;
+    }
+
+    public StorageValueSerializer getStorageValueSerializer() {
+        return storageValueSerializer;
     }
 
     public SuggestionRepository getSuggestionRepository() {

@@ -17,7 +17,9 @@ import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
-import com.ryan_mtg.servobot.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
+import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,6 +196,21 @@ public class HomeEditor {
             suggestionRow.setCount(suggestionRow.getCount() + 1);
         }
         suggestionRepository.save(suggestionRow);
+    }
+
+    public StorageValue getStorageValue(final String name) {
+        return botHome.getStorageTable().getStorage(name);
+    }
+
+    public StorageValue incrementStorageValue(final String name) throws BotErrorException {
+        StorageValue value = getStorageValue(name);
+        if (value instanceof IntegerStorageValue) {
+            IntegerStorageValue integerValue = (IntegerStorageValue) value;
+            integerValue.setValue(integerValue.getValue() + 1);
+            serializers.getStorageValueSerializer().save(integerValue, botHome.getId());
+            return value;
+        }
+        throw new BotErrorException(String.format("%s is not a number", name));
     }
 
     public String startGameQueue(final int gameQueueId, final String name) throws BotErrorException {

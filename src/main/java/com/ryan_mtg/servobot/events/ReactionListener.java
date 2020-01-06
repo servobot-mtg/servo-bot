@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.model.User;
-import com.ryan_mtg.servobot.reaction.Reaction;
-import com.ryan_mtg.servobot.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;

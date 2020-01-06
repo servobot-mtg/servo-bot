@@ -2,10 +2,10 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
-import com.ryan_mtg.servobot.reaction.AlwaysReact;
-import com.ryan_mtg.servobot.reaction.Reaction;
-import com.ryan_mtg.servobot.reaction.ReactionFilter;
-import com.ryan_mtg.servobot.reaction.WatershedFilter;
+import com.ryan_mtg.servobot.model.reaction.AlwaysReact;
+import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionFilter;
+import com.ryan_mtg.servobot.model.reaction.WatershedFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

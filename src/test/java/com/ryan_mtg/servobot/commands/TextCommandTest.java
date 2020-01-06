@@ -1,11 +1,16 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
+import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
+import com.ryan_mtg.servobot.model.storage.StorageValue;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TextCommandTest {
     private static final int ID = 1;
@@ -15,7 +20,7 @@ public class TextCommandTest {
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
-    public void testPerform() {
+    public void testPerform() throws BotErrorException {
         TextCommand command = new TextCommand(ID, SECURE, PERMISSION, TEXT);
 
         Channel channel = mockChannel();
@@ -27,7 +32,7 @@ public class TextCommandTest {
     }
 
     @Test
-    public void testPerformSubstitutesUserName() {
+    public void testPerformSubstitutesUserName() throws BotErrorException {
         TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Hello, %user%!");
 
         Channel channel = mockChannel();
@@ -36,5 +41,20 @@ public class TextCommandTest {
         command.perform(event, ARGUMENTS);
 
         verify(channel).say("Hello, name!");
+    }
+
+    @Test
+    public void testPerformSubstitutesVariable() throws BotErrorException {
+        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Value: %show value%");
+
+        Channel channel = mockChannel();
+        HomeEditor homeEditor = mockHomeEditor();
+        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
+        StorageValue value = new IntegerStorageValue( StorageValue.UNREGISTERED_ID, "value", 1);
+        when(homeEditor.getStorageValue("value")).thenReturn(value);
+
+        command.perform(event, ARGUMENTS);
+
+        verify(channel).say("Value: 1");
     }
 }

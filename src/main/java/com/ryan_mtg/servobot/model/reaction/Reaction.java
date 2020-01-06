@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.reaction;
+package com.ryan_mtg.servobot.model.reaction;
 
 import java.util.ArrayList;
 import java.util.List;

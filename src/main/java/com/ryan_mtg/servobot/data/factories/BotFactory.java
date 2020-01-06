@@ -14,7 +14,8 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.model.GameQueue;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
-import com.ryan_mtg.servobot.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.storage.StorageTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,7 @@ public class BotFactory {
 
         CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
         ReactionTable reactionTable = serializers.getReactionTableSerializer().createReactionTable(botHomeId);
+        StorageTable storageTable = serializers.getStorageTableSerializer().createStorageTable(botHomeId);
 
         Map<Integer, ServiceHome> serviceHomes = new HashMap<>();
         for (ServiceHomeRow serviceHomeRow : serviceHomeRepository.findAllByBotHomeId(botHomeId)) {
@@ -95,7 +97,7 @@ public class BotFactory {
             gameQueues.add(gameQueue);
         }
 
-        return new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, serviceHomes,
+        return new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, storageTable, serviceHomes,
                 books, gameQueues);
     }
 }

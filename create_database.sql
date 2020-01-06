@@ -13,11 +13,6 @@ CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type 
                                     secure BIT, permission INT, stringParameter VARCHAR(200),
                                     stringParameter2 VARCHAR(200), longParameter BIGINT);
 
-CREATE TABLE IF NOT EXISTS command_alias (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER, alias VARCHAR(30));
-
-CREATE TABLE IF NOT EXISTS command_event (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
-                                          event_type VARCHAR(30));
-
 CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emote VARCHAR(30), secure BIT,
                                      filter INTEGER, bot_home_id INTEGER);
 
@@ -29,9 +24,6 @@ CREATE TABLE IF NOT EXISTS service_home (id INTEGER AUTO_INCREMENT PRIMARY KEY, 
 
 CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER,
                     bot_home_id INTEGER, time INTEGER, time_zone VARCHAR(50), alert_token VARCHAR(50));
-
-CREATE TABLE IF NOT EXISTS command_alert (id INTEGER AUTO_INCREMENT PRIMARY KEY, command_id INTEGER,
-                                          alert_token VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, admin BIT, twitch_id INTEGER, discord_id BIGINT,
                                  twitch_username VARCHAR(50), discord_username VARCHAR(50), arena_username VARCHAR(50));
@@ -51,3 +43,6 @@ CREATE TABLE IF NOT EXISTS game_queue_entry (game_queue_id INTEGER, spot INTEGER
 
 CREATE TABLE IF NOT EXISTS command_trigger (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, command_id INTEGER,
                                             text VARCHAR(50));
+
+CREATE TABLE IF NOT EXISTS storage_value (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, type INTEGER,
+                                    name VARCHAR(30), number INTEGER, string VARCHAR(200));

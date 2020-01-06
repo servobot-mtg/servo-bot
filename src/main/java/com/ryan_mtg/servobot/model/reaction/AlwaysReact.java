@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.reaction;
+package com.ryan_mtg.servobot.model.reaction;
 
 public class AlwaysReact extends AbstractReactionFilter {
     public static final int TYPE = 1;

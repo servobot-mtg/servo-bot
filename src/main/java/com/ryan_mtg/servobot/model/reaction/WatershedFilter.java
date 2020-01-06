@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.reaction;
+package com.ryan_mtg.servobot.model.reaction;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

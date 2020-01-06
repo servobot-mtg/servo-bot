@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.reaction;
+package com.ryan_mtg.servobot.model.reaction;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ReactionTable implements Iterable<Reaction>{
+public class ReactionTable implements Iterable<Reaction> {
     private List<Reaction> reactions = new ArrayList<>();
 
     public void registerReaction(final Reaction reaction) {

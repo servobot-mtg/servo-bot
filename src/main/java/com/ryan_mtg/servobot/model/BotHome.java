@@ -7,7 +7,8 @@ import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
-import com.ryan_mtg.servobot.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.storage.StorageTable;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public class BotHome {
     private String timeZone;
     private CommandTable commandTable;
     private ReactionTable reactionTable;
+    private StorageTable storageTable;
     private Map<Integer, ServiceHome> serviceHomes;
     private List<Book> books;
     private List<GameQueue> gameQueues;
@@ -26,7 +28,7 @@ public class BotHome {
     private MultiDelegatingListener eventListener;
 
     public BotHome(final int id, final String name, final String timeZone,
-                   final CommandTable commandTable, final ReactionTable reactionTable,
+                   final CommandTable commandTable, final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
                    final List<GameQueue> gameQueues) {
         this.id = id;
@@ -34,6 +36,7 @@ public class BotHome {
         this.timeZone = timeZone;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
+        this.storageTable = storageTable;
         this.serviceHomes = serviceHomes;
         this.books = books;
         this.gameQueues = gameQueues;
@@ -78,6 +81,10 @@ public class BotHome {
 
     public ReactionTable getReactionTable() {
         return reactionTable;
+    }
+
+    public StorageTable getStorageTable() {
+        return storageTable;
     }
 
     public EventListener getListener() {

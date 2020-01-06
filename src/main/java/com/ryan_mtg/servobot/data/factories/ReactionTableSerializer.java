@@ -4,8 +4,8 @@ import com.ryan_mtg.servobot.data.models.ReactionPatternRow;
 import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.data.repositories.ReactionPatternRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
-import com.ryan_mtg.servobot.reaction.Reaction;
-import com.ryan_mtg.servobot.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
