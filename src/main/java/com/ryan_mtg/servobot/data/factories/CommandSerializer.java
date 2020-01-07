@@ -14,8 +14,10 @@ import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
+import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
+import com.ryan_mtg.servobot.commands.ShowValueCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.CommandRow;
@@ -86,11 +88,15 @@ public class CommandSerializer {
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
                 return new SetStatusCommand(id, isSecure, permission, bookMap.get(bookId));
+            case SetValueCommand.TYPE:
+                return new SetValueCommand(id, isSecure, permission);
             case ShowArenaUsernamesCommand.TYPE:
                 return new ShowArenaUsernamesCommand(id, isSecure, permission);
             case ShowGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new ShowGameQueueCommand(id, isSecure, permission, gameQueueId);
+            case ShowValueCommand.TYPE:
+                return new ShowValueCommand(id, isSecure, permission);
             case TierCommand.TYPE:
                 return new TierCommand(id, isSecure, permission);
         }
@@ -252,6 +258,11 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitSetValueCommand(final SetValueCommand setValueCommand) {
+            saveCommand(setValueCommand, commandRow -> {});
+        }
+
+        @Override
         public void visitShowArenaUsernamesCommand(final ShowArenaUsernamesCommand showArenaUsernamesCommand) {
             saveCommand(showArenaUsernamesCommand, commandRow -> {});
         }
@@ -261,6 +272,11 @@ public class CommandSerializer {
             saveCommand(showGameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(showGameQueueCommand.getGameQueueId());
             });
+        }
+
+        @Override
+        public void visitShowValueCommand(final ShowValueCommand showValueCommand) {
+            saveCommand(showValueCommand, commandRow -> {});
         }
 
         @Override

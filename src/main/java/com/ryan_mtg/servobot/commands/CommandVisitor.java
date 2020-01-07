@@ -13,8 +13,10 @@ public interface CommandVisitor {
     void visitSetArenaUsernameCommand(SetArenaUsernameCommand setArenaUsernameCommand);
     void visitSetRoleCommand(SetRoleCommand setRoleCommand);
     void visitSetStatusCommand(SetStatusCommand setStatusCommand);
+    void visitSetValueCommand(SetValueCommand setValueCommand);
     void visitShowArenaUsernamesCommand(ShowArenaUsernamesCommand showArenaUsernamesCommand);
     void visitShowGameQueueCommand(ShowGameQueueCommand showGameQueueCommand);
+    void visitShowValueCommand(ShowValueCommand showValueCommand);
     void visitTextCommand(TextCommand textCommand);
     void visitTierCommand(TierCommand tierCommand);
 }

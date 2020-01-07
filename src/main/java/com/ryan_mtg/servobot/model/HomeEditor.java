@@ -198,8 +198,31 @@ public class HomeEditor {
         suggestionRepository.save(suggestionRow);
     }
 
-    public StorageValue getStorageValue(final String name) {
-        return botHome.getStorageTable().getStorage(name);
+    public StorageValue getStorageValue(final String name) throws BotErrorException {
+        if (!StorageValue.STORAGE_VALUE_NAME_PATTERN.matcher(name).matches()) {
+            throw new BotErrorException(String.format("%s doesn't look like a value name.", name));
+        }
+        StorageValue storageValue = botHome.getStorageTable().getStorage(name);
+        if (storageValue == null) {
+            throw new BotErrorException(String.format("No value with name %s.", name));
+        }
+        return storageValue;
+    }
+
+    public StorageValue setStorageValue(final String name, final String value) throws BotErrorException {
+        StorageValue storageValue = getStorageValue(name);
+        if (storageValue instanceof IntegerStorageValue) {
+            IntegerStorageValue integerValue = (IntegerStorageValue) storageValue;
+            try {
+                integerValue.setValue(Integer.parseInt(value));
+            } catch (Exception e) {
+                throw new BotErrorException(String.format("Invalid value %s.", value));
+            }
+            serializers.getStorageValueSerializer().save(integerValue, botHome.getId());
+        } else {
+            throw new BotErrorException(String.format("%s has an unknown type of value.", storageValue.getName()));
+        }
+        return storageValue;
     }
 
     public StorageValue incrementStorageValue(final String name) throws BotErrorException {

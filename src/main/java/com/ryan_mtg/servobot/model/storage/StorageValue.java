@@ -1,7 +1,10 @@
 package com.ryan_mtg.servobot.model.storage;
 
+import java.util.regex.Pattern;
+
 public abstract class StorageValue {
     public static final int UNREGISTERED_ID = 0;
+    public static Pattern STORAGE_VALUE_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
 
     private int id;
     private String name;

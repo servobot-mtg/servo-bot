@@ -393,6 +393,8 @@ const commandData = [
     {name: 'Add Statement Command', parameters: []}, //15
     {name: 'Delayed Alert Command',
         parameters: [{id: 'text', name: 'Alert Token'}, {id: 'integer', name: 'Delay (seconds)'}]}, //16
+    {name: 'Show Value Command', parameters: []}, //17
+    {name: 'Set Value Command', parameters: []}, //18
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

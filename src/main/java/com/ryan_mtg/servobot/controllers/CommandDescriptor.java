@@ -17,8 +17,10 @@ import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
+import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
+import com.ryan_mtg.servobot.commands.ShowValueCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
@@ -190,6 +192,12 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitSetValueCommand(final SetValueCommand setValueCommand) {
+            type = "Set Value Command";
+            description = "Resets a storage value";
+        }
+
+        @Override
         public void visitShowArenaUsernamesCommand(final ShowArenaUsernamesCommand showArenaUsernamesCommand) {
             type = "Show Arena Usernames Command";
             description = "Shows the stored arena usernames";
@@ -199,6 +207,12 @@ public class CommandDescriptor {
         public void visitShowGameQueueCommand(final ShowGameQueueCommand showGameQueueCommand) {
             type = "Show Game Queue Command";
             description = "Shows who is in the game queue";
+        }
+
+        @Override
+        public void visitShowValueCommand(final ShowValueCommand showValueCommand) {
+            type = "Show Value Command";
+            description = "Shows the stored value";
         }
 
         @Override
