@@ -461,10 +461,16 @@ function addCommandRow(commandDescriptor, botHomeId) {
     descriptionCell.innerHTML = commandDescriptor.description;
 
     let triggersCell = newRow.insertCell();
+    let aliasTriggersSpan = document.createElement('span');
+    aliasTriggersSpan.id = 'alias-triggers-' + commandDescriptor.command.id;
+    triggersCell.appendChild(aliasTriggersSpan);
+
+    let addTriggerLabel = 'add-trigger-' + commandDescriptor.command.id;
     let addTriggerSpan = document.createElement('span');
+    addTriggerSpan.classList.add('add-trigger');
 
     let addTriggerButtonDiv = document.createElement('div');
-    addTriggerButtonDiv.id = label + '-button';
+    addTriggerButtonDiv.id = addTriggerLabel + '-button';
     addTriggerButtonDiv.classList.add('pseudo-link', 'add-button');
     addTriggerButtonDiv.title = 'Add a trigger';
     addTriggerButtonDiv.onclick = function () {
@@ -472,10 +478,9 @@ function addCommandRow(commandDescriptor, botHomeId) {
     };
     addTriggerButtonDiv.innerHTML = '+';
     addTriggerSpan.appendChild(addTriggerButtonDiv);
-    triggersCell.appendChild(addTriggerSpan);
 
     let addTriggerForm = document.createElement('form');
-    addTriggerForm.id = label + '-form';
+    addTriggerForm.id = addTriggerLabel + '-form';
     addTriggerForm.classList.add('add-trigger-form', 'hidden');
     addTriggerForm.onsubmit = function () {
         addTrigger(botHomeId, commandDescriptor.command.id);
@@ -483,7 +488,7 @@ function addCommandRow(commandDescriptor, botHomeId) {
     };
 
     let addTriggerTextInput = document.createElement('input');
-    addTriggerTextInput.id = label + '-text-input';
+    addTriggerTextInput.id = addTriggerLabel + '-text-input';
     addTriggerTextInput.type = 'text';
     addTriggerTextInput.name = 'trigger';
     addTriggerTextInput.size = 5;
@@ -493,7 +498,8 @@ function addCommandRow(commandDescriptor, botHomeId) {
     addTriggerSubmitInput.type = 'submit';
     addTriggerSubmitInput.value = '+';
     addTriggerForm.appendChild(addTriggerSubmitInput);
-    triggersCell.appendChild(addTriggerForm);
+    addTriggerSpan.appendChild(addTriggerForm);
+    triggersCell.appendChild(addTriggerSpan);
 
     let secureCell = newRow.insertCell();
     secureCell.classList.add('pseudo-link');

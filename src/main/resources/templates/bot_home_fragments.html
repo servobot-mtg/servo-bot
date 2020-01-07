@@ -114,16 +114,16 @@
                             </table>
                         </th:block>
                         <span class="add-trigger" th:with="label=${'add-trigger-' + command.id}">
-                                <div th:if="${privledged}" th:id="${label} + '-button'" class="pseudo-link add-button"
-                                     th:onclick="'showAddTriggerForm(' + ${command.id} + ')'" title="Add a trigger">
-                                    +
-                                </div>
-                                <form th:id="${label} + '-form'" class="add-trigger-form hidden"
-                                      th:onsubmit="'addTrigger(' + ${botHome.id} + ', ' + ${command.id} + '); return false;'">
-                                    <input th:id="${label} + '-text-input'" type="text" name="trigger" size="5">
-                                    <input type="submit" value="+">
-                                </form>
-                            </span>
+                            <div th:if="${privledged}" th:id="${label} + '-button'" class="pseudo-link add-button"
+                                 th:onclick="'showAddTriggerForm(' + ${command.id} + ')'" title="Add a trigger">
+                                +
+                            </div>
+                            <form th:id="${label} + '-form'" class="add-trigger-form hidden"
+                                  th:onsubmit="'addTrigger(' + ${botHome.id} + ', ' + ${command.id} + '); return false;'">
+                                <input th:id="${label} + '-text-input'" type="text" name="trigger" size="5">
+                                <input type="submit" value="+">
+                            </form>
+                        </span>
                     </td>
 
                     <td th:if="${privledged}" class="pseudo-link"
