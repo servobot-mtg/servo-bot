@@ -235,7 +235,7 @@ public class CommandTable {
         List<ElementType> mappedElements = map.get(key);
         mappedElements.remove(element);
         if (mappedElements.isEmpty()) {
-            eventMap.remove(key);
+            map.remove(key);
         }
     }
 
