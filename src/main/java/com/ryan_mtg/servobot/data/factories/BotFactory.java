@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.model.GameQueue;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -42,11 +43,11 @@ public class BotFactory {
         serializers.setBotFactory(this);
     }
 
-    public Bot createBot(final BotRow botRow) {
+    public Bot createBot(final BotRow botRow, final Scope globalScope) {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
 
-        Bot bot = new Bot(botRow.getName(), services, serializers);
+        Bot bot = new Bot(botRow.getName(), globalScope, services, serializers);
         for (BotHomeRow botHomeRow : serializers.getBotHomeRepository().findAll()) {
             bot.addHome(createBotHome(botHomeRow));
         }

@@ -3,6 +3,10 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.parser.ParseException;
+import com.ryan_mtg.servobot.model.parser.Parser;
+import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
+import com.ryan_mtg.servobot.model.scope.Scope;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,21 +49,17 @@ public class TextCommand extends MessageCommand {
         int currentIndex = 0;
 
         HomeEditor homeEditor = event.getHomeEditor();
+        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event));
+        Parser parser = new Parser(scope, homeEditor);
 
         while (matcher.find()) {
             result.append(text.substring(currentIndex, matcher.start()));
+            String expression = matcher.group(1);
 
-            String replacement = matcher.group(1);
-            if (replacement.equals("user")) {
-                result.append(event.getSender().getName());
-            } else if(replacement.startsWith(SHOW_COMMAND)) {
-                String variable = replacement.substring(SHOW_COMMAND.length());
-                result.append(homeEditor.getStorageValue(variable).getValue());
-            } else if(replacement.startsWith(INCREMENT_COMMAND)) {
-                String variable = replacement.substring(INCREMENT_COMMAND.length());
-                result.append(homeEditor.incrementStorageValue(variable).getValue());
-            } else {
-                throw new BotErrorException("Unknown expression " + replacement);
+            try {
+                result.append(parser.parse(expression));
+            } catch (ParseException e) {
+                throw new BotErrorException(String.format("Failed to parse %%%s%%: %s", expression, e.getMessage()));
             }
 
             currentIndex = matcher.end();

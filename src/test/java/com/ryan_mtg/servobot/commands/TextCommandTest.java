@@ -4,6 +4,8 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import org.junit.Test;
@@ -33,7 +35,7 @@ public class TextCommandTest {
 
     @Test
     public void testPerformSubstitutesUserName() throws BotErrorException {
-        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Hello, %user%!");
+        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Hello, %sender%!");
 
         Channel channel = mockChannel();
         MessageSentEvent event = mockMessageSentEvent(channel, mockUser("name"));
@@ -45,13 +47,17 @@ public class TextCommandTest {
 
     @Test
     public void testPerformSubstitutesVariable() throws BotErrorException {
-        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Value: %show value%");
+        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Value: %value%");
 
         Channel channel = mockChannel();
         HomeEditor homeEditor = mockHomeEditor();
         MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
-        StorageValue value = new IntegerStorageValue( StorageValue.UNREGISTERED_ID, "value", 1);
-        when(homeEditor.getStorageValue("value")).thenReturn(value);
+
+        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        Scope botHomeScope = new Scope(null, symbolTable);
+        symbolTable.addFunctor("value", () ->
+                new IntegerStorageValue( StorageValue.UNREGISTERED_ID, "value", 1));
+        when(homeEditor.getScope()).thenReturn(botHomeScope);
 
         command.perform(event, ARGUMENTS);
 

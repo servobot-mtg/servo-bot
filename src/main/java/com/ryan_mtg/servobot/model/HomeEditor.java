@@ -18,6 +18,7 @@ import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.user.User;
@@ -43,6 +44,10 @@ public class HomeEditor {
         this.bot = bot;
         this.botHome = botHome;
         this.serializers = bot.getSerializers();
+    }
+
+    public Scope getScope() {
+        return botHome.getBotHomeScope();
     }
 
     @Transactional

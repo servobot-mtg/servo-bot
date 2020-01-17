@@ -14,6 +14,9 @@ public class ShowValueCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        if (arguments == null) {
+            throw new BotErrorException("No value name given to show value command.");
+        }
         HomeEditor homeEditor = event.getHomeEditor();
         StorageValue storageValue = homeEditor.getStorageValue(arguments);
         String text = String.format("The value of %s is %s.", storageValue.getName(), storageValue.getValue());

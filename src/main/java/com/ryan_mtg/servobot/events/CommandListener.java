@@ -51,7 +51,7 @@ public class CommandListener implements EventListener {
 
         if (command instanceof MessageCommand) {
             MessageCommand messageCommand = (MessageCommand) command;
-            LOGGER.info("Peforming " + command + " for " + sender.getName() + " with arguments " + arguments);
+            LOGGER.info("Peforming " + commandString + " for " + sender.getName() + " with arguments " + arguments);
             if (hasPermissions(messageSentEvent.getHome(), sender, messageCommand)) {
                 messageCommand.perform(messageSentEvent, arguments);
             } else {

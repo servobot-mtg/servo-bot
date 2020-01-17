@@ -8,8 +8,12 @@ import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +22,7 @@ public class BotHome {
     private Bot bot;
     private String name;
     private String timeZone;
+    private Scope botHomeScope;
     private CommandTable commandTable;
     private ReactionTable reactionTable;
     private StorageTable storageTable;
@@ -57,6 +62,11 @@ public class BotHome {
 
     public void setBot(final Bot bot) {
         this.bot = bot;
+        if (bot == null) {
+            botHomeScope = null;
+        } else {
+            botHomeScope = createScope(bot.getBotScope());
+        }
     }
 
     public String getName() {
@@ -73,6 +83,10 @@ public class BotHome {
 
     public void setTimeZone(final String timeZone) {
         this.timeZone = timeZone;
+    }
+
+    public Scope getBotHomeScope() {
+        return botHomeScope;
     }
 
     public CommandTable getCommandTable() {
@@ -132,5 +146,24 @@ public class BotHome {
             serviceHomes.values().forEach(serviceHome -> serviceHome.stop(this));
             alertQueue.remove(this);
         }
+    }
+
+    private Scope createScope(final Scope botScope) {
+        FunctorSymbolTable timeSymbolTable = new FunctorSymbolTable();
+        timeSymbolTable.addFunctor("year", () -> now().getYear());
+        timeSymbolTable.addFunctor("month", () -> now().getMonthValue());
+        timeSymbolTable.addFunctor("dayOfMonth", () -> now().getDayOfMonth());
+        timeSymbolTable.addFunctor("dayOfYear", () -> now().getDayOfYear());
+        timeSymbolTable.addFunctor("dayOfWeek", () -> now().getDayOfWeek());
+
+        Scope timeScope = new Scope(botScope, timeSymbolTable);
+        Scope botHomeScope = new Scope(timeScope, storageTable);
+
+        return botHomeScope;
+    }
+
+    private ZonedDateTime now() {
+        ZoneId zoneId = ZoneId.of(timeZone);
+        return ZonedDateTime.now(zoneId);
     }
 }

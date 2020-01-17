@@ -3,6 +3,8 @@ package com.ryan_mtg.servobot.model;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
+import com.ryan_mtg.servobot.model.scope.NullSymbolTable;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,7 @@ import java.util.Map;
 public class Bot {
     private static Logger LOGGER = LoggerFactory.getLogger(Bot.class);
     private String name;
+    private Scope botScope;
     private BotEditor botEditor;
     private List<BotHome> homes = new ArrayList<>();
     private HomeDelegatingListener listener;
@@ -23,10 +26,12 @@ public class Bot {
     private SerializerContainer serializers;
     private AlertQueue alertQueue = new AlertQueue(this);
 
-    public Bot(final String name, final Map<Integer, Service> services, final SerializerContainer serializers) {
+    public Bot(final String name, final Scope globalScope, final Map<Integer, Service> services,
+               final SerializerContainer serializers) {
         this.name = name;
         this.services = services;
         this.serializers = serializers;
+        botScope = new Scope(globalScope, new NullSymbolTable());
         botEditor = new BotEditor(this);
         listener = new HomeDelegatingListener(botEditor, homeEditorMap);
     }
@@ -37,6 +42,10 @@ public class Bot {
 
     public BotEditor getBotEditor() {
         return botEditor;
+    }
+
+    public Scope getBotScope() {
+        return botScope;
     }
 
     public void addHome(final BotHome home) {
