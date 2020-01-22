@@ -166,6 +166,7 @@
                         <option value="5">Add Command</option>
                         <option value="6">Delete Command</option>
                         <option value="15" th:if="${!botHome.books.empty}">Add Statement Command</option>
+                        <option value="19">Math Command</option>
                         <option value="17" th:if="${!botHome.storageTable.values.empty}">Show Value Command</option>
                         <option value="18" th:if="${!botHome.storageTable.values.empty}">Set Value Command</option>
                         <option value="16">Delayed Alert Command</option>
@@ -237,31 +238,81 @@
     <!-- reactions -->
     <div th:fragment="reactions">
         <h2>Reactions</h2>
-        <table class="data-table">
+        <table class="data-table" id="reaction-table">
             <thead><tr>
                 <th>Emoji</th>
                 <th>Reaction Trigger Words</th>
                 <th th:if="${privledged}">Secure</th>
+                <th th:if="${privledged}">Delete</th>
             </tr></thead>
             <th:block th:each="reaction : ${botHome.reactionTable.reactions}">
                 <tr th:if="${!reaction.secure || privledged}" th:with="label=${'reaction-' + reaction.id}"
-                    th:classappend="${(reaction.secure ? 'secure ' : ' ') + label + '-row'}">
+                    th:classappend="${reaction.secure ? 'secure ' : ' '}" th:id="${label + '-row'}">
                     <td th:text="${reaction.emoteName}"/>
                     <td>
-                        <th:block th:each="pattern : ${reaction.patterns}">
-                            <span th:text="${pattern}" />
-                        </th:block>
+                        <span th:id="'patterns-' + ${reaction.id}">
+                            <th:block th:each="pattern : ${reaction.patterns}">
+                                <span th:if="${!privledged}" class="pattern-label label" th:text="${pattern.patternString}"/>
+                                <table th:if="${privledged}" class="pattern-label label label-table"
+                                       th:id="${'pattern-' + pattern.id}">
+                                    <tr>
+                                        <td th:text="${pattern.patternString}"/>
+                                        <td class="pseudo-link pattern-delete"
+                                            th:onclick="'deletePattern(' + ${botHome.id} + ', '
+                                            + ${reaction.id} + ', ' + ${pattern.id} + ')'">x</td>
+                                    </tr>
+                                </table>
+                            </th:block>
+                        </span>
+
+                        <span class="add-pattern" th:with="label=${'add-pattern-' + reaction.id}">
+                            <div th:if="${privledged}" th:id="${label} + '-button'" class="pseudo-link add-button"
+                                 th:onclick="'showAddPatternForm(' + ${reaction.id} + ')'" title="Add a pattern">
+                                +
+                            </div>
+                            <form th:id="${label} + '-form'" class="add-pattern-form hidden"
+                                  th:onsubmit="'addPattern(' + ${botHome.id} + ', ' + ${reaction.id} + '); return false;'">
+                                <input th:id="${label} + '-text-input'" type="text" name="pattern">
+                                <input type="submit" value="+">
+                            </form>
+                        </span>
                     </td>
 
                     <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"
-                        th:onclick="'secureReaction(event, ' + ${botHome.id} + ', ' + ${reaction.id} + ')'">
+                        th:onclick="'secureReaction(' + ${botHome.id} + ', ' + ${reaction.id} + ')'">
                             <span th:class="${label} + '-secured'"
                                   th:text="${reaction.secure ? '&#x1F512;' : '&#x1F511;'}"/>
                         <span th:class="${label} + '-response'"/>
                     </td>
+
+                    <td th:if="${privledged}" class="pseudo-link"
+                        th:onclick="'deleteReaction(' + ${botHome.id} + ',' + ${reaction.id} + ')'">
+                        &#x1F5D1;
+                    </td>
                 </tr>
             </th:block>
         </table>
+
+        <div th:if="${privledged && !emotes.empty}" class="add-reaction">
+            <div id="add-reaction-button" class="pseudo-link add-button" onclick="showAddReactionForm()"
+                 title="Add a reaction">+</div>
+            <form id="add-reaction-form" class="add-form hidden"
+                  th:onsubmit="'addReaction(' + ${botHome.id} + '); return false;'">
+                <div>
+                    <label>Reaction Emote </label><br>
+                    <select id='add-reaction-emote-input'>
+                        <th:block th:each="emote, status : ${emotes}">
+                            <option th:value="${emote}" th:text="${emote}" th:selected="${status.index == 0}"/>
+                        </th:block>
+                    </select>
+                </div>
+                <div>
+                    <label>Hide</label><br>
+                    <input type="checkbox" id="add-reaction-secure-input"><br>
+                </div><br>
+                <input type="submit" value="Submit Reaction">
+            </form>
+        </div>
     </div>
 
     <!-- alerts -->

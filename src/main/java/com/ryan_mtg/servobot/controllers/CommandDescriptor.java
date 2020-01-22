@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
+import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
@@ -137,6 +138,12 @@ public class CommandDescriptor {
         public void visitDeleteCommand(final DeleteCommand deleteCommand) {
             type = "Delete Command";
             description = "Used to remove commands";
+        }
+
+        @Override
+        public void visitEvaluateExpressionCommand(final EvaluateExpressionCommand evaluateExpressionCommand) {
+            type = "Math Command";
+            description = "Used to evaluate an expression";
         }
 
         @Override

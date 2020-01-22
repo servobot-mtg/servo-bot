@@ -98,9 +98,9 @@ public class CommandTableSerializer {
             commandTableEdit.commandSaved(command);
         }
 
-        for (Map.Entry<Trigger, Integer> aliasEntry : commandTableEdit.getSavedTriggers().entrySet()) {
-            commandSerializer.saveTrigger(aliasEntry.getValue(), aliasEntry.getKey());
-            commandTableEdit.triggerSaved(aliasEntry.getKey());
+        for (Map.Entry<Trigger, Integer> triggerEntry : commandTableEdit.getSavedTriggers().entrySet()) {
+            commandSerializer.saveTrigger(triggerEntry.getValue(), triggerEntry.getKey());
+            commandTableEdit.triggerSaved(triggerEntry.getKey());
         }
     }
 }

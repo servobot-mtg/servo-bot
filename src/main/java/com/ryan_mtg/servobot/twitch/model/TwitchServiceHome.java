@@ -1,10 +1,13 @@
 package com.ryan_mtg.servobot.twitch.model;
 
+import com.google.common.collect.Lists;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
+
+import java.util.List;
 
 public class TwitchServiceHome implements ServiceHome {
     private TwitchService twitchService;
@@ -24,6 +27,11 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public Home getHome() {
         return twitchService.getHome(channelId, homeEditor);
+    }
+
+    @Override
+    public List<String> getEmotes() {
+        return Lists.newArrayList();
     }
 
     @Override

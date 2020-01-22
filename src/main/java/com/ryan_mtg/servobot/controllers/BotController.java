@@ -7,9 +7,12 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +84,12 @@ public class BotController {
 
         addBotHome(model, botHome);
         model.addAttribute("timeZones", timeZones);
+        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
+        if (serviceHome != null) {
+            model.addAttribute("emotes", serviceHome.getEmotes());
+        } else {
+            model.addAttribute("emotes", Lists.newArrayList());
+        }
         return "bot_home_hub";
     }
 

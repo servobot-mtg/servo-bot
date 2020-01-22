@@ -17,7 +17,9 @@ import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
+import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
@@ -64,16 +66,36 @@ public class HomeEditor {
         botHomeRepository.save(botHomeRow);
     }
 
-    public boolean secureCommand(int commandId, boolean secure) {
+    public boolean secureCommand(final int commandId, final boolean secure) {
         Command command = botHome.getCommandTable().secureCommand(commandId, secure);
         serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
         return command.isSecure();
     }
 
-    public boolean secureReaction(int reactionId, boolean secure) {
+    public Reaction addReaction(final String emote, final boolean secure) throws BotErrorException {
+        //return new Reaction(Reaction.UNREGISTERED_ID, emote, secure);
+        throw new BotErrorException("Not supported");
+    }
+
+    public boolean secureReaction(final int reactionId, final boolean secure) {
         Reaction reaction = botHome.getReactionTable().secureReaction(reactionId, secure);
         serializers.getReactionSerializer().saveReaction(botHome.getId(), reaction);
         return reaction.isSecure();
+    }
+
+    public void deleteReaction(final int reactionId) {
+        ReactionTableEdit reactionTableEdit = botHome.getReactionTable().deleteReaction(reactionId);
+        serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
+    }
+
+    public Pattern addPattern(final int reactionId, final String pattern) throws BotErrorException {
+        //return new Pattern(Pattern.UNREGISTERED_ID, pattern);
+        throw new BotErrorException("Not supported");
+    }
+
+    public void deletePattern(final int reactionId, final int patternId) {
+        ReactionTableEdit reactionTableEdit = botHome.getReactionTable().deletePattern(reactionId, patternId);
+        serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
     }
 
     public CommandDescriptor addCommand(final CommandRow commandRow) {

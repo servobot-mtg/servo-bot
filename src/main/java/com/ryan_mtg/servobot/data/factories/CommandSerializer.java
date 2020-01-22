@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
+import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.Permission;
@@ -64,6 +65,8 @@ public class CommandSerializer {
                         Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter());
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, isSecure, permission);
+            case EvaluateExpressionCommand.TYPE:
+                return new EvaluateExpressionCommand(id, isSecure, permission);
             case TextCommand.TYPE:
                 return new TextCommand(id, isSecure, permission, commandRow.getStringParameter());
             case FactsCommand.TYPE:
@@ -199,6 +202,11 @@ public class CommandSerializer {
         @Override
         public void visitDeleteCommand(final DeleteCommand deleteCommand) {
             saveCommand(deleteCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitEvaluateExpressionCommand(final  EvaluateExpressionCommand evaluateExpressionCommand) {
+            saveCommand(evaluateExpressionCommand, commandRow -> {});
         }
 
         @Override

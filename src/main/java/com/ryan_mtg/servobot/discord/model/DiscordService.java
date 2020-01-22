@@ -18,7 +18,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DiscordService implements Service {
     public static final int TYPE = 2;
@@ -86,5 +88,10 @@ public class DiscordService implements Service {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Chicago"));
         return formatter.format(now);
+    }
+
+    public List<String> getEmotes(final long guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        return guild.getEmotes().stream().map(emote -> emote.getName()).collect(Collectors.toList());
     }
 }

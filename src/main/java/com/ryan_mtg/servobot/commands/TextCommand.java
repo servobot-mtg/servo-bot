@@ -13,10 +13,8 @@ import java.util.regex.Pattern;
 
 public class TextCommand extends MessageCommand {
     public static final int TYPE = 1;
-    private static final String SHOW_COMMAND = "show ";
-    private static final String INCREMENT_COMMAND = "increment ";
     private final String text;
-    Pattern replacementPattern = Pattern.compile("%([^%]*)%");
+    private static Pattern REPLACEMENT_PATTERN = Pattern.compile("%([^%]*)%");
 
     public TextCommand(final int id, final boolean secure, final Permission permission, final String text) {
         super(id, secure, permission);
@@ -45,7 +43,7 @@ public class TextCommand extends MessageCommand {
 
     private String evaluate(final MessageSentEvent event) throws BotErrorException {
         StringBuilder result = new StringBuilder();
-        Matcher matcher = replacementPattern.matcher(text);
+        Matcher matcher = REPLACEMENT_PATTERN.matcher(text);
         int currentIndex = 0;
 
         HomeEditor homeEditor = event.getHomeEditor();

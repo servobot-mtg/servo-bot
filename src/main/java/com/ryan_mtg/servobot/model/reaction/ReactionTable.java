@@ -27,10 +27,31 @@ public class ReactionTable implements Iterable<Reaction> {
         reactions.stream().forEach(reaction -> reaction.getFilter().setTimeZone(timeZone));
     }
 
-    public Reaction secureReaction(int reactionId, boolean secure) {
+    public Reaction secureReaction(final int reactionId, final boolean secure) {
         Reaction reaction =
                 reactions.stream().filter(testReaction -> testReaction.getId() == reactionId).findFirst().get();
         reaction.setSecure(secure);
         return reaction;
+    }
+
+    public ReactionTableEdit deleteReaction(final int reactionId) {
+        ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
+        reactions.stream().filter(reaction -> reaction.getId() == reactionId).forEach(reaction -> {
+            reaction.getPatterns().stream().forEach(pattern -> {
+                reactionTableEdit.delete(pattern);
+            });
+            reactionTableEdit.delete(reaction);
+        });
+        return reactionTableEdit;
+    }
+
+    public ReactionTableEdit deletePattern(final int reactionId, final int patternId) {
+        ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
+        reactions.stream().filter(reaction -> reaction.getId() == reactionId).forEach(reaction -> {
+            reaction.getPatterns().stream().filter(pattern -> pattern.getId() == patternId).forEach(pattern -> {
+                reactionTableEdit.delete(pattern);
+            });
+        });
+        return reactionTableEdit;
     }
 }

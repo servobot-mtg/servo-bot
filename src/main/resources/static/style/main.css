@@ -55,6 +55,14 @@ h2 {
     color: black;
 }
 
+.pattern-label {
+    background-color: peachpuff;
+}
+
+.pattern-delete:hover {
+    background-color: white;
+    color: black;
+}
 
 .navbar {
     border-bottom: black solid 1px;
@@ -208,6 +216,11 @@ table {
 }
 
 .add-command {
+    --add-button-size: 24px;
+    margin: 12px;
+}
+
+.add-reaction {
     --add-button-size: 24px;
     margin: 12px;
 }

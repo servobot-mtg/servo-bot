@@ -23,6 +23,10 @@ public class ReactionPatternRow {
         return id;
     }
 
+    public void setId(final int id) {
+        this.id = id;
+    }
+
     public String getPattern() {
         return pattern;
     }

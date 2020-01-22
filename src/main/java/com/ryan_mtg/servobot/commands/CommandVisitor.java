@@ -5,6 +5,7 @@ public interface CommandVisitor {
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
+    void visitEvaluateExpressionCommand(EvaluateExpressionCommand evaluateExpressionCommand);
     void visitFactsCommand(FactsCommand factsCommand);
     void visitGameQueueCommand(GameQueueCommand gameQueueCommand);
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);

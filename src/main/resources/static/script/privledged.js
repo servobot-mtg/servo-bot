@@ -101,6 +101,15 @@ function deleteAlert(botHomeId, alertId) {
     postDelete('/api/delete_alert', parameters, 'alert-' + alertId);
 }
 
+function deleteReaction(botHomeId, reactionId) {
+    const parameters = {botHomeId: botHomeId, objectId: reactionId};
+    postDelete('/api/delete_reaction', parameters, 'reaction-' + reactionId + '-row');
+}
+
+function deletePattern(botHomeId, patternId) {
+    const parameters = {botHomeId: botHomeId, objectId: patternId};
+    postDelete('/api/delete_pattern', parameters, 'pattern-' + patternId);
+}
 
 function deleteStatement(event, botHomeId, bookId, statementId) {
     const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId};
@@ -395,6 +404,7 @@ const commandData = [
         parameters: [{id: 'text', name: 'Alert Token'}, {id: 'integer', name: 'Delay (seconds)'}]}, //16
     {name: 'Show Value Command', parameters: []}, //17
     {name: 'Set Value Command', parameters: []}, //18
+    {name: 'Math Command', parameters: []}, //19
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];
@@ -542,4 +552,154 @@ function addCommandRow(commandDescriptor, botHomeId) {
         deleteCommand(botHomeId, commandDescriptor.command.id);
     };
     deletionCell.innerHTML = trashcanIcon;
+}
+
+function showAddPatternForm(reactionId) {
+    const label = 'add-pattern-' + reactionId;
+    hideElementById(label + '-button');
+
+    document.getElementById(label + '-text-input').value = '';
+    showElementInlineById(label + '-form');
+}
+
+function addPattern(botHomeId, reactionId) {
+    const label = 'add-pattern-' + reactionId;
+    const text = document.getElementById(label + '-text-input').value;
+    postAddPattern(botHomeId, reactionId, text);
+}
+
+async function postAddPattern(botHomeId, reactionId, text) {
+    const label = 'add-pattern-' + reactionId;
+    const parameters = {botHomeId: botHomeId, reactionId: reactionId, pattern: text};
+    let response = await makePost('/api/add_pattern', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let pattern = await response.json();
+        addPatternTable(pattern, botHomeId, reactionId);
+    }
+}
+
+function addPatternTable(pattern, botHomeId, reactionId) {
+    const label = 'patterns-' + reactionId;
+    let patternsSpan = document.getElementById(label);
+
+    let patternTable = document.createElement('table');
+    patternTable.classList.add('pattern-label', 'label', 'label-table');
+    patternTable.id = 'pattern-' + pattern.id;
+    let row = patternTable.insertRow();
+    let aliasCell = row.insertCell();
+    aliasCell.innerHTML = pattern.patternString;
+
+    let deleteCell = row.insertCell();
+    deleteCell.classList.add('pseudo-link', 'pattern-delete');
+    deleteCell.innerHTML = 'x';
+    deleteCell.onclick = function () {
+        deletePattern(botHomeId, reactionId, pattern.id);
+    };
+
+    patternsSpan.appendChild(patternTable);
+}
+
+
+function showAddReactionForm() {
+    const label = 'add-reaction';
+    hideElementById(label + '-button');
+
+    document.getElementById(label + '-emote-input').selectedIndex = 0;
+    showElementInlineById(label + '-form');
+}
+
+function addReaction(botHomeId) {
+    const emote = document.getElementById('add-reaction-emote-input').value;
+    const secure = document.getElementById('add-reaction-secure-input').checked;
+    postAddReaction(botHomeId, emote, secure);
+}
+
+async function postAddReaction(botHomeId, emote, secure) {
+    const label = 'add-reaction';
+    const parameters = {botHomeId: botHomeId, emote: emote, secure: secure};
+    let response = await makePost('/api/add_reaction', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let reaction = await response.json();
+        addReactionRow(reaction, botHomeId);
+    }
+}
+
+function addReactionRow(reaction, botHomeId) {
+    let reactionTable = document.getElementById('reaction-table');
+    let newRow = reactionTable.insertRow();
+
+    const label = 'reaction-' + reaction.id;
+    newRow.id = label + '-row';
+    let keywordCell = newRow.insertCell();
+    keywordCell.innerHTML = reaction.emoteName;
+
+    let patternsCell = newRow.insertCell();
+    let patternsSpan = document.createElement('span');
+    patternsSpan.id = 'patterns-' + reaction.id;
+    patternsCell.appendChild(patternsSpan);
+
+    let addPatternLabel = 'add-pattern-' + reaction.id;
+    let addPatternSpan = document.createElement('span');
+    addPatternSpan.classList.add('add-pattern');
+
+    let addPatternButtonDiv = document.createElement('div');
+    addPatternButtonDiv.id = addPatternLabel + '-button';
+    addPatternButtonDiv.classList.add('pseudo-link', 'add-button');
+    addPatternButtonDiv.title = 'Add a pattern';
+    addPatternButtonDiv.onclick = function () {
+        showAddPatternForm(reaction.id);
+    };
+    addPatternButtonDiv.innerHTML = '+';
+    addPatternSpan.appendChild(addPatternButtonDiv);
+
+    let addPatternForm = document.createElement('form');
+    addPatternForm.id = addPatternLabel + '-form';
+    addPatternForm.classList.add('add-pattern-form', 'hidden');
+    addPatternForm.onsubmit = function () {
+        addPattern(botHomeId, reaction.id);
+        return false;
+    };
+
+    let addPatternTextInput = document.createElement('input');
+    addPatternTextInput.id = addPatternLabel + '-text-input';
+    addPatternTextInput.type = 'text';
+    addPatternTextInput.name = 'pattern';
+    addPatternForm.appendChild(addPatternTextInput);
+
+    let addPatternSubmitInput = document.createElement('input');
+    addPatternSubmitInput.type = 'submit';
+    addPatternSubmitInput.value = '+';
+    addPatternForm.appendChild(addPatternSubmitInput);
+    addPatternSpan.appendChild(addPatternForm);
+    patternsCell.appendChild(addPatternSpan);
+
+    let secureCell = newRow.insertCell();
+    secureCell.classList.add('pseudo-link');
+    secureCell.onclick = function (event) {
+        secureReaction(event, botHomeId, reaction.id);
+    };
+
+    let secureIconSpan = document.createElement('span');
+    secureIconSpan.id = label + '-secured';
+    secureIconSpan.innerHTML = reaction.secure ? lockedIcon : unlockedIcon;
+    secureCell.appendChild(secureIconSpan);
+
+    let secureResponseSpan = document.createElement('span');
+    secureResponseSpan.id = label + '-response';
+    secureCell.appendChild(secureResponseSpan);
+
+    let deleteCell = newRow.insertCell();
+    deleteCell.classList.add('pseudo-link');
+    deleteCell.innerHTML = trashcanIcon;
+    deleteCell.onclick = function () {
+        deleteReaction(botHomeId, reaction.id);
+    };
 }

@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.reaction;
 
-public class AlwaysReact extends AbstractReactionFilter {
+public class AlwaysReact implements ReactionFilter {
     public static final int TYPE = 1;
 
     @Override

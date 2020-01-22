@@ -4,12 +4,15 @@ import com.ryan_mtg.servobot.data.models.ReactionPatternRow;
 import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.data.repositories.ReactionPatternRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
+import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ReactionTableSerializer {
@@ -32,7 +35,7 @@ public class ReactionTableSerializer {
             Iterable<ReactionPatternRow> patterns = reactionPatternRepository.findAllByReactionId(reactionRow.getId());
 
             for (ReactionPatternRow pattern : patterns) {
-                reaction.addPattern(pattern.getPattern());
+                reaction.addPattern(reactionSerializer.createPattern(pattern));
             }
 
             reactionTable.registerReaction(reaction);
@@ -41,16 +44,31 @@ public class ReactionTableSerializer {
         return reactionTable;
     }
 
-    public void saveReactionTable(final ReactionTable reactionTable, final int botHomeId) {
+    public void saveReactionTable(final int botHomeId, final ReactionTable reactionTable) {
         List<Reaction> reactions = reactionTable.getReactions();
         for (Reaction reaction : reactions) {
-            ReactionRow reactionRow = reactionSerializer.saveReaction(botHomeId, reaction);
-            for (String pattern : reaction.getPatterns()) {
-                ReactionPatternRow reactionPatternRow = new ReactionPatternRow();
-                reactionPatternRow.setPattern(pattern);
-                reactionPatternRow.setReactionId(reactionRow.getId());
-                reactionPatternRepository.save(reactionPatternRow);
+            reactionSerializer.saveReaction(botHomeId, reaction);
+            for (Pattern pattern : reaction.getPatterns()) {
+                reactionSerializer.savePattern(reaction.getId(), pattern);
             }
+        }
+    }
+
+    public void commit(final int botHomeId, final ReactionTableEdit reactionTableEdit) {
+        for (Pattern pattern : reactionTableEdit.getDeletedPatterns()) {
+            reactionPatternRepository.deleteById(pattern.getId());
+        }
+
+        for (Reaction reaction : reactionTableEdit.getDeletedReactions()) {
+            reactionRepository.deleteById(reaction.getId());
+        }
+
+        for (Reaction reaction : reactionTableEdit.getSavedReactions()) {
+            reactionSerializer.saveReaction(botHomeId, reaction);
+        }
+
+        for (Map.Entry<Pattern, Integer> patternEntry : reactionTableEdit.getSavedPatterns().entrySet()) {
+            reactionSerializer.savePattern(patternEntry.getValue(), patternEntry.getKey());
         }
     }
 }

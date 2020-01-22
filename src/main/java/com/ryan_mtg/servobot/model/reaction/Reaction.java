@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.model.reaction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class Reaction {
     public static final int UNREGISTERED_ID = 0;
@@ -12,26 +11,29 @@ public class Reaction {
     private String emoteName;
     private boolean secure;
     private List<Pattern> patterns = new ArrayList<>();
-    private List<String> patternStrings = new ArrayList<>();
     private ReactionFilter filter;
 
-    public Reaction(final int id, final String emoteName, final boolean secure, final String... patternStrings){
-        this(id, emoteName, secure, ALWAYS_REACT, patternStrings);
+    public Reaction(final int id, final String emoteName, final boolean secure, final Pattern... patterns){
+        this(id, emoteName, secure, ALWAYS_REACT, patterns);
     }
 
     public Reaction(final int id, final String emoteName, final boolean secure, final ReactionFilter filter,
-                    final String... patternStrings){
+                    final Pattern... patterns){
         this.id = id;
         this.emoteName = emoteName;
         this.secure = secure;
         this.filter = filter;
-        for (String patternString : patternStrings) {
-            addPattern(patternString);
+        for (Pattern pattern : patterns) {
+            this.patterns.add(pattern);
         }
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(final int id) {
+        this.id = id;
     }
 
     public String getEmoteName() {
@@ -50,13 +52,12 @@ public class Reaction {
         return filter;
     }
 
-    public List<String> getPatterns() {
-        return patternStrings;
+    public void addPattern(final Pattern pattern) {
+        patterns.add(pattern);
     }
 
-    public void addPattern(final String patternString) {
-        patterns.add(filter.createPattern(patternString));
-        patternStrings.add(patternString);
+    public List<Pattern> getPatterns() {
+        return patterns;
     }
 
     public boolean matches(final String text) {
@@ -64,7 +65,7 @@ public class Reaction {
             return false;
         }
         for (Pattern pattern : patterns) {
-            if (pattern.matcher(text).find()) {
+            if (pattern.matches(text)) {
                 return true;
             }
         }

@@ -7,6 +7,8 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Statement;
+import com.ryan_mtg.servobot.model.reaction.Pattern;
+import com.ryan_mtg.servobot.model.reaction.Reaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -244,7 +246,6 @@ public class ApiController {
         }
     }
 
-
     @PostMapping(value = "/api/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteCommand(@RequestBody final DeleteObjectRequest request) {
@@ -285,6 +286,77 @@ public class ApiController {
 
         public int getObjectId() {
             return objectId;
+        }
+    }
+
+    @PostMapping(value = "/api/add_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Reaction addReaction(@RequestBody final AddReactionRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addReaction(request.getEmote(), request.isSecure());
+    }
+
+    public static class AddReactionRequest extends BotHomeRequest {
+        private String emote;
+        private boolean secure;
+
+        public String getEmote() {
+            return emote;
+        }
+
+        public boolean isSecure() {
+            return secure;
+        }
+    }
+
+    @PostMapping(value = "/api/add_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Pattern addPattern(@RequestBody final AddPatternRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addPattern(request.getReactionId(), request.getPattern());
+    }
+
+    public static class AddPatternRequest extends BotHomeRequest {
+        private int reactionId;
+        private String pattern;
+
+        public int getReactionId() {
+            return reactionId;
+        }
+
+        public String getPattern() {
+            return pattern;
+        }
+    }
+
+    @PostMapping(value = "/api/delete_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteReaction(@RequestBody final DeleteObjectRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deleteReaction(request.getObjectId());
+        });
+    }
+
+    @PostMapping(value = "/api/delete_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteReaction(@RequestBody final DeletePatternRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deletePattern(request.getReactionId(), request.getPatternId());
+        });
+    }
+
+    public static class DeletePatternRequest extends BotHomeRequest {
+        private int reactionId;
+        private int patternId;
+
+        public int getReactionId() {
+            return reactionId;
+        }
+
+        public int getPatternId() {
+            return patternId;
         }
     }
 

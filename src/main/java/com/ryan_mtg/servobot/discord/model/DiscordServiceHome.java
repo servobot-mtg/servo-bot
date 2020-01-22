@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 
+import java.util.List;
+
 public class DiscordServiceHome implements ServiceHome {
     private long guildId;
     private DiscordService discordService;
@@ -39,6 +41,11 @@ public class DiscordServiceHome implements ServiceHome {
     @Override
     public Home getHome() {
         return discordService.getHome(guildId, homeEditor);
+    }
+
+    @Override
+    public List<String> getEmotes() {
+        return discordService.getEmotes(guildId);
     }
 
     @Override
