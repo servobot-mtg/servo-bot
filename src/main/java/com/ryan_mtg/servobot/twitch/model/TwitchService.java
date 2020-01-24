@@ -11,6 +11,7 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
+import com.ryan_mtg.servobot.user.User;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,6 +81,11 @@ public class TwitchService implements Service {
         client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
 
         generator = new TwitchEventGenerator(client, eventListener, homeIdMap, userSerializer);
+    }
+
+    @Override
+    public void whisper(final User user, final String message) {
+        throw new RuntimeException("Not supported");
     }
 
     public Home getHome(final long channelId, final HomeEditor homeEditor) {

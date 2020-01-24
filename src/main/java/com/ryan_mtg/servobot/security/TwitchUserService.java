@@ -45,6 +45,10 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
             authorityList.add(new SimpleGrantedAuthority(String.format("ROLE_MOD:%d", homeId)));
         }
 
+        if (user.getTwitchId() == 81566210) {
+            authorityList.add(new SimpleGrantedAuthority(String.format("ROLE_STREAMER:%d", 1)));
+        }
+
         attributes.put("oauth_token", userRequest.getAccessToken().getTokenValue());
 
         return new DefaultOAuth2User(authorityList, attributes, "display_name");

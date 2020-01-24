@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.EventListener;
+import com.ryan_mtg.servobot.user.User;
 
 public interface Service {
     int getType();
@@ -9,4 +10,6 @@ public interface Service {
     void unregister(BotHome home);
 
     void start(EventListener eventListener) throws Exception;
+
+    void whisper(User user, String message);
 }

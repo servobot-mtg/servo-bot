@@ -8,11 +8,13 @@ import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.user.HomedUser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -69,6 +71,12 @@ public class DiscordService implements Service {
         builder.addEventListeners(new DiscordEventAdapter(eventListener, homeIdMap, userSerializer));
         jda = builder.build();
         jda.awaitReady();
+    }
+
+    @Override
+    public void whisper(final com.ryan_mtg.servobot.user.User user, final String message) {
+        User discordUser = jda.getUserById(user.getDiscordId());
+        discordUser.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
     }
 
     public Home getHome(final long guildId, final HomeEditor homeEditor) {

@@ -225,6 +225,12 @@ table {
     margin: 12px;
 }
 
+.add-reward {
+    --add-button-size: 24px;
+    margin: 12px;
+}
+
+
 .add-button {
     height: var(--add-button-size, 12px);
     width: var(--add-button-size, 12px);

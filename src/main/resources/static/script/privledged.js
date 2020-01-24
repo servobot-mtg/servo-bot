@@ -405,6 +405,10 @@ const commandData = [
     {name: 'Show Value Command', parameters: []}, //17
     {name: 'Set Value Command', parameters: []}, //18
     {name: 'Math Command', parameters: []}, //19
+    {name: 'Start Giveaway Command', parameters: []}, //20
+    {name: 'Enter Giveaway Command', parameters: []}, //21
+    {name: 'Giveaway Status Command', parameters: []}, //22
+    {name: 'Select Giveaway Winner Command', parameters: []}, //23
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];
@@ -703,3 +707,104 @@ function addReactionRow(reaction, botHomeId) {
         deleteReaction(botHomeId, reaction.id);
     };
 }
+
+function showAddRewardForm() {
+    const label = 'add-reward';
+    hideElementById(label + '-button');
+
+    let prizeInputElement = document.getElementById(label + '-prize-input');
+    prizeInputElement.value = '';
+    prizeInputElement.style.minWidth = "5em";
+    prizeInputElement.size = 30;
+    showElementInlineById(label + '-form');
+}
+
+function addReward(botHomeId) {
+    const prize = document.getElementById('add-reward-prize-input').value;
+    postAddReward(botHomeId, prize);
+}
+
+async function postAddReward(botHomeId, prize) {
+    const label = 'add-reward';
+    const parameters = {botHomeId: botHomeId, prize: prize};
+    let response = await makePost('/api/add_reward', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let reward = await response.json();
+        addRewardRow(botHomeId, reward);
+    }
+}
+
+function addRewardRow(botHomeId, reward) {
+    let rewardTable = document.getElementById('reward-table');
+    let newRow = rewardTable.insertRow();
+
+    const label = 'reward-' + reward.id;
+    newRow.id = label + '-row';
+    let prizeCell = newRow.insertCell();
+    prizeCell.innerHTML = reward.prize;
+
+    let statusCell = newRow.insertCell();
+    statusCell.innerHTML = reward.status;
+
+    let timeRemainingCell = newRow.insertCell();
+
+    let entrantsCell = newRow.insertCell();
+    entrantsCell.innerHTML = "0";
+
+    let actionsCell = newRow.insertCell();
+    actionsCell.innerHTML = "";
+
+    let winnerCell = newRow.insertCell();
+    if (reward.winner) {
+        winnerCell.innerHTML = reward.winner;
+    } else {
+        winnerCell.innerHTML = '&#x2205';
+    }
+
+    let deleteCell = newRow.insertCell();
+    deleteCell.classList.add('pseudo-link');
+    deleteCell.innerHTML = trashcanIcon;
+    deleteCell.onclick = function () {
+        deleteReward(botHomeId, reward.id);
+    };
+}
+
+function deleteReward(botHomeId, rewardId) {
+    const parameters = {botHomeId: botHomeId, objectId: rewardId};
+    postDelete('/api/delete_reward', parameters, 'reward-' + rewardId + '-row');
+}
+
+function awardReward(botHomeId, rewardId) {
+    postAwardReward(botHomeId, rewardId);
+}
+
+async function postAwardReward(botHomeId, rewardId) {
+    const parameters = {botHomeId: botHomeId, objectId: rewardId};
+    let response = await makePost('/api/award_reward', parameters, [], false);
+
+    if (response.ok) {
+        let winner = await response.json();
+        if (winner.discordName) {
+            document.getElementById('reward-' + rewardId + '-winner').innerText = winner.discordName;
+            document.getElementById('reward-' + rewardId + '-status').innerText = 'AWARDED';
+        }
+    }
+}
+
+function bestowReward(botHomeId, rewardId) {
+    postBestowReward(botHomeId, rewardId);
+}
+
+async function postBestowReward(botHomeId, rewardId) {
+    const parameters = {botHomeId: botHomeId, objectId: rewardId};
+    let response = await makePost('/api/bestow_reward', parameters, [], false);
+
+    if (response.ok) {
+        document.getElementById('reward-' + rewardId + '-status').innerText = 'BESTOWED';
+    }
+}
+

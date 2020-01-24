@@ -7,11 +7,14 @@ import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
+import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
+import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
@@ -19,6 +22,7 @@ import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.ShowValueCommand;
+import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.CommandRow;
@@ -65,13 +69,15 @@ public class CommandSerializer {
                         Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter());
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, isSecure, permission);
+            case EnterGiveawayCommand.TYPE:
+                return new EnterGiveawayCommand(id, isSecure, permission);
             case EvaluateExpressionCommand.TYPE:
                 return new EvaluateExpressionCommand(id, isSecure, permission);
-            case TextCommand.TYPE:
-                return new TextCommand(id, isSecure, permission, commandRow.getStringParameter());
             case FactsCommand.TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
                 return new FactsCommand(id, isSecure, permission, bookMap.get(bookId));
+            case GiveawayStatusCommand.TYPE:
+                return new GiveawayStatusCommand(id, isSecure, permission);
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, isSecure, permission, gameQueueId);
@@ -84,6 +90,8 @@ public class CommandSerializer {
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new RemoveFromGameQueueCommand(id, isSecure, permission, gameQueueId);
+            case SelectWinnerCommand.TYPE:
+                return new SelectWinnerCommand(id, isSecure, permission);
             case SetArenaUsernameCommand.TYPE:
                 return new SetArenaUsernameCommand(id, isSecure, permission);
             case SetRoleCommand.TYPE:
@@ -100,6 +108,10 @@ public class CommandSerializer {
                 return new ShowGameQueueCommand(id, isSecure, permission, gameQueueId);
             case ShowValueCommand.TYPE:
                 return new ShowValueCommand(id, isSecure, permission);
+            case StartGiveawayCommand.TYPE:
+                return new StartGiveawayCommand(id, isSecure, permission);
+            case TextCommand.TYPE:
+                return new TextCommand(id, isSecure, permission, commandRow.getStringParameter());
             case TierCommand.TYPE:
                 return new TierCommand(id, isSecure, permission);
         }
@@ -205,6 +217,11 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitEnterGiveawayCommand(final EnterGiveawayCommand enterGiveawayCommand) {
+            saveCommand(enterGiveawayCommand, commandRow -> {});
+        }
+
+        @Override
         public void visitEvaluateExpressionCommand(final  EvaluateExpressionCommand evaluateExpressionCommand) {
             saveCommand(evaluateExpressionCommand, commandRow -> {});
         }
@@ -221,6 +238,11 @@ public class CommandSerializer {
             saveCommand(gameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(gameQueueCommand.getGameQueueId());
             });
+        }
+
+        @Override
+        public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
+            saveCommand(giveawayStatusCommand, commandRow -> {});
         }
 
         @Override
@@ -244,6 +266,11 @@ public class CommandSerializer {
             saveCommand(removeFromGameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(removeFromGameQueueCommand.getGameQueueId());
             });
+        }
+
+        @Override
+        public void visitSelectWinnerCommand(final SelectWinnerCommand selectWinnerCommand) {
+            saveCommand(selectWinnerCommand, commandRow -> {});
         }
 
         @Override
@@ -285,6 +312,11 @@ public class CommandSerializer {
         @Override
         public void visitShowValueCommand(final ShowValueCommand showValueCommand) {
             saveCommand(showValueCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitStartGiveawayCommand(final StartGiveawayCommand startGiveawayCommand) {
+            saveCommand(startGiveawayCommand, commandRow -> {});
         }
 
         @Override

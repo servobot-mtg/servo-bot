@@ -31,14 +31,17 @@ public class Pattern {
     private java.util.regex.Pattern createPattern(final String patternString) {
         String word = patternString;
 
-        if (word.charAt(0) == '!') {
-            //TODO: make ! mean something
-            word = word.substring(1);
-        }
-
-        if (word.charAt(0) == '@') {
-            word = word.substring(1);
-            word = "\\b" + word + "\\b";
+        switch (word.charAt(0)) {
+            case '!':
+            case '<':
+                word = "\\b" + word.substring(1);
+                break;
+            case '>':
+                word = word.substring(1) + "\\b";
+                break;
+            case '@':
+                word = "\\b" + word.substring(1) + "\\b";
+                break;
         }
 
         return java.util.regex.Pattern.compile(word, java.util.regex.Pattern.CASE_INSENSITIVE);

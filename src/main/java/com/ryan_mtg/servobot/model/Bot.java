@@ -48,6 +48,10 @@ public class Bot {
         return botScope;
     }
 
+    public Service getService(final int serviceType) {
+        return services.get(serviceType);
+    }
+
     public void addHome(final BotHome home) {
         homes.add(home);
         home.setBot(this);

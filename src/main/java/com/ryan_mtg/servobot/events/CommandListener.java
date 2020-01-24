@@ -79,9 +79,15 @@ public class CommandListener implements EventListener {
 
     @Override
     public void onAlert(final AlertEvent alertEvent) {
+        LOGGER.info("Performing alert " + alertEvent.getAlertToken());
         for (HomeCommand command :
                 commandTable.getCommandsFromAlertToken(alertEvent.getAlertToken(), HomeCommand.class)) {
-            command.perform(alertEvent.getHome());
+            try {
+                LOGGER.info("Performing command " + command.getId());
+                command.perform(alertEvent.getHome());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

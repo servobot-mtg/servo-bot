@@ -14,6 +14,7 @@ import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
@@ -23,12 +24,15 @@ import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -436,12 +440,71 @@ public class HomeEditor {
         return response.toString();
     }
 
-    private String describePlayer(final int userId) {
-        User user = serializers.getUserSerializer().lookupById(userId);
-        if (user.getTwitchUsername() != null) {
-            return user.getTwitchUsername();
+    public Reward startGiveaway() throws BotErrorException {
+        Reward reward = botHome.getGiveaway().startGiveaway();
+        if (Giveaway.DURATION.toMinutes() > 5) {
+            scheduleAlert(Giveaway.DURATION.minus(5, ChronoUnit.MINUTES), "5min");
         }
-        return user.getDiscordUsername();
+
+        if (Giveaway.DURATION.toMinutes() > 1) {
+            scheduleAlert(Giveaway.DURATION.minus(1, ChronoUnit.MINUTES), "1min");
+        }
+
+        scheduleAlert(Giveaway.DURATION, "winner");
+        LOGGER.info("scheduled: " + reward.getPrize());
+        return reward;
+    }
+
+    public void enterGiveaway(final HomedUser homedUser) throws BotErrorException {
+        botHome.getGiveaway().enterGiveaway(homedUser);
+    }
+
+    public Reward getGiveaway() {
+        return botHome.getGiveaway().getCurrentReward();
+    }
+
+    public Reward addReward(final String prize) {
+        Reward reward = new Reward(Giveaway.nextRewardId, prize);
+        Giveaway.nextRewardId++;
+        botHome.getGiveaway().addReward(reward);
+        return reward;
+    }
+
+    public HomedUser awardReward(final int rewardId) throws BotErrorException {
+        Reward reward = getReward(rewardId);
+
+        if (reward.getStatus() == Reward.Status.IN_PROGRESS && reward.getTimeLeft().isZero()) {
+            reward.setStatus(Reward.Status.CONCLUDED);
+        }
+
+        reward.award();
+
+        String message = String.format("The giveaway winner is " + reward.getWinner().getName());
+        sendMessage(DiscordService.TYPE, Giveaway.DISCORD_CHANNEL, message);
+        sendMessage(TwitchService.TYPE, Giveaway.TWITCH_CHANNEL, message);
+        return reward.getWinner();
+    }
+
+    public boolean bestowReward(final int rewardId) throws BotErrorException {
+        Reward reward = getReward(rewardId);
+        if (reward.getStatus() != Reward.Status.AWARDED) {
+            throw new BotErrorException("Invalid reward state");
+        }
+        String prize = reward.getPrize();
+        HomedUser winner = reward.getWinner();
+        botHome.getGiveaway().finishGiveaway();
+
+        String announcement = "Congratulations, your code is: " + prize;
+        bot.getService(DiscordService.TYPE).whisper(winner, announcement);
+        return true;
+    }
+
+    private void sendMessage(final int serviceType, final String channelName, final String message) {
+        botHome.getServiceHome(serviceType).getHome().getChannel(channelName, serviceType).say(message);
+    }
+
+    public void deleteReward(final int rewardId) {
+        botHome.getGiveaway().deleteReward(rewardId);
     }
 
     public List<User> getArenaUsers() {
@@ -471,6 +534,18 @@ public class HomeEditor {
         return botHome.getBooks().stream().filter(b -> b.getId() == bookId).findFirst().orElse(null);
     }
 
+    private Reward getReward(final int rewardId) throws BotErrorException {
+        for (Reward reward : botHome.getGiveaway().getRewards()) {
+            System.out.println(reward.getId());
+        }
+        Reward reward = botHome.getGiveaway().getRewards().stream().
+                filter(r -> r.getId() == rewardId).findFirst().get();
+        if (reward == null) {
+            throw new BotErrorException("No reward with id " + rewardId);
+        }
+        return reward;
+    }
+
     private Statement addStatement(final Book book, final String text) throws BotErrorException {
         BookSerializer bookSerializer = serializers.getBookSerializer();
 
@@ -489,5 +564,13 @@ public class HomeEditor {
             throw new BotErrorException(String.format("Trigger '%d' not found.", trigger.getId()));
         }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+    private String describePlayer(final int userId) {
+        User user = serializers.getUserSerializer().lookupById(userId);
+        if (user.getTwitchUsername() != null) {
+            return user.getTwitchUsername();
+        }
+        return user.getDiscordUsername();
     }
 }

@@ -49,4 +49,11 @@ public class User {
     public String getArenaUsername() {
         return arenaUsername;
     }
+
+    public String getName() {
+        if (twitchUsername != null) {
+            return twitchUsername;
+        }
+        return discordUsername;
+    }
 }

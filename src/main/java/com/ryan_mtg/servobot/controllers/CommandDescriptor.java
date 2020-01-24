@@ -9,12 +9,15 @@ import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
+import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
+import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
@@ -22,6 +25,7 @@ import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.ShowValueCommand;
+import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
@@ -141,6 +145,12 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitEnterGiveawayCommand(final EnterGiveawayCommand enterGiveawayCommand) {
+            type = "Enter Giveaway Command";
+            description = "Enters the user into the current giveaway";
+        }
+
+        @Override
         public void visitEvaluateExpressionCommand(final EvaluateExpressionCommand evaluateExpressionCommand) {
             type = "Math Command";
             description = "Used to evaluate an expression";
@@ -157,6 +167,12 @@ public class CommandDescriptor {
         public void visitGameQueueCommand(final GameQueueCommand gameQueueCommand) {
             type = "Game Queue Command";
             description = "Has subcommands to manipulate the game queue";
+        }
+
+        @Override
+        public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
+            type = "Giveaway Status Command";
+            description = "Displays the status of the current giveaway";
         }
 
         @Override
@@ -177,6 +193,12 @@ public class CommandDescriptor {
         public void visitRemoveFromGameQueueCommand(final RemoveFromGameQueueCommand removeFromGameQueueCommand) {
             type = "Remove From Game Queue Command";
             description = "Removes the user from the game queue";
+        }
+
+        @Override
+        public void visitSelectWinnerCommand(final SelectWinnerCommand selectWinnerCommand) {
+            type = "Select Giveaway Winner Command";
+            description = "Selects a winner for the current giveaway";
         }
 
         @Override
@@ -220,6 +242,12 @@ public class CommandDescriptor {
         public void visitShowValueCommand(final ShowValueCommand showValueCommand) {
             type = "Show Value Command";
             description = "Shows the stored value";
+        }
+
+        @Override
+        public void visitStartGiveawayCommand(final StartGiveawayCommand startGiveawayCommand) {
+            type = "Start Giveaway Command";
+            description = "Starts a new giveaway";
         }
 
         @Override

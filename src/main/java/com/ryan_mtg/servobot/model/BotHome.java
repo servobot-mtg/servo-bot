@@ -29,6 +29,7 @@ public class BotHome {
     private Map<Integer, ServiceHome> serviceHomes;
     private List<Book> books;
     private List<GameQueue> gameQueues;
+    private Giveaway giveaway;
     private boolean active = false;
     private MultiDelegatingListener eventListener;
 
@@ -45,6 +46,7 @@ public class BotHome {
         this.serviceHomes = serviceHomes;
         this.books = books;
         this.gameQueues = gameQueues;
+        this.giveaway = new Giveaway();
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
@@ -123,6 +125,10 @@ public class BotHome {
 
     public List<GameQueue> getGameQueues() {
         return gameQueues;
+    }
+
+    public Giveaway getGiveaway() {
+        return giveaway;
     }
 
     public GameQueue getGameQueue(final int gameQueueId) {

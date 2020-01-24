@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.controllers.exceptions.AccessDeniedException;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,16 @@ import java.net.HttpURLConnection;
 
 @ControllerAdvice
 public class ErrorHandler {
+    @ExceptionHandler(BotErrorException.class)
+    public ModelAndView renderBotError(final BotErrorException botError) {
+        botError.printStackTrace();
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setStatus(HttpStatus.BAD_REQUEST);
+        modelAndView.setView(new MappingJackson2JsonView());
+        modelAndView.addObject("message", botError.getErrorMessage());
+        return modelAndView;
+    }
+
     @ExceptionHandler(Throwable.class)
     public ModelAndView renderErrorPage(final HttpServletRequest httpRequest, final Throwable exception,
                                   final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
