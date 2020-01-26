@@ -85,6 +85,12 @@ public class DiscordHome implements Home {
             return new DiscordEmote(emote);
         }
 
+        emotes = guild.getJDA().getEmotesByName(emoteName, true);
+        if (!emotes.isEmpty()) {
+            net.dv8tion.jda.api.entities.Emote emote = emotes.get(0);
+            return new DiscordEmote(emote);
+        }
+
         LOGGER.warn("Unable to find emote " + emoteName + " in " + guild);
         return null;
     }

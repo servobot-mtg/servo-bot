@@ -72,7 +72,8 @@ public class CommandSerializer {
             case EnterGiveawayCommand.TYPE:
                 return new EnterGiveawayCommand(id, isSecure, permission);
             case EvaluateExpressionCommand.TYPE:
-                return new EvaluateExpressionCommand(id, isSecure, permission);
+                boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
+                return new EvaluateExpressionCommand(id, isSecure, permission, gabyEasterEgg);
             case FactsCommand.TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
                 return new FactsCommand(id, isSecure, permission, bookMap.get(bookId));
@@ -222,7 +223,7 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitEvaluateExpressionCommand(final  EvaluateExpressionCommand evaluateExpressionCommand) {
+        public void visitEvaluateExpressionCommand(final EvaluateExpressionCommand evaluateExpressionCommand) {
             saveCommand(evaluateExpressionCommand, commandRow -> {});
         }
 

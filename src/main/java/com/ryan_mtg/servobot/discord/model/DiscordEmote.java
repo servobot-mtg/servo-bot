@@ -12,4 +12,9 @@ public class DiscordEmote implements Emote {
     public net.dv8tion.jda.api.entities.Emote getDiscordEmote() {
         return emote;
     }
+
+    @Override
+    public String getMessageText() {
+        return emote.getAsMention();
+    }
 }
