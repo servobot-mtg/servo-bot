@@ -127,7 +127,7 @@
                     </td>
 
                     <td th:if="${privledged}" class="pseudo-link"
-                        th:onclick="'secureCommand(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                        th:onclick="'secureCommand(' + ${botHome.id} + ', ' + ${command.id} + ')'">
                             <span th:id="${label} + '-secured'"
                                   th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
                         <span th:id="${label} + '-response'"/>
