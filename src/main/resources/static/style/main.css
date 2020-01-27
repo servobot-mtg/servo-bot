@@ -28,6 +28,16 @@ h2 {
     border: 0;
 }
 
+.icon-cell {
+    width: 75px;
+}
+
+.icon {
+    display: inline;
+    width: 20px;
+    height: 20px;
+}
+
 .alias-label {
     background-color: #BBDDFF;
 }

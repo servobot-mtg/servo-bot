@@ -1,14 +1,23 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
+
 public abstract class Command {
     public static final int UNREGISTERED_ID = 0;
+
+    public static final int SECURE_FLAG = 1<<0;
+    public static final int TWITCH_FLAG = 1<<TwitchService.TYPE;
+    public static final int DISCORD_FLAG = 1<<DiscordService.TYPE;
+    public static final int DEFAULT_FLAGS = TWITCH_FLAG | DISCORD_FLAG;
+
     private int id;
-    private boolean secure;
+    private int flags;
     private Permission permission;
 
-    public Command(final int id, final boolean secure, final Permission permission) {
+    public Command(final int id, final int flags, final Permission permission) {
         this.id = id;
-        this.secure = secure;
+        this.flags = flags;
         this.permission = permission;
     }
 
@@ -20,12 +29,32 @@ public abstract class Command {
         this.id = id;
     }
 
+    public int getFlags() {
+        return flags;
+    }
+
     public boolean isSecure() {
-        return secure;
+        return (flags & SECURE_FLAG) != 0;
+    }
+
+    public boolean isTwitch() {
+        return (flags & TWITCH_FLAG) != 0;
+    }
+
+    public boolean isDiscord() {
+        return (flags & DISCORD_FLAG) != 0;
     }
 
     public void setSecure(final boolean secure) {
-        this.secure = secure;
+        setFlag(SECURE_FLAG, secure);
+    }
+
+    public boolean getService(int serivceType) {
+        return (flags & 1<<serivceType) != 0;
+    }
+
+    public void setService(int serivceType, boolean value) {
+        setFlag(1<<serivceType, value);
     }
 
     public Permission getPermission() {
@@ -38,4 +67,12 @@ public abstract class Command {
 
     public abstract int getType();
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
+
+    private void setFlag(final int flag, final boolean value) {
+        if (value) {
+            flags = flags | flag;
+        } else {
+            flags = flags & ~flag;
+        }
+    }
 }

@@ -210,8 +210,16 @@ public class HomeEditor {
         botHome.getListener().onAlert(alertEvent);
     }
 
+    public boolean setCommandService(final int commandId, final int serivceType, final boolean value) {
+        Command command = botHome.getCommandTable().getCommand(commandId);
+        command.setService(serivceType, value);
+        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
+        return command.getService(serivceType);
+    }
+
     public Permission setCommandPermission(final int commandId, final Permission permission) {
-        Command command = botHome.getCommandTable().setCommandPermission(commandId, permission);
+        Command command = botHome.getCommandTable().getCommand(commandId);
+        command.setPermission(permission);
         serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
         return command.getPermission();
     }

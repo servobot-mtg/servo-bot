@@ -158,10 +158,8 @@ public class CommandTable {
         return command;
     }
 
-    public Command setCommandPermission(final int commandId, final Permission permission) {
-        Command command = idToCommandMap.get(commandId);
-        command.setPermission(permission);
-        return command;
+    public Command getCommand(final int commandId) {
+        return idToCommandMap.get(commandId);
     }
 
     private String canonicalize(final String token) {

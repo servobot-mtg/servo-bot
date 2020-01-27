@@ -8,8 +8,8 @@ public class SetRoleCommand extends UserCommand {
     public static final int TYPE = 13;
     private String role;
 
-    public SetRoleCommand(final  int id, final boolean secure, final Permission permission, final String role) {
-        super(id, secure, permission);
+    public SetRoleCommand(final  int id, final int flags, final Permission permission, final String role) {
+        super(id, flags, permission);
         this.role = role;
     }
 

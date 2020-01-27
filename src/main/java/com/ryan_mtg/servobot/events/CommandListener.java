@@ -6,7 +6,6 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.UserCommand;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import org.slf4j.Logger;
@@ -52,10 +51,14 @@ public class CommandListener implements EventListener {
         if (command instanceof MessageCommand) {
             MessageCommand messageCommand = (MessageCommand) command;
             LOGGER.info("Peforming " + commandString + " for " + sender.getName() + " with arguments " + arguments);
-            if (hasPermissions(messageSentEvent.getHome(), sender, messageCommand)) {
-                messageCommand.perform(messageSentEvent, arguments);
-            } else {
-                throw new BotErrorException(String.format("%s is not allowed to %s.", sender.getName(), commandString));
+
+            if (messageCommand.getService(messageSentEvent.getServiceType())) {
+                if (hasPermissions(messageSentEvent, sender, messageCommand)) {
+                    messageCommand.perform(messageSentEvent, arguments);
+                } else {
+                    throw new BotErrorException(
+                            String.format("%s is not allowed to %s.", sender.getName(), commandString));
+                }
             }
         } else if (command == null){
             messageSentEvent.getHomeEditor().addSuggestion(commandString);
@@ -91,7 +94,8 @@ public class CommandListener implements EventListener {
         }
     }
 
-    private boolean hasPermissions(final Home home, final User sender, final MessageCommand messageCommand) {
+    private boolean hasPermissions(final MessageSentEvent event, final User sender,
+                                   final MessageCommand messageCommand) {
         switch (messageCommand.getPermission()) {
             case ANYONE:
                 return true;
@@ -104,7 +108,7 @@ public class CommandListener implements EventListener {
                     return true;
                 }
             case STREAMER:
-                if (home.isStreamer(sender)) {
+                if (event.getHome().isStreamer(sender)) {
                     return true;
                 }
             case ADMIN:

@@ -16,8 +16,8 @@ public class TextCommand extends MessageCommand {
     private final String text;
     private static Pattern REPLACEMENT_PATTERN = Pattern.compile("%([^%]*)%");
 
-    public TextCommand(final int id, final boolean secure, final Permission permission, final String text) {
-        super(id, secure, permission);
+    public TextCommand(final int id, final int flags, final Permission permission, final String text) {
+        super(id, flags, permission);
         this.text = text;
     }
 

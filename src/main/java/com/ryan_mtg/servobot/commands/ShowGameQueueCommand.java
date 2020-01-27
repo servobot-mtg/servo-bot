@@ -7,9 +7,9 @@ public class ShowGameQueueCommand extends MessageCommand {
     public static final int TYPE = 9;
     private int gameQueueId;
 
-    public ShowGameQueueCommand(final int id, final boolean secure, final Permission permission,
+    public ShowGameQueueCommand(final int id, final int flags, final Permission permission,
                                 final int gameQueueId) {
-        super(id, secure, permission);
+        super(id, flags, permission);
         this.gameQueueId = gameQueueId;
     }
 

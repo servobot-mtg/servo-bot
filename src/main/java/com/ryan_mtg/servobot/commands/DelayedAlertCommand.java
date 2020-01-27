@@ -9,9 +9,9 @@ public class DelayedAlertCommand extends HomeCommand {
     private Duration delay;
     private String alertToken;
 
-    public DelayedAlertCommand(final int id, final boolean secure, final Permission permission,
+    public DelayedAlertCommand(final int id, final int flags, final Permission permission,
                                final Duration delay, final String alertToken) {
-        super(id, secure, permission);
+        super(id, flags, permission);
         this.delay = delay;
         this.alertToken = alertToken;
     }

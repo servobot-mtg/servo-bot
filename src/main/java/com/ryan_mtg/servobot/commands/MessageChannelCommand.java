@@ -8,9 +8,9 @@ public class MessageChannelCommand extends HomeCommand {
     private final String channelName;
     private final String message;
 
-    public MessageChannelCommand(final int id, final boolean secure, final Permission permission,
+    public MessageChannelCommand(final int id, final int flags, final Permission permission,
                                  final int serviceType, final String channelName, final String message) {
-        super(id, secure, permission);
+        super(id, flags, permission);
         this.serviceType = serviceType;
         this.channelName = channelName;
         this.message = message;

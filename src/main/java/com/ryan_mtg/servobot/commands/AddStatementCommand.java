@@ -11,8 +11,8 @@ public class AddStatementCommand extends MessageCommand {
     public static final int TYPE = 15;
     public static final Pattern bookPattern = Pattern.compile("\\w+");
 
-    public AddStatementCommand(final int id, final boolean secure, final Permission permission) {
-        super(id, secure, permission);
+    public AddStatementCommand(final int id, final int flags, final Permission permission) {
+        super(id, flags, permission);
     }
 
     @Override

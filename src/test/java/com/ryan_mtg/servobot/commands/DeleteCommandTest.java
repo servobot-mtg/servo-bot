@@ -14,7 +14,7 @@ import static org.mockito.Mockito.verify;
 
 public class DeleteCommandTest {
     private static final int ID = 1;
-    private static final boolean SECURE = true;
+    private static final int SECURE = 1;
     private static final Permission PERMISSION = Permission.MOD;
     private static final String COMMAND_NAME = "command_name";
 

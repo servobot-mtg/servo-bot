@@ -76,6 +76,30 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/api/set_command_service", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean setCommandService(@RequestBody final SetCommandServiceRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.setCommandService(request.getCommandId(), request.getServiceType(), request.getValue());
+    }
+
+    public static class SetCommandServiceRequest extends BotHomeRequest {
+        private int commandId;
+        private int serviceType;
+        private boolean value;
+
+        public int getCommandId() {
+            return commandId;
+        }
+
+        public int getServiceType() {
+            return serviceType;
+        }
+
+        public boolean getValue() {
+            return value;
+        }
+    }
+
     @PostMapping(value = "/api/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Permission secureReaction(@RequestBody final SetPermissionRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -204,7 +228,7 @@ public class ApiController {
         CommandRow commandRow = new CommandRow();
         commandRow.setType(request.getType());
         commandRow.setPermission(request.getPermission());
-        commandRow.setSecure(request.isSecure());
+        commandRow.setFlags(request.getFlags());
         commandRow.setStringParameter(request.getStringParameter());
         commandRow.setStringParameter2(request.getStringParameter2());
         commandRow.setLongParameter(request.getLongParameter());
@@ -214,7 +238,7 @@ public class ApiController {
     public static class AddCommandRequest extends BotHomeRequest {
         private int type;
         private Permission permission;
-        private boolean secure;
+        private int flags;
         private String stringParameter;
         private String stringParameter2;
         private Long longParameter;
@@ -227,8 +251,8 @@ public class ApiController {
             return permission;
         }
 
-        public boolean isSecure() {
-            return secure;
+        public int getFlags() {
+            return flags;
         }
 
         public void setPermission(Permission permission) {

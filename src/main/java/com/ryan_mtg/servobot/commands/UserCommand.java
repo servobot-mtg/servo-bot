@@ -5,8 +5,8 @@ import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
 
 public abstract class UserCommand extends Command {
-    public UserCommand(final int id, final boolean secure, final Permission permission) {
-        super(id, secure, permission);
+    public UserCommand(final int id, final int flags, final Permission permission) {
+        super(id, flags, permission);
     }
 
     public abstract void perform(Home home, User user) throws BotErrorException;

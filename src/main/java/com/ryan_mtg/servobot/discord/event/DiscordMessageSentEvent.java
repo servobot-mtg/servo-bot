@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.discord.event;
 import com.ryan_mtg.servobot.discord.model.DiscordChannel;
 import com.ryan_mtg.servobot.discord.model.DiscordHome;
 import com.ryan_mtg.servobot.discord.model.DiscordMessage;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
@@ -38,5 +39,10 @@ public class DiscordMessageSentEvent extends DiscordEvent implements MessageSent
     @Override
     public User getSender() {
         return sender;
+    }
+
+    @Override
+    public int getServiceType() {
+        return DiscordService.TYPE;
     }
 }

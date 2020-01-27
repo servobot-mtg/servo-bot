@@ -7,8 +7,8 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 public class DeleteCommand extends MessageCommand{
     public static final int TYPE = 6;
 
-    public DeleteCommand(final int id, final boolean secure, final Permission permission) {
-        super(id, secure, permission);
+    public DeleteCommand(final int id, final int flags, final Permission permission) {
+        super(id, flags, permission);
     }
 
     @Override

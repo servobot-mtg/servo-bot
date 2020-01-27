@@ -15,13 +15,13 @@ import static org.mockito.Mockito.verify;
 
 public class SetArenaUsernameCommandTest {
     private static final int ID = 1;
-    private static final boolean SECURE = true;
+    private static final int FLAGS = 1;
     private static final Permission PERMISSION = Permission.MOD;
     private static final String ARENA_NAME = "name#12345";
 
     @Test
     public void testPerform() throws BotErrorException {
-        SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, SECURE, PERMISSION);
+        SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, FLAGS, PERMISSION);
 
         BotEditor botEditor = mockBotEditor();
         Channel channel = mockChannel();
@@ -36,7 +36,7 @@ public class SetArenaUsernameCommandTest {
 
     @Test(expected = BotErrorException.class)
     public void testThrowsWhenUsernameIsTooLong() throws BotErrorException {
-        SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, SECURE, PERMISSION);
+        SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, FLAGS, PERMISSION);
 
         BotEditor botEditor = mockBotEditor();
         Channel channel = mockChannel();
@@ -53,7 +53,7 @@ public class SetArenaUsernameCommandTest {
 
     @Test(expected = BotErrorException.class)
     public void testThrowsWhenUsernameDoesNotHaveNumber() throws BotErrorException {
-        SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, SECURE, PERMISSION);
+        SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, FLAGS, PERMISSION);
 
         BotEditor botEditor = mockBotEditor();
         Channel channel = mockChannel();

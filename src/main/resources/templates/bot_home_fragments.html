@@ -61,7 +61,7 @@
                 <th>Type</th>
                 <th>Description</th>
                 <th>Triggers</th>
-                <th th:if="${privledged}">Secure</th>
+                <th>Options</th>
                 <th>Permissions</th>
                 <th th:if="${privledged}">Delete</th>
             </tr></thead>
@@ -126,11 +126,29 @@
                         </span>
                     </td>
 
-                    <td th:if="${privledged}" class="pseudo-link"
-                        th:onclick="'secureCommand(' + ${botHome.id} + ', ' + ${command.id} + ')'">
-                            <span th:id="${label} + '-secured'"
-                                  th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
-                        <span th:id="${label} + '-response'"/>
+                    <td class="icon-cell">
+                        <span th:id="${label} + '-secured'" th:if="${privledged}" class="pseudo-link"
+                              th:onclick="'secureCommand(' + ${botHome.id} + ', ' + ${command.id} + ')'"
+                              th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+                        <span th:id="${label} + '-secure-response'"></span>
+
+                        <span th:id="${label} + '-twitch'" th:if="${privledged}" class="pseudo-link"
+                              th:onclick="'toggleCommandTwitch(' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                            <img th:id="${label} + '-twitch-img'" class="icon" title="Toggle Twitch use"
+                                 th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
+                            <span th:id="${label} + '-twitch-response'"></span>
+                        </span>
+                        <img th:if="${!privledged}" class="icon"
+                             th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
+
+                        <span th:id="${label} + '-discord'" th:if="${privledged}" class="pseudo-link"
+                              th:onclick="'toggleCommandDiscord(' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                            <img th:id="${label} + '-discord-img'" class="icon" title="Toggle Discord use"
+                                 th:src="${command.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
+                            <span th:id="${label} + '-discord-response'"></span>
+                        </span>
+                        <img th:if="${!privledged}" class="icon"
+                             th:src="${command.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
                     </td>
 
                     <td th:if="${!privledged}" th:text="${command.permission}"></td>
@@ -286,7 +304,7 @@
                         th:onclick="'secureReaction(' + ${botHome.id} + ', ' + ${reaction.id} + ')'">
                             <span th:class="${label} + '-secured'"
                                   th:text="${reaction.secure ? '&#x1F512;' : '&#x1F511;'}"/>
-                        <span th:class="${label} + '-response'"/>
+                        <span th:class="${label} + '-secure-response'"/>
                     </td>
 
                     <td th:if="${privledged}" class="pseudo-link"

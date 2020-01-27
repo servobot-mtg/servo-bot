@@ -34,7 +34,7 @@ async function postSecureObject(endPoint, botHomeId, objectId, label) {
     let valueElement = document.getElementById(label + '-secured');
     const secure = valueElement.innerText != decodedLockedIcon;
     const parameters = {botHomeId: botHomeId, objectId: objectId, secure: secure};
-    const responseElement = document.getElementById(label + '-response');
+    const responseElement = document.getElementById(label + '-secure-response');
     let response = await makePost(endPoint, parameters, [responseElement], false);
     if (response.ok) {
         setSecure(document.getElementById(label + '-row'), valueElement, await response.json());
@@ -50,6 +50,31 @@ function setSecure(rowElement, iconElement, secure) {
         rowElement.classList.remove('secure');
     }
 }
+
+function toggleCommandTwitch(botHomeId, commandId) {
+    postSetCommandService(botHomeId, commandId, 'command-' + commandId, 'twitch', 1);
+}
+
+function toggleCommandDiscord(botHomeId, commandId) {
+    postSetCommandService(botHomeId, commandId, 'command-' + commandId, 'discord', 2);
+}
+
+async function postSetCommandService(botHomeId, commandId, label, service, serviceType) {
+    let imgElement = document.getElementById(label + '-' + service + '-img');
+    const serviceValue = imgElement.src.endsWith('/images/' + service + '.ico');
+    const parameters = {botHomeId: botHomeId, commandId: commandId, serviceType: serviceType, value: !serviceValue};
+    const responseElement = document.getElementById(label + '-' + service + '-response');
+    let response =
+        await makePost('/api/set_command_service', parameters, [responseElement], false);
+    if (response.ok) {
+        if (serviceValue) {
+            imgElement.src = '/images/no-' + service + '.ico';
+        } else {
+            imgElement.src = '/images/' + service + '.ico';
+        }
+    }
+}
+
 
 function updateCommandPermission(event, botHomeId, commandId) {
     postUpdateCommandPermission(botHomeId, commandId, event.target.value,

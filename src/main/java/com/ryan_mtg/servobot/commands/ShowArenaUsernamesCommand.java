@@ -9,8 +9,8 @@ import java.util.List;
 public class ShowArenaUsernamesCommand extends MessageCommand {
     public static final int TYPE = 12;
 
-    public ShowArenaUsernamesCommand(int id, boolean secure, Permission permission) {
-        super(id, secure, permission);
+    public ShowArenaUsernamesCommand(final int id, final int flags, final Permission permission) {
+        super(id, flags, permission);
     }
 
     @Override

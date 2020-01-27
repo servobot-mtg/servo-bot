@@ -7,8 +7,8 @@ import com.ryan_mtg.servobot.model.User;
 public class TierCommand extends MessageCommand {
     public static final int TYPE = 3;
 
-    public TierCommand(final int id, final boolean secure, final Permission permission) {
-        super(id, secure, permission);
+    public TierCommand(final int id, final int flags, final Permission permission) {
+        super(id, flags, permission);
     }
 
     @Override

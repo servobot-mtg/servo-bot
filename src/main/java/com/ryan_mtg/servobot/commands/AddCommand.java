@@ -11,8 +11,8 @@ public class AddCommand extends MessageCommand {
     public static final int TYPE = 5;
     public static final Pattern commandPattern = Pattern.compile("\\w+");
 
-    public AddCommand(final int id, final boolean secure, final Permission permission) {
-        super(id, secure, permission);
+    public AddCommand(final int id, final int flags, final Permission permission) {
+        super(id, flags, permission);
     }
 
     @Override
@@ -57,7 +57,8 @@ public class AddCommand extends MessageCommand {
         }
 
         HomeEditor homeEditor = event.getHomeEditor();
-        homeEditor.addCommand(command, new TextCommand(Command.UNREGISTERED_ID, false, Permission.ANYONE, text));
+        homeEditor.addCommand(command,
+                new TextCommand(Command.UNREGISTERED_ID, DEFAULT_FLAGS, Permission.ANYONE, text));
 
         String finalText = String.format("Command %s added.", command);
         MessageCommand.say(event, finalText);

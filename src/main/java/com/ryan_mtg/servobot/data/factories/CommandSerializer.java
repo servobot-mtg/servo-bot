@@ -57,64 +57,64 @@ public class CommandSerializer {
 
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
         int id = commandRow.getId();
-        boolean isSecure = commandRow.isSecure();
+        int flags = commandRow.getFlags();
         Permission permission = commandRow.getPermission();
         switch (commandRow.getType()) {
             case AddCommand.TYPE:
-                return new AddCommand(id, isSecure, permission);
+                return new AddCommand(id, flags, permission);
             case AddStatementCommand.TYPE:
-                return new AddStatementCommand(id, isSecure, permission);
+                return new AddStatementCommand(id, flags, permission);
             case DelayedAlertCommand.TYPE:
-                return new DelayedAlertCommand(id, isSecure, permission,
+                return new DelayedAlertCommand(id, flags, permission,
                         Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter());
             case DeleteCommand.TYPE:
-                return new DeleteCommand(id, isSecure, permission);
+                return new DeleteCommand(id, flags, permission);
             case EnterGiveawayCommand.TYPE:
-                return new EnterGiveawayCommand(id, isSecure, permission);
+                return new EnterGiveawayCommand(id, flags, permission);
             case EvaluateExpressionCommand.TYPE:
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
-                return new EvaluateExpressionCommand(id, isSecure, permission, gabyEasterEgg);
+                return new EvaluateExpressionCommand(id, flags, permission, gabyEasterEgg);
             case FactsCommand.TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
-                return new FactsCommand(id, isSecure, permission, bookMap.get(bookId));
+                return new FactsCommand(id, flags, permission, bookMap.get(bookId));
             case GiveawayStatusCommand.TYPE:
-                return new GiveawayStatusCommand(id, isSecure, permission);
+                return new GiveawayStatusCommand(id, flags, permission);
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new GameQueueCommand(id, isSecure, permission, gameQueueId);
+                return new GameQueueCommand(id, flags, permission, gameQueueId);
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new JoinGameQueueCommand(id, isSecure, permission, gameQueueId);
+                return new JoinGameQueueCommand(id, flags, permission, gameQueueId);
             case MessageChannelCommand.TYPE:
-                return new MessageChannelCommand(id, isSecure, permission, commandRow.getLongParameter().intValue(),
+                return new MessageChannelCommand(id, flags, permission, commandRow.getLongParameter().intValue(),
                         commandRow.getStringParameter(), commandRow.getStringParameter2());
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new RemoveFromGameQueueCommand(id, isSecure, permission, gameQueueId);
+                return new RemoveFromGameQueueCommand(id, flags, permission, gameQueueId);
             case SelectWinnerCommand.TYPE:
-                return new SelectWinnerCommand(id, isSecure, permission);
+                return new SelectWinnerCommand(id, flags, permission);
             case SetArenaUsernameCommand.TYPE:
-                return new SetArenaUsernameCommand(id, isSecure, permission);
+                return new SetArenaUsernameCommand(id, flags, permission);
             case SetRoleCommand.TYPE:
-                return new SetRoleCommand(id, isSecure, permission, commandRow.getStringParameter());
+                return new SetRoleCommand(id, flags, permission, commandRow.getStringParameter());
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
-                return new SetStatusCommand(id, isSecure, permission, bookMap.get(bookId));
+                return new SetStatusCommand(id, flags, permission, bookMap.get(bookId));
             case SetValueCommand.TYPE:
-                return new SetValueCommand(id, isSecure, permission);
+                return new SetValueCommand(id, flags, permission);
             case ShowArenaUsernamesCommand.TYPE:
-                return new ShowArenaUsernamesCommand(id, isSecure, permission);
+                return new ShowArenaUsernamesCommand(id, flags, permission);
             case ShowGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new ShowGameQueueCommand(id, isSecure, permission, gameQueueId);
+                return new ShowGameQueueCommand(id, flags, permission, gameQueueId);
             case ShowValueCommand.TYPE:
-                return new ShowValueCommand(id, isSecure, permission);
+                return new ShowValueCommand(id, flags, permission);
             case StartGiveawayCommand.TYPE:
-                return new StartGiveawayCommand(id, isSecure, permission);
+                return new StartGiveawayCommand(id, flags, permission);
             case TextCommand.TYPE:
-                return new TextCommand(id, isSecure, permission, commandRow.getStringParameter());
+                return new TextCommand(id, flags, permission, commandRow.getStringParameter());
             case TierCommand.TYPE:
-                return new TierCommand(id, isSecure, permission);
+                return new TierCommand(id, flags, permission);
         }
         throw new IllegalArgumentException("Unsupported command type: " + commandRow.getType());
     }
@@ -334,7 +334,7 @@ public class CommandSerializer {
 
         private void saveCommand(final Command command, final Consumer<CommandRow> consumer) {
             commandRow.setId(command.getId());
-            commandRow.setSecure(command.isSecure());
+            commandRow.setFlags(command.getFlags());
             commandRow.setType(command.getType());
             commandRow.setBotHomeId(botHomeId);
             commandRow.setPermission(command.getPermission());

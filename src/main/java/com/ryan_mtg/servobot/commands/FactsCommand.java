@@ -8,8 +8,8 @@ public class FactsCommand extends MessageCommand {
 
     private Book book;
 
-    public FactsCommand(final int id, final boolean secure, final Permission permission, final Book book) {
-        super(id, secure, permission);
+    public FactsCommand(final int id, final int flags, final Permission permission, final Book book) {
+        super(id, flags, permission);
         this.book = book;
     }
 

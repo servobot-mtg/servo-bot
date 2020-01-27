@@ -14,8 +14,8 @@ public class GameQueueCommand extends MessageCommand {
 
     private int gameQueueId;
 
-    public GameQueueCommand(final int id, final boolean secure, final Permission permission, final int gameQueueId) {
-        super(id, secure, permission);
+    public GameQueueCommand(final int id, final int flags, final Permission permission, final int gameQueueId) {
+        super(id, flags, permission);
         this.gameQueueId = gameQueueId;
     }
 

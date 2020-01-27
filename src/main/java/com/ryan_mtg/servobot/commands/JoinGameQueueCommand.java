@@ -8,9 +8,9 @@ public class JoinGameQueueCommand extends MessageCommand {
     public static final int TYPE = 8;
     private int gameQueueId;
 
-    public JoinGameQueueCommand(final int id, final boolean secure, final Permission permission,
+    public JoinGameQueueCommand(final int id, final int flags, final Permission permission,
                                 final int gameQueueId) {
-        super(id, secure, permission);
+        super(id, flags, permission);
         this.gameQueueId = gameQueueId;
     }
 

@@ -16,7 +16,7 @@ public class CommandRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private boolean secure;
+    private int flags;
 
     private Permission permission;
 
@@ -38,12 +38,12 @@ public class CommandRow {
         this.id = id;
     }
 
-    public boolean isSecure() {
-        return secure;
+    public int getFlags() {
+        return flags;
     }
 
-    public void setSecure(final boolean secure) {
-        this.secure = secure;
+    public void setFlags(final int flags) {
+        this.flags = flags;
     }
 
     public Permission getPermission() {

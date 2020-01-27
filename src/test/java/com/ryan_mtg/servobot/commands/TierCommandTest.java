@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 
 public class TierCommandTest {
     private static final int ID = 1;
-    private static final boolean SECURE = true;
+    private static final int FLAGS = 1;
     private static final Permission PERMISSION = Permission.MOD;
     private static final String USER_NAME = "username";
     private static final String ROLE = "role";
@@ -22,7 +22,7 @@ public class TierCommandTest {
 
     @Test
     public void testPerform() {
-        TierCommand command = new TierCommand(ID, SECURE, PERMISSION);
+        TierCommand command = new TierCommand(ID, FLAGS, PERMISSION);
 
         Home home = mockHome();
         Channel channel = mockChannel();

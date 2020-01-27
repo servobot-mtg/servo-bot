@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.model.TwitchChannel;
 import com.ryan_mtg.servobot.twitch.model.TwitchMessage;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 
 public class TwitchMessageSentEvent implements MessageSentEvent {
@@ -33,6 +34,11 @@ public class TwitchMessageSentEvent implements MessageSentEvent {
     @Override
     public User getSender() {
         return sender;
+    }
+
+    @Override
+    public int getServiceType() {
+        return TwitchService.TYPE;
     }
 
     @Override

@@ -16,14 +16,14 @@ import static org.mockito.Mockito.when;
 
 public class TextCommandTest {
     private static final int ID = 1;
-    private static final boolean SECURE = true;
+    private static final int FLAGS = 1;
     private static final Permission PERMISSION = Permission.MOD;
     private static final String TEXT = "text";
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
     public void testPerform() throws BotErrorException {
-        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, TEXT);
+        TextCommand command = new TextCommand(ID, FLAGS, PERMISSION, TEXT);
 
         Channel channel = mockChannel();
         MessageSentEvent event = mockMessageSentEvent(channel);
@@ -35,7 +35,7 @@ public class TextCommandTest {
 
     @Test
     public void testPerformSubstitutesUserName() throws BotErrorException {
-        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Hello, %sender%!");
+        TextCommand command = new TextCommand(ID, FLAGS, PERMISSION, "Hello, %sender%!");
 
         Channel channel = mockChannel();
         MessageSentEvent event = mockMessageSentEvent(channel, mockUser("name"));
@@ -47,7 +47,7 @@ public class TextCommandTest {
 
     @Test
     public void testPerformSubstitutesVariable() throws BotErrorException {
-        TextCommand command = new TextCommand(ID, SECURE, PERMISSION, "Value: %value%");
+        TextCommand command = new TextCommand(ID, FLAGS, PERMISSION, "Value: %value%");
 
         Channel channel = mockChannel();
         HomeEditor homeEditor = mockHomeEditor();

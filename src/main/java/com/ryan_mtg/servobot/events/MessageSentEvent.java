@@ -10,4 +10,5 @@ public interface MessageSentEvent extends Event {
     Channel getChannel();
     Message getMessage();
     User getSender();
+    int getServiceType();
 }
