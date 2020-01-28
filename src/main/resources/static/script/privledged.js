@@ -75,7 +75,6 @@ async function postSetCommandService(botHomeId, commandId, label, service, servi
     }
 }
 
-
 function updateCommandPermission(event, botHomeId, commandId) {
     postUpdateCommandPermission(botHomeId, commandId, event.target.value,
         document.getElementById('command-' + commandId + '-permission-updated'));
@@ -177,6 +176,8 @@ async function postStartHome(botHomeId) {
         showElementInlineById('stop-button');
         statusElement.innerHTML = checkmarkIcon;
         statusElement.title = 'Active';
+
+        window.setTimeout(function () { location.reload(); }, 500);
     }
 }
 
@@ -199,8 +200,10 @@ function showAddTriggerForm(commandId) {
     const label = 'add-trigger-' + commandId;
     hideElementById(label + '-button');
 
-    document.getElementById(label + '-text-input').value = '';
+    let textInputElement = document.getElementById(label + '-text-input');
+    textInputElement.value = '';
     showElementInlineById(label + '-form');
+    textInputElement.focus();
 }
 
 function addTrigger(botHomeId, commandId) {
@@ -259,8 +262,10 @@ function addTriggerTable(trigger, botHomeId, commandId, text) {
 function showAddStatementForm() {
     hideElementById('add-statement-button');
 
-    document.getElementById('add-statement-text-input').value = '';
+    let textInputElement = document.getElementById('add-statement-text-input');
+    textInputElement.value = '';
     showElementInlineById('add-statement-form');
+    textInputElement.focus();
 }
 
 function addStatement(botHomeId, bookId) {
@@ -453,6 +458,11 @@ function changeAddCommandType(selectElement) {
     }
 
     showAddCommandElements(elementIds);
+
+    if (data.parameters.length > 0) {
+        let parameter = data.parameters[0];
+        document.getElementById('add-command-' +  parameter.id + '-input').focus();
+    }
 }
 
 function setElementText(elementId, text) {
@@ -590,8 +600,10 @@ function showAddPatternForm(reactionId) {
     const label = 'add-pattern-' + reactionId;
     hideElementById(label + '-button');
 
-    document.getElementById(label + '-text-input').value = '';
+    let textInputElement = document.getElementById(label + '-text-input');
+    textInputElement.value = '';
     showElementInlineById(label + '-form');
+    textInputElement.focus();
 }
 
 function addPattern(botHomeId, reactionId) {
@@ -635,13 +647,14 @@ function addPatternTable(pattern, botHomeId, reactionId) {
     patternsSpan.appendChild(patternTable);
 }
 
-
 function showAddReactionForm() {
     const label = 'add-reaction';
     hideElementById(label + '-button');
 
-    document.getElementById(label + '-emote-input').selectedIndex = 0;
+    let emoteInputElement = document.getElementById(label + '-emote-input');
+    emoteInputElement.selectedIndex = 0;
     showElementInlineById(label + '-form');
+    emoteInputElement.focus();
 }
 
 function addReaction(botHomeId) {
