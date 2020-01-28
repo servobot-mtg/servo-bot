@@ -1,15 +1,20 @@
 package com.ryan_mtg.servobot.commands;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class CommandAlert extends Trigger {
     public static final int TYPE = 3;
+    public static final Pattern ALERT_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
     private String alertToken;
 
     public CommandAlert(final int id, final String alertToken) {
         super(id);
         this.alertToken = alertToken;
+        if (!ALERT_PATTERN.matcher(alertToken).matches()) {
+            throw new IllegalArgumentException("Invalid alert token");
+        }
     }
 
     public String getAlertToken() {
