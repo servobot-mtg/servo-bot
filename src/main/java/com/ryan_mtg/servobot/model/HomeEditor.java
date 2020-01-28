@@ -163,16 +163,15 @@ public class HomeEditor {
         return response;
     }
 
-    public void deleteAlias(final int aliasId) throws BotErrorException {
-        deleteTrigger(aliasId);
-    }
+    public void deleteTrigger(final int triggerId) throws BotErrorException {
+        Trigger trigger = serializers.getCommandSerializer().getTrigger(triggerId);
+        CommandTable commandTable = botHome.getCommandTable();
+        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(trigger);
 
-    public void deleteEvent(final int eventId) throws BotErrorException {
-        deleteTrigger(eventId);
-    }
-
-    public void deleteAlert(final int alertId) throws BotErrorException {
-        deleteTrigger(alertId);
+        if (commandTableEdit.getDeletedTriggers().isEmpty()) {
+            throw new BotErrorException(String.format("Trigger '%d' not found.", trigger.getId()));
+        }
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
     public Statement addStatement(final int bookId, final String text) throws BotErrorException {
@@ -561,17 +560,6 @@ public class HomeEditor {
         bookSerializer.saveStatement(book.getId(), statement);
         book.addStatement(statement);
         return statement;
-    }
-
-    private void deleteTrigger(final int triggerId) throws BotErrorException {
-        Trigger trigger = serializers.getCommandSerializer().getTrigger(triggerId);
-        CommandTable commandTable = botHome.getCommandTable();
-        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(trigger);
-
-        if (commandTableEdit.getDeletedTriggers().isEmpty()) {
-            throw new BotErrorException(String.format("Trigger '%d' not found.", trigger.getId()));
-        }
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
     private String describePlayer(final int userId) {

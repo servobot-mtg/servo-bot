@@ -111,19 +111,9 @@ async function postDelete(endpoint, parameters, elementId) {
     }
 }
 
-function deleteAlias(botHomeId, aliasId) {
-    const parameters = {botHomeId: botHomeId, objectId: aliasId};
-    postDelete('/api/delete_alias', parameters, 'alias-' + aliasId);
-}
-
-function deleteEvent(botHomeId, eventId) {
-    const parameters = {botHomeId: botHomeId, objectId: eventId};
-    postDelete('/api/delete_event', parameters, 'event-' + eventId);
-}
-
-function deleteAlert(botHomeId, alertId) {
-    const parameters = {botHomeId: botHomeId, objectId: alertId};
-    postDelete('/api/delete_alert', parameters, 'alert-' + alertId);
+function deleteTrigger(botHomeId, triggerId) {
+    const parameters = {botHomeId: botHomeId, objectId: triggerId};
+    postDelete('/api/delete_trigger', parameters, 'trigger-' + triggerId);
 }
 
 function deleteReaction(botHomeId, reactionId) {
@@ -215,12 +205,13 @@ function showAddTriggerForm(commandId) {
 
 function addTrigger(botHomeId, commandId) {
     const text = document.getElementById('add-trigger-' + commandId + '-text-input').value;
-    postAddTrigger(botHomeId, commandId, text);
+    const triggerType = parseInt(document.getElementById('add-trigger-' + commandId + '-type-input').value);
+    postAddTrigger(botHomeId, commandId, text, triggerType);
 }
 
-async function postAddTrigger(botHomeId, commandId, text) {
+async function postAddTrigger(botHomeId, commandId, text, triggerType) {
     const label = 'add-trigger-' + commandId;
-    const parameters = {botHomeId: botHomeId, commandId: commandId, text: text};
+    const parameters = {botHomeId: botHomeId, commandId: commandId, text: text, triggerType: triggerType};
     let response = await makePost('/api/add_trigger', parameters, [], false);
 
     if (response.ok) {
@@ -228,29 +219,41 @@ async function postAddTrigger(botHomeId, commandId, text) {
         showElementInlineById(label + '-button');
 
         let addTriggerResponse = await response.json();
-        addTriggerTable(addTriggerResponse.addedTrigger, botHomeId, commandId);
+        addTriggerTable(addTriggerResponse.addedTrigger, botHomeId, commandId, text);
     }
 }
 
-function addTriggerTable(trigger, botHomeId, commandId) {
-    const label = 'alias-triggers-' + commandId;
-    let aliasTriggersSpan = document.getElementById(label);
+function addTriggerTable(trigger, botHomeId, commandId, text) {
+    let triggerType;
+    switch (trigger.type) {
+        case 1:
+            triggerType = 'alias';
+            break;
+        case 2:
+            triggerType = 'event';
+            break;
+        case 3:
+            triggerType = 'alert';
+            break;
+    }
+    const label = triggerType + '-triggers-' + commandId;
+    let triggersSpan = document.getElementById(label);
 
     let triggerTable = document.createElement('table');
-    triggerTable.classList.add('alias-label', 'label', 'label-table');
-    triggerTable.id = 'alias-' + trigger.id;
+    triggerTable.classList.add(triggerType + '-label', 'label', 'label-table');
+    triggerTable.id = 'trigger-' + trigger.id;
     let row = triggerTable.insertRow();
-    let aliasCell = row.insertCell();
-    aliasCell.innerHTML = trigger.alias;
+    let triggerCell = row.insertCell();
+    triggerCell.innerHTML = text;
 
     let deleteCell = row.insertCell();
-    deleteCell.classList.add('pseudo-link', 'alias-delete');
+    deleteCell.classList.add('pseudo-link', triggerType + '-delete');
     deleteCell.innerHTML = 'x';
     deleteCell.onclick = function () {
-        deleteAlias(botHomeId, trigger.id);
+        deleteTrigger(botHomeId, trigger.id);
     };
 
-    aliasTriggersSpan.appendChild(triggerTable);
+    triggersSpan.appendChild(triggerTable);
 }
 
 function showAddStatementForm() {

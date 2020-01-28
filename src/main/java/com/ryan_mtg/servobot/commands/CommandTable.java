@@ -86,11 +86,30 @@ public class CommandTable {
     }
 
     public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text) {
-        MessageCommand newCommand = (MessageCommand) idToCommandMap.get(commandId);
+        Command command = idToCommandMap.get(commandId);
+        CommandTableEdit commandTableEdit;
+        Trigger trigger;
+        switch (triggerType) {
+            case CommandAlias.TYPE:
+                commandTableEdit = deleteAlias(text, false);
+                trigger = createAlias((MessageCommand) command, text);
+                commandTableEdit.save(commandId, trigger, this::triggerSaved);
+                break;
+            case CommandEvent.TYPE:
+                commandTableEdit = new CommandTableEdit();
+                trigger = new CommandEvent(Trigger.UNREGISTERED_ID, CommandEvent.Type.valueOf(text));
+                commandTableEdit.save(commandId, trigger, this::triggerSaved);
+                break;
+            case CommandAlert.TYPE:
+                commandTableEdit = new CommandTableEdit();
+                trigger = new CommandAlert(Trigger.UNREGISTERED_ID, text);
+                commandTableEdit.save(commandId, trigger, this::triggerSaved);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported trigger type: " + triggerType);
+        }
+        registerCommand(command, trigger);
 
-        CommandTableEdit commandTableEdit = deleteAlias(text, false);
-        CommandAlias commandAlias = createAlias(newCommand, text);
-        commandTableEdit.save(commandId, commandAlias, this::triggerSaved);
         return commandTableEdit;
     }
 

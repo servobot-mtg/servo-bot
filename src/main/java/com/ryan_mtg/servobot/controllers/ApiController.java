@@ -281,29 +281,12 @@ public class ApiController {
         });
     }
 
-    @PostMapping(value = "/api/delete_alias", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/api/delete_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteAlias(@RequestBody final DeleteObjectRequest request) {
+    public boolean deleteTrigger(@RequestBody final DeleteObjectRequest request) {
         return wrapCall(() -> {
             HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteAlias(request.getObjectId());
-        });
-    }
-
-    @PostMapping(value = "/api/delete_event", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteEvent(@RequestBody final DeleteObjectRequest request) {
-        return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteEvent(request.getObjectId());
-        });
-    }
-
-    @PostMapping(value = "/api/delete_alert", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteAlert(@RequestBody final DeleteObjectRequest request) {
-        return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteAlert(request.getObjectId());
+            homeEditor.deleteTrigger(request.getObjectId());
         });
     }
 
