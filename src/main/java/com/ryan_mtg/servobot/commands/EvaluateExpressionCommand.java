@@ -10,6 +10,8 @@ import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -17,6 +19,7 @@ public class EvaluateExpressionCommand extends MessageCommand {
     public static final int TYPE = 19;
     public static final Pattern gabyEasterEggPattern = Pattern.compile("2\\s*\\+\\s*2");
 
+    private static Logger LOGGER = LoggerFactory.getLogger(EvaluateExpressionCommand.class);
     private boolean gabyEasterEgg;
 
     public EvaluateExpressionCommand(final int id, final int flags, final Permission permission,
@@ -37,8 +40,10 @@ public class EvaluateExpressionCommand extends MessageCommand {
                 MessageCommand.say(event, "gabyMath");
                 return;
             } else if (serviceType == DiscordService.TYPE) {
+                LOGGER.info("Wants to gabyMath");
                 Emote emote = event.getHome().getEmote("gabyMath");
                 if (emote != null) {
+                    LOGGER.info("Got an emote!");
                     MessageCommand.say(event, emote.getMessageText());
                 }
                 return;

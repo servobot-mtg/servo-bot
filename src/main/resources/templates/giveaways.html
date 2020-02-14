@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Giveaways</title>
+    <div th:include="fragments :: includes" />
+    <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
+            type="text/javascript" src="/script/privledged.js"></script>
+</head>
+<body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}">
+<div th:include="fragments :: header" />
+<div class="content">
+    <div th:if="${privledged}">
+        <h2>Giveaways</h2>
+        <th:block th:each="giveaway : ${botHome.giveaways}">
+            <table id="reward-table" class="data-table">
+                <thead><tr>
+                    <th>Prize</th>
+                    <th>Status</th>
+                    <th>Time Remaining</th>
+                    <th>Entrants</th>
+                    <th>Actions</th>
+                    <th>Winner</th>
+                    <th th:if="${exalted}">Delete</th>
+                </tr></thead>
+                <th:block th:each="reward : ${giveaway.rewards}">
+                    <tr th:with="label=${'reward-' + reward.id}">
+                        <td th:if="${exalted}" th:text="${reward.prize}"/>
+                        <td th:if="${!exalted}">&#x1F947;</td>
+                        <td th:id="${label + '-status'}" th:text="${reward.status}"/>
+                        <td th:text="${reward.timeLeft}"/>
+                        <td th:text="${reward.entrants.size()}"/>
+                        <td>
+                            <input type="button" value="Select Winner"
+                                   th:onclick="'awardReward(' + ${botHome.id} + ',' + ${reward.id} + ')'"/>
+                            <input type="button" value="Bestow Prize"
+                                   th:onclick="'bestowReward(' + ${botHome.id} + ',' + ${reward.id} + ')'"/>
+                        </td>
+                        <td th:id="${label + '-winner'}" th:if="${reward.winner != null}"
+                            th:text="${reward.winner.discordUsername}"/>
+                        <td th:id="${label + '-winner'}" th:if="${reward.winner == null}">&#x2205;</td>
+                        <td th:if="${exalted}" class="pseudo-link"
+                            th:onclick="'deleteReward(' + ${botHome.id} + ',' + ${reward.id} + ')'">
+                            &#x1F5D1;
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+
+            <div th:if="${privledged}" class="add-reward">
+                <div id="add-reward-button" class="pseudo-link add-button" onclick="showAddRewardForm()"
+                     title="Add a Reward">+</div>
+                <form id="add-reward-form" class="add-form hidden"
+                      th:onsubmit="'addReward(' + ${botHome.id} + '); return false;'">
+                    <div>
+                        <label>Prize</label><br>
+                        <input type="text" id="add-reward-prize-input"><br>
+                    </div><br>
+                    <input type="submit" value="Submit Prize">
+                </form>
+            </div>
+        </th:block>
+        <form class="add-giveaway add-form">
+            <div>
+                <label>Giveaway Name</label><br>
+                <input type="text" id="add-giveaway-name"><br>
+            </div>
+            <input type="submit" value="New Giveaway">
+        </form>
+    </div>
+</div>
+<div th:include="fragments :: footer" />
+</body>
+</html>

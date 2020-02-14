@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.model.GameQueue;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
@@ -98,7 +99,9 @@ public class BotFactory {
             gameQueues.add(gameQueue);
         }
 
+        List<Giveaway> giveaways = new ArrayList<>();
+        giveaways.add(new Giveaway());
         return new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, storageTable, serviceHomes,
-                books, gameQueues);
+                books, gameQueues, giveaways);
     }
 }

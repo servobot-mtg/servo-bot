@@ -70,7 +70,8 @@ public class CommandSerializer {
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, flags, permission);
             case EnterGiveawayCommand.TYPE:
-                return new EnterGiveawayCommand(id, flags, permission);
+                int giveawayId = (int) (long) commandRow.getLongParameter();
+                return new EnterGiveawayCommand(id, flags, permission, giveawayId);
             case EvaluateExpressionCommand.TYPE:
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
                 return new EvaluateExpressionCommand(id, flags, permission, gabyEasterEgg);
@@ -78,7 +79,8 @@ public class CommandSerializer {
                 int bookId = (int) (long) commandRow.getLongParameter();
                 return new FactsCommand(id, flags, permission, bookMap.get(bookId));
             case GiveawayStatusCommand.TYPE:
-                return new GiveawayStatusCommand(id, flags, permission);
+                giveawayId = (int) (long) commandRow.getLongParameter();
+                return new GiveawayStatusCommand(id, flags, permission, giveawayId);
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
@@ -92,7 +94,8 @@ public class CommandSerializer {
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new RemoveFromGameQueueCommand(id, flags, permission, gameQueueId);
             case SelectWinnerCommand.TYPE:
-                return new SelectWinnerCommand(id, flags, permission);
+                giveawayId = (int) (long) commandRow.getLongParameter();
+                return new SelectWinnerCommand(id, flags, permission, giveawayId);
             case SetArenaUsernameCommand.TYPE:
                 return new SetArenaUsernameCommand(id, flags, permission);
             case SetRoleCommand.TYPE:
@@ -110,7 +113,8 @@ public class CommandSerializer {
             case ShowValueCommand.TYPE:
                 return new ShowValueCommand(id, flags, permission);
             case StartGiveawayCommand.TYPE:
-                return new StartGiveawayCommand(id, flags, permission);
+                giveawayId = (int) (long) commandRow.getLongParameter();
+                return new StartGiveawayCommand(id, flags, permission, giveawayId);
             case TextCommand.TYPE:
                 return new TextCommand(id, flags, permission, commandRow.getStringParameter());
             case TierCommand.TYPE:
@@ -219,7 +223,9 @@ public class CommandSerializer {
 
         @Override
         public void visitEnterGiveawayCommand(final EnterGiveawayCommand enterGiveawayCommand) {
-            saveCommand(enterGiveawayCommand, commandRow -> {});
+            saveCommand(enterGiveawayCommand, commandRow -> {
+                commandRow.setLongParameter(enterGiveawayCommand.getGiveawayId());
+            });
         }
 
         @Override
@@ -243,7 +249,9 @@ public class CommandSerializer {
 
         @Override
         public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
-            saveCommand(giveawayStatusCommand, commandRow -> {});
+            saveCommand(giveawayStatusCommand, commandRow -> {
+                commandRow.setLongParameter(giveawayStatusCommand.getGiveawayId());
+            });
         }
 
         @Override
@@ -271,7 +279,9 @@ public class CommandSerializer {
 
         @Override
         public void visitSelectWinnerCommand(final SelectWinnerCommand selectWinnerCommand) {
-            saveCommand(selectWinnerCommand, commandRow -> {});
+            saveCommand(selectWinnerCommand, commandRow -> {
+                commandRow.setLongParameter(selectWinnerCommand.getGiveawayId());
+            });
         }
 
         @Override
@@ -317,7 +327,9 @@ public class CommandSerializer {
 
         @Override
         public void visitStartGiveawayCommand(final StartGiveawayCommand startGiveawayCommand) {
-            saveCommand(startGiveawayCommand, commandRow -> {});
+            saveCommand(startGiveawayCommand, commandRow -> {
+                commandRow.setLongParameter(startGiveawayCommand.getGiveawayId());
+            });
         }
 
         @Override

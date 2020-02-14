@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
+import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.scope.NullSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
@@ -110,6 +111,6 @@ public class Bot {
 
         homes.stream().forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
         alertQueue.start();
-        homes.stream().forEach(home -> alertQueue.scheduleAlert(home, Duration.ofSeconds(30), "startup"));
+        homes.stream().forEach(home -> alertQueue.scheduleAlert(home, new Alert(Duration.ofSeconds(30), "startup")));
     }
 }

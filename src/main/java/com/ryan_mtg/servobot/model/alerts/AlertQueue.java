@@ -30,9 +30,9 @@ public class AlertQueue {
         this.bot = bot;
     }
 
-    public void scheduleAlert(final BotHome botHome, final Duration waitTime, final String alertToken) {
+    public void scheduleAlert(final BotHome botHome, final Alert alert) {
         if (active) {
-            Alertable alertable = new OneShotAlertable(botHome, waitTime, alertToken);
+            Alertable alertable = new OneShotAlertable(botHome, alert.getDelay(), alert.getToken());
             alertables.add(alertable);
             alertable.schedule(Instant.now());
         }

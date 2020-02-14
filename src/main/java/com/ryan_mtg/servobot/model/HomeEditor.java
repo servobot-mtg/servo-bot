@@ -18,6 +18,10 @@ import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
+import com.ryan_mtg.servobot.model.alerts.Alert;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
+import com.ryan_mtg.servobot.model.giveaway.Reward;
+import com.ryan_mtg.servobot.model.giveaway.StartGiveawayResult;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
@@ -199,8 +203,8 @@ public class HomeEditor {
         });
     }
 
-    public void scheduleAlert(final Duration delay, final String alertToken) {
-        bot.getAlertQueue().scheduleAlert(botHome, delay, alertToken);
+    public void scheduleAlert(final Alert alert) {
+        bot.getAlertQueue().scheduleAlert(botHome, alert);
     }
 
     public void alert(final String alertToken) {
@@ -447,38 +451,34 @@ public class HomeEditor {
         return response.toString();
     }
 
-    public Reward startGiveaway() throws BotErrorException {
-        Reward reward = botHome.getGiveaway().startGiveaway();
-        if (Giveaway.DURATION.toMinutes() > 5) {
-            scheduleAlert(Giveaway.DURATION.minus(5, ChronoUnit.MINUTES), "5min");
+    public Reward startGiveaway(final int giveawayId) throws BotErrorException {
+        StartGiveawayResult result = botHome.getGiveaway(giveawayId).startGiveaway();
+
+        for (Alert alert : result.getAlerts()) {
+            scheduleAlert(alert);
         }
 
-        if (Giveaway.DURATION.toMinutes() > 1) {
-            scheduleAlert(Giveaway.DURATION.minus(1, ChronoUnit.MINUTES), "1min");
-        }
-
-        scheduleAlert(Giveaway.DURATION, "winner");
-        LOGGER.info("scheduled: " + reward.getPrize());
-        return reward;
+        LOGGER.info("scheduled: " + result.getReward().getPrize());
+        return result.getReward();
     }
 
-    public void enterGiveaway(final HomedUser homedUser) throws BotErrorException {
-        botHome.getGiveaway().enterGiveaway(homedUser);
+    public void enterGiveaway(final HomedUser homedUser, final int giveawayId) throws BotErrorException {
+        botHome.getGiveaway(giveawayId).enterGiveaway(homedUser);
     }
 
-    public Reward getGiveaway() {
-        return botHome.getGiveaway().getCurrentReward();
+    public Reward getGiveaway(final int giveawayId) {
+        return botHome.getGiveaway(giveawayId).getCurrentReward();
     }
 
-    public Reward addReward(final String prize) {
+    public Reward addReward(final int giveawayId, final String prize) {
         Reward reward = new Reward(Giveaway.nextRewardId, prize);
         Giveaway.nextRewardId++;
-        botHome.getGiveaway().addReward(reward);
+        botHome.getGiveaway(giveawayId).addReward(reward);
         return reward;
     }
 
-    public HomedUser awardReward(final int rewardId) throws BotErrorException {
-        Reward reward = getReward(rewardId);
+    public HomedUser awardReward(final int giveawayId, final int rewardId) throws BotErrorException {
+        Reward reward = getReward(giveawayId, rewardId);
 
         if (reward.getStatus() == Reward.Status.IN_PROGRESS && reward.getTimeLeft().isZero()) {
             reward.setStatus(Reward.Status.CONCLUDED);
@@ -492,14 +492,14 @@ public class HomeEditor {
         return reward.getWinner();
     }
 
-    public boolean bestowReward(final int rewardId) throws BotErrorException {
-        Reward reward = getReward(rewardId);
+    public boolean bestowReward(final int giveawayId, final int rewardId) throws BotErrorException {
+        Reward reward = getReward(giveawayId, rewardId);
         if (reward.getStatus() != Reward.Status.AWARDED) {
             throw new BotErrorException("Invalid reward state");
         }
         String prize = reward.getPrize();
         HomedUser winner = reward.getWinner();
-        botHome.getGiveaway().finishGiveaway();
+        botHome.getGiveaway(giveawayId).finishGiveaway();
 
         String announcement = "Congratulations, your code is: " + prize;
         bot.getService(DiscordService.TYPE).whisper(winner, announcement);
@@ -510,8 +510,8 @@ public class HomeEditor {
         botHome.getServiceHome(serviceType).getHome().getChannel(channelName, serviceType).say(message);
     }
 
-    public void deleteReward(final int rewardId) {
-        botHome.getGiveaway().deleteReward(rewardId);
+    public void deleteReward(final int giveawayId, final int rewardId) {
+        botHome.getGiveaway(giveawayId).deleteReward(rewardId);
     }
 
     public List<User> getArenaUsers() {
@@ -541,11 +541,8 @@ public class HomeEditor {
         return botHome.getBooks().stream().filter(b -> b.getId() == bookId).findFirst().orElse(null);
     }
 
-    private Reward getReward(final int rewardId) throws BotErrorException {
-        for (Reward reward : botHome.getGiveaway().getRewards()) {
-            System.out.println(reward.getId());
-        }
-        Reward reward = botHome.getGiveaway().getRewards().stream().
+    private Reward getReward(final int giveawayId, final int rewardId) throws BotErrorException {
+        Reward reward = botHome.getGiveaway(giveawayId).getRewards().stream().
                 filter(r -> r.getId() == rewardId).findFirst().get();
         if (reward == null) {
             throw new BotErrorException("No reward with id " + rewardId);

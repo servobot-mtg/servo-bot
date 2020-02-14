@@ -111,6 +111,22 @@ public class BotController {
         return "users";
     }
 
+    @GetMapping("/home/{home}/giveaways")
+    public String showGiveaways(final Model model, @PathVariable("home") final String homeName) {
+        BotHome botHome = bot.getHome(homeName);
+        if (botHome == null) {
+            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
+        }
+
+        if (!isPrivledged(model, botHome)) {
+            return String.format("redirect:/home/%s", homeName);
+        }
+
+        addBotHome(model, botHome);
+        return "giveaways";
+    }
+
+
 
     @GetMapping("/home/{home}/book/{book}")
     public String showBook(final Model model, @PathVariable("home") final String homeName,

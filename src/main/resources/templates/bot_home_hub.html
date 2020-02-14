@@ -26,7 +26,7 @@
                 </span>
             </div>
             <ul style="float: left;">
-                <li th:text="'Id ' + ${botHome.id}"></li>
+                <li th:text="'Id: ' + ${botHome.id}"></li>
                 <li>Time Zone
                     <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
                         <th:block th:each="timeZone : ${timeZones}">
@@ -36,59 +36,9 @@
                     </select> <span id="time-zone-updated" />
                 </li>
                 <li><a href="users">Users</a></li>
+                <li><a href="giveaways">Giveaways</a></li>
             </ul>
         </div>
-
-        <div th:if="${privledged}">
-            <h2>Giveaway</h2>
-            <table id="reward-table" class="data-table">
-                <thead><tr>
-                    <th>Prize</th>
-                    <th>Status</th>
-                    <th>Time Remaining</th>
-                    <th>Entrants</th>
-                    <th>Actions</th>
-                    <th>Winner</th>
-                    <th th:if="${exalted}">Delete</th>
-                </tr></thead>
-                <th:block th:each="reward : ${botHome.giveaway.rewards}">
-                    <tr th:with="label=${'reward-' + reward.id}">
-                        <td th:if="${exalted}" th:text="${reward.prize}"/>
-                        <td th:if="${!exalted}">&#x1F947;</td>
-                        <td th:id="${label + '-status'}" th:text="${reward.status}"/>
-                        <td th:text="${reward.timeLeft}"/>
-                        <td th:text="${reward.entrants.size()}"/>
-                        <td>
-                            <input type="button" value="Select Winner"
-                                   th:onclick="'awardReward(' + ${botHome.id} + ',' + ${reward.id} + ')'"/>
-                            <input type="button" value="Bestow Prize"
-                            th:onclick="'bestowReward(' + ${botHome.id} + ',' + ${reward.id} + ')'"/>
-                        </td>
-                        <td th:id="${label + '-winner'}" th:if="${reward.winner != null}"
-                            th:text="${reward.winner.discordUsername}"/>
-                        <td th:id="${label + '-winner'}" th:if="${reward.winner == null}">&#x2205;</td>
-                        <td th:if="${exalted}" class="pseudo-link"
-                            th:onclick="'deleteReward(' + ${botHome.id} + ',' + ${reward.id} + ')'">
-                            &#x1F5D1;
-                        </td>
-                    </tr>
-                </th:block>
-            </table>
-
-            <div th:if="${privledged}" class="add-reward">
-                <div id="add-reward-button" class="pseudo-link add-button" onclick="showAddRewardForm()"
-                     title="Add a Reward">+</div>
-                <form id="add-reward-form" class="add-form hidden"
-                      th:onsubmit="'addReward(' + ${botHome.id} + '); return false;'">
-                    <div>
-                        <label>Prize</label><br>
-                        <input type="text" id="add-reward-prize-input"><br>
-                    </div><br>
-                    <input type="submit" value="Submit Prize">
-                </form>
-            </div>
-        </div>
-
 
         <div th:include="bot_home_fragments :: services"/>
 

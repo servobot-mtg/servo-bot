@@ -24,7 +24,9 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class DiscordEventAdapter extends ListenerAdapter {
-    static Logger LOGGER = LoggerFactory.getLogger(DiscordEventAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscordEventAdapter.class);
+    private static final int HOMELESS = -1;
+
     private EventListener listener;
     private Map<Long, Integer> homeIdMap;
     private UserSerializer userSerializer;
@@ -48,6 +50,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onGuildMessageReceived(@Nonnull final GuildMessageReceivedEvent event) {
         try {
             int botHomeId = resolveHomeId(event.getGuild());
+            if (botHomeId == HOMELESS) {
+                return;
+            }
             DiscordUser sender = getUser(event.getMember(), botHomeId);
             listener.onMessage(new DiscordMessageSentEvent(event, botHomeId, sender));
         } catch (BotErrorException e) {
@@ -57,12 +62,19 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onUserActivityEnd(@Nonnull final UserActivityEndEvent event) {
-        streamStartRegulator.endActivity(event, resolveHomeId(event.getGuild()));
+        int botHomeId = resolveHomeId(event.getGuild());
+        if (botHomeId == HOMELESS) {
+            return;
+        }
+        streamStartRegulator.endActivity(event, botHomeId);
     }
 
     @Override
     public void onUserActivityStart(@Nonnull final UserActivityStartEvent event) {
         int botHomeId = resolveHomeId(event.getGuild());
+        if (botHomeId == HOMELESS) {
+            return;
+        }
         if (streamStartRegulator.startActivity(event, botHomeId)) {
             listener.onStreamStart(new DiscordStreamStartEvent(event, botHomeId));
         }
@@ -76,6 +88,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onGuildMemberJoin(@Nonnull final GuildMemberJoinEvent event) {
         try {
             int botHomeId = resolveHomeId(event.getGuild());
+            if (botHomeId == HOMELESS) {
+                return;
+            }
             DiscordUser member = getUser(event.getMember(), botHomeId);
             listener.onNewUser(new DiscordNewUserEvent(event, botHomeId, member));
         } catch (BotErrorException e) {
@@ -84,7 +99,10 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     private int resolveHomeId(final Guild guild) {
-        return homeIdMap.get(guild.getIdLong());
+        if (homeIdMap.containsKey(guild.getIdLong())) {
+            return homeIdMap.get(guild.getIdLong());
+        }
+        return HOMELESS;
     }
 
     private DiscordUser getUser(final Member member, final int botHomeId) {

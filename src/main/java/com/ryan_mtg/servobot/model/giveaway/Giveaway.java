@@ -1,6 +1,7 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.giveaway;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.time.Duration;
@@ -13,10 +14,16 @@ public class Giveaway {
     public static int nextRewardId = 1;
     public static final String DISCORD_CHANNEL = "mooseland";
     public static final String TWITCH_CHANNEL = "themightylinguine";
-    public static final Duration DURATION = Duration.of(10, ChronoUnit.MINUTES);
 
+    private int id;
     private List<Reward> rewards = new ArrayList<>();
     private Reward currentReward;
+    private String enterCommandString;
+    private Duration duration = Duration.of(10, ChronoUnit.MINUTES);
+
+    public int getId() {
+        return id;
+    }
 
     public List<Reward> getRewards() {
         return rewards;
@@ -30,7 +37,7 @@ public class Giveaway {
         rewards.add(reward);
     }
 
-    public Reward startGiveaway() throws BotErrorException {
+    public StartGiveawayResult startGiveaway() throws BotErrorException {
         if (currentReward != null) {
             throw new BotErrorException("A giveaway is already under way.");
         }
@@ -41,8 +48,20 @@ public class Giveaway {
         }
 
         currentReward.setStatus(Reward.Status.IN_PROGRESS);
-        currentReward.setStopTime(Instant.now().plus(DURATION));
-        return currentReward;
+        currentReward.setStopTime(Instant.now().plus(duration));
+
+        List<Alert> alerts = new ArrayList<>();
+
+        if (duration.toMinutes() > 5) {
+            alerts.add(new Alert(duration.minus(5, ChronoUnit.MINUTES), "5min"));
+        }
+
+        if (duration.toMinutes() > 1) {
+            alerts.add(new Alert(duration.minus(1, ChronoUnit.MINUTES), "1min"));
+        }
+
+        alerts.add(new Alert(duration, "winner"));
+        return new StartGiveawayResult(alerts, currentReward);
     }
 
     public void enterGiveaway(final HomedUser homedUser) throws BotErrorException {

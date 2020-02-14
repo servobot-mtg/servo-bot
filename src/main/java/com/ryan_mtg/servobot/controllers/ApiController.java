@@ -6,7 +6,7 @@ import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Reward;
+import com.ryan_mtg.servobot.model.giveaway.Reward;
 import com.ryan_mtg.servobot.model.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -383,11 +382,16 @@ public class ApiController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Reward addReward(@RequestBody final AddRewardRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.addReward(request.getPrize());
+        return homeEditor.addReward(request.getGiveawayId(), request.getPrize());
     }
 
     public static class AddRewardRequest extends BotHomeRequest {
         private String prize;
+        private int giveawayId;
+
+        public int getGiveawayId() {
+            return giveawayId;
+        }
 
         public String getPrize() {
             return prize;
@@ -398,33 +402,45 @@ public class ApiController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public HomedUser awardReward(@RequestBody final RewardRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.awardReward(request.getObjectId());
+        return homeEditor.awardReward(request.getGiveawayId(), request.getRewardId());
     }
 
     @PostMapping(value = "/api/bestow_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean bestowReward(@RequestBody final RewardRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.bestowReward(request.getObjectId());
+        return homeEditor.bestowReward(request.getGiveawayId(), request.getRewardId());
+    }
+
+    public static class RewardRequest extends BotHomeRequest {
+        private int giveawayId;
+        private int rewardId;
+
+        public int getGiveawayId() {
+            return giveawayId;
+        }
+
+        public int getRewardId() {
+            return rewardId;
+        }
     }
 
     @PostMapping(value = "/api/delete_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteReward(@RequestBody final DeleteObjectRequest request) {
+    public boolean deleteReward(@RequestBody final DeleteGiveawayObjectRequest request) {
         return wrapCall(() -> {
             HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteReward(request.getObjectId());
+            homeEditor.deleteReward(request.getGiveawayId(), request.getObjectId());
         });
     }
 
-    public static class RewardRequest extends BotHomeRequest {
-        private int objectId;
+    public static class DeleteGiveawayObjectRequest extends DeleteObjectRequest {
+        private int giveawayId;
 
-        public int getObjectId() {
-            return objectId;
+        public int getGiveawayId() {
+            return giveawayId;
         }
     }
-
 
     private interface ApiCall {
         void call() throws BotErrorException;

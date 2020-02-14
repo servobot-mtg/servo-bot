@@ -284,3 +284,7 @@ table {
     box-sizing: border-box;
     min-width: 50em;
 }
+
+.add-giveaway {
+    border: goldenrod solid 1px;
+}

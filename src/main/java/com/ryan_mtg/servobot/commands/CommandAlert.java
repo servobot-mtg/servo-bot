@@ -13,7 +13,7 @@ public class CommandAlert extends Trigger {
         super(id);
         this.alertToken = alertToken;
         if (!ALERT_PATTERN.matcher(alertToken).matches()) {
-            throw new IllegalArgumentException("Invalid alert token");
+            throw new IllegalArgumentException("Invalid alert token: " + alertToken);
         }
     }
 

@@ -1,6 +1,7 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.giveaway;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.Entrant;
 import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.time.Duration;

@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
@@ -29,14 +30,14 @@ public class BotHome {
     private Map<Integer, ServiceHome> serviceHomes;
     private List<Book> books;
     private List<GameQueue> gameQueues;
-    private Giveaway giveaway;
+    private List<Giveaway> giveaways;
     private boolean active = false;
     private MultiDelegatingListener eventListener;
 
     public BotHome(final int id, final String name, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
-                   final List<GameQueue> gameQueues) {
+                   final List<GameQueue> gameQueues, final List<Giveaway> giveaways) {
         this.id = id;
         this.name = name;
         this.timeZone = timeZone;
@@ -46,7 +47,7 @@ public class BotHome {
         this.serviceHomes = serviceHomes;
         this.books = books;
         this.gameQueues = gameQueues;
-        this.giveaway = new Giveaway();
+        this.giveaways = giveaways;
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
@@ -127,8 +128,12 @@ public class BotHome {
         return gameQueues;
     }
 
-    public Giveaway getGiveaway() {
-        return giveaway;
+    public List<Giveaway> getGiveaways() {
+        return giveaways;
+    }
+
+    public Giveaway getGiveaway(final int giveawayId) {
+        return giveaways.stream().filter(g -> g.getId() == giveawayId).findFirst().orElse(null);
     }
 
     public GameQueue getGameQueue(final int gameQueueId) {

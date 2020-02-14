@@ -6,17 +6,20 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 
 public class EnterGiveawayCommand extends MessageCommand {
     public static final int TYPE = 21;
+    private int giveawayId;
 
-    public EnterGiveawayCommand(final int id, final int flags, final Permission permission) {
+    public EnterGiveawayCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
         super(id, flags, permission);
+        this.giveawayId = giveawayId;
+    }
+
+    public int getGiveawayId() {
+        return giveawayId;
     }
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        if (event.getMessage().getServiceType() != DiscordService.TYPE) {
-            throw new BotErrorException("Enter the giveaway in the discord ().");
-        }
-        event.getHomeEditor().enterGiveaway(event.getSender().getHomedUser());
+        event.getHomeEditor().enterGiveaway(event.getSender().getHomedUser(), giveawayId);
         MessageCommand.say(event, String.format("%s has been entered.", event.getSender().getName()));
     }
 

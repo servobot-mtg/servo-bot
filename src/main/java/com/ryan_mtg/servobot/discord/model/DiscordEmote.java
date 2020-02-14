@@ -1,8 +1,11 @@
 package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.model.Emote;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DiscordEmote implements Emote {
+    private static Logger LOGGER = LoggerFactory.getLogger(DiscordEmote.class);
     private net.dv8tion.jda.api.entities.Emote emote;
 
     public DiscordEmote(final net.dv8tion.jda.api.entities.Emote emote) {
@@ -15,6 +18,8 @@ public class DiscordEmote implements Emote {
 
     @Override
     public String getMessageText() {
-        return emote.getAsMention();
+        String text = emote.getAsMention();
+        LOGGER.info("Getting message text: " + text);
+        return text;
     }
 }
