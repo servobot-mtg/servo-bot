@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.ContinualGenerator;
 import com.ryan_mtg.servobot.model.alerts.DailyGenerator;
@@ -11,7 +12,7 @@ import java.time.LocalTime;
 
 @Component
 public class AlertGeneratorSerializer {
-    public AlertGenerator createAlertGenerator(final AlertGeneratorRow alertGeneratorRow) {
+    public AlertGenerator createAlertGenerator(final AlertGeneratorRow alertGeneratorRow) throws BotErrorException {
         switch (alertGeneratorRow.getType()) {
             case DailyGenerator.TYPE:
                 LocalTime time = convertToLocalTime(alertGeneratorRow.getTime());

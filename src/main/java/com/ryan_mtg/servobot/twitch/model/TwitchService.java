@@ -4,6 +4,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
@@ -30,11 +31,24 @@ public class TwitchService implements Service {
     private UserSerializer userSerializer;
 
     public TwitchService(final String clientId, final String secret, final String oauthToken,
-                         final UserSerializer userSerializer) {
+                         final UserSerializer userSerializer) throws BotErrorException {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
         this.userSerializer = userSerializer;
+
+        if (clientId.length() > MAX_CLIENT_ID_SIZE) {
+            throw new BotErrorException(String.format("Client id too long (max %d): %s", MAX_CLIENT_ID_SIZE, clientId));
+        }
+
+        if (secret.length() > MAX_CLIENT_SECRET_SIZE) {
+            throw new BotErrorException(
+                    String.format("Client secret too long (max %d): %s", MAX_CLIENT_SECRET_SIZE, secret));
+        }
+
+        if (oauthToken.length() > MAX_TOKEN_SIZE) {
+            throw new BotErrorException(String.format("OAuthToken too long (max %d): %s", MAX_TOKEN_SIZE, oauthToken));
+        }
     }
 
     @Override

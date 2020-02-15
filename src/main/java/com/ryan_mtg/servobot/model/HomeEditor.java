@@ -102,7 +102,7 @@ public class HomeEditor {
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
     }
 
-    public CommandDescriptor addCommand(final CommandRow commandRow) {
+    public CommandDescriptor addCommand(final CommandRow commandRow) throws BotErrorException {
         Map<Integer, Book> bookMap = new HashMap<>();
         for (Book book : botHome.getBooks()) {
             bookMap.put(book.getId(), book);
@@ -117,7 +117,7 @@ public class HomeEditor {
         return new CommandDescriptor(command);
     }
 
-    public void addCommand(final String alias, final MessageCommand command) {
+    public void addCommand(final String alias, final MessageCommand command) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
 
         CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
@@ -226,6 +226,10 @@ public class HomeEditor {
     @Transactional
     public void addSuggestion(final String command) {
         String alias = command.toLowerCase();
+        if (alias.length() > SuggestionRow.MAX_SUGGESTION_SIZE) {
+            return; //ignore suggestions that are absurd
+        }
+
         SuggestionRepository suggestionRepository = serializers.getSuggestionRepository();
         SuggestionRow suggestionRow = suggestionRepository.findByAlias(alias);
         if (suggestionRow == null) {
@@ -237,9 +241,7 @@ public class HomeEditor {
     }
 
     public StorageValue getStorageValue(final String name) throws BotErrorException {
-        if (!StorageValue.STORAGE_VALUE_NAME_PATTERN.matcher(name).matches()) {
-            throw new BotErrorException(String.format("%s doesn't look like a value name.", name));
-        }
+        StorageValue.validateName(name);
         StorageValue storageValue = botHome.getStorageTable().getStorage(name);
         if (storageValue == null) {
             throw new BotErrorException(String.format("No value with name %s.", name));
@@ -514,7 +516,7 @@ public class HomeEditor {
         botHome.getGiveaway().deleteReward(rewardId);
     }
 
-    public List<User> getArenaUsers() {
+    public List<User> getArenaUsers() throws BotErrorException {
         return serializers.getUserSerializer().getArenaUsers();
     }
 
@@ -562,7 +564,7 @@ public class HomeEditor {
         return statement;
     }
 
-    private String describePlayer(final int userId) {
+    private String describePlayer(final int userId) throws BotErrorException {
         User user = serializers.getUserSerializer().lookupById(userId);
         if (user.getTwitchUsername() != null) {
             return user.getTwitchUsername();

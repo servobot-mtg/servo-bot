@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -57,7 +58,7 @@ public class BotController {
     }
 
     @GetMapping("/home/{home}")
-    public String showHome(final Model model, @PathVariable("home") final String homeName) {
+    public String showHome(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
         model.addAttribute("page", "home");
         BotHome botHome = bot.getHome(homeName);
         if (botHome == null) {
@@ -94,7 +95,7 @@ public class BotController {
     }
 
     @GetMapping("/home/{home}/users")
-    public String showUsers(final Model model, @PathVariable("home") final String homeName) {
+    public String showUsers(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
         BotHome botHome = bot.getHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));

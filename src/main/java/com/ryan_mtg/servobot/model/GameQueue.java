@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.data.models.GameQueueRow;
+import com.ryan_mtg.servobot.events.BotErrorException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,6 +12,8 @@ import java.util.Queue;
 
 public class GameQueue {
     public static final int EMPTY_QUEUE = 0;
+
+    private static final int MAX_NAME_SIZE = GameQueueRow.MAX_NAME_SIZE;
 
     private int id;
     private String name;
@@ -26,12 +31,16 @@ public class GameQueue {
     }
 
     public GameQueue(final int id, final String name, final State state, final int nextSpot,
-                     final int currentPlayerId) {
+                     final int currentPlayerId) throws BotErrorException {
         this.id = id;
         this.name = name;
         this.state = state;
         this.nextSpot = nextSpot;
         this.currentPlayerId = currentPlayerId;
+
+        if (name.length() > MAX_NAME_SIZE) {
+            throw new BotErrorException(String.format("Name too long (max %d): %s", MAX_NAME_SIZE, name));
+        }
     }
 
     public int getId() {

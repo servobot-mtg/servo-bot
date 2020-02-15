@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public class BotEditor {
         bot.getHome(botHomeId).stop(bot.getAlertQueue());
     }
 
-    public void restartHome(final int botHomeId) {
+    public void restartHome(final int botHomeId) throws BotErrorException {
         bot.removeHome(bot.getHome(botHomeId));
 
         BotHome botHome = this.serializers.getBotFactory().createBotHome(botHomeId);

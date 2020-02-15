@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.models.ReactionPatternRow;
 import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.data.repositories.ReactionPatternRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -25,7 +26,7 @@ public class ReactionTableSerializer {
     @Autowired
     private ReactionPatternRepository reactionPatternRepository;
 
-    public ReactionTable createReactionTable(final int botHomeId) {
+    public ReactionTable createReactionTable(final int botHomeId) throws BotErrorException {
         Iterable<ReactionRow> reactionRows = reactionRepository.findAllByBotHomeId(botHomeId);
         ReactionTable reactionTable = new ReactionTable();
 

@@ -4,11 +4,11 @@ import com.ryan_mtg.servobot.data.models.ReactionPatternRow;
 import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.data.repositories.ReactionPatternRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.reaction.AlwaysReact;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionFilter;
-import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.reaction.WatershedFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ public class ReactionSerializer {
     @Autowired
     private ReactionPatternRepository reactionPatternRepository;
 
-    public Reaction createReaction(final ReactionRow reactionRow) {
+    public Reaction createReaction(final ReactionRow reactionRow) throws BotErrorException {
         return new Reaction(reactionRow.getId(), reactionRow.getEmote(), reactionRow.isSecure(),
                 getFilter(reactionRow.getFilter()));
     }
@@ -47,7 +47,7 @@ public class ReactionSerializer {
         throw new IllegalArgumentException("Unsupported type: " + filterType);
     }
 
-    public Pattern createPattern(final ReactionPatternRow reactionPatternRow) {
+    public Pattern createPattern(final ReactionPatternRow reactionPatternRow) throws BotErrorException {
         return new Pattern(reactionPatternRow.getId(), reactionPatternRow.getPattern());
     }
 

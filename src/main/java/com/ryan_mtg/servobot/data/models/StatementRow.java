@@ -5,16 +5,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "statement")
 public class StatementRow {
+    public static final int MAX_TEXT_SIZE = 256;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private int bookId;
 
+    @Size(max = MAX_TEXT_SIZE)
     private String text;
 
     public StatementRow() {}

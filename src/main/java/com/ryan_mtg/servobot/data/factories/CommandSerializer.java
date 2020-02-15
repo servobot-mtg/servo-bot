@@ -35,6 +35,7 @@ import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,8 @@ public class CommandSerializer {
     @Autowired
     private TriggerRepository triggerRepository;
 
-    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
+    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap)
+            throws BotErrorException {
         int id = commandRow.getId();
         int flags = commandRow.getFlags();
         Permission permission = commandRow.getPermission();
@@ -119,7 +121,7 @@ public class CommandSerializer {
         throw new IllegalArgumentException("Unsupported command type: " + commandRow.getType());
     }
 
-    public Trigger createTrigger(TriggerRow triggerRow) {
+    public Trigger createTrigger(TriggerRow triggerRow) throws BotErrorException {
         int id = triggerRow.getId();
         switch (triggerRow.getType()) {
             case CommandAlias.TYPE:
@@ -177,7 +179,7 @@ public class CommandSerializer {
         }
     }
 
-    public Trigger getTrigger(int triggerId) {
+    public Trigger getTrigger(int triggerId) throws BotErrorException {
         TriggerRow triggerRow = triggerRepository.findById(triggerId).get();
         return createTrigger(triggerRow);
     }

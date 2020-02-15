@@ -6,10 +6,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "user")
 public class UserRow {
+    public static final int MAX_USERNAME_SIZE = 50;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -23,12 +26,15 @@ public class UserRow {
     private long discordId;
 
     @Column(name = "twitch_username")
+    @Size(max = MAX_USERNAME_SIZE)
     private String twitchUsername;
 
     @Column(name = "discord_username")
+    @Size(max = MAX_USERNAME_SIZE)
     private String discordUsername;
 
     @Column(name = "arena_username")
+    @Size(max = MAX_USERNAME_SIZE)
     private String arenaUsername;
 
     public int getId() {

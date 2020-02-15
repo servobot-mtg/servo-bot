@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
+import com.ryan_mtg.servobot.data.models.BotHomeRow;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandListener;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
@@ -17,7 +19,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+
 public class BotHome {
+    private static final int MAX_NAME_SIZE = BotHomeRow.MAX_NAME_SIZE;
+    private static final int MAX_TIME_ZONE_SIZE = BotHomeRow.MAX_TIME_ZONE_SIZE;
+
     private int id;
     private Bot bot;
     private String name;
@@ -36,7 +42,7 @@ public class BotHome {
     public BotHome(final int id, final String name, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
-                   final List<GameQueue> gameQueues) {
+                   final List<GameQueue> gameQueues) throws BotErrorException {
         this.id = id;
         this.name = name;
         this.timeZone = timeZone;
@@ -47,6 +53,14 @@ public class BotHome {
         this.books = books;
         this.gameQueues = gameQueues;
         this.giveaway = new Giveaway();
+
+        if (name.length() > MAX_NAME_SIZE) {
+            throw new BotErrorException(String.format("Name too long (max %d): %s", MAX_NAME_SIZE, name));
+        }
+
+        if (timeZone.length() > MAX_TIME_ZONE_SIZE) {
+            throw new BotErrorException(String.format("Time zone too long (max %d): %s", MAX_TIME_ZONE_SIZE, timeZone));
+        }
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);

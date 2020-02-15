@@ -1,20 +1,21 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
+
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class CommandAlert extends Trigger {
     public static final int TYPE = 3;
-    public static final Pattern ALERT_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
+    private static final Pattern ALERT_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
     private String alertToken;
 
-    public CommandAlert(final int id, final String alertToken) {
+    public CommandAlert(final int id, final String alertToken) throws BotErrorException {
         super(id);
         this.alertToken = alertToken;
-        if (!ALERT_PATTERN.matcher(alertToken).matches()) {
-            throw new IllegalArgumentException("Invalid alert token");
-        }
+
+        validateToken(alertToken);
     }
 
     public String getAlertToken() {
@@ -43,5 +44,15 @@ public class CommandAlert extends Trigger {
     @Override
     public void acceptVisitor(final TriggerVisitor triggerVisitor) {
         triggerVisitor.visitCommandAlert(this);
+    }
+
+    public static void validateToken(final String alertToken) throws BotErrorException {
+        if (!ALERT_PATTERN.matcher(alertToken).matches()) {
+            throw new BotErrorException("Invalid alert token");
+        }
+
+        if (alertToken.length() > MAX_TEXT_SIZE) {
+            throw new BotErrorException(String.format("Token too long (max %d): %s", MAX_TEXT_SIZE, alertToken));
+        }
     }
 }

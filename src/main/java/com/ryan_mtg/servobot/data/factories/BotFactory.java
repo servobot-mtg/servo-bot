@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.data.models.GameQueueRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -43,7 +44,7 @@ public class BotFactory {
         serializers.setBotFactory(this);
     }
 
-    public Bot createBot(final BotRow botRow, final Scope globalScope) {
+    public Bot createBot(final BotRow botRow, final Scope globalScope) throws BotErrorException {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
 
@@ -55,11 +56,11 @@ public class BotFactory {
         return bot;
     }
 
-    public BotHome createBotHome(int botHomeId) {
+    public BotHome createBotHome(int botHomeId) throws BotErrorException {
         return createBotHome(serializers.getBotHomeRepository().findById(botHomeId));
     }
 
-    private BotHome createBotHome(final BotHomeRow botHomeRow) {
+    private BotHome createBotHome(final BotHomeRow botHomeRow) throws BotErrorException {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
         String homeName = botHomeRow.getHomeName();

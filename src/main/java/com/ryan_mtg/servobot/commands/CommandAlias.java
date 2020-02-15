@@ -1,20 +1,21 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
+
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class CommandAlias extends Trigger {
     public static final int TYPE = 1;
-    public static final Pattern ALIAS_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
+    private static final Pattern ALIAS_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
     private String alias;
 
-    public CommandAlias(final int id, final String alias) {
+    public CommandAlias(final int id, final String alias) throws BotErrorException {
         super(id);
         this.alias = alias;
-        if (!ALIAS_PATTERN.matcher(alias).matches()) {
-            throw new IllegalArgumentException("Invalid alias");
-        }
+
+        validateAlias(alias);
     }
 
     public String getAlias() {
@@ -43,5 +44,15 @@ public class CommandAlias extends Trigger {
     @Override
     public void acceptVisitor(final TriggerVisitor triggerVisitor) {
         triggerVisitor.visitCommandAlias(this);
+    }
+
+    public static void validateAlias(final String alias) throws BotErrorException {
+        if (!ALIAS_PATTERN.matcher(alias).matches()) {
+            throw new BotErrorException("Invalid alias");
+        }
+
+        if (alias.length() > MAX_TEXT_SIZE) {
+            throw new BotErrorException(String.format("Alias too long (max %d): %s", MAX_TEXT_SIZE, alias));
+        }
     }
 }

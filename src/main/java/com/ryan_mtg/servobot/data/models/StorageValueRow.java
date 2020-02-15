@@ -6,10 +6,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "storage_value")
 public class StorageValueRow {
+    public static final int MAX_NAME_SIZE = 30;
+    public static final int MAX_VALUE_SIZE = 200;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -19,10 +23,12 @@ public class StorageValueRow {
 
     private int type;
 
+    @Size(max = MAX_NAME_SIZE)
     private String name;
 
     private int number;
 
+    @Size(max = MAX_VALUE_SIZE)
     private String string;
 
     public int getId() {

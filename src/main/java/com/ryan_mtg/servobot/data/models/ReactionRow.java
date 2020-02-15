@@ -6,10 +6,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "reaction")
 public class ReactionRow {
+    public static final int MAX_EMOTE_SIZE = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -19,6 +22,7 @@ public class ReactionRow {
     @Column(name = "bot_home_id")
     private int botHomeId;
 
+    @Size(max = MAX_EMOTE_SIZE)
     private String emote;
 
     private boolean secure;
@@ -51,7 +55,7 @@ public class ReactionRow {
         return emote;
     }
 
-    public void setEmote(String emote) {
+    public void setEmote(final String emote) {
         this.emote = emote;
     }
 

@@ -6,10 +6,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "book")
 public class BookRow {
+    public static final int MAX_NAME_SIZE = 50;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -17,6 +20,7 @@ public class BookRow {
     @Column(name = "bot_home_id")
     private int botHomeId;
 
+    @Size(max = MAX_NAME_SIZE)
     private String name;
 
     public BookRow() {}

@@ -1,15 +1,25 @@
 package com.ryan_mtg.servobot.model.reaction;
 
+import com.ryan_mtg.servobot.data.models.ReactionPatternRow;
+import com.ryan_mtg.servobot.events.BotErrorException;
+
 public class Pattern {
     public static final int UNREGISTERED_ID = 0;
+    private static final int MAX_PATTERN_SIZE = ReactionPatternRow.MAX_PATTERN_SIZE;
+
     private int id;
     private String patternString;
     private java.util.regex.Pattern pattern;
 
-    public Pattern(final int id, final String patternString) {
+    public Pattern(final int id, final String patternString) throws BotErrorException {
         this.id = id;
         this.patternString = patternString;
         this.pattern = createPattern(patternString);
+
+        if (patternString.length() > MAX_PATTERN_SIZE) {
+            throw new BotErrorException(
+                    String.format("Pattern too long (max %d): %s", MAX_PATTERN_SIZE, patternString));
+        }
     }
 
     public int getId() {

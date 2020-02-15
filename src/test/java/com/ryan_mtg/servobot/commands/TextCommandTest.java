@@ -55,8 +55,8 @@ public class TextCommandTest {
 
         FunctorSymbolTable symbolTable = new FunctorSymbolTable();
         Scope botHomeScope = new Scope(null, symbolTable);
-        symbolTable.addFunctor("value", () ->
-                new IntegerStorageValue( StorageValue.UNREGISTERED_ID, "value", 1));
+        StorageValue value = new IntegerStorageValue( StorageValue.UNREGISTERED_ID, "value", 1);
+        symbolTable.addFunctor("value", () -> value);
         when(homeEditor.getScope()).thenReturn(botHomeScope);
 
         command.perform(event, ARGUMENTS);

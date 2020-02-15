@@ -223,7 +223,7 @@ public class ApiController {
 
     @PostMapping(value = "/api/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) {
+    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         CommandRow commandRow = new CommandRow();
         commandRow.setType(request.getType());

@@ -6,10 +6,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "alert_generator")
 public class AlertGeneratorRow {
+    public static final int MAX_TOKEN_SIZE = 50;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -21,6 +24,7 @@ public class AlertGeneratorRow {
     private int time;
 
     @Column(name = "alert_token")
+    @Size(max = MAX_TOKEN_SIZE)
     private String alertToken;
 
     public int getId() {

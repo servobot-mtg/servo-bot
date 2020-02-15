@@ -6,10 +6,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "command_trigger")
 public class TriggerRow {
+    public static final int MAX_TEXT_SIZE = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -19,6 +22,7 @@ public class TriggerRow {
     @Column(name = "command_id")
     private int commandId;
 
+    @Size(max = MAX_TEXT_SIZE)
     private String text;
 
     public TriggerRow() {}

@@ -59,9 +59,9 @@ public class ParserTest {
     }
 
     @Test
-    public void testEvaluateStorageVariable() throws ParseException {
-        functorSymbolTable.addFunctor("variable", () ->
-                new IntegerStorageValue(StorageValue.UNREGISTERED_ID, "variable", 5));
+    public void testEvaluateStorageVariable() throws ParseException, BotErrorException {
+        StorageValue value = new IntegerStorageValue(StorageValue.UNREGISTERED_ID, "variable", 5);
+        functorSymbolTable.addFunctor("variable", () -> value);
         assertEquals(5, parser.parse("variable"));
     }
 

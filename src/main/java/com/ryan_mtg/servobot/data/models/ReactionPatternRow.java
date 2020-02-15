@@ -6,14 +6,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "reaction_pattern")
 public class ReactionPatternRow {
+    public static final int MAX_PATTERN_SIZE = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Size(max = MAX_PATTERN_SIZE)
     private String pattern;
 
     @Column(name = "reaction_id")

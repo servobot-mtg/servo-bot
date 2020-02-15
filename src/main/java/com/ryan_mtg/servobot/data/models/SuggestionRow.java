@@ -5,14 +5,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "suggestion")
 public class SuggestionRow {
+    public static final int MAX_SUGGESTION_SIZE = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Size(max = MAX_SUGGESTION_SIZE)
     private String alias;
 
     private int count;

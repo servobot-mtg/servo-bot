@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class CommandTable {
     }
 
 
-    public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) {
+    public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) throws BotErrorException {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
         commandTableEdit.save(newCommand, commandAlias, this::registerCommand, this::triggerSaved);
@@ -85,7 +86,8 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text) {
+    public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text)
+            throws BotErrorException {
         Command command = idToCommandMap.get(commandId);
         CommandTableEdit commandTableEdit;
         Trigger trigger;
@@ -185,7 +187,7 @@ public class CommandTable {
         return isCaseSensitive ? token : token.toLowerCase();
     }
 
-    private CommandAlias createAlias(final MessageCommand newCommand, final String text) {
+    private CommandAlias createAlias(final MessageCommand newCommand, final String text) throws BotErrorException {
         String canonicalAlias=canonicalize(text);
         commandMap.put(canonicalAlias, newCommand);
         CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, text);

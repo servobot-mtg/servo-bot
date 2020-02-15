@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -13,12 +14,18 @@ import java.util.regex.Pattern;
 
 public class TextCommand extends MessageCommand {
     public static final int TYPE = 1;
-    private final String text;
-    private static Pattern REPLACEMENT_PATTERN = Pattern.compile("%([^%]*)%");
+    public static final int MAX_TEXT_SIZE = CommandRow.MAX_STRING_SIZE;
 
-    public TextCommand(final int id, final int flags, final Permission permission, final String text) {
+    private static Pattern REPLACEMENT_PATTERN = Pattern.compile("%([^%]*)%");
+    private final String text;
+
+    public TextCommand(final int id, final int flags, final Permission permission, final String text)
+            throws BotErrorException {
         super(id, flags, permission);
         this.text = text;
+        if (text.length() > MAX_TEXT_SIZE) {
+            throw new BotErrorException("Command text too long.");
+        }
     }
 
     @Override

@@ -1,11 +1,15 @@
 package com.ryan_mtg.servobot.model.reaction;
 
+import com.ryan_mtg.servobot.data.models.ReactionRow;
+import com.ryan_mtg.servobot.events.BotErrorException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Reaction {
     public static final int UNREGISTERED_ID = 0;
-    private static ReactionFilter ALWAYS_REACT = new AlwaysReact();
+    private static final ReactionFilter ALWAYS_REACT = new AlwaysReact();
+    private static final int MAX_EMOTE_SIZE = ReactionRow.MAX_EMOTE_SIZE;
 
     private int id;
     private String emoteName;
@@ -13,18 +17,24 @@ public class Reaction {
     private List<Pattern> patterns = new ArrayList<>();
     private ReactionFilter filter;
 
-    public Reaction(final int id, final String emoteName, final boolean secure, final Pattern... patterns){
+    public Reaction(final int id, final String emoteName, final boolean secure, final Pattern... patterns)
+            throws BotErrorException {
         this(id, emoteName, secure, ALWAYS_REACT, patterns);
     }
 
     public Reaction(final int id, final String emoteName, final boolean secure, final ReactionFilter filter,
-                    final Pattern... patterns){
+                    final Pattern... patterns) throws BotErrorException {
         this.id = id;
         this.emoteName = emoteName;
         this.secure = secure;
         this.filter = filter;
         for (Pattern pattern : patterns) {
             this.patterns.add(pattern);
+        }
+
+        if (emoteName.length() > MAX_EMOTE_SIZE) {
+            throw new BotErrorException(
+                    String.format("Emote too long (max %d): %s", MAX_EMOTE_SIZE, emoteName));
         }
     }
 

@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.data.models.ServiceRow;
 import com.ryan_mtg.servobot.data.repositories.ServiceRepository;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -27,12 +28,12 @@ public class ServiceSerializer {
     private Map<Integer, Service> serviceMap = new HashMap<>();
 
     @Bean
-    public TwitchService twitchService() {
+    public TwitchService twitchService() throws BotErrorException {
         ServiceRow serviceRow = serviceRepository.findByType(TwitchService.TYPE);
         return (TwitchService)createService(serviceRow);
     }
 
-    public Map<Integer, Service> getServiceMap() {
+    public Map<Integer, Service> getServiceMap() throws BotErrorException {
         Map<Integer, Service> services = new HashMap<>();
         Iterable<ServiceRow> serviceRows = serviceRepository.findAll();
         for (ServiceRow serviceRow : serviceRows) {
@@ -42,7 +43,7 @@ public class ServiceSerializer {
         return services;
     }
 
-    public Service createService(final ServiceRow serviceRow) {
+    public Service createService(final ServiceRow serviceRow) throws BotErrorException {
         int serviceType = serviceRow.getType();
         if (serviceMap.containsKey(serviceType)) {
             return serviceMap.get(serviceType);

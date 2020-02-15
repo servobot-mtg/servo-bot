@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot;
 
 import com.ryan_mtg.servobot.data.repositories.BotRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.data.factories.BotFactory;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
@@ -30,7 +31,7 @@ public class BotConfig {
     }
 
     @Bean
-    public Bot bot(@Qualifier("globalScope") final Scope globalScope) {
+    public Bot bot(@Qualifier("globalScope") final Scope globalScope) throws BotErrorException {
         return botFactory.createBot(botRepository.findFirst().get(), globalScope);
     }
 }
