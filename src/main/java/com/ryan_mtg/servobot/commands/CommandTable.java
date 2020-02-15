@@ -94,22 +94,20 @@ public class CommandTable {
         switch (triggerType) {
             case CommandAlias.TYPE:
                 commandTableEdit = deleteAlias(text, false);
-                trigger = createAlias((MessageCommand) command, text);
-                commandTableEdit.save(commandId, trigger, this::triggerSaved);
+                trigger = new CommandAlias(Trigger.UNREGISTERED_ID, text);
                 break;
             case CommandEvent.TYPE:
                 commandTableEdit = new CommandTableEdit();
                 trigger = new CommandEvent(Trigger.UNREGISTERED_ID, CommandEvent.Type.valueOf(text));
-                commandTableEdit.save(commandId, trigger, this::triggerSaved);
                 break;
             case CommandAlert.TYPE:
                 commandTableEdit = new CommandTableEdit();
                 trigger = new CommandAlert(Trigger.UNREGISTERED_ID, text);
-                commandTableEdit.save(commandId, trigger, this::triggerSaved);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported trigger type: " + triggerType);
         }
+        commandTableEdit.save(commandId, trigger, this::triggerSaved);
         registerCommand(command, trigger);
 
         return commandTableEdit;
