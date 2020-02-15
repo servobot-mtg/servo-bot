@@ -30,7 +30,7 @@ public class TextCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        String finalText = evaluate(event);
+        String finalText = evaluate(event, arguments);
         MessageCommand.say(event, finalText);
     }
 
@@ -48,13 +48,13 @@ public class TextCommand extends MessageCommand {
         return text;
     }
 
-    private String evaluate(final MessageSentEvent event) throws BotErrorException {
+    private String evaluate(final MessageSentEvent event, final String input) throws BotErrorException {
         StringBuilder result = new StringBuilder();
         Matcher matcher = REPLACEMENT_PATTERN.matcher(text);
         int currentIndex = 0;
 
         HomeEditor homeEditor = event.getHomeEditor();
-        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event));
+        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, input));
         Parser parser = new Parser(scope, homeEditor);
 
         while (matcher.find()) {

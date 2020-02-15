@@ -46,7 +46,7 @@ public class EvaluateExpressionCommand extends MessageCommand {
         }
 
         HomeEditor homeEditor = event.getHomeEditor();
-        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event));
+        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, arguments));
         Parser parser = new Parser(scope, homeEditor);
 
         try {
