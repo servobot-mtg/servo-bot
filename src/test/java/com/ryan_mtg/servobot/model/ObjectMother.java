@@ -40,7 +40,12 @@ public class ObjectMother {
     }
 
     public static MessageSentEvent mockMessageSentEvent(final Channel channel, final User sender) {
-        return mockMessageSentEvent(mockBotEditor(), mockHomeEditor(), channel, sender);
+        return mockMessageSentEvent(mockHomeEditor(), channel, sender);
+    }
+
+    public static MessageSentEvent mockMessageSentEvent(final HomeEditor homeEditor, final Channel channel,
+                                                        final User sender) {
+        return mockMessageSentEvent(mockBotEditor(), homeEditor, channel, sender);
     }
 
     public static MessageSentEvent mockMessageSentEvent(final BotEditor botEditor, final HomeEditor homeEditor,

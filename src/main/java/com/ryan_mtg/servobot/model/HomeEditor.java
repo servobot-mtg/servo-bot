@@ -124,13 +124,22 @@ public class HomeEditor {
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
-    public void deleteCommand(final String commandName) throws BotErrorException {
+    public void deleteCommand(final com.ryan_mtg.servobot.model.User deleter, final String commandName)
+            throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
+        Command command = commandTable.getCommand(commandName);
+
+        if (command == null) {
+            throw new BotErrorException(String.format("No command named '%s.'", commandName));
+        }
+
+        if (!command.hasPermissions(deleter)) {
+            throw new BotErrorException(
+                    String.format("%s is not allowed to delete '%s.'", deleter.getName(), commandName));
+        }
+
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandName);
 
-        if (commandTableEdit.getDeletedCommands().isEmpty()) {
-            throw new BotErrorException(String.format("Command '%s' not found.", commandName));
-        }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 

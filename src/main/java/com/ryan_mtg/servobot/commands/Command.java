@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 
 public abstract class Command {
@@ -67,6 +68,33 @@ public abstract class Command {
 
     public abstract int getType();
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
+
+    public boolean hasPermissions(final User user) {
+        switch (getPermission()) {
+            case ANYONE:
+                return true;
+            case SUB:
+                if (user.isSubscriber()) {
+                    return true;
+                }
+            case MOD:
+                if (user.isModerator()) {
+                    return true;
+                }
+            case STREAMER:
+                if (user.getHomedUser().isStreamer()) {
+                    return true;
+                }
+            case ADMIN:
+                if (user.isAdmin()) {
+                    return true;
+                }
+                break;
+            default:
+                throw new IllegalStateException("Unhandled permission: " + getPermission());
+        }
+        return false;
+    }
 
     private void setFlag(final int flag, final boolean value) {
         if (value) {

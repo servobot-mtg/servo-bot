@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.User;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.*;
@@ -24,11 +25,12 @@ public class DeleteCommandTest {
 
         HomeEditor homeEditor = mockHomeEditor();
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
+        User sender = mockUser("name");
+        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel, sender);
 
         command.perform(event, String.format("!%s", COMMAND_NAME));
 
-        verify(homeEditor).deleteCommand(COMMAND_NAME);
+        verify(homeEditor).deleteCommand(sender, COMMAND_NAME);
         verify(channel).say(String.format("Command %s deleted.", COMMAND_NAME));
     }
 
@@ -80,9 +82,10 @@ public class DeleteCommandTest {
 
         HomeEditor homeEditor = mockHomeEditor();
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
+        User sender = mockUser("name");
+        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel, sender);
 
-        doThrow(BotErrorException.class).when(homeEditor).deleteCommand(COMMAND_NAME);
+        doThrow(BotErrorException.class).when(homeEditor).deleteCommand(sender, COMMAND_NAME);
 
         try {
             command.perform(event, String.format("!%s", COMMAND_NAME));
