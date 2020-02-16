@@ -1,7 +1,5 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.user.HomedUser;
-
 import java.util.List;
 
 public interface ServiceHome {

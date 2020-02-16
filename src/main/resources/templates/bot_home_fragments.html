@@ -107,10 +107,7 @@
                                 <table th:if="${privledged}" class="alert-label label label-table"
                                        th:id="${'trigger-' + alert.id}">
                                     <tr>
-                                        <td>
-                                            <a th:href="${botHome.name + '/hub#alert-' + alert.alertToken}"
-                                               th:text="${alert.alertToken}"/>
-                                        </td>
+                                        <td th:text="${alert.alertToken}"/>
                                         <td class="pseudo-link alert-delete"
                                             th:onclick="'deleteTrigger(' + ${botHome.id} + ',' + ${alert.id} + ')'">x</td>
                                     </tr>
@@ -354,14 +351,19 @@
             <thead><tr>
                 <th>Keyword</th>
                 <th>Alert Description</th>
+                <th th:if="${privledged}">Trigger</th>
             </tr></thead>
             <th:block th:each="alert : ${botHome.alertGenerators}">
                 <tr>
                     <td>
                         <span th:text="${alert.alertToken}"/>
-                        <a th:name="${'alert-' + alert.alertToken}"/>
                     </td>
                     <td th:text="${alert.description}"/>
+                    <td th:if="${privledged}" class="pseudo-link" th:attr="data-alert-token=${alert.alertToken}"
+                        th:onclick="'triggerAlert(event, ' + ${botHome.id} + ',' + ${alert.id} + ')'">
+                        &#x1F6CE;&#xFE0F;
+                        <span th:id="'trigger-' + ${alert.id} + '-alert-response'"></span>
+                    </td>
                 </tr>
             </th:block>
         </table>

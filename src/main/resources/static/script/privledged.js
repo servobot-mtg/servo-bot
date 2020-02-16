@@ -259,6 +259,17 @@ function addTriggerTable(trigger, botHomeId, commandId, text) {
     triggersSpan.appendChild(triggerTable);
 }
 
+function triggerAlert(event, botHomeId, triggerId) {
+    const alertToken = event.currentTarget.dataset.alertToken;
+    postTriggerAlert(botHomeId, alertToken, triggerId);
+}
+
+async function postTriggerAlert(botHomeId, alertToken, triggerId) {
+    const parameters = {botHomeId: botHomeId, alertToken: alertToken};
+    const responseElement = document.getElementById('trigger-' + triggerId + '-alert-response');
+    makePost('/api/trigger_alert', parameters, [responseElement], true);
+}
+
 function showAddStatementForm() {
     hideElementById('add-statement-button');
 

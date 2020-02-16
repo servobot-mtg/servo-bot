@@ -221,6 +221,23 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/api/trigger_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean triggerAlert(@RequestBody final TriggerAlertRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.alert(request.getAlertToken());
+        });
+    }
+
+    public static class TriggerAlertRequest extends BotHomeRequest {
+        private String alertToken;
+
+        public String getAlertToken() {
+            return alertToken;
+        }
+    }
+
     @PostMapping(value = "/api/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) throws BotErrorException {
@@ -424,7 +441,6 @@ public class ApiController {
             return objectId;
         }
     }
-
 
     private interface ApiCall {
         void call() throws BotErrorException;

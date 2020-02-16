@@ -1,8 +1,7 @@
 CREATE DATABASE IF NOT EXISTS botdb;
 USE botdb;
 
-CREATE TABLE IF NOT EXISTS bot (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), discord_token VARCHAR(60),
-                                twitch_token VARCHAR(50), twitch_client_id VARCHAR(30), twitch_secret VARCHAR(30));
+CREATE TABLE IF NOT EXISTS bot (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30));
 
 CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, token VARCHAR(60),
                                     client_id VARCHAR(30), client_secret VARCHAR(30));
