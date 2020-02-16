@@ -75,7 +75,7 @@ public class CommandListener implements EventListener {
 
     @Override
     public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
-        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, UserCommand.class)) {
+        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.NEW_USER, UserCommand.class)) {
             command.perform(newUserEvent.getHome(), newUserEvent.getUser());
         }
     }
