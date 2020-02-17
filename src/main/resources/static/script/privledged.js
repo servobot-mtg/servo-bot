@@ -453,6 +453,7 @@ const commandData = [
     {name: 'Enter Giveaway Command', parameters: []}, //21
     {name: 'Giveaway Status Command', parameters: []}, //22
     {name: 'Select Giveaway Winner Command', parameters: []}, //23
+    {name: 'Add Reaction Command', parameters: [{id: 'text', name: 'Emote Name'}]}, //23
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

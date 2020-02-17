@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 public interface CommandVisitor {
     void visitAddCommand(AddCommand addCommand);
+    void visitAddReactionCommand(AddReactionCommand addReactionCommand);
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);

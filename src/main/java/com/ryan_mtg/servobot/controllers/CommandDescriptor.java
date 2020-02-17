@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.commands.AddCommand;
+import com.ryan_mtg.servobot.commands.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandAlert;
@@ -122,6 +123,13 @@ public class CommandDescriptor {
         public void visitAddCommand(final AddCommand addCommand) {
             type = "Add Command";
             description = "Used to make new message commands";
+        }
+
+        @Override
+        public void visitAddReactionCommand(final AddReactionCommand addReactionCommand) {
+            type = "Add Reaction Command";
+            description = String.format("Reacts to a message with the '%s' emote", addReactionCommand.getEmoteName());
+            edit = addReactionCommand.getEmoteName();
         }
 
         @Override
