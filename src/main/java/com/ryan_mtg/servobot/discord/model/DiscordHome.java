@@ -113,4 +113,8 @@ public class DiscordHome implements Home {
     private long getDiscordId(final User user) {
         return ((DiscordUser) user).getDiscordId();
     }
+
+    public Guild getGuild() {
+        return guild;
+    }
 }

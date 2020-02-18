@@ -22,7 +22,7 @@ public class DiscordMessageSentEvent extends DiscordEvent implements MessageSent
     }
 
     @Override
-    public Home getHome() {
+    public DiscordHome getHome() {
         return new DiscordHome(event.getGuild(), getHomeEditor());
     }
 
