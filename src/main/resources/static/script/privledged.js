@@ -13,6 +13,7 @@ const yellowCircleIcon = '&#x1F7E1;';
 const trashcanIcon = '&#x1F5D1;';
 const penIcon = '&#x270F;&#xFE0F;';
 const bookIcon = '&#x1F4BE;';
+const defaultCommandFlags = 2+4;
 
 function secureCommand(botHomeId, commandId) {
     postSecureCommand(botHomeId, commandId, 'command-' + commandId);
@@ -356,7 +357,7 @@ function showAddCommandForm() {
     let typeSelect = document.getElementById('add-command-type-input');
     typeSelect.selectedIndex = 0;
     changeAddCommandType(typeSelect);
-    document.getElementById('add-command-permissions-input').selectedIndex = 0;
+    document.getElementById('add-command-permissions-input').selectedIndex = 4;
     document.getElementById('add-command-secure-input').checked = false;
     document.getElementById('add-command-text-input').value = '';
     document.getElementById('add-command-text-2-input').value = '';
@@ -392,12 +393,17 @@ function getParameterName(parameterId) {
     }
 }
 
+function getAddCommandFlags() {
+    const secure = document.getElementById('add-command-secure-input').checked;
+    return defaultCommandFlags + secure;
+}
+
 function addCommand(botHomeId) {
     const parameters = {botHomeId: botHomeId};
     const commandType = parseInt(document.getElementById('add-command-type-input').value);
     addAddCommandParameter(parameters, 'type', 'type');
     addAddCommandParameter(parameters, 'permissions', 'permission');
-    addAddCommandParameter(parameters, 'secure', 'secure');
+    parameters['flags'] = getAddCommandFlags();
 
     const data = commandData[commandType];
     for (let i = 0; i < data.parameters.length; i++) {
@@ -565,20 +571,56 @@ function addCommandRow(commandDescriptor, botHomeId) {
     addTriggerSpan.appendChild(addTriggerForm);
     triggersCell.appendChild(addTriggerSpan);
 
-    let secureCell = newRow.insertCell();
-    secureCell.classList.add('pseudo-link');
-    secureCell.onclick = function () {
-        secureCommand(botHomeId, commandDescriptor.command.id);
-    };
+    let iconCell = newRow.insertCell();
 
     let secureIconSpan = document.createElement('span');
     secureIconSpan.id = label + '-secured';
+    secureIconSpan.classList.add('pseudo-link');
+    secureIconSpan.onclick = function () {
+        secureCommand(botHomeId, commandDescriptor.command.id);
+    };
     secureIconSpan.innerHTML = commandDescriptor.command.secure ? lockedIcon : unlockedIcon;
-    secureCell.appendChild(secureIconSpan);
+    iconCell.appendChild(secureIconSpan);
 
     let secureResponseSpan = document.createElement('span');
-    secureResponseSpan.id = label + '-response';
-    secureCell.appendChild(secureResponseSpan);
+    secureResponseSpan.id = label + '-secure-response';
+    iconCell.appendChild(secureResponseSpan);
+
+    let twitchIconSpan = document.createElement('span');
+    twitchIconSpan.id = label + '-twitch';
+    twitchIconSpan.classList.add('pseudo-link');
+    twitchIconSpan.onclick = function () {
+        toggleCommandTwitch(botHomeId, commandDescriptor.command.id);
+    };
+    let twitchImg = document.createElement('img');
+    twitchImg.id = label + '-twitch-img';
+    twitchImg.classList.add('icon');
+    twitchImg.title = 'Toggle Twitch use';
+    twitchImg.src = commandDescriptor.command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico';
+    twitchIconSpan.appendChild(twitchImg);
+    iconCell.appendChild(twitchIconSpan);
+
+    let twitchResponseSpan = document.createElement('span');
+    twitchResponseSpan.id = label + '-twitch-response';
+    iconCell.appendChild(twitchResponseSpan);
+
+    let discordIconSpan = document.createElement('span');
+    discordIconSpan.id = label + '-discord';
+    discordIconSpan.classList.add('pseudo-link');
+    discordIconSpan.onclick = function () {
+        toggleCommandDiscord(botHomeId, commandDescriptor.command.id);
+    };
+    let discordImg = document.createElement('img');
+    discordImg.id = label + '-discord-img';
+    discordImg.classList.add('icon');
+    discordImg.title = 'Toggle Discord use';
+    discordImg.src = commandDescriptor.command.discord ? '/images/discord.ico' : '/images/no-discord.ico';
+    discordIconSpan.appendChild(discordImg);
+    iconCell.appendChild(discordIconSpan);
+
+    let discordResponseSpan = document.createElement('span');
+    discordResponseSpan.id = label + '-discord-response';
+    iconCell.appendChild(discordResponseSpan);
 
     let permissionsCell = newRow.insertCell();
     let permissionsSelect = document.createElement('select');
