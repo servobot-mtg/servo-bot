@@ -93,8 +93,9 @@ public class HomeEditor {
     }
 
     public Pattern addPattern(final int reactionId, final String pattern) throws BotErrorException {
-        //return new Pattern(Pattern.UNREGISTERED_ID, pattern);
-        throw new BotErrorException("Not supported");
+        ReactionTableEdit reactionTableEdit = botHome.getReactionTable().addPattern(reactionId, pattern);
+        serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
+        return reactionTableEdit.getSavedPatterns().keySet().iterator().next();
     }
 
     public void deletePattern(final int reactionId, final int patternId) {

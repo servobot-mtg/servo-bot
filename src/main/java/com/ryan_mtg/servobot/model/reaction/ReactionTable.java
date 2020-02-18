@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.model.reaction;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,6 +43,18 @@ public class ReactionTable implements Iterable<Reaction> {
             });
             reactionTableEdit.delete(reaction);
         });
+        return reactionTableEdit;
+    }
+
+    public ReactionTableEdit addPattern(final int reactionId, final String patternString) throws BotErrorException {
+        ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
+        for(Reaction reaction : reactions) {
+            if (reaction.getId() == reactionId) {
+                Pattern pattern = new Pattern(Pattern.UNREGISTERED_ID, patternString);
+                reaction.addPattern(pattern);
+                reactionTableEdit.save(reactionId, pattern);
+            }
+        }
         return reactionTableEdit;
     }
 
