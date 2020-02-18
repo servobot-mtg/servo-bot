@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class CommandTable {
 
     private Map<Integer, Command> idToCommandMap = new HashMap<>();
 
-    private Map<Trigger, Command> triggerCommandMap = new HashMap<>();
+    private Map<Trigger, Command> triggerCommandMap = new IdentityHashMap<>();
     private Map<Command, List<Trigger>> reverseTriggerMap = new HashMap<>();
     private List<Trigger> triggers = new ArrayList<>();
 
