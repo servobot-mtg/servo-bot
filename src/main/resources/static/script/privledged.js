@@ -535,6 +535,14 @@ function addCommandRow(commandDescriptor, botHomeId) {
     aliasTriggersSpan.id = 'alias-triggers-' + commandDescriptor.command.id;
     triggersCell.appendChild(aliasTriggersSpan);
 
+    let eventTriggersSpan = document.createElement('span');
+    eventTriggersSpan.id = 'event-triggers-' + commandDescriptor.command.id;
+    triggersCell.appendChild(eventTriggersSpan);
+
+    let alertTriggersSpan = document.createElement('span');
+    alertTriggersSpan.id = 'alert-triggers-' + commandDescriptor.command.id;
+    triggersCell.appendChild(alertTriggersSpan);
+
     let addTriggerLabel = 'add-trigger-' + commandDescriptor.command.id;
     let addTriggerSpan = document.createElement('span');
     addTriggerSpan.classList.add('add-trigger');
@@ -561,8 +569,29 @@ function addCommandRow(commandDescriptor, botHomeId) {
     addTriggerTextInput.id = addTriggerLabel + '-text-input';
     addTriggerTextInput.type = 'text';
     addTriggerTextInput.name = 'trigger';
-    addTriggerTextInput.size = 5;
+    addTriggerTextInput.size = 9;
     addTriggerForm.appendChild(addTriggerTextInput);
+
+    let addTriggerTypeSelect = document.createElement('select');
+    addTriggerTypeSelect.id = addTriggerLabel + '-type-input';
+
+    let messageOption = document.createElement('option');
+    messageOption.text = 'Message';
+    messageOption.value = 1;
+    messageOption.selected = true;
+    addTriggerTypeSelect.add(messageOption);
+
+    let eventOption = document.createElement('option');
+    eventOption.text = 'Event';
+    eventOption.value = 2;
+    addTriggerTypeSelect.add(eventOption);
+
+    let alertOption = document.createElement('option');
+    alertOption.text = 'Alert';
+    alertOption.value = 3;
+    addTriggerTypeSelect.add(alertOption);
+
+    addTriggerForm.appendChild(addTriggerTypeSelect);
 
     let addTriggerSubmitInput = document.createElement('input');
     addTriggerSubmitInput.type = 'submit';
