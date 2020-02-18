@@ -8,10 +8,13 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.reaction.AlwaysReact;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.model.reaction.ReactionFilter;
 import com.ryan_mtg.servobot.model.reaction.WatershedFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class ReactionSerializer {
@@ -21,9 +24,10 @@ public class ReactionSerializer {
     @Autowired
     private ReactionPatternRepository reactionPatternRepository;
 
-    public Reaction createReaction(final ReactionRow reactionRow) throws BotErrorException {
+    public Reaction createReaction(final ReactionRow reactionRow, final List<Pattern> patterns,
+                                   final List<ReactionCommand> commands) throws BotErrorException {
         return new Reaction(reactionRow.getId(), reactionRow.getEmote(), reactionRow.isSecure(),
-                getFilter(reactionRow.getFilter()));
+                getFilter(reactionRow.getFilter()), patterns, commands);
     }
 
     public void saveReaction(final int botHomeId, final Reaction reaction) {

@@ -74,7 +74,8 @@ public class BotFactory {
         }
 
         CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
-        ReactionTable reactionTable = serializers.getReactionTableSerializer().createReactionTable(botHomeId);
+        ReactionTable reactionTable =
+                serializers.getReactionTableSerializer().createReactionTable(botHomeId, commandTable);
         StorageTable storageTable = serializers.getStorageTableSerializer().createStorageTable(botHomeId);
 
         Map<Integer, ServiceHome> serviceHomes = new HashMap<>();

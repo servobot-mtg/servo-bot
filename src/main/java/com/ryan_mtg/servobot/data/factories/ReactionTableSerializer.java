@@ -1,17 +1,23 @@
 package com.ryan_mtg.servobot.data.factories;
 
+import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.CommandTable;
+import com.ryan_mtg.servobot.data.models.ReactionCommandRow;
 import com.ryan_mtg.servobot.data.models.ReactionPatternRow;
 import com.ryan_mtg.servobot.data.models.ReactionRow;
+import com.ryan_mtg.servobot.data.repositories.ReactionCommandRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionPatternRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,21 +30,30 @@ public class ReactionTableSerializer {
     private ReactionRepository reactionRepository;
 
     @Autowired
+    private ReactionCommandRepository reactionCommandRepository;
+
+    @Autowired
     private ReactionPatternRepository reactionPatternRepository;
 
-    public ReactionTable createReactionTable(final int botHomeId) throws BotErrorException {
+    public ReactionTable createReactionTable(final int botHomeId, final CommandTable commandTable)
+            throws BotErrorException {
         Iterable<ReactionRow> reactionRows = reactionRepository.findAllByBotHomeId(botHomeId);
         ReactionTable reactionTable = new ReactionTable();
 
         for (ReactionRow reactionRow : reactionRows) {
-            Reaction reaction = reactionSerializer.createReaction(reactionRow);
-
-            Iterable<ReactionPatternRow> patterns = reactionPatternRepository.findAllByReactionId(reactionRow.getId());
-
-            for (ReactionPatternRow pattern : patterns) {
-                reaction.addPattern(reactionSerializer.createPattern(pattern));
+            List<Pattern> patterns = new ArrayList<>();
+            for (ReactionPatternRow pattern : reactionPatternRepository.findAllByReactionId(reactionRow.getId())) {
+                patterns.add(reactionSerializer.createPattern(pattern));
             }
 
+            List<ReactionCommand> commands = new ArrayList<>();
+            for (ReactionCommandRow reactionCommandRow :
+                    reactionCommandRepository.findAllByReactionId(reactionRow.getId())) {
+                Command command = commandTable.getCommand(reactionCommandRow.getCommandId());
+                commands.add(new ReactionCommand(reactionCommandRow.getId(), command));
+            }
+
+            Reaction reaction = reactionSerializer.createReaction(reactionRow, patterns, commands);
             reactionTable.registerReaction(reaction);
         }
 

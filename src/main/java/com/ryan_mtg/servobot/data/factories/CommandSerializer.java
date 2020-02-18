@@ -27,6 +27,7 @@ import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.CommandRow;
+import com.ryan_mtg.servobot.data.models.ReactionCommandRow;
 import com.ryan_mtg.servobot.data.models.TriggerRow;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
 import com.ryan_mtg.servobot.commands.Command;
@@ -38,6 +39,7 @@ import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +137,11 @@ public class CommandSerializer {
                 return new CommandAlert(id, triggerRow.getText());
         }
         throw new IllegalArgumentException("Unsupported trigger type: " + triggerRow.getType());
+    }
+
+    public ReactionCommand createReactionCommand(final ReactionCommandRow reactionCommandRow, final Command command)
+            throws BotErrorException {
+        return new ReactionCommand(reactionCommandRow.getId(), command);
     }
 
     public void saveCommand(final int botHomeId, final Command command) {

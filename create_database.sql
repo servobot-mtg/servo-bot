@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emot
 CREATE TABLE IF NOT EXISTS reaction_pattern (id INTEGER AUTO_INCREMENT PRIMARY KEY, reaction_id INTEGER,
                                              pattern VARCHAR(30));
 
+CREATE TABLE IF NOT EXISTS reaction_command (id INTEGER AUTO_INCREMENT PRIMARY KEY, reaction_id INTEGER,
+                                             command_id INTEGER);
+
 CREATE TABLE IF NOT EXISTS service_home (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER,
                                          service_type INTEGER, long_value BIGINT);
 

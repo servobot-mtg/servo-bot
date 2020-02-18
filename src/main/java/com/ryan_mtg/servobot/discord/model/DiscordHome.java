@@ -94,7 +94,7 @@ public class DiscordHome implements Home {
         LOGGER.warn("Unable to find emote " + emoteName + " in " + guild);
         emotes = guild.getEmotes();
         for (net.dv8tion.jda.api.entities.Emote emote : emotes) {
-            LOGGER.warn("  " + emote.getName());
+            LOGGER.info("  " + emote.getName());
         }
 
         return null;
