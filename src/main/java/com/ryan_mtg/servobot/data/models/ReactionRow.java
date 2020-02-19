@@ -19,6 +19,9 @@ public class ReactionRow {
 
     private int filter;
 
+    @Column(name = "filter_value")
+    private int filterValue;
+
     @Column(name = "bot_home_id")
     private int botHomeId;
 
@@ -41,6 +44,14 @@ public class ReactionRow {
 
     public void setFilter(final int filter) {
         this.filter = filter;
+    }
+
+    public int getFilterValue() {
+        return filterValue;
+    }
+
+    public void setFilterValue(final int filterValue) {
+        this.filterValue = filterValue;
     }
 
     public int getBotHomeId() {

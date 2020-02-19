@@ -38,7 +38,11 @@ public class MultiServiceHome implements Home {
 
     @Override
     public void setRole(final User user, final String role) {
+    }
 
+    @Override
+    public int clearRole(final String role) {
+        return 0;
     }
 
     @Override

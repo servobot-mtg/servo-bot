@@ -27,10 +27,9 @@ public class ReactionListener implements EventListener {
             return;
         }
 
-        String content = message.getContent();
         Home home = message.getHome();
         for (Reaction reaction : reactionTable) {
-            if (reaction.matches(content)) {
+            if (reaction.matches(message)) {
                 String emoteName = reaction.getEmoteName();
                 Emote emote = home.getEmote(emoteName);
                 if (emote != null) {

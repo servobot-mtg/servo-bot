@@ -8,6 +8,8 @@ import com.ryan_mtg.servobot.model.storage.StorageValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
+
 @Component
 public class StorageTableSerializer {
     @Autowired
@@ -26,5 +28,10 @@ public class StorageTableSerializer {
         }
 
         return storageTable;
+    }
+
+    @Transactional
+    public void removeVariables(final String name, final int botHomeId) {
+        storageValueRepository.deleteAllByBotHomeIdAndName(botHomeId, name);
     }
 }

@@ -57,8 +57,14 @@ public class TwitchChannel implements Channel, Home {
 
     @Override
     public void setRole(final User user, final String role) throws BotErrorException {
-        throw new BotErrorException("Twitch doesn't set roles");
+        throw new BotErrorException("Twitch doesn't have roles");
     }
+
+    @Override
+    public int clearRole(final String role) throws BotErrorException {
+        throw new BotErrorException("Twitch doesn't have roles");
+    }
+
 
     @Override
     public Emote getEmote(final String emoteName) {

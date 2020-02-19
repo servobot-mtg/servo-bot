@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.model.reaction.ReactionFilter;
+import com.ryan_mtg.servobot.model.reaction.UserReactionFilter;
 import com.ryan_mtg.servobot.model.reaction.WatershedFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class ReactionSerializer {
     public Reaction createReaction(final ReactionRow reactionRow, final List<Pattern> patterns,
                                    final List<ReactionCommand> commands) throws BotErrorException {
         return new Reaction(reactionRow.getId(), reactionRow.getEmote(), reactionRow.isSecure(),
-                getFilter(reactionRow.getFilter()), patterns, commands);
+                getFilter(reactionRow.getFilter(), reactionRow.getFilterValue()), patterns, commands);
     }
 
     public void saveReaction(final int botHomeId, final Reaction reaction) {
@@ -41,12 +42,14 @@ public class ReactionSerializer {
         reaction.setId(reactionRow.getId());
     }
 
-    public ReactionFilter getFilter(final int filterType) {
+    public ReactionFilter getFilter(final int filterType, final int filterValue) {
         switch (filterType) {
             case AlwaysReact.TYPE:
                 return new AlwaysReact();
             case WatershedFilter.TYPE:
                 return new WatershedFilter();
+            case UserReactionFilter.TYPE:
+                return new UserReactionFilter(filterValue);
         }
         throw new IllegalArgumentException("Unsupported type: " + filterType);
     }

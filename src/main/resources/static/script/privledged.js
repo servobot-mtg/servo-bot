@@ -462,6 +462,8 @@ const commandData = [
     {name: 'Add Reaction Command', parameters: [{id: 'text', name: 'Emote Name'}]}, //24
     {name: 'Jail Command', parameters: [{id: 'text', name: 'Role Name'}, {id: 'text-2', name: 'Variable Name'},
             {id: 'integer', name: 'Strikes'}]}, //25
+    {name: 'Jail Break Command', parameters: [{id: 'text', name: 'Role Name'},
+            {id: 'text-2', name: 'Variable Name'}]}, //26
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

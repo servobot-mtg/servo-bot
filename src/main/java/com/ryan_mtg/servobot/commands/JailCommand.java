@@ -49,9 +49,19 @@ public class JailCommand extends MessageCommand {
         IntegerStorageValue storageValue =
                 homeEditor.incrementStorageValue(sender.getHomedUser().getId(), variableName, 0);
 
-        if (storageValue.getValue() >= threshold) {
+        int incrementedValue = storageValue.getValue();
+
+        if (incrementedValue >= threshold) {
             event.getHome().setRole(sender, prisonRole);
+        }
+
+        if (incrementedValue == threshold + 1) {
             MessageCommand.say(event, sender.getName() + ", I'm throwing the book at you!");
+        } else if (incrementedValue == threshold + 2) {
+            MessageCommand.say(event, sender.getName() + ", you have the right to remain silent!");
+        } else if (incrementedValue == threshold + 3) {
+            MessageCommand.say(event,
+                    "You got to ask yourself one question, \"Do I feel lucky?\" Well, do you, punk? ");
         }
     }
 }

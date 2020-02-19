@@ -78,6 +78,21 @@ public class DiscordHome implements Home {
     }
 
     @Override
+    public int clearRole(final String roleName) throws BotErrorException {
+        List<Role> roles = guild.getRolesByName(roleName, false);
+        if (roles.isEmpty()) {
+            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
+        }
+
+        Role role = roles.get(0);
+        List<Member> members = guild.getMembersWithRoles(role);
+        for (Member member : members) {
+            guild.removeRoleFromMember(member, role).queue();
+        }
+        return members.size();
+    }
+
+    @Override
     public Emote getEmote(final String emoteName) {
         List<net.dv8tion.jda.api.entities.Emote> emotes = guild.getEmotesByName(emoteName, true);
         if (!emotes.isEmpty()) {

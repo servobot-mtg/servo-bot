@@ -12,6 +12,7 @@ public interface CommandVisitor {
     void visitGameQueueCommand(GameQueueCommand gameQueueCommand);
     void visitGiveawayStatusCommand(GiveawayStatusCommand giveawayStatusCommand);
     void visitJailCommand(JailCommand jailCommand);
+    void visitJailBreakCommand(JailBreakCommand jailBreakCommand);
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);

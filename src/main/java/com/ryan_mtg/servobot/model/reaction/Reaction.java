@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.model.reaction;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.Message;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,10 +67,11 @@ public class Reaction {
         return patterns;
     }
 
-    public boolean matches(final String text) {
-        if (!filter.shouldReact()) {
+    public boolean matches(final Message message) {
+        if (!filter.shouldReact(message.getSender())) {
             return false;
         }
+        final String text = message.getContent();
         for (Pattern pattern : patterns) {
             if (pattern.matches(text)) {
                 return true;

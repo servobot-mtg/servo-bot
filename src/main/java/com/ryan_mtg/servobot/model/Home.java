@@ -9,6 +9,7 @@ public interface Home {
 
     String getRole(User user, int serviceType);
     void setRole(User user, String role) throws BotErrorException;
+    int clearRole(String role) throws BotErrorException;
 
     Emote getEmote(String emoteName);
 

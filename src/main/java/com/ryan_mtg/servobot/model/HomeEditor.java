@@ -294,6 +294,12 @@ public class HomeEditor {
         return storageValue;
     }
 
+    @Transactional
+    public void remoteStorageVariables(final String name) {
+        botHome.getStorageTable().removeVariables(name);
+        serializers.getStorageTableSerializer().removeVariables(name, botHome.getId());
+    }
+
     public IntegerStorageValue incrementStorageValue(final String name) throws BotErrorException {
         StorageValue value = getStorageValue(name);
         if (value instanceof IntegerStorageValue) {

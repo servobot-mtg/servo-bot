@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.model.reaction;
 
+import com.ryan_mtg.servobot.model.User;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -19,7 +21,7 @@ public class WatershedFilter implements ReactionFilter {
     }
 
     @Override
-    public boolean shouldReact() {
+    public boolean shouldReact(final User sender) {
         return withinWaterShed();
     }
 
