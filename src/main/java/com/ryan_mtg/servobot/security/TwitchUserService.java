@@ -33,10 +33,12 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
         @SuppressWarnings("unchecked")
         Map<String, Object> attributes = (Map<String, Object>) (((ArrayList) outerAttributes.get("data")).get(0));
 
-        List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList("ROLE_USER");
-
         int twitchId = Integer.parseInt(attributes.get("id").toString());
         User user = userSerializer.lookupByTwitchId(twitchId, attributes.get("display_name").toString());
+
+        List<GrantedAuthority> authorityList =
+                AuthorityUtils.createAuthorityList("ROLE_USER", String.format("ROLE_ID:%d", user.getId()));
+
         if (user.isAdmin()) {
             authorityList.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }

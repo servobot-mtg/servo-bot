@@ -8,7 +8,6 @@ import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Bot;
@@ -55,6 +54,23 @@ public class BotController {
     public String index(final Model model) {
         model.addAttribute("page", "index");
         return "index";
+    }
+
+    @GetMapping("/home")
+    public String manage(final Model model) {
+        WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
+        if (!websiteUser.isAuthenticated() ) {
+            model.addAttribute("page", "homeless");
+            return "homeless";
+        }
+
+        if (websiteUser.isAStreamer()) {
+            model.addAttribute("page", "control");
+            return "control";
+        }
+
+        model.addAttribute("page", "new_home");
+        return "new_home";
     }
 
     @GetMapping("/home/{home}")
@@ -193,5 +209,4 @@ public class BotController {
         return websiteUser.isAuthenticated() &&
                 websiteUser.getRoles().contains(String.format("ROLE_MOD:%d", botHome.getId()));
     }
-
 }

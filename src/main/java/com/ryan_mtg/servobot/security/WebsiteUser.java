@@ -35,6 +35,15 @@ public class WebsiteUser implements Principal {
                 .filter(authority -> authority.getAuthority().equals("ROLE_ADMIN")).findAny().isPresent();
     }
 
+    public boolean isAStreamer() {
+        if (oAuth2AuthenticationToken == null) {
+            return false;
+        }
+
+        return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
+                .filter(authority -> authority.getAuthority().startsWith("ROLE_STREAMER")).findAny().isPresent();
+    }
+
     public List<String> getRoles() {
         if (oAuth2AuthenticationToken == null) {
             return Lists.newArrayList();
