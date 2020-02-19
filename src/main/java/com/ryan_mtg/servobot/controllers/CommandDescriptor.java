@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
@@ -181,6 +182,13 @@ public class CommandDescriptor {
         public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
             type = "Giveaway Status Command";
             description = "Displays the status of the current giveaway";
+        }
+
+        @Override
+        public void visitJailCommand(final JailCommand jailCommand) {
+            type = "Jail Command";
+            description = String.format("Puts the user in into '%s' if triggered %d times",
+                    jailCommand.getPrisonRole(), jailCommand.getThreshold());
         }
 
         @Override

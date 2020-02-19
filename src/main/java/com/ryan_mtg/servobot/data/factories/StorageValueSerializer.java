@@ -16,8 +16,8 @@ public class StorageValueSerializer {
     public StorageValue createStorageValue(final StorageValueRow storageValueRow) throws BotErrorException {
         switch (storageValueRow.getType()) {
             case IntegerStorageValue.TYPE:
-                return new IntegerStorageValue(storageValueRow.getId(), storageValueRow.getName(),
-                        storageValueRow.getNumber());
+                return new IntegerStorageValue(storageValueRow.getId(), storageValueRow.getUserId(),
+                        storageValueRow.getName(), storageValueRow.getNumber());
         }
         throw new IllegalArgumentException("Unsupported type: " + storageValueRow.getType());
     }
@@ -25,6 +25,7 @@ public class StorageValueSerializer {
     public void save(final StorageValue storageValue, final int botHomeId) {
         StorageValueRow storageValueRow = new StorageValueRow();
         storageValueRow.setId(storageValue.getId());
+        storageValueRow.setUserId(storageValue.getUserId());
         storageValueRow.setBotHomeId(botHomeId);
         storageValueRow.setType(storageValue.getType());
         storageValueRow.setName(storageValue.getName());

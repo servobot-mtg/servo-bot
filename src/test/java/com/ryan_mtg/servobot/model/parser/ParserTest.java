@@ -60,14 +60,16 @@ public class ParserTest {
 
     @Test
     public void testEvaluateStorageVariable() throws ParseException, BotErrorException {
-        StorageValue value = new IntegerStorageValue(StorageValue.UNREGISTERED_ID, "variable", 5);
+        StorageValue value =
+                new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5);
         functorSymbolTable.addFunctor("variable", () -> value);
         assertEquals(5, parser.parse("variable"));
     }
 
     @Test
     public void testPreIncrementStorageVariable() throws ParseException, BotErrorException {
-        IntegerStorageValue value = new IntegerStorageValue(StorageValue.UNREGISTERED_ID, "variable", 5);
+        IntegerStorageValue value =
+                new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5);
         functorSymbolTable.addFunctor("variable", () -> value);
 
         doAnswer((invocationOnMock) -> {
@@ -80,7 +82,8 @@ public class ParserTest {
 
     @Test
     public void testPostIncrementStorageVariable() throws ParseException, BotErrorException {
-        IntegerStorageValue value = new IntegerStorageValue(StorageValue.UNREGISTERED_ID, "variable", 5);
+        IntegerStorageValue value =
+                new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5);
         functorSymbolTable.addFunctor("variable", () -> value);
 
         doAnswer((invocationOnMock) -> {

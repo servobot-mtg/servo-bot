@@ -23,6 +23,9 @@ public class StorageValueRow {
 
     private int type;
 
+    @Column(name = "user_id")
+    private int userId;
+
     @Size(max = MAX_NAME_SIZE)
     private String name;
 
@@ -49,6 +52,14 @@ public class StorageValueRow {
 
     public void setType(final int type) {
         this.type = type;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(final int userId) {
+        this.userId = userId;
     }
 
     public String getName() {

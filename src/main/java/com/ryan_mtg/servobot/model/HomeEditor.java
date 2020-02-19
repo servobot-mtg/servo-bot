@@ -23,6 +23,7 @@ import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
+import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -259,6 +260,24 @@ public class HomeEditor {
         return storageValue;
     }
 
+    public IntegerStorageValue getStorageValue(final int userId, final String name, final int defaultValue)
+            throws BotErrorException {
+        StorageValue.validateName(name);
+        StorageTable storageTable = botHome.getStorageTable();
+        StorageValue storageValue = storageTable.getStorage(userId, name);
+        if (storageValue == null) {
+            IntegerStorageValue newValue =
+                    new IntegerStorageValue(StorageValue.UNREGISTERED_ID, userId, name, defaultValue);
+            storageTable.registerValue(newValue);
+            return newValue;
+        }
+        if (storageValue instanceof IntegerStorageValue) {
+            return (IntegerStorageValue) storageValue;
+        }
+
+        throw new BotErrorException(String.format("%s is not a number", name));
+    }
+
     public StorageValue setStorageValue(final String name, final String value) throws BotErrorException {
         StorageValue storageValue = getStorageValue(name);
         if (storageValue instanceof IntegerStorageValue) {
@@ -275,15 +294,23 @@ public class HomeEditor {
         return storageValue;
     }
 
-    public StorageValue incrementStorageValue(final String name) throws BotErrorException {
+    public IntegerStorageValue incrementStorageValue(final String name) throws BotErrorException {
         StorageValue value = getStorageValue(name);
         if (value instanceof IntegerStorageValue) {
             IntegerStorageValue integerValue = (IntegerStorageValue) value;
             integerValue.setValue(integerValue.getValue() + 1);
             serializers.getStorageValueSerializer().save(integerValue, botHome.getId());
-            return value;
+            return integerValue;
         }
         throw new BotErrorException(String.format("%s is not a number", name));
+    }
+
+    public IntegerStorageValue incrementStorageValue(final int userId, final String name, final int defaultVariable)
+            throws BotErrorException {
+        IntegerStorageValue value = getStorageValue(userId, name, defaultVariable);
+        value.setValue(value.getValue() + 1);
+        serializers.getStorageValueSerializer().save(value, botHome.getId());
+        return value;
     }
 
     public String startGameQueue(final int gameQueueId, final String name) throws BotErrorException {

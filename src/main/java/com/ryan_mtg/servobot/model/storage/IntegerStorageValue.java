@@ -6,8 +6,9 @@ public class IntegerStorageValue extends StorageValue {
     public static final int TYPE = 1;
     private int value;
 
-    public IntegerStorageValue(final int id, final String name, final int value) throws BotErrorException {
-        super(id, name);
+    public IntegerStorageValue(final int id, final int userId, final String name, final int value)
+            throws BotErrorException {
+        super(id, userId, name);
         this.value = value;
     }
 

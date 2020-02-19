@@ -47,4 +47,4 @@ CREATE TABLE IF NOT EXISTS command_trigger (id INTEGER AUTO_INCREMENT PRIMARY KE
                                             text VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS storage_value (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, type INTEGER,
-                                    name VARCHAR(30), number INTEGER, string VARCHAR(200));
+                                          user_id INTEGER, name VARCHAR(30), number INTEGER, string VARCHAR(200));

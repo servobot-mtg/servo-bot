@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
@@ -89,6 +90,10 @@ public class CommandSerializer {
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
+            case JailCommand.TYPE:
+                int jailThreshold = (int) (long) commandRow.getLongParameter();
+                return new JailCommand(id, flags, permission, commandRow.getStringParameter(), jailThreshold,
+                        commandRow.getStringParameter2());
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new JoinGameQueueCommand(id, flags, permission, gameQueueId);
@@ -263,6 +268,15 @@ public class CommandSerializer {
         @Override
         public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
             saveCommand(giveawayStatusCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitJailCommand(final JailCommand jailCommand) {
+            saveCommand(jailCommand, commandRow -> {
+                commandRow.setStringParameter(jailCommand.getPrisonRole());
+                commandRow.setLongParameter(jailCommand.getThreshold());
+                commandRow.setStringParameter2(jailCommand.getVariableName());
+            });
         }
 
         @Override
