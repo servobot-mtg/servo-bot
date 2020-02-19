@@ -363,6 +363,8 @@ function showAddCommandForm() {
     document.getElementById('add-command-text-2-input').value = '';
     document.getElementById('add-command-integer-input').value = 0;
     document.getElementById('add-command-book-input').selectedIndex = 0;
+    document.getElementById('add-command-emote-input').selectedIndex = 0;
+    document.getElementById('add-command-role-input').selectedIndex = 0;
     document.getElementById('add-command-game-queue-input').selectedIndex = 0;
     document.getElementById('add-command-service-input').selectedIndex = 0;
     showElementInlineById('add-command-form');
@@ -382,6 +384,8 @@ function addAddCommandParameter(parameters, inputId, parameterName) {
 function getParameterName(parameterId) {
     switch (parameterId) {
         case 'text':
+        case 'emote':
+        case 'role':
             return 'stringParameter';
         case 'text-2':
             return 'stringParameter2';
@@ -447,7 +451,7 @@ const commandData = [
     {name: 'Remove From Game Queue Command', parameters: [{id: 'game-queue', name: 'Game Queue'}]}, //10
     {name: 'Set Arena Username Command', parameters: []}, //11
     {name: 'Show Arena Usernames Command', parameters: []}, //12
-    {name: 'Set Role Command', parameters: [{id: 'text', name: 'Role Name'}]}, //13
+    {name: 'Set Role Command', parameters: [{id: 'role', name: 'Role Name'}]}, //13
     {name: 'Set Status Command', parameters: [{id: 'book', name: 'Book'}]}, //14
     {name: 'Add Statement Command', parameters: []}, //15
     {name: 'Delayed Alert Command',
@@ -459,10 +463,10 @@ const commandData = [
     {name: 'Enter Giveaway Command', parameters: []}, //21
     {name: 'Giveaway Status Command', parameters: []}, //22
     {name: 'Select Giveaway Winner Command', parameters: []}, //23
-    {name: 'Add Reaction Command', parameters: [{id: 'text', name: 'Emote Name'}]}, //24
-    {name: 'Jail Command', parameters: [{id: 'text', name: 'Role Name'}, {id: 'text-2', name: 'Variable Name'},
+    {name: 'Add Reaction Command', parameters: [{id: 'emote', name: 'Emote'}]}, //24
+    {name: 'Jail Command', parameters: [{id: 'role', name: 'Role Name'}, {id: 'text-2', name: 'Variable Name'},
             {id: 'integer', name: 'Strikes'}]}, //25
-    {name: 'Jail Break Command', parameters: [{id: 'text', name: 'Role Name'},
+    {name: 'Jail Break Command', parameters: [{id: 'role', name: 'Role Name'},
             {id: 'text-2', name: 'Variable Name'}]}, //26
 ];
 
@@ -492,7 +496,8 @@ function setElementText(elementId, text) {
 }
 
 const addCommandElements = ['add-command-text-div', 'add-command-text-2-div', 'add-command-service-div',
-    'add-command-book-div', 'add-command-game-queue-div', 'add-command-integer-div'];
+    'add-command-book-div', 'add-command-role-div', 'add-command-emote-div', 'add-command-game-queue-div',
+    'add-command-integer-div'];
 
 function showAddCommandElements(elementIds) {
     for (let i = 0; i < addCommandElements.length; i++) {

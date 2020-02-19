@@ -49,6 +49,11 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public List<String> getRoles() {
+        return discordService.getRoles(guildId);
+    }
+
+    @Override
     public void start(final BotHome botHome) {
         discordService.setNickName(guildId, botHome.getBot().getName());
     }

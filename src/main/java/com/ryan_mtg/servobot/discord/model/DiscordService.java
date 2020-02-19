@@ -108,4 +108,10 @@ public class DiscordService implements Service {
         Guild guild = jda.getGuildById(guildId);
         return guild.getEmotes().stream().map(emote -> emote.getName()).collect(Collectors.toList());
     }
+
+    public List<String> getRoles(final long guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole())
+                .map(role -> role.getName()).collect(Collectors.toList());
+    }
 }

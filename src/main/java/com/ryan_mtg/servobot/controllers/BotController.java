@@ -88,8 +88,10 @@ public class BotController {
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {
             model.addAttribute("emotes", serviceHome.getEmotes());
+            model.addAttribute("roles", serviceHome.getRoles());
         } else {
             model.addAttribute("emotes", Lists.newArrayList());
+            model.addAttribute("roles", Lists.newArrayList());
         }
         return "bot_home_hub";
     }
