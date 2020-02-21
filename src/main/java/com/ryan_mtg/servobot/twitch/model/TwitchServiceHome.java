@@ -35,6 +35,11 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public List<String> getRoles() {
+        return Lists.newArrayList();
+    }
+
+    @Override
     public void start(final BotHome botHome) {
         twitchService.joinChannel(channelId);
     }

@@ -9,6 +9,7 @@ public interface ServiceHome {
     Service getService();
     Home getHome();
     List<String> getEmotes();
+    List<String> getRoles();
 
     void start(BotHome botHome);
     void stop(BotHome botHome);

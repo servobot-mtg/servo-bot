@@ -246,6 +246,22 @@
                         </th:block>
                     </select><br>
                 </div>
+                <div id="add-command-role-div" class="hidden">
+                    <label id="add-command-role-label">Role</label><br>
+                    <select id='add-command-role-input'>
+                        <th:block th:each="role, status : ${roles}">
+                            <option th:value="${role}" th:text="${role}" th:selected="${status.index == 0}"/>
+                        </th:block>
+                    </select>
+                </div>
+                <div id="add-command-emote-div" class="hidden">
+                    <label id="add-command-emote-label">Emote</label><br>
+                    <select id='add-command-emote-input'>
+                        <th:block th:each="emote, status : ${emotes}">
+                            <option th:value="${emote}" th:text="${emote}" th:selected="${status.index == 0}"/>
+                        </th:block>
+                    </select>
+                </div>
                 <div id="add-command-game-queue-div" class="hidden">
                     <label id="add-command-game-queue-label">Game Queue</label><br>
                     <select id="add-command-game-queue-input">
@@ -331,7 +347,7 @@
             <form id="add-reaction-form" class="add-form hidden"
                   th:onsubmit="'addReaction(' + ${botHome.id} + '); return false;'">
                 <div>
-                    <label>Reaction Emote </label><br>
+                    <label>Reaction Emote</label><br>
                     <select id='add-reaction-emote-input'>
                         <th:block th:each="emote, status : ${emotes}">
                             <option th:value="${emote}" th:text="${emote}" th:selected="${status.index == 0}"/>
