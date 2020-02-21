@@ -27,8 +27,9 @@ CREATE TABLE IF NOT EXISTS service_home (id INTEGER AUTO_INCREMENT PRIMARY KEY, 
 CREATE TABLE IF NOT EXISTS alert_generator (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER,
                     bot_home_id INTEGER, time INTEGER, time_zone VARCHAR(50), alert_token VARCHAR(50));
 
-CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, admin BIT, twitch_id INTEGER, discord_id BIGINT,
-                                 twitch_username VARCHAR(50), discord_username VARCHAR(50), arena_username VARCHAR(50));
+CREATE TABLE IF NOT EXISTS user (id INTEGER AUTO_INCREMENT PRIMARY KEY, flags INTEGER, twitch_id INTEGER,
+                    discord_id BIGINT, twitch_username VARCHAR(50), discord_username VARCHAR(50),
+                    arena_username VARCHAR(50));
 
 CREATE TABLE IF NOT EXISTS user_home (bot_home_id INTEGER, user_id INTEGER, state INTEGER);
 

@@ -69,7 +69,7 @@ public class UserSerializer {
             userRow = new UserRow();
             userRow.setDiscordId(discordId);
             userRow.setDiscordUsername(discordUsername);
-            userRow.setAdmin(false);
+            userRow.setFlags(0);
             userRepository.save(userRow);
         } else if (discordUsername != null && !discordUsername.equals(userRow.getDiscordUsername())) {
             userRow.setDiscordUsername(discordUsername);
@@ -146,7 +146,7 @@ public class UserSerializer {
             userRow = new UserRow();
             userRow.setTwitchId(twitchId);
             userRow.setTwitchUsername(twitchUsername);
-            userRow.setAdmin(false);
+            userRow.setFlags(0);
             userRepository.save(userRow);
         } else if(twitchUsername != null && !twitchUsername.equals(userRow.getTwitchUsername())) {
             userRow.setTwitchUsername(twitchUsername);
@@ -231,12 +231,12 @@ public class UserSerializer {
     }
 
     private User createUser(final UserRow userRow) throws BotErrorException {
-        return new User(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
+        return new User(userRow.getId(), userRow.getFlags(), userRow.getTwitchId(), userRow.getTwitchUsername(),
                         userRow.getDiscordId(), userRow.getDiscordUsername(), userRow.getArenaUsername());
     }
 
     private HomedUser createHomedUser(final UserRow userRow, final UserStatus userStatus) throws BotErrorException {
-        return new HomedUser(userRow.getId(), userRow.isAdmin(), userRow.getTwitchId(), userRow.getTwitchUsername(),
+        return new HomedUser(userRow.getId(), userRow.getFlags(), userRow.getTwitchId(), userRow.getTwitchUsername(),
                 userRow.getDiscordId(), userRow.getDiscordUsername(), userRow.getArenaUsername(), userStatus);
     }
 }

@@ -7,18 +7,21 @@ public class User {
     public static final int UNREGISTERED_ID = 0;
     private static final int MAX_USERNAME_SIZE = UserRow.MAX_USERNAME_SIZE;
 
+    private static int ADMIN_FLAG = 1;
+    private static int INVITE_FLAG = 1<<1;
+
     private int id;
-    private boolean admin;
+    private int flags;
     private int twitchId;
     private long discordId;
     private String twitchUsername;
     private String discordUsername;
     private String arenaUsername;
 
-    public User(final int id, final boolean admin, final int twitchId, final String twitchUsername,
+    public User(final int id, final int flags, final int twitchId, final String twitchUsername,
                 final long discordId, final String discordUsername, final String arenaUsername) throws BotErrorException {
         this.id = id;
-        this.admin = admin;
+        this.flags = flags;
         this.twitchId = twitchId;
         this.twitchUsername = twitchUsername;
         this.discordId = discordId;
@@ -46,7 +49,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return admin;
+        return flagSet(ADMIN_FLAG);
     }
 
     public int getTwitchId() {
@@ -74,5 +77,13 @@ public class User {
             return twitchUsername;
         }
         return discordUsername;
+    }
+
+    public boolean hasInvite() {
+        return flagSet(INVITE_FLAG);
+    }
+
+    private boolean flagSet(final int flag) {
+        return (flags & flag) != 0;
     }
 }

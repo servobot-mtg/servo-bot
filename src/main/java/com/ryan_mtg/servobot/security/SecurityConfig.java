@@ -25,6 +25,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserSerializer userSerializer;
 
+    @Autowired
+    private WebsiteUserFactory websiteUserFactory;
+
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {
         return new InMemoryClientRegistrationRepository(clientRegistration);
@@ -50,8 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
-            .antMatchers("/admin**", "/admin/**").hasRole("ADMIN")
-            .antMatchers("/bad**").hasRole("BAD")
+            .antMatchers("/admin**", "/admin/**", "/script/admin.js").hasRole("ADMIN")
+            .antMatchers("/script/privledged.js").fullyAuthenticated()
             .antMatchers("/login**", "/images/**", "/script/**", "/style/**").permitAll()
             .anyRequest().permitAll()
             .and().oauth2Login().loginPage("/login")
@@ -61,6 +64,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @ModelAttribute
     private void addUser(final Model model, final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
-        model.addAttribute("user", new WebsiteUser(oAuth2AuthenticationToken));
+        model.addAttribute("user", websiteUserFactory.createWebsiteUser(oAuth2AuthenticationToken));
     }
 }

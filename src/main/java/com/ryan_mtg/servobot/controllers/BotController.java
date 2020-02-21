@@ -61,16 +61,23 @@ public class BotController {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
         if (!websiteUser.isAuthenticated() ) {
             model.addAttribute("page", "homeless");
-            return "homeless";
+            return "home/homeless";
+        }
+
+        if (websiteUser.hasInvite()) {
+            model.addAttribute("page", "invite");
+            return "home/invite";
         }
 
         if (websiteUser.isAStreamer()) {
             model.addAttribute("page", "control");
-            return "control";
+            BotHome botHome = bot.getHome(websiteUser.getBotHomeId());
+            model.addAttribute("botHome", botHome);
+            return "home/control";
         }
 
-        model.addAttribute("page", "new_home");
-        return "new_home";
+        model.addAttribute("page", "no_hom");
+        return "home/no_home";
     }
 
     @GetMapping("/home/{home}")

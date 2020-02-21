@@ -38,9 +38,8 @@
                 </div></li>
 
                 <li class="right" th:if="${user.authenticated}">
-                    <div class="navitem" th:classappend="${user.admin ? 'admin-user ' : ' '} +
-                         ${botHome != null && user.roles.contains('ROLE_MOD:' + botHome.id) ? 'mod' : ''}">
-                        <span th:title="${user.roles}" th:text="${user.name}" ></span>
+                    <div class="navitem" th:classappend="${user.admin ? 'admin-user': ''}">
+                        <a href="/home" th:text="${user.name}"></a>
                     </div>
                 </li>
             </ul>

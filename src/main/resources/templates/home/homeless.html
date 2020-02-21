@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User</title>
+    <div th:include="fragments :: includes" />
+</head>
+<body th:with="privledged=${user.admin}">
+<div th:include="fragments :: header" />
+<div class="content">
+    <h1>Home page</h1>
+    <div th:if="${!user.authenticated}">
+        To have the bot join your channel, you must have a special invite and <a th:href="@{/oauth2/authorization/twitch}">log in</a>.
+    </div>
+</div>
+<div th:include="fragments :: footer" />
+</body>
+</html>
