@@ -4,8 +4,10 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class ReactionTable implements Iterable<Reaction> {
     private List<Reaction> reactions = new ArrayList<>();
@@ -61,9 +63,15 @@ public class ReactionTable implements Iterable<Reaction> {
     public ReactionTableEdit deletePattern(final int reactionId, final int patternId) {
         ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
         reactions.stream().filter(reaction -> reaction.getId() == reactionId).forEach(reaction -> {
+            Set<Pattern> patternsToDelete = new HashSet<>();
             reaction.getPatterns().stream().filter(pattern -> pattern.getId() == patternId).forEach(pattern -> {
-                reactionTableEdit.delete(pattern);
+                patternsToDelete.add(pattern);
             });
+
+            for(Pattern pattern: patternsToDelete) {
+                reaction.remove(pattern);
+                reactionTableEdit.delete(pattern);
+            }
         });
         return reactionTableEdit;
     }

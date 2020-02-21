@@ -63,6 +63,10 @@ public class Reaction {
         patterns.add(pattern);
     }
 
+    public void remove(final Pattern pattern) {
+        patterns.remove(pattern);
+    }
+
     public List<Pattern> getPatterns() {
         return patterns;
     }

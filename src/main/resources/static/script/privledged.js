@@ -121,8 +121,8 @@ function deleteReaction(botHomeId, reactionId) {
     postDelete('/api/delete_reaction', parameters, 'reaction-' + reactionId + '-row');
 }
 
-function deletePattern(botHomeId, patternId) {
-    const parameters = {botHomeId: botHomeId, objectId: patternId};
+function deletePattern(botHomeId, reactionId, patternId) {
+    const parameters = {botHomeId: botHomeId, reactionId: reactionId, patternId: patternId};
     postDelete('/api/delete_pattern', parameters, 'pattern-' + patternId);
 }
 
