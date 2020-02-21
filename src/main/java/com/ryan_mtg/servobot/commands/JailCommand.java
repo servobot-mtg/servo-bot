@@ -55,11 +55,11 @@ public class JailCommand extends MessageCommand {
             event.getHome().setRole(sender, prisonRole);
         }
 
-        if (incrementedValue == threshold + 1) {
+        if (incrementedValue == threshold) {
             MessageCommand.say(event, sender.getName() + ", I'm throwing the book at you!");
-        } else if (incrementedValue == threshold + 2) {
+        } else if (incrementedValue == threshold + 1) {
             MessageCommand.say(event, sender.getName() + ", you have the right to remain silent!");
-        } else if (incrementedValue == threshold + 3) {
+        } else if (incrementedValue == threshold + 2) {
             MessageCommand.say(event,
                     "You got to ask yourself one question, \"Do I feel lucky?\" Well, do you, punk? ");
         }

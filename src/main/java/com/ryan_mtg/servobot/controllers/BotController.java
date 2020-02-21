@@ -76,8 +76,8 @@ public class BotController {
             return "home/control";
         }
 
-        model.addAttribute("page", "no_hom");
-        return "home/no_home";
+        model.addAttribute("page", "wandering");
+        return "home/wandering";
     }
 
     @GetMapping("/home/{home}")
