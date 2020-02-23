@@ -5,10 +5,10 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 
 public class User {
     public static final int UNREGISTERED_ID = 0;
-    private static final int MAX_USERNAME_SIZE = UserRow.MAX_USERNAME_SIZE;
+    public static final int INVITE_FLAG = 1<<1;
 
-    private static int ADMIN_FLAG = 1;
-    private static int INVITE_FLAG = 1<<1;
+    private static final int MAX_USERNAME_SIZE = UserRow.MAX_USERNAME_SIZE;
+    private static final int ADMIN_FLAG = 1;
 
     private int id;
     private int flags;
@@ -19,7 +19,8 @@ public class User {
     private String arenaUsername;
 
     public User(final int id, final int flags, final int twitchId, final String twitchUsername,
-                final long discordId, final String discordUsername, final String arenaUsername) throws BotErrorException {
+                final long discordId, final String discordUsername, final String arenaUsername)
+            throws BotErrorException {
         this.id = id;
         this.flags = flags;
         this.twitchId = twitchId;

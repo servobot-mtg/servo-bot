@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
+import static com.ryan_mtg.servobot.user.User.INVITE_FLAG;
 
 @Component
 public class UserSerializer {
@@ -154,6 +155,15 @@ public class UserSerializer {
         }
 
         return userRow;
+    }
+
+
+    @Transactional
+    public void inviteUser(final int userId) {
+        UserRow userRow = userRepository.findById(userId);
+        int newFlags = userRow.getFlags() | INVITE_FLAG;
+        userRow.setFlags(newFlags);
+        userRepository.save(userRow);
     }
 
     @Transactional

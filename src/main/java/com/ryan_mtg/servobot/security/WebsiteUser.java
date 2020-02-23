@@ -90,7 +90,6 @@ public class WebsiteUser implements Principal {
         return false;
     }
 
-
     public boolean isPrivledged(final BotHome botHome) {
         if (oAuth2AuthenticationToken == null || !oAuth2AuthenticationToken.isAuthenticated()) {
             return false;

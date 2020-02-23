@@ -25,7 +25,7 @@
                     <th>Discord Name</th>
                     <th>Discord Id</th>
                     <th>Arena Name</th>
-                    <th>Admin</th>
+                    <th>Flags</th>
                     <th>Select</th>
                 </tr></thead>
                 <th:block th:each="user : ${users}" th:with="label=${'user-' + user.id}">
@@ -42,7 +42,14 @@
                                 <span th:if="${user.arenaUsername}">&#x1F5D1;</span>
                             </span>
                         </td>
-                        <td th:id="${label} + '-admin'" th:text="${user.admin ? '&#x1F477;' : ''}"/>
+                        <td th:id="${label} + '-flags'">
+                            <span th:text="${user.admin ? '&#x1F477;' : ''}"/>
+                            <span th:if="${user.hasInvite()}">&#x2709;&#xFE0F;</span>
+                            <span th:if="${!user.hasInvite()}" th:id="${label} + '-invite'" class="pseudo-link"
+                                  th:onclick="'giveInvite(' + ${user.id}+ ')'">
+                                &#x1F4E5;
+                            </span>
+                        </td>
                         <td><input type="checkbox" th:onchange="'selectUser(event, ' + ${user.id} + ')'"/></td>
                     </tr>
                 </th:block>
