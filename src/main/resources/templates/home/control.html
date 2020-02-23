@@ -12,8 +12,7 @@
     <div>
         <h2>Links</h2>
         <ul>
-            <li><a th:href="'/home/' + ${botHome.name} + '/hub'">Channel home</a></li>
-            <li><a th:href="'/home/' + ${botHome.name} + '/hub'">Moderation Hub</a></li>
+            <li><a th:href="'/home/' + ${botHome.name} + '/hub'" th:text="${botHome.name}"/></li>
         </ul>
     </div>
 </div>

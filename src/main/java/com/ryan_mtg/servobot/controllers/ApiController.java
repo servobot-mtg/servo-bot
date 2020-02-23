@@ -4,7 +4,7 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Bot;
+import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Reward;
 import com.ryan_mtg.servobot.model.Statement;
@@ -26,7 +26,7 @@ public class ApiController {
     private static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
 
     @Autowired
-    private Bot bot;
+    private BotRegistrar botRegistrar;
 
     @PostMapping(value = "/api/set_home_time_zone", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void setBotHomeTimeZone(@RequestBody final SetBotHomeTimeZoneRequest request) {
@@ -387,12 +387,12 @@ public class ApiController {
 
     @PostMapping(value = "/api/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean stopHome(@RequestBody final BotHomeRequest request) {
-        return wrapCall(() -> bot.getBotEditor().stopHome(request.getBotHomeId()));
+        return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).stopHome(request.getBotHomeId()));
     }
 
     @PostMapping(value = "/api/start_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean restartHome(@RequestBody final BotHomeRequest request) {
-        return wrapCall(() -> bot.getBotEditor().restartHome(request.getBotHomeId()));
+        return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).restartHome(request.getBotHomeId()));
     }
 
     @PostMapping(value = "/api/add_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -457,7 +457,7 @@ public class ApiController {
     }
 
     private HomeEditor getHomeEditor(final int botHomeId) {
-        return bot.getHomeEditor(botHomeId);
+        return botRegistrar.getHomeEditor(botHomeId);
     }
 
 

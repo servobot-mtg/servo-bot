@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.data.factories.BotFactory;
+import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import org.slf4j.Logger;
@@ -31,7 +32,9 @@ public class BotConfig {
     }
 
     @Bean
-    public Bot bot(@Qualifier("globalScope") final Scope globalScope) throws BotErrorException {
-        return botFactory.createBot(botRepository.findFirst().get(), globalScope);
+    public BotRegistrar botRegistrar(@Qualifier("globalScope") final Scope globalScope) throws BotErrorException {
+        Bot bot = botFactory.createBot(botRepository.findFirst().get(), globalScope);
+        BotRegistrar botRegistrar = new BotRegistrar(bot);
+        return botRegistrar;
     }
 }
