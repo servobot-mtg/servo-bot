@@ -28,10 +28,11 @@ public class ApiController {
     @Autowired
     private BotRegistrar botRegistrar;
 
-    @PostMapping(value = "/api/set_home_time_zone", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void setBotHomeTimeZone(@RequestBody final SetBotHomeTimeZoneRequest request) {
+    @PostMapping(value = "/api/modify_bot_name", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean modifyBotName(@RequestBody final ModifyBotNameRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        homeEditor.setTimeZone(request.getTimeZone());
+        homeEditor.modifyBotName(request.getText());
+        return true;
     }
 
     public static class BotHomeRequest {
@@ -40,6 +41,20 @@ public class ApiController {
         public int getBotHomeId() {
             return botHomeId;
         }
+    }
+
+    public static class ModifyBotNameRequest extends BotHomeRequest {
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+    }
+
+    @PostMapping(value = "/api/set_home_time_zone", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void setBotHomeTimeZone(@RequestBody final SetBotHomeTimeZoneRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.setTimeZone(request.getTimeZone());
     }
 
     public static class SetBotHomeTimeZoneRequest extends BotHomeRequest {

@@ -22,6 +22,10 @@ public class BotHomeRow {
     @Size(max = MAX_NAME_SIZE)
     private String homeName;
 
+    @Column(name = "bot_name")
+    @Size(max = MAX_NAME_SIZE)
+    private String botName;
+
     @Column(name = "time_zone")
     private String timeZone;
 
@@ -31,6 +35,14 @@ public class BotHomeRow {
 
     public String getHomeName() {
         return homeName;
+    }
+
+    public String getBotName() {
+        return botName;
+    }
+
+    public void setBotName(final String botName) {
+        this.botName = botName;
     }
 
     public String getTimeZone() {

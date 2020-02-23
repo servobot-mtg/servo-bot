@@ -6,6 +6,10 @@ h2 {
     clear: both;
 }
 
+li {
+    margin: 3px 0;
+}
+
 .pseudo-link {
     cursor: pointer;
 }

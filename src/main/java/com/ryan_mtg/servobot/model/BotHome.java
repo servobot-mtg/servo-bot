@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandListener;
 import com.ryan_mtg.servobot.events.EventListener;
@@ -27,6 +28,7 @@ public class BotHome {
     private int id;
     private Bot bot;
     private String name;
+    private String botName;
     private String timeZone;
     private Scope botHomeScope;
     private CommandTable commandTable;
@@ -39,12 +41,13 @@ public class BotHome {
     private boolean active = false;
     private MultiDelegatingListener eventListener;
 
-    public BotHome(final int id, final String name, final String timeZone,
+    public BotHome(final int id, final String name, final String botName, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
                    final List<GameQueue> gameQueues) throws BotErrorException {
         this.id = id;
         this.name = name;
+        this.botName = botName;
         this.timeZone = timeZone;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
@@ -56,6 +59,10 @@ public class BotHome {
 
         if (name.length() > MAX_NAME_SIZE) {
             throw new BotErrorException(String.format("Name too long (max %d): %s", MAX_NAME_SIZE, name));
+        }
+
+        if (botName.length() > MAX_NAME_SIZE) {
+            throw new BotErrorException(String.format("BotName too long (max %d): %s", MAX_NAME_SIZE, botName));
         }
 
         if (timeZone.length() > MAX_TIME_ZONE_SIZE) {
@@ -87,6 +94,15 @@ public class BotHome {
 
     public String getName() {
         return name;
+    }
+
+    public String getBotName() {
+        return botName;
+    }
+
+    public void setBotName(final String botName) {
+        this.botName = botName;
+        getServiceHome(DiscordService.TYPE).setName(botName);
     }
 
     public boolean isActive() {

@@ -5,14 +5,16 @@
     <div th:include="fragments :: includes" />
     <script type="text/javascript" src="/script/privledged.js"></script>
 </head>
-<body th:with="privledged=true">
+<body th:with="privledged=true,exalted=true">
 <div th:include="fragments :: header" />
 <div class="content">
     <h1 th:text="'User ' + ${botHome.name}" />
     <div>
-        <h2>Links</h2>
         <ul>
-            <li><a th:href="'/home/' + ${botHome.name} + '/hub'" th:text="${botHome.name}"/></li>
+            <li><a th:href="'/home/' + ${botHome.name} + '/hub'"/>Moderation Hub</a></li>
+            <li th:text="'Home Id: ' + ${botHome.id}"></li>
+            <li><div th:include="bot_home_fragments :: bot_name"/></li>
+            <li><div th:include="bot_home_fragments :: time_zone"/></li>
         </ul>
     </div>
 </div>

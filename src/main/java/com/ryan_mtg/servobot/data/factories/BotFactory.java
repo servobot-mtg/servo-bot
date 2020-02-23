@@ -64,6 +64,7 @@ public class BotFactory {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
         String homeName = botHomeRow.getHomeName();
+        String botName = botHomeRow.getBotName();
         String timeZone = botHomeRow.getTimeZone();
         int botHomeId = botHomeRow.getId();
 
@@ -100,7 +101,7 @@ public class BotFactory {
             gameQueues.add(gameQueue);
         }
 
-        return new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, storageTable, serviceHomes,
+        return new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable, storageTable, serviceHomes,
                 books, gameQueues);
     }
 }

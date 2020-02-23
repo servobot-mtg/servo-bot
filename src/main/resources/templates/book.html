@@ -21,16 +21,16 @@
                         <div th:id="${label} + '-display'">
                             <span th:text="${statement.text}" th:id="${label} + '-value'"/>
                             <span class="pseudo-link" th:onclick="'editStatement(event, ' + ${statement.id} + ')'">
-                                    &#x270F;&#xFE0F;
-                                </span>
+                                &#x270F;&#xFE0F;
+                            </span>
                         </div>
                         <div th:id="${label} + '-edit'" class="hidden">
                             <input type="text" th:value="${statement.text}" th:size="${statement.text.length()}"
                                    th:id="${label} + '-input'"/>
                             <span class="pseudo-link" th:onclick="'modifyStatement(event, ' + ${botHome.id} + ', '
                                                           + ${book.id} + ', ' + ${statement.id} + ')'">
-                                    &#x1F4BE;
-                                </span>
+                                &#x1F4BE;
+                            </span>
                         </div>
                     </td>
                     <td th:if="${!privledged}" th:text="${statement.text}"/>

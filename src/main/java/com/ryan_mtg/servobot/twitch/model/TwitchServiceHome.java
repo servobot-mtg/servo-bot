@@ -55,6 +55,9 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public void setName(final String botName) {}
+
+    @Override
     public int getServiceType() {
         return TwitchService.TYPE;
     }

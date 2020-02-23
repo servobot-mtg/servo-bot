@@ -55,7 +55,7 @@ public class DiscordServiceHome implements ServiceHome {
 
     @Override
     public void start(final BotHome botHome) {
-        discordService.setNickName(guildId, botHome.getBot().getName());
+        setName(botHome.getBotName());
     }
 
     @Override
@@ -64,6 +64,11 @@ public class DiscordServiceHome implements ServiceHome {
     @Override
     public void setHomeEditor(final HomeEditor homeEditor) {
         this.homeEditor = homeEditor;
+    }
+
+    @Override
+    public void setName(String botName) {
+        discordService.setNickName(guildId, botName);
     }
 
     public long getGuildId() {

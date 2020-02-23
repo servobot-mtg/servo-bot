@@ -15,6 +15,37 @@ const penIcon = '&#x270F;&#xFE0F;';
 const bookIcon = '&#x1F4BE;';
 const defaultCommandFlags = 2+4;
 
+function editBotName() {
+    hideElementById('bot-name-display');
+    showElementById('bot-name-edit');
+}
+
+function modifyBotName(botHomeId) {
+    let inputElement = document.getElementById('bot-name-input');
+    let valueElement = document.getElementById('bot-name-value');
+
+    if (valueElement.innerText != inputElement.value) {
+        postModifyBotName(botHomeId, inputElement.value);
+    } else {
+        resetBotName();
+    }
+}
+
+async function postModifyBotName(botHomeId, text) {
+    const parameters = {botHomeId: botHomeId, text: text};
+    let response = await makePost('/api/modify_bot_name', parameters, [], false);
+    if (response.ok) {
+        let valueElement = document.getElementById('bot-name-value');
+        valueElement.innerText = text;
+        resetBotName();
+    }
+}
+
+function resetBotName() {
+    hideElementById('bot-name-edit');
+    showElementById('bot-name-display');
+}
+
 function secureCommand(botHomeId, commandId) {
     postSecureCommand(botHomeId, commandId, 'command-' + commandId);
 }
@@ -940,4 +971,3 @@ async function postBestowReward(botHomeId, rewardId) {
         document.getElementById('reward-' + rewardId + '-status').innerText = 'BESTOWED';
     }
 }
-

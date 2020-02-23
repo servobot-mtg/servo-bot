@@ -71,7 +71,7 @@ public class WebsiteUser implements Principal {
     }
 
     public boolean isPrivledged() {
-        if (!oAuth2AuthenticationToken.isAuthenticated()) {
+        if (oAuth2AuthenticationToken == null || !oAuth2AuthenticationToken.isAuthenticated()) {
             return false;
         }
 
@@ -92,7 +92,7 @@ public class WebsiteUser implements Principal {
 
 
     public boolean isPrivledged(final BotHome botHome) {
-        if (!oAuth2AuthenticationToken.isAuthenticated()) {
+        if (oAuth2AuthenticationToken == null || !oAuth2AuthenticationToken.isAuthenticated()) {
             return false;
         }
 

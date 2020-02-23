@@ -416,5 +416,31 @@
             </th:block>
         </ul>
     </div>
+
+    <!-- time zone -->
+    <div th:fragment="time_zone">
+        Time Zone
+        <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
+            <th:block th:each="timeZone : ${timeZones}">
+                <option th:value="${timeZone.value}" th:text="${timeZone.display}"
+                        th:selected="${timeZone.value == botHome.timeZone}"/>
+            </th:block>
+        </select> <span id="time-zone-updated" />
+    </div>
+
+    <div th:fragment="bot_name">
+        <td th:if="${exalted}">
+            <div id="bot-name-display">
+                Bot Name: <span th:text="${botHome.botName}" id="bot-name-value"/>
+                <span class="pseudo-link" onclick="editBotName()">&#x270F;&#xFE0F;</span>
+            </div>
+            <div id="bot-name-edit" class="hidden">
+                Bot Name: <input type="text" th:id="bot-name-input"
+                       th:value="${botHome.botName}" th:size="${botHome.botName.length() + 10}"/>
+                <span class="pseudo-link" th:onclick="'modifyBotName(' + ${botHome.id} + ')'">&#x1F4BE;</span>
+            </div>
+        </td>
+        <td th:if="${!exalted}" th:text="'Bot Name: ' + ${botHome.botName}"/>
+    </div>
 </body>
 </html>

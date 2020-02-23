@@ -14,4 +14,5 @@ public interface ServiceHome {
     void start(BotHome botHome);
     void stop(BotHome botHome);
     void setHomeEditor(HomeEditor homeEditor);
+    void setName(String botName);
 }

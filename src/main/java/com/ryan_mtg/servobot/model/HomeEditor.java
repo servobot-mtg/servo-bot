@@ -58,6 +58,16 @@ public class HomeEditor {
     }
 
     @Transactional
+    public void modifyBotName(final String botName) {
+        botHome.setBotName(botName);
+
+        BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
+        BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
+        botHomeRow.setBotName(botName);
+        botHomeRepository.save(botHomeRow);
+    }
+
+    @Transactional
     public void setTimeZone(final String timeZone) {
         botHome.setTimeZone(timeZone);
         botHome.getReactionTable().setTimeZone(timeZone);

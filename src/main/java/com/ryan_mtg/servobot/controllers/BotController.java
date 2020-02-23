@@ -71,6 +71,7 @@ public class BotController {
             model.addAttribute("page", "control");
             BotHome botHome = botRegistrar.getBotHome(websiteUser.getBotHomeId());
             model.addAttribute("botHome", botHome);
+            model.addAttribute("timeZones", timeZones);
             return "home/control";
         }
 
