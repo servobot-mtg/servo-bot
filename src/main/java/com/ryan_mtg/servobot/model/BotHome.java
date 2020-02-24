@@ -11,8 +11,10 @@ import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.scope.BookScope;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.model.scope.SymbolTable;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 
 import java.time.ZoneId;
@@ -193,7 +195,8 @@ public class BotHome {
         timeSymbolTable.addFunctor("dayOfWeek", () -> now().getDayOfWeek());
 
         Scope timeScope = new Scope(botScope, timeSymbolTable);
-        Scope botHomeScope = new Scope(timeScope, storageTable);
+        Scope bookScope = new Scope(timeScope, new BookScope(books));
+        Scope botHomeScope = new Scope(bookScope, storageTable);
 
         return botHomeScope;
     }
