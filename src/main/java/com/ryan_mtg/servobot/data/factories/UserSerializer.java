@@ -42,7 +42,7 @@ public class UserSerializer {
         return createUser(userRepository.findById(id));
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public User lookupByTwitchId(final int twitchId, final String twitchUsername) {
         try {
             UserRow userRow = lookupUserRowByTwitchId(twitchId, twitchUsername);
@@ -53,7 +53,7 @@ public class UserSerializer {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public HomedUser lookupByTwitchId(final int botHomeId, final int twitchId, final String twitchUsername,
                                       final TwitchUserStatus twitchUserStatus) throws BotErrorException {
         UserRow userRow = lookupUserRowByTwitchId(twitchId, twitchUsername);
@@ -156,7 +156,7 @@ public class UserSerializer {
         return getHomedUsers(botHomeId).stream().filter(user -> user.isModerator()).collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public UserRow lookupUserRowByTwitchId(final int twitchId, final String twitchUsername) {
         UserRow userRow = userRepository.findByTwitchId(twitchId);
 
@@ -175,7 +175,7 @@ public class UserSerializer {
     }
 
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void inviteUser(final int userId) {
         UserRow userRow = userRepository.findById(userId);
         int newFlags = userRow.getFlags() | INVITE_FLAG;
@@ -183,7 +183,7 @@ public class UserSerializer {
         userRepository.save(userRow);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public User mergeUsers(final List<Integer> userIds) throws BotErrorException {
         Iterable<UserRow> userRows = userRepository.findAllById(userIds);
 
@@ -235,14 +235,14 @@ public class UserSerializer {
         return createUser(mergedUser);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void setArenaUsername(final int id, final String arenaUsername) {
         UserRow userRow = userRepository.findById(id);
         userRow.setArenaUsername(arenaUsername);
         userRepository.save(userRow);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void deleteArenaUsername(final int id) {
         UserRow userRow = userRepository.findById(id);
         userRow.setArenaUsername(null);

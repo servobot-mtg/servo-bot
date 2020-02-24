@@ -22,7 +22,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.web.FilterInvocation;
@@ -38,7 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableOAuth2Client
 @ControllerAdvice
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired

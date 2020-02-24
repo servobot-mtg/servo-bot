@@ -70,12 +70,12 @@ public class CommandSerializer {
             case AddCommand.TYPE:
                 return new AddCommand(id, flags, permission);
             case AddReactionCommand.TYPE:
-                return new AddReactionCommand(id, flags, permission, commandRow.getStringParameter());
+                return new AddReactionCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case AddStatementCommand.TYPE:
                 return new AddStatementCommand(id, flags, permission);
             case DelayedAlertCommand.TYPE:
                 return new DelayedAlertCommand(id, flags, permission,
-                        Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter());
+                        Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter().trim());
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, flags, permission);
             case EnterGiveawayCommand.TYPE:
@@ -93,17 +93,17 @@ public class CommandSerializer {
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
             case JailCommand.TYPE:
                 int jailThreshold = (int) (long) commandRow.getLongParameter();
-                return new JailCommand(id, flags, permission, commandRow.getStringParameter(), jailThreshold,
-                        commandRow.getStringParameter2());
+                return new JailCommand(id, flags, permission, commandRow.getStringParameter().trim(), jailThreshold,
+                        commandRow.getStringParameter2().trim());
             case JailBreakCommand.TYPE:
-                return new JailBreakCommand(id, flags, permission, commandRow.getStringParameter(),
-                        commandRow.getStringParameter2());
+                return new JailBreakCommand(id, flags, permission, commandRow.getStringParameter().trim(),
+                        commandRow.getStringParameter2().trim());
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new JoinGameQueueCommand(id, flags, permission, gameQueueId);
             case MessageChannelCommand.TYPE:
                 return new MessageChannelCommand(id, flags, permission, commandRow.getLongParameter().intValue(),
-                        commandRow.getStringParameter(), commandRow.getStringParameter2());
+                        commandRow.getStringParameter().trim(), commandRow.getStringParameter2().trim());
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new RemoveFromGameQueueCommand(id, flags, permission, gameQueueId);
@@ -112,7 +112,7 @@ public class CommandSerializer {
             case SetArenaUsernameCommand.TYPE:
                 return new SetArenaUsernameCommand(id, flags, permission);
             case SetRoleCommand.TYPE:
-                return new SetRoleCommand(id, flags, permission, commandRow.getStringParameter());
+                return new SetRoleCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
                 return new SetStatusCommand(id, flags, permission, bookMap.get(bookId));
@@ -128,7 +128,7 @@ public class CommandSerializer {
             case StartGiveawayCommand.TYPE:
                 return new StartGiveawayCommand(id, flags, permission);
             case TextCommand.TYPE:
-                return new TextCommand(id, flags, permission, commandRow.getStringParameter());
+                return new TextCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case TierCommand.TYPE:
                 return new TierCommand(id, flags, permission);
         }

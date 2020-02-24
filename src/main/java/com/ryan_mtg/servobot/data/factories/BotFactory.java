@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +61,8 @@ public class BotFactory {
         return createBotHome(serializers.getBotHomeRepository().findById(botHomeId));
     }
 
-    private BotHome createBotHome(final BotHomeRow botHomeRow) throws BotErrorException {
+    @Transactional(rollbackOn = BotErrorException.class)
+    protected BotHome createBotHome(final BotHomeRow botHomeRow) throws BotErrorException {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
         String homeName = botHomeRow.getHomeName();

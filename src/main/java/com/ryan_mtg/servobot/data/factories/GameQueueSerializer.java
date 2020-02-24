@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.models.GameQueueEntryRow;
 import com.ryan_mtg.servobot.data.models.GameQueueRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.GameQueue;
 import com.ryan_mtg.servobot.model.GameQueueEntry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class GameQueueSerializer {
     @Autowired
     private GameQueueEntryRepository gameQueueEntryRepository;
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void saveGameQueue(final GameQueue gameQueue) {
         GameQueueRow gameQueueRow = gameQueueRepository.findById(gameQueue.getId());
         gameQueueRow.setState(gameQueue.getState());
@@ -31,13 +32,13 @@ public class GameQueueSerializer {
         gameQueueRepository.save(gameQueueRow);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void removeEntry(final GameQueue gameQueue, final int userId) {
         gameQueueEntryRepository.deleteAllByGameQueueIdAndUserId(gameQueue.getId(), userId);
         saveGameQueue(gameQueue);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void addEntry(final GameQueue gameQueue, final GameQueueEntry gameQueueEntry) {
         GameQueueEntryRow gameQueueEntryRow = new GameQueueEntryRow();
         gameQueueEntryRow.setGameQueueId(gameQueue.getId());
@@ -48,7 +49,7 @@ public class GameQueueSerializer {
         saveGameQueue(gameQueue);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void emptyGameQueue(GameQueue gameQueue) {
         gameQueueEntryRepository.deleteAllByGameQueueId(gameQueue.getId());
         saveGameQueue(gameQueue);

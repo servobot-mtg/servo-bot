@@ -12,7 +12,6 @@ import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.controllers.ApiController.CreateBotHomeRequest;
 import com.ryan_mtg.servobot.controllers.ApiController.TextCommandRequest;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
-import com.ryan_mtg.servobot.data.factories.ServiceSerializer;
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
@@ -58,7 +57,7 @@ public class BotEditor {
         }
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public BotHome createBotHome(final int userId, final CreateBotHomeRequest request) throws BotErrorException {
         UserSerializer userSerializer = serializers.getUserSerializer();
         User user = userSerializer.lookupById(userId);

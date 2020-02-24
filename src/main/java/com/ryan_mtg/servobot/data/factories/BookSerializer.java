@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class BookSerializer {
@@ -23,7 +22,7 @@ public class BookSerializer {
     @Autowired
     private StatementRepository statementRepository;
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void saveBook(final int botHomeId, final Book book) {
         BookRow bookRow = new BookRow(book.getId(), botHomeId, book.getName());
         bookRepository.save(bookRow);
