@@ -20,14 +20,14 @@
                     <td th:if="${privledged}">
                         <div th:id="${label} + '-display'">
                             <span th:text="${statement.text}" th:id="${label} + '-value'"/>
-                            <span class="pseudo-link" th:onclick="'editStatement(event, ' + ${statement.id} + ')'">
+                            <span class="pseudo-link" th:onclick="'editStatement(' + ${statement.id} + ')'">
                                 &#x270F;&#xFE0F;
                             </span>
                         </div>
                         <div th:id="${label} + '-edit'" class="hidden">
                             <input type="text" th:value="${statement.text}" th:size="${statement.text.length()}"
                                    th:id="${label} + '-input'"/>
-                            <span class="pseudo-link" th:onclick="'modifyStatement(event, ' + ${botHome.id} + ', '
+                            <span class="pseudo-link" th:onclick="'modifyStatement(' + ${botHome.id} + ', '
                                                           + ${book.id} + ', ' + ${statement.id} + ')'">
                                 &#x1F4BE;
                             </span>
@@ -35,7 +35,7 @@
                     </td>
                     <td th:if="${!privledged}" th:text="${statement.text}"/>
                     <td th:if="${privledged}" class="pseudo-link" th:onclick=
-                            "'deleteStatement(event, ' + ${botHome.id} + ', ' + ${book.id} + ', '+ ${statement.id} + ')'">
+                            "'deleteStatement(' + ${botHome.id} + ', ' + ${book.id} + ', '+ ${statement.id} + ')'">
                         &#x1F5D1;
                     </td>
                 </tr>

@@ -195,17 +195,17 @@ function deletePattern(botHomeId, reactionId, patternId) {
     postDelete('/api/delete_pattern', parameters, 'pattern-' + patternId);
 }
 
-function deleteStatement(event, botHomeId, bookId, statementId) {
+function deleteStatement(botHomeId, bookId, statementId) {
     const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId};
     postDelete('/api/delete_statement', parameters, 'statement-' + statementId + '-row');
 }
 
-function editStatement(event, statementId) {
+function editStatement(statementId) {
     hideElementById('statement-' + statementId + '-display');
     showElementById('statement-' + statementId + '-edit');
 }
 
-function modifyStatement(event, botHomeId, bookId, statementId) {
+function modifyStatement(botHomeId, bookId, statementId) {
     let inputElement = document.getElementById('statement-' + statementId + '-input');
 
     let valueElement = document.getElementById('statement-' + statementId + '-value');
@@ -383,8 +383,8 @@ function addStatementRow(statement, botHomeId, bookId) {
     displayDiv.appendChild(textSpan);
     let editButtonSpan = document.createElement('span');
     editButtonSpan.classList.add('pseudo-link');
-    editButtonSpan.onclick = function(event) {
-        editStatement(event, statement.id);
+    editButtonSpan.onclick = function() {
+        editStatement(statement.id);
     };
     editButtonSpan.innerHTML = penIcon;
     displayDiv.appendChild(editButtonSpan);
@@ -402,8 +402,8 @@ function addStatementRow(statement, botHomeId, bookId) {
 
     let modifyButtonSpan = document.createElement('span');
     modifyButtonSpan.classList.add('pseudo-link');
-    modifyButtonSpan.onclick = function(event) {
-        modifyStatement(event, botHomeId, bookId, statement.id);
+    modifyButtonSpan.onclick = function() {
+        modifyStatement(botHomeId, bookId, statement.id);
     };
     modifyButtonSpan.innerHTML = bookIcon;
     editDiv.appendChild(modifyButtonSpan);
@@ -415,8 +415,8 @@ function addStatementRow(statement, botHomeId, bookId) {
     let deleteCell = newRow.insertCell();
     deleteCell.classList.add('pseudo-link');
     deleteCell.innerHTML = trashcanIcon;
-    deleteCell.onclick = function (event) {
-        deleteStatement(event, botHomeId, bookId, statement.id);
+    deleteCell.onclick = function () {
+        deleteStatement(botHomeId, bookId, statement.id);
     };
 }
 
