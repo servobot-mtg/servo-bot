@@ -93,6 +93,18 @@ public class UserSerializer {
                 .map(userHomeRow -> userHomeRow.getBotHomeId()).collect(Collectors.toList());
     }
 
+    public void saveUser(final User user) {
+        UserRow userRow = new UserRow();
+        userRow.setId(user.getId());
+        userRow.setTwitchId(user.getTwitchId());
+        userRow.setTwitchUsername(user.getTwitchUsername());
+        userRow.setDiscordId(user.getDiscordId());
+        userRow.setDiscordUsername(user.getDiscordUsername());
+        userRow.setArenaUsername(user.getArenaUsername());
+        userRow.setFlags(user.getFlags());
+        userRepository.save(userRow);
+    }
+
     private UserStatus updateStatus(final int userId, final int botHomeId, final Consumer<UserStatus> mergeFunction) {
         UserHomeRow userHomeRow = userHomeRepository.findByUserIdAndBotHomeId(userId, botHomeId);
 
@@ -116,6 +128,11 @@ public class UserSerializer {
         }
 
         return userStatus;
+    }
+
+    public void setStreamerStatus(final int userId, final int botHomeId) {
+        TwitchUserStatus twitchUserStatus = new TwitchUserStatus(true, false, false, true);
+        updateStatus(userId, botHomeId, twitchUserStatus);
     }
 
     private UserStatus updateStatus(final int userId, final int botHomeId, final TwitchUserStatus twitchStatus) {

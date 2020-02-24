@@ -41,6 +41,10 @@ public class UserRow {
         return id;
     }
 
+    public void setId(final int id) {
+        this.id = id;
+    }
+
     public int getFlags() {
         return flags;
     }

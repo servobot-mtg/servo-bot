@@ -49,8 +49,12 @@ public class User {
         return id;
     }
 
+    public int getFlags() {
+        return flags;
+    }
+
     public boolean isAdmin() {
-        return flagSet(ADMIN_FLAG);
+        return isFlagSet(ADMIN_FLAG);
     }
 
     public int getTwitchId() {
@@ -81,10 +85,22 @@ public class User {
     }
 
     public boolean hasInvite() {
-        return flagSet(INVITE_FLAG);
+        return isFlagSet(INVITE_FLAG);
     }
 
-    private boolean flagSet(final int flag) {
+    public void removeInvite() {
+        setFlag(INVITE_FLAG, false);
+    }
+
+    private boolean isFlagSet(final int flag) {
         return (flags & flag) != 0;
+    }
+
+    private void setFlag(final int flag, final boolean value) {
+        if (value) {
+            flags = flags | flag;
+        } else {
+            flags = flags & ~flag;
+        }
     }
 }

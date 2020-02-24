@@ -37,6 +37,10 @@ public class BotHomeRow {
         return homeName;
     }
 
+    public void setHomeName(final String homeName) {
+        this.homeName = homeName;
+    }
+
     public String getBotName() {
         return botName;
     }

@@ -4,17 +4,22 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.BotEditor;
+import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Reward;
 import com.ryan_mtg.servobot.model.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.security.WebsiteUser;
+import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +34,64 @@ public class ApiController {
 
     @Autowired
     private BotRegistrar botRegistrar;
+
+    @Autowired
+    private WebsiteUserFactory websiteUserFactory;
+
+    @PostMapping(value = "/create_bot_home", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public BotHome createBotHome(final Authentication authentication, @RequestBody final CreateBotHomeRequest request)
+            throws BotErrorException {
+        WebsiteUser websiteUser = websiteUserFactory.createWebsiteUser(authentication);
+        BotEditor botEditor = botRegistrar.getBotEditor(request.getBotName());
+        return botEditor.createBotHome(websiteUser.getUserId(), request);
+    }
+
+    public static class TextCommandRequest {
+        private String name;
+        private String value;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class CreateBotHomeRequest {
+        private String botName;
+        private String timeZone;
+        private String addCommandName;
+        private String deleteCommandName;
+        private String showCommandsName;
+        private List<TextCommandRequest> textCommands;
+
+        public String getBotName() {
+            return botName;
+        }
+
+        public String getTimeZone() {
+            return timeZone;
+        }
+
+        public String getAddCommandName() {
+            return addCommandName;
+        }
+
+        public String getDeleteCommandName() {
+            return deleteCommandName;
+        }
+
+        public String getShowCommandsName() {
+            return showCommandsName;
+        }
+
+        public List<TextCommandRequest> getTextCommands() {
+            return textCommands;
+        }
+    }
+
 
     @PostMapping(value = "/modify_bot_name", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean modifyBotName(@RequestBody final ModifyBotNameRequest request) {

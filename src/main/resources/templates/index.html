@@ -10,7 +10,7 @@
             <div class="content">
                 <h1 th:text="${bot.name}"/>
                 <th:block th:each="home : ${bot.homes}">
-                    Documentation for <a th:href="'/home/' + ${home.name}" th:text="${home.name}"></a>
+                    Documentation for <a th:href="'/home/' + ${home.name}" th:text="${home.name}"></a><br>
                 </th:block>
             </div>
             <hr>

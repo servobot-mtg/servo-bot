@@ -1,8 +1,10 @@
 package com.ryan_mtg.servobot.data.factories;
 
+import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
+import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ public class SerializerContainer {
 
     @Autowired
     private ReactionTableSerializer reactionTableSerializer;
+
+    @Autowired
+    private ServiceHomeRepository serviceHomeRepository;
 
     @Autowired
     private ServiceSerializer serviceSerializer;
@@ -99,6 +104,10 @@ public class SerializerContainer {
 
     public ReactionSerializer getReactionSerializer() {
         return reactionSerializer;
+    }
+
+    public ServiceHomeRepository getServiceHomeRepository() {
+        return serviceHomeRepository;
     }
 
     public ServiceSerializer getServiceSerializer() {

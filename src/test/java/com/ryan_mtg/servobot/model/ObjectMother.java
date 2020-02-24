@@ -2,20 +2,37 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.user.HomedUser;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ObjectMother {
+    public static HomedUser mockHomedUser(final int userId) {
+        HomedUser user = mock(HomedUser.class);
+        when(user.getId()).thenReturn(userId);
+        return user;
+    }
+
     public static User mockUser() {
         return mockUser("mocked_user");
     }
 
+    public static User mockUser(final int userId) {
+        return mockUser("mocked_user", mockHomedUser(userId));
+    }
+
     public static User mockUser(final String name) {
+        return mockUser(name, mock(HomedUser.class));
+    }
+
+    public static User mockUser(final String name, final HomedUser homedUser) {
         User user = mock(User.class);
         when(user.getName()).thenReturn(name);
+        when(user.getHomedUser()).thenReturn(homedUser);
         return user;
     }
+
 
     public static Message mockMessage() {
         return mockMessage(0);

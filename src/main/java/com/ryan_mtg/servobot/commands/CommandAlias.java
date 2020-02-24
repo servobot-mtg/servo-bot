@@ -48,7 +48,7 @@ public class CommandAlias extends Trigger {
 
     public static void validateAlias(final String alias) throws BotErrorException {
         if (!ALIAS_PATTERN.matcher(alias).matches()) {
-            throw new BotErrorException("Invalid alias");
+            throw new BotErrorException(String.format("Invalid alias: %s", alias));
         }
 
         if (alias.length() > MAX_TEXT_SIZE) {

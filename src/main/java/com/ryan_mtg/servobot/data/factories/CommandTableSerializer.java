@@ -24,8 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public class CommandTableSerializer {
@@ -69,7 +67,7 @@ public class CommandTableSerializer {
         for (AlertGeneratorRow alertGeneratorRow : alertGeneratorRows) {
             alertGenerators.add(alertGeneratorSerializer.createAlertGenerator(alertGeneratorRow));
         }
-        commandTable.setAlertGenerators(alertGenerators);
+        commandTable.addAlertGenerators(alertGenerators);
 
         return commandTable;
     }

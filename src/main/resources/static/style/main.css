@@ -288,3 +288,38 @@ table {
     box-sizing: border-box;
     min-width: 50em;
 }
+
+.invite-form {
+    display: inline-block;
+    margin: 12px;
+    padding: 12px;
+    border: black solid 2px;
+}
+
+.invite-form td {
+    padding: 3px 12px;
+    border: black solid 1px;
+}
+
+.invite-form label {
+    margin: 4px 0 0 0;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.invite-form div {
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-right: 5em;
+}
+
+.invite-form input[type=button] {
+    display: block;
+    margin: auto;
+}
+
+.invite-form input[type=text] {
+    box-sizing: border-box;
+    min-width: 10em;
+}
+

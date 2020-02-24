@@ -29,7 +29,7 @@ public class CommandTable {
     private Map<CommandEvent.Type, List<CommandEvent>> eventMap = new HashMap<>();
     private Map<String, List<CommandAlert>> alertMap = new HashMap<>();
 
-    private List<AlertGenerator> alertGenerators;
+    private List<AlertGenerator> alertGenerators = new ArrayList<>();
 
     public CommandTable(final boolean isCaseSensitive) {
         this.isCaseSensitive = isCaseSensitive;
@@ -128,8 +128,8 @@ public class CommandTable {
         trigger.acceptVisitor(new RegisterTriggerVisitor(command));
     }
 
-    public void setAlertGenerators(final List<AlertGenerator> alertGenerators) {
-        this.alertGenerators = alertGenerators;
+    public void addAlertGenerators(final List<AlertGenerator> alertGenerators) {
+        this.alertGenerators.addAll(alertGenerators);
     }
 
     public List<AlertGenerator> getAlertGenerators() {

@@ -110,7 +110,7 @@ public class WebsiteUser implements Principal {
         return false;
     }
 
-    private int getUserId() {
+    public int getUserId() {
         return user != null ? user.getId() : User.UNREGISTERED_ID;
     }
 }

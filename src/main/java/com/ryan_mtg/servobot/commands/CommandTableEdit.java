@@ -73,4 +73,20 @@ public class CommandTableEdit {
     public void delete(final Trigger trigger) {
         deletedTriggers.add(trigger);
     }
+
+    public void merge(final CommandTableEdit commandTableEdit) {
+        deletedCommands.addAll(commandTableEdit.deletedCommands);
+        savedCommands.addAll(commandTableEdit.savedCommands);
+
+        deletedTriggers.addAll(commandTableEdit.deletedTriggers);
+
+        merge(savedTriggers, commandTableEdit.savedTriggers);
+        merge(savedCommandToTriggerMap, commandTableEdit.savedCommandToTriggerMap);
+        merge(commandSaveCallbackMap, commandTableEdit.commandSaveCallbackMap);
+        merge(triggerSaveCallbackMap, commandTableEdit.triggerSaveCallbackMap);
+    }
+
+    private <Key, Value> void merge(final Map<Key, Value> map, final Map<Key, Value> sourceMap) {
+        sourceMap.forEach((key, value) -> map.merge(key, value,(value1, value2) -> value1));
+    }
 }
