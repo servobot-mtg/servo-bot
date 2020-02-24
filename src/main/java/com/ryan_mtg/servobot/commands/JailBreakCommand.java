@@ -45,8 +45,9 @@ public class JailBreakCommand extends MessageCommand {
         homeEditor.remoteStorageVariables(variableName);
 
         if (count > 0) {
+            String inmates = (count == 1 ? "inmate" : "inmates");
             MessageCommand.say(event,
-                    String.format("%s broke %d inmates out of '%s'!", sender.getName(), count, prisonRole));
+                    String.format("%s broke %d %s out of %s!", sender.getName(), count, inmates, prisonRole));
         }
     }
 }
