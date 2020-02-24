@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Book;
 
@@ -24,7 +25,7 @@ public class FactsCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) {
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
         MessageCommand.say(event, book.getRandomLine());
     }
 

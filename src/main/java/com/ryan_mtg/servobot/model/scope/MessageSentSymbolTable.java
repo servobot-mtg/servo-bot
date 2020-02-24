@@ -6,6 +6,10 @@ public class MessageSentSymbolTable implements SymbolTable {
     private MessageSentEvent event;
     private String input;
 
+    public MessageSentSymbolTable(final MessageSentEvent event) {
+        this(event, null);
+    }
+
     public MessageSentSymbolTable(final MessageSentEvent event, final String input) {
         this.event = event;
         this.input = input;
@@ -19,7 +23,9 @@ public class MessageSentSymbolTable implements SymbolTable {
             case "home":
                 return event.getHome().getName();
             case "input":
-                return input;
+                if (input != null) {
+                    return input;
+                }
         }
         return null;
     }

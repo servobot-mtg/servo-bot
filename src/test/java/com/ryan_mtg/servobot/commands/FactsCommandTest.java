@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Channel;
@@ -18,7 +19,7 @@ public class FactsCommandTest {
     private static final String LINE = "line";
 
     @Test
-    public void testPerform() {
+    public void testPerform() throws BotErrorException {
         Book book = mock(Book.class);
         when(book.getRandomLine()).thenReturn(LINE);
 
