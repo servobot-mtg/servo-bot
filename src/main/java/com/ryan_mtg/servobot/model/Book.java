@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.data.models.BookRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.List;
 import java.util.Random;
@@ -10,7 +10,6 @@ public class Book {
     public static final int UNREGISTERED_ID = 0;
 
     private static final Random RANDOM = new Random();
-    private static final int MAX_NAME_SIZE = BookRow.MAX_NAME_SIZE;
 
     private int id;
     private String name;
@@ -21,9 +20,7 @@ public class Book {
         this.name = name;
         this.statements = statements;
 
-        if (name.length() > MAX_NAME_SIZE) {
-            throw new BotErrorException(String.format("Name too long (max %d): %s", MAX_NAME_SIZE, name));
-        }
+        Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
     }
 
     public int getId() {

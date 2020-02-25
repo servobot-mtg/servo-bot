@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,8 +14,6 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "command")
 public class CommandRow {
-    public static final int MAX_STRING_SIZE = 200;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -28,10 +27,10 @@ public class CommandRow {
     @Column(name = "bot_home_id")
     private int botHomeId;
 
-    @Size(max = MAX_STRING_SIZE)
+    @Size(max = Validation.MAX_TEXT_LENGTH)
     private String stringParameter;
 
-    @Size(max = MAX_STRING_SIZE)
+    @Size(max = Validation.MAX_TEXT_LENGTH)
     private String stringParameter2;
 
     private Long longParameter;

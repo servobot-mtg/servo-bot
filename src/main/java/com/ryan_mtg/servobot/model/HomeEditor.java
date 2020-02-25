@@ -28,6 +28,7 @@ import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -263,7 +264,7 @@ public class HomeEditor {
     @Transactional(rollbackOn = BotErrorException.class)
     public void addSuggestion(final String command) {
         String alias = command.toLowerCase();
-        if (alias.length() > SuggestionRow.MAX_SUGGESTION_SIZE) {
+        if (alias.length() > Validation.MAX_TRIGGER_LENGTH) {
             return; //ignore suggestions that are absurd
         }
 

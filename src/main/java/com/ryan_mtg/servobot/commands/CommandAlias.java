@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -16,6 +17,10 @@ public class CommandAlias extends Trigger {
         this.alias = alias;
 
         validateAlias(alias);
+    }
+
+    public static void validateAlias(final String alias) throws BotErrorException {
+        Validation.validateStringValue(alias, Validation.MAX_TRIGGER_LENGTH, "Command alias", ALIAS_PATTERN);
     }
 
     public String getAlias() {
@@ -44,15 +49,5 @@ public class CommandAlias extends Trigger {
     @Override
     public void acceptVisitor(final TriggerVisitor triggerVisitor) {
         triggerVisitor.visitCommandAlias(this);
-    }
-
-    public static void validateAlias(final String alias) throws BotErrorException {
-        if (!ALIAS_PATTERN.matcher(alias).matches()) {
-            throw new BotErrorException(String.format("Invalid alias: %s", alias));
-        }
-
-        if (alias.length() > MAX_TEXT_SIZE) {
-            throw new BotErrorException(String.format("Alias too long (max %d): %s", MAX_TEXT_SIZE, alias));
-        }
     }
 }

@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
-import com.ryan_mtg.servobot.data.models.ServiceRow;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
@@ -10,6 +9,7 @@ import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.utility.Validation;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -38,9 +38,7 @@ public class DiscordService implements Service {
         this.token = token;
         this.userSerializer = userSerializer;
 
-        if (token.length() > MAX_TOKEN_SIZE) {
-            throw new BotErrorException(String.format("Token too long (max %d): %s", MAX_TOKEN_SIZE, token));
-        }
+        Validation.validateStringLength(token, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "Token");
     }
 
     @Override

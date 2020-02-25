@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import org.junit.Test;
@@ -17,7 +18,7 @@ public class MessageChannelCommandTest {
     private static final String MESSAGE = "message";
 
     @Test
-    public void testPerform() {
+    public void testPerform() throws BotErrorException {
         MessageChannelCommand command =
                 new MessageChannelCommand(ID, SECURE, PERMISSION, SERVICE_TYPE, CHANNEL_NAME, MESSAGE);
 

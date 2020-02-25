@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,15 +12,13 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "statement")
 public class StatementRow {
-    public static final int MAX_TEXT_SIZE = 256;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private int bookId;
 
-    @Size(max = MAX_TEXT_SIZE)
+    @Size(max = Validation.MAX_STATEMENT_LENGTH)
     private String text;
 
     public StatementRow() {}

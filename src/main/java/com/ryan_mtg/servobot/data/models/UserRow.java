@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,8 +13,6 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "user")
 public class UserRow {
-    public static final int MAX_USERNAME_SIZE = 50;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -26,15 +26,15 @@ public class UserRow {
     private long discordId;
 
     @Column(name = "twitch_username")
-    @Size(max = MAX_USERNAME_SIZE)
+    @Size(max = Validation.MAX_USERNAME_LENGTH)
     private String twitchUsername;
 
     @Column(name = "discord_username")
-    @Size(max = MAX_USERNAME_SIZE)
+    @Size(max = Validation.MAX_USERNAME_LENGTH)
     private String discordUsername;
 
     @Column(name = "arena_username")
-    @Size(max = MAX_USERNAME_SIZE)
+    @Size(max = Validation.MAX_USERNAME_LENGTH)
     private String arenaUsername;
 
     public int getId() {

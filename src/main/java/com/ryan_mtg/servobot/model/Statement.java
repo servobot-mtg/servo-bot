@@ -1,12 +1,10 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.data.models.StatementRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class Statement {
     public static final int UNREGISTERED_ID = 0;
-
-    private static final int MAX_TEXT_SIZE = StatementRow.MAX_TEXT_SIZE;
 
     private int id;
     private String text;
@@ -15,9 +13,7 @@ public class Statement {
         this.id = id;
         this.text = text;
 
-        if (text.length() > MAX_TEXT_SIZE) {
-            throw new BotErrorException(String.format("Text too long (max %d): %s", MAX_TEXT_SIZE, text));
-        }
+        Validation.validateStringLength(text, Validation.MAX_STATEMENT_LENGTH, "Statement text");
     }
 
     public int getId() {

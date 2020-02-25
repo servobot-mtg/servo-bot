@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,18 +39,9 @@ public class TwitchService implements Service {
         this.oauthToken = oauthToken;
         this.userSerializer = userSerializer;
 
-        if (clientId.length() > MAX_CLIENT_ID_SIZE) {
-            throw new BotErrorException(String.format("Client id too long (max %d): %s", MAX_CLIENT_ID_SIZE, clientId));
-        }
-
-        if (secret.length() > MAX_CLIENT_SECRET_SIZE) {
-            throw new BotErrorException(
-                    String.format("Client secret too long (max %d): %s", MAX_CLIENT_SECRET_SIZE, secret));
-        }
-
-        if (oauthToken.length() > MAX_TOKEN_SIZE) {
-            throw new BotErrorException(String.format("OAuthToken too long (max %d): %s", MAX_TOKEN_SIZE, oauthToken));
-        }
+        Validation.validateStringLength(clientId, Validation.MAX_CLIENT_ID_LENGTH, "Client id");
+        Validation.validateStringLength(secret, Validation.MAX_CLIENT_SECRET_LENGTH, "Client secret");
+        Validation.validateStringLength(oauthToken, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "OAuthToken");
     }
 
     @Override

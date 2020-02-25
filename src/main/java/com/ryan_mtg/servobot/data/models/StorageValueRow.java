@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,9 +13,6 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "storage_value")
 public class StorageValueRow {
-    public static final int MAX_NAME_SIZE = 30;
-    public static final int MAX_VALUE_SIZE = 200;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -26,12 +25,12 @@ public class StorageValueRow {
     @Column(name = "user_id")
     private int userId;
 
-    @Size(max = MAX_NAME_SIZE)
+    @Size(max = Validation.MAX_NAME_LENGTH)
     private String name;
 
     private int number;
 
-    @Size(max = MAX_VALUE_SIZE)
+    @Size(max = Validation.MAX_TEXT_LENGTH)
     private String string;
 
     public int getId() {

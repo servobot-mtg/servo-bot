@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class JailCommand extends MessageCommand {
     public static final int TYPE = 25;
@@ -13,11 +14,14 @@ public class JailCommand extends MessageCommand {
     private String variableName;
 
     public JailCommand(final int id, final int flags, final Permission permission, final String prisonRole,
-                       final int threshold, final String variableName) {
+                       final int threshold, final String variableName) throws BotErrorException {
         super(id, flags, permission);
         this.threshold = threshold;
         this.prisonRole = prisonRole;
         this.variableName = variableName;
+
+        Validation.validateStringLength(prisonRole, Validation.MAX_ROLE_LENGTH, "Prison role");
+        Validation.validateStringLength(variableName, Validation.MAX_STORAGE_NAME_LENGTH, "Threshold variable name");
     }
 
     public String getPrisonRole() {

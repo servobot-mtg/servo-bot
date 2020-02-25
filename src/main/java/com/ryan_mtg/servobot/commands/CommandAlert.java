@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -15,7 +16,7 @@ public class CommandAlert extends Trigger {
         super(id);
         this.alertToken = alertToken;
 
-        validateToken(alertToken);
+        Validation.validateStringValue(alertToken, Validation.MAX_TRIGGER_LENGTH, "Alert token", ALERT_PATTERN);
     }
 
     public String getAlertToken() {
@@ -44,15 +45,5 @@ public class CommandAlert extends Trigger {
     @Override
     public void acceptVisitor(final TriggerVisitor triggerVisitor) {
         triggerVisitor.visitCommandAlert(this);
-    }
-
-    public static void validateToken(final String alertToken) throws BotErrorException {
-        if (!ALERT_PATTERN.matcher(alertToken).matches()) {
-            throw new BotErrorException("Invalid alert token");
-        }
-
-        if (alertToken.length() > MAX_TEXT_SIZE) {
-            throw new BotErrorException(String.format("Token too long (max %d): %s", MAX_TEXT_SIZE, alertToken));
-        }
     }
 }

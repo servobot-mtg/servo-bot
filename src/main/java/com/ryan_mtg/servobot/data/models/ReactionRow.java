@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,8 +13,6 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "reaction")
 public class ReactionRow {
-    public static final int MAX_EMOTE_SIZE = 30;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -25,7 +25,7 @@ public class ReactionRow {
     @Column(name = "bot_home_id")
     private int botHomeId;
 
-    @Size(max = MAX_EMOTE_SIZE)
+    @Size(max = Validation.MAX_EMOTE_LENGTH)
     private String emote;
 
     private boolean secure;

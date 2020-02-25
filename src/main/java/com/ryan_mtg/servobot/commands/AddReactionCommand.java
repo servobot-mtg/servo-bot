@@ -4,15 +4,19 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class AddReactionCommand extends MessageCommand {
     public static final int TYPE = 24;
 
     private String emoteName;
 
-    public AddReactionCommand(final int id, final int flags, final Permission permission, final String emoteName) {
+    public AddReactionCommand(final int id, final int flags, final Permission permission, final String emoteName)
+            throws BotErrorException {
         super(id, flags, permission);
         this.emoteName = emoteName;
+
+        Validation.validateStringLength(emoteName, Validation.MAX_EMOTE_LENGTH, "Emote name");
     }
 
     public String getEmoteName() {

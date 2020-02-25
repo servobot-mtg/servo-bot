@@ -1,13 +1,12 @@
 package com.ryan_mtg.servobot.user;
 
-import com.ryan_mtg.servobot.data.models.UserRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class User {
     public static final int UNREGISTERED_ID = 0;
     public static final int INVITE_FLAG = 1<<1;
 
-    private static final int MAX_USERNAME_SIZE = UserRow.MAX_USERNAME_SIZE;
     private static final int ADMIN_FLAG = 1;
 
     private int id;
@@ -29,20 +28,9 @@ public class User {
         this.discordUsername = discordUsername;
         this.arenaUsername = arenaUsername;
 
-        if (twitchUsername != null && twitchUsername.length() > MAX_USERNAME_SIZE) {
-            throw new BotErrorException(
-                    String.format("Twitch username too long (max %d): %s", MAX_USERNAME_SIZE, twitchUsername));
-        }
-
-        if (discordUsername != null && discordUsername.length() > MAX_USERNAME_SIZE) {
-            throw new BotErrorException(
-                    String.format("Discord username too long (max %d): %s", MAX_USERNAME_SIZE, discordUsername));
-        }
-
-        if (arenaUsername != null && arenaUsername.length() > MAX_USERNAME_SIZE) {
-            throw new BotErrorException(
-                    String.format("Arena username too long (max %d): %s", MAX_USERNAME_SIZE, arenaUsername));
-        }
+        Validation.validateStringLength(twitchUsername, Validation.MAX_USERNAME_LENGTH, "Twitch username");
+        Validation.validateStringLength(discordUsername, Validation.MAX_USERNAME_LENGTH, "Discord username");
+        Validation.validateStringLength(arenaUsername, Validation.MAX_USERNAME_LENGTH, "Arena username");
     }
 
     public int getId() {

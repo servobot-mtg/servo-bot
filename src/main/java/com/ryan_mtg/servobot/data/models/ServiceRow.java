@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,25 +13,21 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "service")
 public class ServiceRow {
-    public static final int MAX_TOKEN_SIZE = 60;
-    public static final int MAX_CLIENT_ID_SIZE = 30;
-    public static final int MAX_CLIENT_SECRET_SIZE = 30;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private int type;
 
-    @Size(max = MAX_TOKEN_SIZE)
+    @Size(max = Validation.MAX_AUTHENTICATION_TOKEN_LENGTH)
     private String token;
 
     @Column(name = "client_id")
-    @Size(max = MAX_CLIENT_ID_SIZE)
+    @Size(max = Validation.MAX_CLIENT_ID_LENGTH)
     private String clientId;
 
     @Column(name = "client_secret")
-    @Size(max = MAX_CLIENT_SECRET_SIZE)
+    @Size(max = Validation.MAX_CLIENT_SECRET_LENGTH)
     private String clientSecret;
 
     public int getId() {

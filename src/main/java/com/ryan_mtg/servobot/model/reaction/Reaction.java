@@ -1,9 +1,9 @@
 package com.ryan_mtg.servobot.model.reaction;
 
 import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 public class Reaction {
     public static final int UNREGISTERED_ID = 0;
     private static final ReactionFilter ALWAYS_REACT = new AlwaysReact();
-    private static final int MAX_EMOTE_SIZE = ReactionRow.MAX_EMOTE_SIZE;
 
     private int id;
     private String emoteName;
@@ -29,10 +28,7 @@ public class Reaction {
         this.patterns = patterns;
         this.commands = commands;
 
-        if (emoteName.length() > MAX_EMOTE_SIZE) {
-            throw new BotErrorException(
-                    String.format("Emote too long (max %d): %s", MAX_EMOTE_SIZE, emoteName));
-        }
+        Validation.validateStringLength(emoteName, Validation.MAX_EMOTE_LENGTH, "Emote");
     }
 
     public int getId() {

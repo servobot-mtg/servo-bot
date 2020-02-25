@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.model.GameQueue;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,8 +14,6 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "game_queue")
 public class GameQueueRow {
-    public static final int MAX_NAME_SIZE = 30;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -22,7 +21,7 @@ public class GameQueueRow {
     @Column(name = "bot_home_id")
     private int botHomeId;
 
-    @Size(max = MAX_NAME_SIZE)
+    @Size(max = Validation.MAX_NAME_LENGTH)
     private String name;
 
     private GameQueue.State state;

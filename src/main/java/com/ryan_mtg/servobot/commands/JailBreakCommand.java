@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class JailBreakCommand extends MessageCommand {
     public static final int TYPE = 26;
@@ -11,10 +12,14 @@ public class JailBreakCommand extends MessageCommand {
     private String variableName;
 
     public JailBreakCommand(final int id, final int flags, final Permission permission, final String prisonRole,
-                            final String variableName) {
+                            final String variableName) throws BotErrorException {
         super(id, flags, permission);
+
         this.prisonRole = prisonRole;
         this.variableName = variableName;
+
+        Validation.validateStringLength(prisonRole, Validation.MAX_ROLE_LENGTH, "Prison role");
+        Validation.validateStringLength(variableName, Validation.MAX_STORAGE_NAME_LENGTH, "Threshold variable name");
     }
 
     public String getPrisonRole() {

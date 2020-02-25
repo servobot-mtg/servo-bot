@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,22 +13,20 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "home")
 public class BotHomeRow {
-    public static final int MAX_NAME_SIZE = 30;
-    public static final int MAX_TIME_ZONE_SIZE = 60;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "name")
-    @Size(max = MAX_NAME_SIZE)
+    @Size(max = Validation.MAX_NAME_LENGTH)
     private String homeName;
 
     @Column(name = "bot_name")
-    @Size(max = MAX_NAME_SIZE)
+    @Size(max = Validation.MAX_NAME_LENGTH)
     private String botName;
 
     @Column(name = "time_zone")
+    @Size(max = Validation.MAX_TIME_ZONE_LENGTH)
     private String timeZone;
 
     public int getId() {

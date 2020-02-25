@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class MessageChannelCommand extends HomeCommand {
     public static final int TYPE = 4;
@@ -9,11 +11,14 @@ public class MessageChannelCommand extends HomeCommand {
     private final String message;
 
     public MessageChannelCommand(final int id, final int flags, final Permission permission,
-                                 final int serviceType, final String channelName, final String message) {
+            final int serviceType, final String channelName, final String message) throws BotErrorException {
         super(id, flags, permission);
         this.serviceType = serviceType;
         this.channelName = channelName;
         this.message = message;
+
+        Validation.validateStringLength(channelName, Validation.MAX_CHANNEL_NAME_LENGTH, "Channel name");
+        Validation.validateStringLength(message, Validation.MAX_TEXT_LENGTH, "Message");
     }
 
     @Override

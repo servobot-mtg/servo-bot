@@ -1,12 +1,12 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
-import com.ryan_mtg.servobot.data.models.BotRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.scope.NullSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,6 @@ import java.util.Map;
 
 public class Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
-    private static final int MAX_NAME_SIZE = BotRow.MAX_NAME_SIZE;
 
     private String name;
     private Scope botScope;
@@ -36,9 +35,7 @@ public class Bot {
         this.services = services;
         this.serializers = serializers;
 
-        if (name.length() > MAX_NAME_SIZE) {
-            throw new BotErrorException(String.format("Name too long (max %d): %s", MAX_NAME_SIZE, name));
-        }
+        Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
 
         botScope = new Scope(globalScope, new NullSymbolTable());
         botEditor = new BotEditor(this);

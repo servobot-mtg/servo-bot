@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,8 +13,6 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "alert_generator")
 public class AlertGeneratorRow {
-    public static final int MAX_TOKEN_SIZE = 50;
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -24,7 +24,7 @@ public class AlertGeneratorRow {
     private int time;
 
     @Column(name = "alert_token")
-    @Size(max = MAX_TOKEN_SIZE)
+    @Size(max = Validation.MAX_TRIGGER_LENGTH)
     private String alertToken;
 
     public int getId() {
