@@ -27,6 +27,7 @@ public class TwitchService implements Service {
     private TwitchEventGenerator generator;
     private Map<Long, Integer> homeIdMap = new HashMap<>();
     private Map<Long, String> channelNameMap = new HashMap<>();
+    private Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
     private UserSerializer userSerializer;
 
@@ -106,6 +107,16 @@ public class TwitchService implements Service {
         return new TwitchChannel(client.getChat(), getChannelName(channelId), homeEditor);
     }
 
+    public String getChannelImageUrl(final long channelId) {
+        if (channelImageMap.containsKey(channelId)) {
+            return channelImageMap.get(channelId);
+        }
+
+        String channelImage = fetchChannelImageUrl(channelId);
+        channelImageMap.put(channelId, channelImage);
+        return channelImage;
+    }
+
     public String getChannelName(final long channelId) {
         if (channelNameMap.containsKey(channelId)) {
             return channelNameMap.get(channelId);
@@ -126,9 +137,17 @@ public class TwitchService implements Service {
         client.getChat().leaveChannel(channelName);
     }
 
+    private String fetchChannelImageUrl(final long channelId) {
+        return fetchChannelUser(channelId).getProfileImageUrl();
+    }
+
     private String fetchChannelName(final long channelId) {
+        return fetchChannelUser(channelId).getLogin();
+    }
+
+    private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
         return client.getHelix().
                 getUsers(null, Arrays.asList(Long.toString(channelId)), null).execute()
-                .getUsers().get(0).getLogin();
+                .getUsers().get(0);
     }
 }

@@ -14,8 +14,8 @@ import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.scope.BookScope;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
-import com.ryan_mtg.servobot.model.scope.SymbolTable;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -100,6 +100,10 @@ public class BotHome {
 
     public String getBotName() {
         return botName;
+    }
+
+    public String getImageUrl() {
+        return getServiceHome(TwitchService.TYPE).getImageUrl();
     }
 
     public void setBotName(final String botName) {

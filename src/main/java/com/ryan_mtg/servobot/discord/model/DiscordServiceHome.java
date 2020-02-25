@@ -34,6 +34,11 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public String getImageUrl() {
+        return null;
+    }
+
+    @Override
     public Service getService() {
         return discordService;
     }

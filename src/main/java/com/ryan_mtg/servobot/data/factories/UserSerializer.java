@@ -10,20 +10,26 @@ import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.ryan_mtg.servobot.user.User.INVITE_FLAG;
 
 @Component
 public class UserSerializer {
+    private static Logger LOGGER = LoggerFactory.getLogger(UserSerializer.class);
     @Autowired
     private UserRepository userRepository;
 
@@ -143,17 +149,32 @@ public class UserSerializer {
         return updateStatus(userId, botHomeId, userStatus -> userStatus.merge(discordUserStatus));
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public List<HomedUser> getHomedUsers(final int botHomeId) throws BotErrorException {
+        return getHomedUsersWithFilter(botHomeId, userHomeRow -> true);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public List<HomedUser> getModerators(final int botHomeId) throws BotErrorException {
+        return getHomedUsersWithFilter(botHomeId, userHomeRow -> new UserStatus(userHomeRow.getState()).isModerator());
+    }
+
+    private List<HomedUser> getHomedUsersWithFilter(final int botHomeId,
+            final Predicate<UserHomeRow> filterFunction) throws BotErrorException {
+
         List<HomedUser> users = new ArrayList<>();
-        for (UserHomeRow userHomeRow : userHomeRepository.findByBotHomeId(botHomeId)) {
-            UserRow userRow = userRepository.findById(userHomeRow.getUserId());
+        List<UserHomeRow> userHomeRows = userHomeRepository.findByBotHomeId(botHomeId);
+        Map<Integer, UserHomeRow> homeRowById = new HashMap<>();
+        List<Integer> userIds = userHomeRows.stream().filter(filterFunction).map(userHomeRow -> {
+            homeRowById.put(userHomeRow.getUserId(), userHomeRow);
+            return userHomeRow.getUserId();
+        }).collect(Collectors.toList());
+
+        for (UserRow userRow : userRepository.findAllById(userIds)) {
+            UserHomeRow userHomeRow = homeRowById.get(userRow.getId());
             users.add(createHomedUser(userRow, new UserStatus(userHomeRow.getState())));
         }
         return users;
-    }
-
-    public List<HomedUser> getModerators(final int botHomeId) throws BotErrorException {
-        return getHomedUsers(botHomeId).stream().filter(user -> user.isModerator()).collect(Collectors.toList());
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

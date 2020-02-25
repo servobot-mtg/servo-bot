@@ -72,6 +72,11 @@ public class TwitchServiceHome implements ServiceHome {
         return String.format("http://twitch.tv/%s", twitchService.getChannelName(channelId));
     }
 
+    @Override
+    public String getImageUrl() {
+        return twitchService.getChannelImageUrl(channelId);
+    }
+
     public long getChannelId() {
         return channelId;
     }

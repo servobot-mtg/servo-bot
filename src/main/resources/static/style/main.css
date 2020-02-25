@@ -14,6 +14,11 @@ li {
     cursor: pointer;
 }
 
+.user-image {
+    height: 28px;
+    width: 32px;
+}
+
 .hidden.hidden.hidden {
     display: none;
 }
@@ -115,12 +120,16 @@ li {
     border: black solid 1px;
     vertical-align: middle;
     display: block;
-    padding: 3px 13px;
+    padding: 3px 3px;
     margin: 6px 13px;
     height: 36px;
     line-height: 36px;
     min-width: 80px;
     background-color: silver;
+}
+
+.navbar .navicon {
+    min-width: 40px;
 }
 
 .navitem img {
@@ -179,6 +188,7 @@ li {
 .navbar .index a:hover {
     background-color: whitesmoke;
 }
+
 table {
     border-collapse: collapse;
     border: 2px solid black;

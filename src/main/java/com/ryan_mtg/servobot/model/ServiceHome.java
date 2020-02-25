@@ -5,7 +5,10 @@ import java.util.List;
 public interface ServiceHome {
     int getServiceType();
     String getDescription();
+
     String getLink();
+    String getImageUrl();
+
     Service getService();
     Home getHome();
     List<String> getEmotes();
