@@ -7,8 +7,8 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 public class SelectWinnerCommand extends HomeCommand {
     public static final int TYPE = 23;
 
-    public SelectWinnerCommand(final int id, final int flags, final Permission permission) {
-        super(id, flags, permission);
+    public SelectWinnerCommand(final int id, final CommandSettings commandSettings) {
+        super(id, commandSettings);
     }
 
     @Override

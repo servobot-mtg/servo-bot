@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.commands.UserCommand;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -16,9 +17,11 @@ import java.util.Scanner;
 public class CommandListener implements EventListener {
     static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
     private CommandTable commandTable;
+    private RateLimiter rateLimiter;
 
-    public CommandListener(final CommandTable commandTable) {
+    public CommandListener(final CommandTable commandTable, final RateLimiter rateLimiter) {
         this.commandTable = commandTable;
+        this.rateLimiter = rateLimiter;
     }
 
     @Override
@@ -52,13 +55,8 @@ public class CommandListener implements EventListener {
             MessageCommand messageCommand = (MessageCommand) command;
             LOGGER.info("Peforming " + commandString + " for " + sender.getName() + " with arguments " + arguments);
 
-            if (messageCommand.getService(messageSentEvent.getServiceType())) {
-                if (messageCommand.hasPermissions(sender)) {
-                    messageCommand.perform(messageSentEvent, arguments);
-                } else {
-                    throw new BotErrorException(
-                            String.format("%s is not allowed to %s.", sender.getName(), commandString));
-                }
+            if (isAllowed(messageSentEvent, messageCommand, commandString)) {
+                messageCommand.perform(messageSentEvent, arguments);
             }
         } else if (command == null){
             messageSentEvent.getHomeEditor().addSuggestion(commandString);
@@ -92,5 +90,24 @@ public class CommandListener implements EventListener {
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean isAllowed(final MessageSentEvent event, final MessageCommand command,
+                                     final String commandString) throws BotErrorException {
+        if (!command.getService(event.getServiceType())) {
+            return false;
+        }
+
+        User sender = event.getSender();
+        if (!command.hasPermissions(sender)) {
+            throw new BotErrorException(
+                    String.format("%s is not allowed to %s.", sender.getName(), commandString));
+        }
+
+        if (!rateLimiter.allow(sender.getHomedUser().getId(), command.getId(), command.getRateLimitDuration())) {
+            return false;
+        }
+
+        return true;
     }
 }

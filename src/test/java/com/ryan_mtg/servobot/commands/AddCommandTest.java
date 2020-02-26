@@ -16,14 +16,14 @@ import static org.mockito.Mockito.verify;
 
 public class AddCommandTest {
     private static final int ID = 1;
-    private static final int SECURE = 1;
-    private static final Permission PERMISSION = Permission.MOD;
+    private static final CommandSettings COMMAND_SETTINGS =
+            new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, null);
     private static final String COMMAND_NAME = "command_name";
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
     public void testPerform() throws BotErrorException {
-        AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
+        AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         HomeEditor homeEditor = mockHomeEditor();
         Channel channel = mockChannel();
@@ -43,7 +43,7 @@ public class AddCommandTest {
 
     @Test(expected = BotErrorException.class)
     public void testThrowsExceptionWhenCommandDoesNotStartWithExclamationMark() throws BotErrorException {
-        AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
+        AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
         MessageSentEvent event = mockMessageSentEvent(channel);
@@ -57,7 +57,7 @@ public class AddCommandTest {
 
     @Test(expected = BotErrorException.class)
     public void testThrowsExceptionWhenCommandNameIsEmpty() throws BotErrorException {
-        AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
+        AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
         MessageSentEvent event = mockMessageSentEvent(channel);
@@ -71,7 +71,7 @@ public class AddCommandTest {
 
     @Test(expected = BotErrorException.class)
     public void testThrowsExceptionWhenPassedNoArguments() throws BotErrorException {
-        AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
+        AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
         MessageSentEvent event = mockMessageSentEvent(channel);
@@ -85,7 +85,7 @@ public class AddCommandTest {
 
     @Test(expected = BotErrorException.class)
     public void testThrowsExceptionWhenPassedWhitespaceAsArguments() throws BotErrorException {
-        AddCommand command = new AddCommand(ID, SECURE, PERMISSION);
+        AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
         MessageSentEvent event = mockMessageSentEvent(channel);

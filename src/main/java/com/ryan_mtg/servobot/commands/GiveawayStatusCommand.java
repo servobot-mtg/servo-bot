@@ -7,8 +7,8 @@ import com.ryan_mtg.servobot.model.Reward;
 public class GiveawayStatusCommand extends MessageCommand {
     public static final int TYPE = 22;
 
-    public GiveawayStatusCommand(final int id, final int flags, final Permission permission) {
-        super(id, flags, permission);
+    public GiveawayStatusCommand(final int id, final CommandSettings commandSettings) {
+        super(id, commandSettings);
     }
 
     @Override

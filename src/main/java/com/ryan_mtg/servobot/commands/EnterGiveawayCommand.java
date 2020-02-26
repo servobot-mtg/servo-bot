@@ -7,8 +7,8 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 public class EnterGiveawayCommand extends MessageCommand {
     public static final int TYPE = 21;
 
-    public EnterGiveawayCommand(final int id, final int flags, final Permission permission) {
-        super(id, flags, permission);
+    public EnterGiveawayCommand(final int id, final CommandSettings commandSettings) {
+        super(id, commandSettings);
     }
 
     @Override

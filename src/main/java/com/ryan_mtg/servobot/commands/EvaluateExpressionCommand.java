@@ -19,9 +19,8 @@ public class EvaluateExpressionCommand extends MessageCommand {
 
     private boolean gabyEasterEgg;
 
-    public EvaluateExpressionCommand(final int id, final int flags, final Permission permission,
-                                     final boolean gabyEasterEgg) {
-        super(id, flags, permission);
+    public EvaluateExpressionCommand(final int id, CommandSettings commandSettings, final boolean gabyEasterEgg) {
+        super(id, commandSettings);
         this.gabyEasterEgg = gabyEasterEgg;
     }
 

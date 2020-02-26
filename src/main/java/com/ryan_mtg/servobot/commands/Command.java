@@ -4,6 +4,8 @@ import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 
+import java.time.Duration;
+
 public abstract class Command {
     public static final int UNREGISTERED_ID = 0;
 
@@ -13,13 +15,11 @@ public abstract class Command {
     public static final int DEFAULT_FLAGS = TWITCH_FLAG | DISCORD_FLAG;
 
     private int id;
-    private int flags;
-    private Permission permission;
+    CommandSettings commandSettings;
 
-    public Command(final int id, final int flags, final Permission permission) {
+    public Command(final int id, final CommandSettings commandSettings) {
         this.id = id;
-        this.flags = flags;
-        this.permission = permission;
+        this.commandSettings = commandSettings;
     }
 
     public final int getId() {
@@ -31,39 +31,47 @@ public abstract class Command {
     }
 
     public int getFlags() {
-        return flags;
+        return commandSettings.getFlags();
     }
 
     public boolean isSecure() {
-        return (flags & SECURE_FLAG) != 0;
+        return getFlag(SECURE_FLAG);
     }
 
     public boolean isTwitch() {
-        return (flags & TWITCH_FLAG) != 0;
+        return getFlag(TWITCH_FLAG);
     }
 
     public boolean isDiscord() {
-        return (flags & DISCORD_FLAG) != 0;
+        return getFlag(DISCORD_FLAG);
     }
 
     public void setSecure(final boolean secure) {
         setFlag(SECURE_FLAG, secure);
     }
 
-    public boolean getService(int serivceType) {
-        return (flags & 1<<serivceType) != 0;
+    public boolean getService(final int serivceType) {
+        return getFlag(1<<serivceType);
     }
 
-    public void setService(int serivceType, boolean value) {
+    public void setService(final int serivceType, final boolean value) {
         setFlag(1<<serivceType, value);
     }
 
     public Permission getPermission() {
-        return permission;
+        return commandSettings.getPermission();
     }
 
     public void setPermission(final Permission permission) {
-        this.permission = permission;
+        this.commandSettings.setPermission(permission);
+    }
+
+    public Duration getRateLimitDuration() {
+        return commandSettings.getRateLimitDuration();
+    }
+
+    public void setRateLimitDuration(final Duration rateLimitDuration) {
+        this.commandSettings.setRateLimitDuration(rateLimitDuration);
     }
 
     public abstract int getType();
@@ -96,11 +104,15 @@ public abstract class Command {
         return false;
     }
 
+    private boolean getFlag(final int flag) {
+        return (getFlags() & flag) != 0;
+    }
+
     private void setFlag(final int flag, final boolean value) {
         if (value) {
-            flags = flags | flag;
+            commandSettings.setFlags(getFlags() | flag);
         } else {
-            flags = flags & ~flag;
+            commandSettings.setFlags(getFlags() & ~flag);
         }
     }
 }

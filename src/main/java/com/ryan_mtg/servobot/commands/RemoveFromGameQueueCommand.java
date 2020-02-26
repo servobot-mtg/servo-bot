@@ -8,9 +8,8 @@ public class RemoveFromGameQueueCommand extends MessageCommand {
     public static final int TYPE = 10;
     private int gameQueueId;
 
-    public RemoveFromGameQueueCommand(final int id, final int flags, final Permission permission,
-                                final int gameQueueId) {
-        super(id, flags, permission);
+    public RemoveFromGameQueueCommand(final int id, final CommandSettings commandSettings, final int gameQueueId) {
+        super(id, commandSettings);
         this.gameQueueId = gameQueueId;
     }
 

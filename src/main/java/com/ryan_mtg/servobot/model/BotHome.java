@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
+import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandListener;
@@ -31,6 +32,7 @@ public class BotHome {
     private String timeZone;
     private Scope botHomeScope;
     private CommandTable commandTable;
+    private RateLimiter rateLimiter;
     private ReactionTable reactionTable;
     private StorageTable storageTable;
     private Map<Integer, ServiceHome> serviceHomes;
@@ -49,6 +51,7 @@ public class BotHome {
         this.botName = botName;
         this.timeZone = timeZone;
         this.commandTable = commandTable;
+        this.rateLimiter = new RateLimiter();
         this.reactionTable = reactionTable;
         this.storageTable = storageTable;
         this.serviceHomes = serviceHomes;
@@ -63,7 +66,8 @@ public class BotHome {
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
         eventListener =
-                new MultiDelegatingListener(new CommandListener(commandTable), new ReactionListener(reactionTable));
+                new MultiDelegatingListener(new CommandListener(commandTable, rateLimiter),
+                        new ReactionListener(reactionTable, rateLimiter));
     }
 
     public int getId() {
@@ -118,6 +122,10 @@ public class BotHome {
 
     public CommandTable getCommandTable() {
         return commandTable;
+    }
+
+    public RateLimiter getRateLimiter() {
+        return rateLimiter;
     }
 
     public ReactionTable getReactionTable() {

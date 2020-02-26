@@ -9,8 +9,8 @@ public class SetArenaUsernameCommand extends MessageCommand {
     public static final int TYPE = 11;
     private static final Pattern NAME_PATTERN = Pattern.compile(".+#\\d{5}");
 
-    public SetArenaUsernameCommand(final int id, final int flags, final Permission permission) {
-        super(id, flags, permission);
+    public SetArenaUsernameCommand(final int id, final CommandSettings commandSettings) {
+        super(id, commandSettings);
     }
 
     @Override

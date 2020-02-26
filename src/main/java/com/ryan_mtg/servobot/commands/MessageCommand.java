@@ -18,8 +18,8 @@ public abstract class MessageCommand extends Command {
 
     abstract public void perform(MessageSentEvent event, String arguments) throws BotErrorException;
 
-    public MessageCommand(final int id, final int flags, final Permission permission) {
-        super(id, flags, permission);
+    public MessageCommand(final int id, final CommandSettings commandSettings) {
+        super(id, commandSettings);
     }
 
     protected static void say(MessageSentEvent event, final String text) throws BotErrorException {

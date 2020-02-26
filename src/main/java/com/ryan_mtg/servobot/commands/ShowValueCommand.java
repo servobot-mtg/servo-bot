@@ -8,8 +8,8 @@ import com.ryan_mtg.servobot.model.storage.StorageValue;
 public class ShowValueCommand extends MessageCommand {
     public static final int TYPE = 17;
 
-    public ShowValueCommand(final int id, final int flags, final Permission permission) {
-        super(id, flags, permission);
+    public ShowValueCommand(final int id, final CommandSettings commandSettings) {
+        super(id, commandSettings);
     }
 
     @Override

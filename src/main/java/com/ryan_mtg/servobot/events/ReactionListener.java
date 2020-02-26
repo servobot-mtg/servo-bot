@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -14,9 +15,11 @@ import org.slf4j.LoggerFactory;
 public class ReactionListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(ReactionListener.class);
     private final ReactionTable reactionTable;
+    private final RateLimiter rateLimiter;
 
-    public ReactionListener(final ReactionTable reactionTable) {
+    public ReactionListener(final ReactionTable reactionTable, final RateLimiter rateLimiter) {
         this.reactionTable = reactionTable;
+        this.rateLimiter = rateLimiter;
     }
 
     @Override
@@ -41,7 +44,10 @@ public class ReactionListener implements EventListener {
                     if (command instanceof MessageCommand) {
                         MessageCommand messageCommand = (MessageCommand) command;
                         try {
-                            messageCommand.perform(messageSentEvent, null);
+                            if (rateLimiter.allow(sender.getHomedUser().getId(), command.getId(),
+                                    command.getRateLimitDuration())) {
+                                messageCommand.perform(messageSentEvent, null);
+                            }
                         } catch (BotErrorException e) {
                             LOGGER.warn("Ignoring exception: " + e.getErrorMessage());
                             e.printStackTrace();

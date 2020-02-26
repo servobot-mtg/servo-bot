@@ -22,6 +22,10 @@ public class CommandRow {
 
     private Permission permission;
 
+    @Column(name = "rate_limit")
+    //In seconds
+    private int rateLimitDuration;
+
     private int type;
 
     @Column(name = "bot_home_id")
@@ -57,6 +61,14 @@ public class CommandRow {
 
     public void setPermission(final Permission permission) {
         this.permission = permission;
+    }
+
+    public int getRateLimitDuration() {
+        return rateLimitDuration;
+    }
+
+    public void setRateLimitDuration(int rateLimitDuration) {
+        this.rateLimitDuration = rateLimitDuration;
     }
 
     public int getType() {

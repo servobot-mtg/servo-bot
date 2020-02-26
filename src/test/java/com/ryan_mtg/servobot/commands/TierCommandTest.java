@@ -14,8 +14,8 @@ import static org.mockito.Mockito.when;
 
 public class TierCommandTest {
     private static final int ID = 1;
-    private static final int FLAGS = 1;
-    private static final Permission PERMISSION = Permission.MOD;
+    private static final CommandSettings COMMAND_SETTINGS =
+            new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, null);
     private static final String USER_NAME = "username";
     private static final String ROLE = "role";
     private static final int SERVICE_TYPE = 5;
@@ -23,7 +23,7 @@ public class TierCommandTest {
 
     @Test
     public void testPerform() throws BotErrorException {
-        TierCommand command = new TierCommand(ID, FLAGS, PERMISSION);
+        TierCommand command = new TierCommand(ID, COMMAND_SETTINGS);
 
         Home home = mockHome();
         Channel channel = mockChannel();

@@ -12,9 +12,9 @@ public class TextCommand extends MessageCommand {
 
     private final String text;
 
-    public TextCommand(final int id, final int flags, final Permission permission, final String text)
+    public TextCommand(final int id, final CommandSettings commandSettings, final String text)
             throws BotErrorException {
-        super(id, flags, permission);
+        super(id, commandSettings);
         this.text = text;
 
         Validation.validateStringLength(text, Validation.MAX_TEXT_LENGTH, "Command text");

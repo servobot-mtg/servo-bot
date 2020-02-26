@@ -10,8 +10,8 @@ import java.util.Scanner;
 public class SetValueCommand extends MessageCommand {
     public static final int TYPE = 18;
 
-    public SetValueCommand(final int id, final int flags, final Permission permission) {
-        super(id, flags, permission);
+    public SetValueCommand(final int id, final CommandSettings commandSettings) {
+        super(id, commandSettings);
     }
 
     @Override

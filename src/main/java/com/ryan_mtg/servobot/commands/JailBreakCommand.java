@@ -11,9 +11,9 @@ public class JailBreakCommand extends MessageCommand {
     private String prisonRole;
     private String variableName;
 
-    public JailBreakCommand(final int id, final int flags, final Permission permission, final String prisonRole,
+    public JailBreakCommand(final int id, final CommandSettings commandSettings, final String prisonRole,
                             final String variableName) throws BotErrorException {
-        super(id, flags, permission);
+        super(id, commandSettings);
 
         this.prisonRole = prisonRole;
         this.variableName = variableName;

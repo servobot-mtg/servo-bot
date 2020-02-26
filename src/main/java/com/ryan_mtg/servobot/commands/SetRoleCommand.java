@@ -9,9 +9,9 @@ public class SetRoleCommand extends UserCommand {
     public static final int TYPE = 13;
     private String role;
 
-    public SetRoleCommand(final  int id, final int flags, final Permission permission, final String role)
+    public SetRoleCommand(final  int id, final CommandSettings commandSettings, final String role)
             throws BotErrorException {
-        super(id, flags, permission);
+        super(id, commandSettings);
         this.role = role;
 
         Validation.validateStringLength(role, Validation.MAX_ROLE_LENGTH, "Role");

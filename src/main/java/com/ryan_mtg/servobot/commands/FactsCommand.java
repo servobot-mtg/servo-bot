@@ -9,8 +9,8 @@ public class FactsCommand extends MessageCommand {
 
     private Book book;
 
-    public FactsCommand(final int id, final int flags, final Permission permission, final Book book) {
-        super(id, flags, permission);
+    public FactsCommand(final int id, final CommandSettings commandSettings, final Book book) {
+        super(id, commandSettings);
         this.book = book;
     }
 

@@ -13,9 +13,9 @@ public class JailCommand extends MessageCommand {
     private int threshold;
     private String variableName;
 
-    public JailCommand(final int id, final int flags, final Permission permission, final String prisonRole,
+    public JailCommand(final int id, final CommandSettings commandSettings, final String prisonRole,
                        final int threshold, final String variableName) throws BotErrorException {
-        super(id, flags, permission);
+        super(id, commandSettings);
         this.threshold = threshold;
         this.prisonRole = prisonRole;
         this.variableName = variableName;

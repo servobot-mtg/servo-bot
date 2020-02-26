@@ -11,9 +11,9 @@ public class AddReactionCommand extends MessageCommand {
 
     private String emoteName;
 
-    public AddReactionCommand(final int id, final int flags, final Permission permission, final String emoteName)
+    public AddReactionCommand(final int id, final CommandSettings commandSettings, final String emoteName)
             throws BotErrorException {
-        super(id, flags, permission);
+        super(id, commandSettings);
         this.emoteName = emoteName;
 
         Validation.validateStringLength(emoteName, Validation.MAX_EMOTE_LENGTH, "Emote name");

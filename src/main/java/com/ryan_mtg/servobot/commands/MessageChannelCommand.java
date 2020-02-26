@@ -10,9 +10,9 @@ public class MessageChannelCommand extends HomeCommand {
     private final String channelName;
     private final String message;
 
-    public MessageChannelCommand(final int id, final int flags, final Permission permission,
-            final int serviceType, final String channelName, final String message) throws BotErrorException {
-        super(id, flags, permission);
+    public MessageChannelCommand(final int id, final CommandSettings commandSettings, final int serviceType,
+                                 final String channelName, final String message) throws BotErrorException {
+        super(id, commandSettings);
         this.serviceType = serviceType;
         this.channelName = channelName;
         this.message = message;

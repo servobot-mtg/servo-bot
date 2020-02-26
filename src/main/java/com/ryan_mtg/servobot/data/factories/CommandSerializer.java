@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandEvent;
+import com.ryan_mtg.servobot.commands.CommandSettings;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
 import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
@@ -15,7 +16,6 @@ import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
 import com.ryan_mtg.servobot.commands.JailBreakCommand;
 import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
-import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
@@ -61,76 +61,82 @@ public class CommandSerializer {
     @Autowired
     private TriggerRepository triggerRepository;
 
+    @Autowired
+    private RateLimitSerializer rateLimitSerializer;
+
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap)
             throws BotErrorException {
         int id = commandRow.getId();
-        int flags = commandRow.getFlags();
-        Permission permission = commandRow.getPermission();
+
+        Duration rateLimitDuration = rateLimitSerializer.createRateLimitDuration(commandRow);
+
+        CommandSettings commandSettings =
+                new CommandSettings(commandRow.getFlags(), commandRow.getPermission(), rateLimitDuration);
         switch (commandRow.getType()) {
             case AddCommand.TYPE:
-                return new AddCommand(id, flags, permission);
+                return new AddCommand(id, commandSettings);
             case AddReactionCommand.TYPE:
-                return new AddReactionCommand(id, flags, permission, commandRow.getStringParameter().trim());
+                return new AddReactionCommand(id, commandSettings, commandRow.getStringParameter().trim());
             case AddStatementCommand.TYPE:
-                return new AddStatementCommand(id, flags, permission);
+                return new AddStatementCommand(id, commandSettings);
             case DelayedAlertCommand.TYPE:
-                return new DelayedAlertCommand(id, flags, permission,
+                return new DelayedAlertCommand(id, commandSettings,
                         Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter().trim());
             case DeleteCommand.TYPE:
-                return new DeleteCommand(id, flags, permission);
+                return new DeleteCommand(id, commandSettings);
             case EnterGiveawayCommand.TYPE:
-                return new EnterGiveawayCommand(id, flags, permission);
+                return new EnterGiveawayCommand(id, commandSettings);
             case EvaluateExpressionCommand.TYPE:
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
-                return new EvaluateExpressionCommand(id, flags, permission, gabyEasterEgg);
+                return new EvaluateExpressionCommand(id, commandSettings, gabyEasterEgg);
             case FactsCommand.TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
-                return new FactsCommand(id, flags, permission, bookMap.get(bookId));
+                return new FactsCommand(id, commandSettings, bookMap.get(bookId));
             case GiveawayStatusCommand.TYPE:
-                return new GiveawayStatusCommand(id, flags, permission);
+                return new GiveawayStatusCommand(id, commandSettings);
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new GameQueueCommand(id, flags, permission, gameQueueId);
+                return new GameQueueCommand(id, commandSettings, gameQueueId);
             case JailCommand.TYPE:
                 int jailThreshold = (int) (long) commandRow.getLongParameter();
-                return new JailCommand(id, flags, permission, commandRow.getStringParameter().trim(), jailThreshold,
+                return new JailCommand(id, commandSettings, commandRow.getStringParameter().trim(), jailThreshold,
                         commandRow.getStringParameter2().trim());
             case JailBreakCommand.TYPE:
-                return new JailBreakCommand(id, flags, permission, commandRow.getStringParameter().trim(),
+                return new JailBreakCommand(id, commandSettings, commandRow.getStringParameter().trim(),
                         commandRow.getStringParameter2().trim());
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new JoinGameQueueCommand(id, flags, permission, gameQueueId);
+                return new JoinGameQueueCommand(id, commandSettings, gameQueueId);
             case MessageChannelCommand.TYPE:
-                return new MessageChannelCommand(id, flags, permission, commandRow.getLongParameter().intValue(),
+                return new MessageChannelCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
                         commandRow.getStringParameter().trim(), commandRow.getStringParameter2().trim());
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new RemoveFromGameQueueCommand(id, flags, permission, gameQueueId);
+                return new RemoveFromGameQueueCommand(id, commandSettings, gameQueueId);
             case SelectWinnerCommand.TYPE:
-                return new SelectWinnerCommand(id, flags, permission);
+                return new SelectWinnerCommand(id, commandSettings);
             case SetArenaUsernameCommand.TYPE:
-                return new SetArenaUsernameCommand(id, flags, permission);
+                return new SetArenaUsernameCommand(id, commandSettings);
             case SetRoleCommand.TYPE:
-                return new SetRoleCommand(id, flags, permission, commandRow.getStringParameter().trim());
+                return new SetRoleCommand(id, commandSettings, commandRow.getStringParameter().trim());
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
-                return new SetStatusCommand(id, flags, permission, bookMap.get(bookId));
+                return new SetStatusCommand(id, commandSettings, bookMap.get(bookId));
             case SetValueCommand.TYPE:
-                return new SetValueCommand(id, flags, permission);
+                return new SetValueCommand(id, commandSettings);
             case ShowArenaUsernamesCommand.TYPE:
-                return new ShowArenaUsernamesCommand(id, flags, permission);
+                return new ShowArenaUsernamesCommand(id, commandSettings);
             case ShowGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new ShowGameQueueCommand(id, flags, permission, gameQueueId);
+                return new ShowGameQueueCommand(id, commandSettings, gameQueueId);
             case ShowValueCommand.TYPE:
-                return new ShowValueCommand(id, flags, permission);
+                return new ShowValueCommand(id, commandSettings);
             case StartGiveawayCommand.TYPE:
-                return new StartGiveawayCommand(id, flags, permission);
+                return new StartGiveawayCommand(id, commandSettings);
             case TextCommand.TYPE:
-                return new TextCommand(id, flags, permission, commandRow.getStringParameter().trim());
+                return new TextCommand(id, commandSettings, commandRow.getStringParameter().trim());
             case TierCommand.TYPE:
-                return new TierCommand(id, flags, permission);
+                return new TierCommand(id, commandSettings);
         }
         throw new IllegalArgumentException("Unsupported command type: " + commandRow.getType());
     }
@@ -380,9 +386,10 @@ public class CommandSerializer {
         private void saveCommand(final Command command, final Consumer<CommandRow> consumer) {
             commandRow.setId(command.getId());
             commandRow.setFlags(command.getFlags());
+            commandRow.setPermission(command.getPermission());
+            rateLimitSerializer.saveRateLimit(commandRow, command.getRateLimitDuration());
             commandRow.setType(command.getType());
             commandRow.setBotHomeId(botHomeId);
-            commandRow.setPermission(command.getPermission());
             consumer.accept(commandRow);
         }
     }

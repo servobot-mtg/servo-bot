@@ -7,8 +7,8 @@ public class SetStatusCommand extends HomeCommand {
     public static final int TYPE = 14;
     private Book book;
 
-    public SetStatusCommand(final int id, final int flags, final Permission permission, final Book book) {
-        super(id, flags, permission);
+    public SetStatusCommand(final int id, final CommandSettings commandSettings, final Book book) {
+        super(id, commandSettings);
         this.book = book;
     }
 

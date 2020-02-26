@@ -11,8 +11,8 @@ import static org.mockito.Mockito.when;
 
 public class MessageChannelCommandTest {
     private static final int ID = 1;
-    private static final int SECURE = 1;
-    private static final Permission PERMISSION = Permission.MOD;
+    private static final CommandSettings COMMAND_SETTINGS =
+            new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, null);
     private static final int SERVICE_TYPE = 3;
     private static final String CHANNEL_NAME = "channel_name";
     private static final String MESSAGE = "message";
@@ -20,7 +20,7 @@ public class MessageChannelCommandTest {
     @Test
     public void testPerform() throws BotErrorException {
         MessageChannelCommand command =
-                new MessageChannelCommand(ID, SECURE, PERMISSION, SERVICE_TYPE, CHANNEL_NAME, MESSAGE);
+                new MessageChannelCommand(ID, COMMAND_SETTINGS, SERVICE_TYPE, CHANNEL_NAME, MESSAGE);
 
         Home home = mockHome();
         Channel channel = mockChannel();
