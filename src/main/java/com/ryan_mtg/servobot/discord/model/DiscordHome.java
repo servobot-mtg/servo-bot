@@ -81,7 +81,7 @@ public class DiscordHome implements Home {
     public void setRole(final String username, final String roleName) throws BotErrorException {
         List<Member> members = guild.getMembersByEffectiveName(username, true);
         if (members.isEmpty()) {
-            throw new BotErrorException(String.format("No user named ''.", username));
+            throw new BotErrorException(String.format("No user named '%s'.", username));
         }
         List<Role> roles = guild.getRolesByName(roleName, false);
         if (roles.isEmpty()) {

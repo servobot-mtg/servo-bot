@@ -33,13 +33,19 @@ public class SetUsersRoleCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        if (arguments == null) {
+        String userName = arguments;
+        if (userName == null) {
             throw new BotErrorException("Noone specified.");
         }
-        event.getHome().setRole(arguments, role);
+
+        if (userName.startsWith("@")) {
+            userName = userName.substring(1);
+        }
+
+        event.getHome().setRole(userName, role);
 
         HomeEditor homeEditor = event.getHomeEditor();
-        Scope messageEventScope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, arguments));
+        Scope messageEventScope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, userName));
         FunctorSymbolTable setUsersRoleSymbolTable = new FunctorSymbolTable();
         setUsersRoleSymbolTable.addFunctor("user", () -> arguments);
         setUsersRoleSymbolTable.addFunctor("role", () -> role);
