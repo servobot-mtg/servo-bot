@@ -24,6 +24,7 @@ import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
+import com.ryan_mtg.servobot.commands.SetUsersRoleCommand;
 import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
@@ -242,6 +243,15 @@ public class CommandDescriptor {
             type = "Set Status Command";
             description = "Sets the status to a random statement from " + setStatusCommand.getBook().getName();
             edit = setStatusCommand.getBook().getName();
+        }
+
+        @Override
+        public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
+            type = "Set Users Role Command";
+            description = String.format("Sets the user passed as input to the role '%s' and says '%s'",
+                    setUsersRoleCommand.getRole(), setUsersRoleCommand.getMessage());
+            edit = setUsersRoleCommand.getRole();
+
         }
 
         @Override

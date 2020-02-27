@@ -108,14 +108,6 @@ public class BotController {
 
         addBotHome(model, botHome);
         model.addAttribute("timeZones", timeZones);
-        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
-        if (serviceHome != null) {
-            model.addAttribute("emotes", serviceHome.getEmotes());
-            model.addAttribute("roles", serviceHome.getRoles());
-        } else {
-            model.addAttribute("emotes", Lists.newArrayList());
-            model.addAttribute("roles", Lists.newArrayList());
-        }
         return "bot_home_hub";
     }
 
@@ -170,6 +162,15 @@ public class BotController {
         model.addAttribute("userSerializer", serializers.getUserSerializer());
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
+
+        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
+        if (serviceHome != null) {
+            model.addAttribute("emotes", serviceHome.getEmotes());
+            model.addAttribute("roles", serviceHome.getRoles());
+        } else {
+            model.addAttribute("emotes", Lists.newArrayList());
+            model.addAttribute("roles", Lists.newArrayList());
+        }
     }
 
     public static class TimeZoneDescriptor {

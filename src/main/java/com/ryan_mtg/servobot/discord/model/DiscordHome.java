@@ -78,6 +78,19 @@ public class DiscordHome implements Home {
     }
 
     @Override
+    public void setRole(final String username, final String roleName) throws BotErrorException {
+        List<Member> members = guild.getMembersByEffectiveName(username, true);
+        if (members.isEmpty()) {
+            throw new BotErrorException(String.format("No user named ''.", username));
+        }
+        List<Role> roles = guild.getRolesByName(roleName, false);
+        if (roles.isEmpty()) {
+            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
+        }
+        guild.addRoleToMember(members.get(0), roles.get(0)).queue();
+    }
+
+    @Override
     public int clearRole(final String roleName) throws BotErrorException {
         List<Role> roles = guild.getRolesByName(roleName, false);
         if (roles.isEmpty()) {

@@ -537,6 +537,8 @@ const commandData = [
             {id: 'integer', name: 'Strikes'}]}, //25
     {name: 'Jail Break Command', parameters: [{id: 'role', name: 'Role Name'},
             {id: 'text-2', name: 'Variable Name'}]}, //26
+    {name: 'Set User Role Command', parameters: [{id: 'role', name: 'Role Name'},
+            {id: 'text', name: 'Response message'}]}, //27
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

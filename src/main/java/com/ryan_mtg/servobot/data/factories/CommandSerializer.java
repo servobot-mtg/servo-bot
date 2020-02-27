@@ -21,6 +21,7 @@ import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
+import com.ryan_mtg.servobot.commands.SetUsersRoleCommand;
 import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
@@ -116,6 +117,9 @@ public class CommandSerializer {
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
                 return new SetStatusCommand(id, flags, permission, bookMap.get(bookId));
+            case SetUsersRoleCommand.TYPE:
+                return new SetUsersRoleCommand(id, flags, permission, commandRow.getStringParameter().trim(),
+                        commandRow.getStringParameter2().trim());
             case SetValueCommand.TYPE:
                 return new SetValueCommand(id, flags, permission);
             case ShowArenaUsernamesCommand.TYPE:
@@ -335,6 +339,14 @@ public class CommandSerializer {
         public void visitSetStatusCommand(final SetStatusCommand setStatusCommand) {
             saveCommand(setStatusCommand, commandRow -> {
                 commandRow.setLongParameter(setStatusCommand.getBook().getId());
+            });
+        }
+
+        @Override
+        public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
+            saveCommand(setUsersRoleCommand, commandRow -> {
+                commandRow.setStringParameter(setUsersRoleCommand.getRole());
+                commandRow.setStringParameter2(setUsersRoleCommand.getMessage());
             });
         }
 
