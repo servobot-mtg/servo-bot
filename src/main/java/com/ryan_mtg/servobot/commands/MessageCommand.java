@@ -7,8 +7,9 @@ import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
-import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
+import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.model.scope.SymbolTable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,15 +23,29 @@ public abstract class MessageCommand extends Command {
         super(id, flags, permission);
     }
 
-    protected static void say(MessageSentEvent event, final String text) throws BotErrorException {
+    protected static Scope getMessageScope(final MessageSentEvent event) {
         HomeEditor homeEditor = event.getHomeEditor();
-        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event));
-        say(event, scope, text);
+        FunctorSymbolTable messageSymbolTable = new FunctorSymbolTable();
+        messageSymbolTable.addValue("sender", event.getSender().getName());
+        messageSymbolTable.addValue("home", event.getHome().getName());
+
+        return new Scope(homeEditor.getScope(), messageSymbolTable);
     }
 
-    protected static void say(MessageSentEvent event, final Scope scope, final String text) throws BotErrorException {
+    protected static void say(final MessageSentEvent event, final String text) throws BotErrorException {
+        Scope scope = getMessageScope(event);
+        sayRaw(event, evaluate(event, scope, text));
+    }
+
+    protected static void say(final MessageSentEvent event, final SymbolTable commandSymbolTable, final String text)
+            throws BotErrorException {
+        Scope commandScope = new Scope(getMessageScope(event), commandSymbolTable);
+        sayRaw(event, evaluate(event, commandScope, text));
+    }
+
+    protected static void sayRaw(final MessageSentEvent event, final String text) {
         Channel channel = event.getChannel();
-        channel.say(evaluate(event, scope, text));
+        channel.say(text);
     }
 
     private static String evaluate(final Event event, final Scope scope, final String text) throws BotErrorException {
@@ -45,7 +60,7 @@ public abstract class MessageCommand extends Command {
             String expression = matcher.group(1);
 
             try {
-                result.append(parser.parse(expression));
+                result.append(parser.parse(expression).evaluate());
             } catch (ParseException e) {
                 throw new BotErrorException(String.format("Failed to parse %%%s%%: %s", expression, e.getMessage()));
             }

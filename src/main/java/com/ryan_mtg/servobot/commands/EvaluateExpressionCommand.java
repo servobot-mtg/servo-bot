@@ -7,8 +7,6 @@ import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
-import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
-import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 
 import java.util.regex.Pattern;
@@ -46,11 +44,10 @@ public class EvaluateExpressionCommand extends MessageCommand {
         }
 
         HomeEditor homeEditor = event.getHomeEditor();
-        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, arguments));
-        Parser parser = new Parser(scope, homeEditor);
+        Parser parser = new Parser(getMessageScope(event), homeEditor);
 
         try {
-            MessageCommand.say(event, parser.parse(arguments).toString());
+            MessageCommand.sayRaw(event, parser.parse(arguments).evaluate());
         } catch (ParseException e) {
             throw new BotErrorException(String.format("Failed to parse %s: %s", arguments, e.getMessage()));
         }

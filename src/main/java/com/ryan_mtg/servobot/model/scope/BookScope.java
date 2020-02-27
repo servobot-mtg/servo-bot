@@ -12,10 +12,10 @@ public class BookScope implements SymbolTable {
     }
 
     @Override
-    public String lookup(final String name) {
+    public Book lookup(final String name) {
         for (Book book : books) {
             if (name.equals(book.getName())) {
-                return book.getRandomLine();
+                return book;
             }
         }
         return null;

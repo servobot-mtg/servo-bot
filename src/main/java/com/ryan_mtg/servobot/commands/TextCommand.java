@@ -2,9 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
-import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 
 public class TextCommand extends MessageCommand {
@@ -22,9 +20,9 @@ public class TextCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        HomeEditor homeEditor = event.getHomeEditor();
-        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, arguments));
-        MessageCommand.say(event, scope, text);
+        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        symbolTable.addValue("input", arguments);
+        MessageCommand.say(event, symbolTable, text);
     }
 
     @Override

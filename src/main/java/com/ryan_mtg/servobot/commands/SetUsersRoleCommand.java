@@ -2,10 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
-import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
-import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.utility.Validation;
 
 public class SetUsersRoleCommand extends MessageCommand {
@@ -44,14 +41,12 @@ public class SetUsersRoleCommand extends MessageCommand {
 
         event.getHome().setRole(userName, role);
 
-        HomeEditor homeEditor = event.getHomeEditor();
-        Scope messageEventScope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, userName));
-        FunctorSymbolTable setUsersRoleSymbolTable = new FunctorSymbolTable();
-        setUsersRoleSymbolTable.addFunctor("user", () -> arguments);
-        setUsersRoleSymbolTable.addFunctor("role", () -> role);
+        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        symbolTable.addValue("input", arguments);
+        symbolTable.addValue("user", userName);
+        symbolTable.addValue("role", role);
 
-        Scope setUsersRoleScope = new Scope(messageEventScope, setUsersRoleSymbolTable);
-        MessageCommand.say(event, setUsersRoleScope, message);
+        MessageCommand.say(event, symbolTable, message);
     }
 
     @Override

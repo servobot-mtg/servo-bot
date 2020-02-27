@@ -1,12 +1,14 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 
-public class Book {
+public class Book implements Evaluatable, Function<Integer, String> {
     public static final int UNREGISTERED_ID = 0;
 
     private static final Random RANDOM = new Random();
@@ -49,5 +51,19 @@ public class Book {
 
     public void deleteStatement(final int statementId) {
         statements.removeIf(statement -> statement.getId() == statementId);
+    }
+
+    @Override
+    public String evaluate() {
+        return getRandomLine();
+    }
+
+    @Override
+    public String apply(final Integer index) {
+        return statements.get(index % statements.size()).getText();
+    }
+
+    public static String randomStatement(final Book book) {
+        return book.getRandomLine();
     }
 }

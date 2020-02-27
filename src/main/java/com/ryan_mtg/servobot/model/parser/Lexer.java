@@ -27,6 +27,10 @@ public class Lexer {
         return result;
     }
 
+    public boolean isNextToken(final Token.Type tokenType) {
+        return nextToken != null && nextToken.getType() == tokenType;
+    }
+
     private void readToken() {
         nextToken = null;
         while (position < input.length() && Character.isWhitespace(input.charAt(position))) {

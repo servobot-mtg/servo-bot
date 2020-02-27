@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot;
 
 import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.data.factories.BotFactory;
 import com.ryan_mtg.servobot.model.BotRegistrar;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.function.Function;
 
 @Configuration
 public class BotConfig {
@@ -27,6 +30,9 @@ public class BotConfig {
     @Bean
     public Scope globalScope() {
         FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        Function<Book, String> randomStatement = Book::randomStatement;
+        symbolTable.addValue("randomStatement", randomStatement);
+
         Scope globalScope = new Scope(null, symbolTable);
         return globalScope;
     }

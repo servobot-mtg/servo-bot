@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.regex.Pattern;
 
-public abstract class StorageValue {
+public abstract class StorageValue implements Evaluatable {
     public static final int UNREGISTERED_ID = 0;
     public static final int GLOBAL_USER = 0;
     private static final Pattern STORAGE_VALUE_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
