@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class MultiServiceHome implements Home {
@@ -47,8 +49,8 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
-    public int clearRole(final String role) {
-        return 0;
+    public List<String> clearRole(final String role) {
+        return Arrays.asList();
     }
 
     @Override

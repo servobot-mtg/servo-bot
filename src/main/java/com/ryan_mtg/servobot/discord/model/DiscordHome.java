@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DiscordHome implements Home {
@@ -91,7 +92,7 @@ public class DiscordHome implements Home {
     }
 
     @Override
-    public int clearRole(final String roleName) throws BotErrorException {
+    public List<String> clearRole(final String roleName) throws BotErrorException {
         List<Role> roles = guild.getRolesByName(roleName, false);
         if (roles.isEmpty()) {
             throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
@@ -99,10 +100,12 @@ public class DiscordHome implements Home {
 
         Role role = roles.get(0);
         List<Member> members = guild.getMembersWithRoles(role);
+        List<String> names = new ArrayList<>();
         for (Member member : members) {
             guild.removeRoleFromMember(member, role).queue();
+            names.add(member.getEffectiveName());
         }
-        return members.size();
+        return names;
     }
 
     @Override

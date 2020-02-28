@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.utility.Validation;
 
+import java.util.List;
+
 public class JailBreakCommand extends MessageCommand {
     public static final int TYPE = 26;
     private String prisonRole;
@@ -44,15 +46,35 @@ public class JailBreakCommand extends MessageCommand {
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
         User sender = event.getSender();
 
-        int count = event.getHome().clearRole(prisonRole);
+        List<String> inmates = event.getHome().clearRole(prisonRole);
 
         HomeEditor homeEditor = event.getHomeEditor();
         homeEditor.remoteStorageVariables(variableName);
 
-        if (count > 0) {
-            String inmates = (count == 1 ? "inmate" : "inmates");
-            MessageCommand.say(event,
-                    String.format("%s broke %d %s out of %s!", sender.getName(), count, inmates, prisonRole));
+        if (inmates.isEmpty()) {
+            return;
         }
+
+        MessageCommand.say(event,
+                String.format("%s broke %s out of %s!", sender.getName(), print(inmates),prisonRole));
+    }
+
+    private String print(final List<String> names) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(names.get(0));
+        if (names.size() == 2) {
+            builder.append(" and ").append(names.get(1));
+            return builder.toString();
+        }
+
+        for (int i = 1; i < names.size(); i++) {
+            builder.append(", ");
+            if (i + 1 == names.size()) {
+                builder.append("and ");
+            }
+            builder.append(names.get(i));
+        }
+
+        return builder.toString();
     }
 }

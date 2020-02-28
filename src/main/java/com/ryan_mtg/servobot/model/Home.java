@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 
+import java.util.List;
+
 public interface Home {
     String getName();
     Channel getChannel(String channelName, int serviceType);
@@ -10,7 +12,7 @@ public interface Home {
     String getRole(User user, int serviceType);
     void setRole(User user, String role) throws BotErrorException;
     void setRole(String username, String role) throws BotErrorException;
-    int clearRole(String role) throws BotErrorException;
+    List<String> clearRole(String role) throws BotErrorException;
 
     Emote getEmote(String emoteName);
 
