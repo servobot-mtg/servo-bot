@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.user.HomedUser;
 
@@ -32,7 +33,6 @@ public class ObjectMother {
         when(user.getHomedUser()).thenReturn(homedUser);
         return user;
     }
-
 
     public static Message mockMessage() {
         return mockMessage(0);
@@ -94,6 +94,12 @@ public class ObjectMother {
         when(event.getChannel()).thenReturn(channel);
         when(event.getSender()).thenReturn(sender);
         when(event.getMessage()).thenReturn(message);
+        return event;
+    }
+
+    public static HomeEvent mockHomeEvent(final Home home) {
+        HomeEvent event = mock(HomeEvent.class);
+        when(event.getHome()).thenReturn(home);
         return event;
     }
 

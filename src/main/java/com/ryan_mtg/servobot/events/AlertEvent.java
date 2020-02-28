@@ -1,9 +1,5 @@
 package com.ryan_mtg.servobot.events;
 
-import com.ryan_mtg.servobot.model.Home;
-
-public interface AlertEvent extends Event {
+public interface AlertEvent extends HomeEvent {
     String getAlertToken();
-
-    Home getHome();
 }

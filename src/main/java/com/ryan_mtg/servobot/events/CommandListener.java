@@ -69,7 +69,11 @@ public class CommandListener implements EventListener {
     @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
         for (HomeCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, HomeCommand.class)) {
-            command.perform(streamStartEvent.getHome());
+            try {
+                command.perform(streamStartEvent);
+            } catch (BotErrorException e) {
+                LOGGER.error(e.getErrorMessage(), e);
+            }
         }
     }
 
@@ -87,7 +91,7 @@ public class CommandListener implements EventListener {
                 commandTable.getCommandsFromAlertToken(alertEvent.getAlertToken(), HomeCommand.class)) {
             try {
                 LOGGER.info("Performing command " + command.getId());
-                command.perform(alertEvent.getHome());
+                command.perform(alertEvent);
             } catch (Exception e) {
                 e.printStackTrace();
             }

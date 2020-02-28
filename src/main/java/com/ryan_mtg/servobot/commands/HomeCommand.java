@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.HomeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,5 +12,5 @@ public abstract class HomeCommand extends Command {
         super(id, flags, permission);
     }
 
-    public abstract void perform(Home home);
+    public abstract void perform(HomeEvent homeEvent) throws BotErrorException;
 }

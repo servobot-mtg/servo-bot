@@ -4,6 +4,8 @@ import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.user.User;
 
 public interface Service {
+    int NO_SERVICE_TYPE = 0;
+
     int getType();
     String getName();
     void register(BotHome botHome);

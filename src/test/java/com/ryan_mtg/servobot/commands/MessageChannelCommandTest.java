@@ -26,7 +26,7 @@ public class MessageChannelCommandTest {
         Channel channel = mockChannel();
         when(home.getChannel(CHANNEL_NAME, SERVICE_TYPE)).thenReturn(channel);
 
-        command.perform(home);
+        command.perform(mockHomeEvent(home));
 
         verify(channel).say(MESSAGE);
     }

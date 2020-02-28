@@ -1,7 +1,10 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.events.HomeEvent;
+import com.ryan_mtg.servobot.model.Channel;
+import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.utility.Validation;
 
 public class MessageChannelCommand extends HomeCommand {
@@ -27,8 +30,12 @@ public class MessageChannelCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final Home home) {
-        home.getChannel(channelName, serviceType).say(message);
+    public void perform(final HomeEvent homeEvent) throws BotErrorException {
+        Channel channel = homeEvent.getHome().getChannel(channelName, serviceType);
+        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        symbolTable.addValue("commandCount", "");
+        Scope commandScope = new Scope(homeEvent.getScope(), symbolTable);
+        Command.say(channel, homeEvent, commandScope, message);
     }
 
     @Override

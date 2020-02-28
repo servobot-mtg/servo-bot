@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.Service;
 
 public class BotHomeAlertEvent extends AbstractHomedEvent implements AlertEvent {
     private String alertToken;
@@ -20,5 +21,10 @@ public class BotHomeAlertEvent extends AbstractHomedEvent implements AlertEvent 
     @Override
     public Home getHome() {
         return home;
+    }
+
+    @Override
+    public int getServiceType() {
+        return Service.NO_SERVICE_TYPE;
     }
 }

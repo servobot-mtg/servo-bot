@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 
 public class SelectWinnerCommand extends HomeCommand {
@@ -12,10 +12,10 @@ public class SelectWinnerCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final Home home) {
+    public void perform(final HomeEvent homeEvent) {
         try {
-            HomeEditor homeEditor = home.getHomeEditor();
-            homeEditor.awardReward(homeEditor.getGiveaway().getId());
+            HomeEditor homeEditor = homeEvent.getHomeEditor();
+            homeEditor.awardReward(homeEvent.getHomeEditor().getGiveaway().getId());
         } catch (BotErrorException e) {
             e.printStackTrace();
         }
