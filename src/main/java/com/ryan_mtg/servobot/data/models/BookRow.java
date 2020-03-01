@@ -1,11 +1,14 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "book")
@@ -17,6 +20,7 @@ public class BookRow {
     @Column(name = "bot_home_id")
     private int botHomeId;
 
+    @Size(max = Validation.MAX_NAME_LENGTH)
     private String name;
 
     public BookRow() {}

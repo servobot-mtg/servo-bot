@@ -52,7 +52,7 @@ public class TwitchEventGenerator {
 
     private TwitchUser getUser(final TwitchChat chat, final EventUser eventUser,
                                final Set<CommandPermission> permissions, final int botHomeId,
-                               final String channelName) {
+                               final String channelName) throws BotErrorException {
         boolean isModerator = permissions.contains(CommandPermission.MODERATOR);
         boolean isSubscriber = permissions.contains(CommandPermission.SUBSCRIBER);
         boolean isVip = permissions.contains(CommandPermission.VIP);

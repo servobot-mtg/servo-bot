@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.commands.AddCommand;
+import com.ryan_mtg.servobot.commands.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandAlert;
@@ -14,6 +15,8 @@ import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.JailBreakCommand;
+import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
@@ -21,6 +24,7 @@ import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
+import com.ryan_mtg.servobot.commands.SetUsersRoleCommand;
 import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
@@ -125,6 +129,13 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitAddReactionCommand(final AddReactionCommand addReactionCommand) {
+            type = "Add Reaction Command";
+            description = String.format("Reacts to a message with the '%s' emote", addReactionCommand.getEmoteName());
+            edit = addReactionCommand.getEmoteName();
+        }
+
+        @Override
         public void visitAddStatementCommand(final AddStatementCommand addStatementCommand) {
             type = "Add Statement Command";
             description = "Used to make new statements";
@@ -176,6 +187,20 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitJailCommand(final JailCommand jailCommand) {
+            type = "Jail Command";
+            description = String.format("Puts the user in into '%s' if triggered %d times",
+                    jailCommand.getPrisonRole(), jailCommand.getThreshold());
+        }
+
+        @Override
+        public void visitJailBreakCommand(final JailBreakCommand jailBreakCommand) {
+            type = "Jail Break Command";
+            description = String.format("Breaks all of the users out of '%s'",
+                    jailBreakCommand.getPrisonRole());
+        }
+
+        @Override
         public void visitJoinGameQueueCommand(final JoinGameQueueCommand joinGameQueueCommand) {
             type = "Join Game Queue Command";
             description = "Adds the user to the end of the game queue";
@@ -218,6 +243,15 @@ public class CommandDescriptor {
             type = "Set Status Command";
             description = "Sets the status to a random statement from " + setStatusCommand.getBook().getName();
             edit = setStatusCommand.getBook().getName();
+        }
+
+        @Override
+        public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
+            type = "Set Users Role Command";
+            description = String.format("Sets the user passed as input to the role '%s' and says '%s'",
+                    setUsersRoleCommand.getRole(), setUsersRoleCommand.getMessage());
+            edit = setUsersRoleCommand.getRole();
+
         }
 
         @Override

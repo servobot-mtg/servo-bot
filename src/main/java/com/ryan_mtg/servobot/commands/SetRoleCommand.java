@@ -3,14 +3,18 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class SetRoleCommand extends UserCommand {
     public static final int TYPE = 13;
     private String role;
 
-    public SetRoleCommand(final  int id, final int flags, final Permission permission, final String role) {
+    public SetRoleCommand(final  int id, final int flags, final Permission permission, final String role)
+            throws BotErrorException {
         super(id, flags, permission);
         this.role = role;
+
+        Validation.validateStringLength(role, Validation.MAX_ROLE_LENGTH, "Role");
     }
 
     public String getRole() {

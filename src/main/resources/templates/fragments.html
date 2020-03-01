@@ -13,9 +13,11 @@
                     <a href="#" th:href="@{/}"><img src="/images/MoosersBot.png" alt="ServoBot" height="28" width="32"></a>
                 </div></li>
 
-                <li><div class="navitem" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
-                    <a href="#" th:href="@{/home/{id}(id=${botHome.name})}" th:text="${botHome.name}"></a>
-                    <span th:text="${page}"></span>
+                <li><div class="navitem navicon" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
+                    <a href="#" th:href="@{/home/{id}(id=${botHome.name})}">
+                        <span th:if="${botHome.imageUrl == null}" th:text="${botHome.name}"></span>
+                        <img th:if="${botHome.imageUrl != null}" class="user-image" th:src="${botHome.imageUrl}"></img>
+                    </a>
                 </div></li>
 
                 <li th:if="${user.authenticated && user.admin}"><div class="navitem admin">
@@ -38,9 +40,8 @@
                 </div></li>
 
                 <li class="right" th:if="${user.authenticated}">
-                    <div class="navitem" th:classappend="${user.admin ? 'admin-user ' : ' '} +
-                         ${botHome != null && user.roles.contains('ROLE_MOD:' + botHome.id) ? 'mod' : ''}">
-                        <span th:title="${user.roles}" th:text="${user.name}" ></span>
+                    <div class="navitem" th:classappend="${user.admin ? 'admin-user': ''}">
+                        <a href="/home" th:text="${user.name}"></a>
                     </div>
                 </li>
             </ul>
@@ -50,7 +51,7 @@
     <!-- footer -->
     <div th:fragment="footer">
         <hr>
-        &copy; 2019 ServoBot &trade;
+        &copy; 2020 ServoBot &trade;
     </div>
 
     <!-- includes -->

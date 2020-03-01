@@ -4,34 +4,100 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Bot;
+import com.ryan_mtg.servobot.model.BotEditor;
+import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.giveaway.Reward;
 import com.ryan_mtg.servobot.model.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.security.WebsiteUser;
+import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 public class ApiController {
     private static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
 
     @Autowired
-    private Bot bot;
+    private BotRegistrar botRegistrar;
 
-    @PostMapping(value = "/api/set_home_time_zone", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void setBotHomeTimeZone(@RequestBody final SetBotHomeTimeZoneRequest request) {
+    @Autowired
+    private WebsiteUserFactory websiteUserFactory;
+
+    @PostMapping(value = "/create_bot_home", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public BotHome createBotHome(final Authentication authentication, @RequestBody final CreateBotHomeRequest request)
+            throws BotErrorException {
+        WebsiteUser websiteUser = websiteUserFactory.createWebsiteUser(authentication);
+        BotEditor botEditor = botRegistrar.getBotEditor(request.getBotName());
+        return botEditor.createBotHome(websiteUser.getUserId(), request);
+    }
+
+    public static class TextCommandRequest {
+        private String name;
+        private String value;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class CreateBotHomeRequest {
+        private String botName;
+        private String timeZone;
+        private String addCommandName;
+        private String deleteCommandName;
+        private String showCommandsName;
+        private List<TextCommandRequest> textCommands;
+
+        public String getBotName() {
+            return botName;
+        }
+
+        public String getTimeZone() {
+            return timeZone;
+        }
+
+        public String getAddCommandName() {
+            return addCommandName;
+        }
+
+        public String getDeleteCommandName() {
+            return deleteCommandName;
+        }
+
+        public String getShowCommandsName() {
+            return showCommandsName;
+        }
+
+        public List<TextCommandRequest> getTextCommands() {
+            return textCommands;
+        }
+    }
+
+
+    @PostMapping(value = "/modify_bot_name", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean modifyBotName(@RequestBody final ModifyBotNameRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        homeEditor.setTimeZone(request.getTimeZone());
+        homeEditor.modifyBotName(request.getText());
+        return true;
     }
 
     public static class BotHomeRequest {
@@ -42,6 +108,20 @@ public class ApiController {
         }
     }
 
+    public static class ModifyBotNameRequest extends BotHomeRequest {
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+    }
+
+    @PostMapping(value = "/set_home_time_zone", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void setBotHomeTimeZone(@RequestBody final SetBotHomeTimeZoneRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.setTimeZone(request.getTimeZone());
+    }
+
     public static class SetBotHomeTimeZoneRequest extends BotHomeRequest {
         private String timeZone;
 
@@ -50,13 +130,13 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/secure_command", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/secure_command", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean secureCommand(@RequestBody final SecureRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.secureCommand(request.getObjectId(), request.getSecure());
     }
 
-    @PostMapping(value = "/api/secure_reaction", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/secure_reaction", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean secureReaction(@RequestBody final SecureRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.secureReaction(request.getObjectId(), request.getSecure());
@@ -75,7 +155,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/set_command_service", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/set_command_service", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean setCommandService(@RequestBody final SetCommandServiceRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.setCommandService(request.getCommandId(), request.getServiceType(), request.getValue());
@@ -99,7 +179,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Permission secureReaction(@RequestBody final SetPermissionRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.setCommandPermission(request.getCommandId(), request.getPermission());
@@ -118,7 +198,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Statement addStatement(@RequestBody final AddStatementRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -141,7 +221,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.deleteStatement(request.getBookId(), request.getStatementId());
@@ -156,7 +236,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/modify_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/modify_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
@@ -176,7 +256,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/add_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/add_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public AddTriggerResponse addTrigger(@RequestBody final AddTriggerRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -220,9 +300,26 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/trigger_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) {
+    public boolean triggerAlert(@RequestBody final TriggerAlertRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.alert(request.getAlertToken());
+        });
+    }
+
+    public static class TriggerAlertRequest extends BotHomeRequest {
+        private String alertToken;
+
+        public String getAlertToken() {
+            return alertToken;
+        }
+    }
+
+    @PostMapping(value = "/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         CommandRow commandRow = new CommandRow();
         commandRow.setType(request.getType());
@@ -271,7 +368,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteCommand(@RequestBody final DeleteObjectRequest request) {
         return wrapCall(() -> {
@@ -280,7 +377,7 @@ public class ApiController {
         });
     }
 
-    @PostMapping(value = "/api/delete_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/delete_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteTrigger(@RequestBody final DeleteObjectRequest request) {
         return wrapCall(() -> {
@@ -297,7 +394,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/add_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/add_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Reaction addReaction(@RequestBody final AddReactionRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -317,7 +414,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/add_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/add_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Pattern addPattern(@RequestBody final AddPatternRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -337,7 +434,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/delete_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/delete_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteReaction(@RequestBody final DeleteObjectRequest request) {
         return wrapCall(() -> {
@@ -346,7 +443,7 @@ public class ApiController {
         });
     }
 
-    @PostMapping(value = "/api/delete_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/delete_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteReaction(@RequestBody final DeletePatternRequest request) {
         return wrapCall(() -> {
@@ -368,17 +465,17 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean stopHome(@RequestBody final BotHomeRequest request) {
-        return wrapCall(() -> bot.getBotEditor().stopHome(request.getBotHomeId()));
+        return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).stopHome(request.getBotHomeId()));
     }
 
-    @PostMapping(value = "/api/start_home", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/start_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean restartHome(@RequestBody final BotHomeRequest request) {
-        return wrapCall(() -> bot.getBotEditor().restartHome(request.getBotHomeId()));
+        return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).restartHome(request.getBotHomeId()));
     }
 
-    @PostMapping(value = "/api/add_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/add_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Reward addReward(@RequestBody final AddRewardRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -398,14 +495,14 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public HomedUser awardReward(@RequestBody final RewardRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.awardReward(request.getGiveawayId(), request.getRewardId());
     }
 
-    @PostMapping(value = "/api/bestow_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/bestow_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean bestowReward(@RequestBody final RewardRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
@@ -425,7 +522,7 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/api/delete_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/delete_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteReward(@RequestBody final DeleteGiveawayObjectRequest request) {
         return wrapCall(() -> {
@@ -458,7 +555,7 @@ public class ApiController {
     }
 
     private HomeEditor getHomeEditor(final int botHomeId) {
-        return bot.getHomeEditor(botHomeId);
+        return botRegistrar.getHomeEditor(botHomeId);
     }
 
 

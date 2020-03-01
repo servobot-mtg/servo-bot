@@ -35,6 +35,11 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public List<String> getRoles() {
+        return Lists.newArrayList();
+    }
+
+    @Override
     public void start(final BotHome botHome) {
         twitchService.joinChannel(channelId);
     }
@@ -50,6 +55,9 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public void setName(final String botName) {}
+
+    @Override
     public int getServiceType() {
         return TwitchService.TYPE;
     }
@@ -62,6 +70,11 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public String getLink() {
         return String.format("http://twitch.tv/%s", twitchService.getChannelName(channelId));
+    }
+
+    @Override
+    public String getImageUrl() {
+        return twitchService.getChannelImageUrl(channelId);
     }
 
     public long getChannelId() {

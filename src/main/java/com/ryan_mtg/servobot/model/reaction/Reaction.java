@@ -1,31 +1,34 @@
 package com.ryan_mtg.servobot.model.reaction;
 
-import java.util.ArrayList;
+import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.utility.Validation;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Reaction {
     public static final int UNREGISTERED_ID = 0;
-    private static ReactionFilter ALWAYS_REACT = new AlwaysReact();
+    private static final ReactionFilter ALWAYS_REACT = new AlwaysReact();
 
     private int id;
     private String emoteName;
     private boolean secure;
-    private List<Pattern> patterns = new ArrayList<>();
     private ReactionFilter filter;
-
-    public Reaction(final int id, final String emoteName, final boolean secure, final Pattern... patterns){
-        this(id, emoteName, secure, ALWAYS_REACT, patterns);
-    }
+    private List<Pattern> patterns;
+    private List<ReactionCommand> commands;
 
     public Reaction(final int id, final String emoteName, final boolean secure, final ReactionFilter filter,
-                    final Pattern... patterns){
+                    final List<Pattern> patterns, final List<ReactionCommand> commands) throws BotErrorException {
         this.id = id;
         this.emoteName = emoteName;
         this.secure = secure;
         this.filter = filter;
-        for (Pattern pattern : patterns) {
-            this.patterns.add(pattern);
-        }
+        this.patterns = patterns;
+        this.commands = commands;
+
+        Validation.validateStringLength(emoteName, Validation.MAX_EMOTE_LENGTH, "Emote");
     }
 
     public int getId() {
@@ -56,19 +59,28 @@ public class Reaction {
         patterns.add(pattern);
     }
 
+    public void remove(final Pattern pattern) {
+        patterns.remove(pattern);
+    }
+
     public List<Pattern> getPatterns() {
         return patterns;
     }
 
-    public boolean matches(final String text) {
-        if (!filter.shouldReact()) {
+    public boolean matches(final Message message) {
+        if (!filter.shouldReact(message.getSender())) {
             return false;
         }
+        final String text = message.getContent();
         for (Pattern pattern : patterns) {
             if (pattern.matches(text)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public List<Command> getCommands() {
+        return commands.stream().map(reactionCommand -> reactionCommand.getCommand()).collect(Collectors.toList());
     }
 }

@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.AddCommand;
+import com.ryan_mtg.servobot.commands.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandAlias;
@@ -11,6 +12,8 @@ import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
 import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.JailBreakCommand;
+import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
@@ -18,6 +21,7 @@ import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
+import com.ryan_mtg.servobot.commands.SetUsersRoleCommand;
 import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
@@ -26,6 +30,7 @@ import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.CommandRow;
+import com.ryan_mtg.servobot.data.models.ReactionCommandRow;
 import com.ryan_mtg.servobot.data.models.TriggerRow;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
 import com.ryan_mtg.servobot.commands.Command;
@@ -35,7 +40,9 @@ import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,18 +62,21 @@ public class CommandSerializer {
     @Autowired
     private TriggerRepository triggerRepository;
 
-    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
+    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap)
+            throws BotErrorException {
         int id = commandRow.getId();
         int flags = commandRow.getFlags();
         Permission permission = commandRow.getPermission();
         switch (commandRow.getType()) {
             case AddCommand.TYPE:
                 return new AddCommand(id, flags, permission);
+            case AddReactionCommand.TYPE:
+                return new AddReactionCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case AddStatementCommand.TYPE:
                 return new AddStatementCommand(id, flags, permission);
             case DelayedAlertCommand.TYPE:
                 return new DelayedAlertCommand(id, flags, permission,
-                        Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter());
+                        Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter().trim());
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, flags, permission);
             case EnterGiveawayCommand.TYPE:
@@ -84,12 +94,19 @@ public class CommandSerializer {
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
+            case JailCommand.TYPE:
+                int jailThreshold = (int) (long) commandRow.getLongParameter();
+                return new JailCommand(id, flags, permission, commandRow.getStringParameter().trim(), jailThreshold,
+                        commandRow.getStringParameter2().trim());
+            case JailBreakCommand.TYPE:
+                return new JailBreakCommand(id, flags, permission, commandRow.getStringParameter().trim(),
+                        commandRow.getStringParameter2().trim());
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new JoinGameQueueCommand(id, flags, permission, gameQueueId);
             case MessageChannelCommand.TYPE:
                 return new MessageChannelCommand(id, flags, permission, commandRow.getLongParameter().intValue(),
-                        commandRow.getStringParameter(), commandRow.getStringParameter2());
+                        commandRow.getStringParameter().trim(), commandRow.getStringParameter2().trim());
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new RemoveFromGameQueueCommand(id, flags, permission, gameQueueId);
@@ -99,10 +116,13 @@ public class CommandSerializer {
             case SetArenaUsernameCommand.TYPE:
                 return new SetArenaUsernameCommand(id, flags, permission);
             case SetRoleCommand.TYPE:
-                return new SetRoleCommand(id, flags, permission, commandRow.getStringParameter());
+                return new SetRoleCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
                 return new SetStatusCommand(id, flags, permission, bookMap.get(bookId));
+            case SetUsersRoleCommand.TYPE:
+                return new SetUsersRoleCommand(id, flags, permission, commandRow.getStringParameter().trim(),
+                        commandRow.getStringParameter2().trim());
             case SetValueCommand.TYPE:
                 return new SetValueCommand(id, flags, permission);
             case ShowArenaUsernamesCommand.TYPE:
@@ -116,14 +136,14 @@ public class CommandSerializer {
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new StartGiveawayCommand(id, flags, permission, giveawayId);
             case TextCommand.TYPE:
-                return new TextCommand(id, flags, permission, commandRow.getStringParameter());
+                return new TextCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case TierCommand.TYPE:
                 return new TierCommand(id, flags, permission);
         }
         throw new IllegalArgumentException("Unsupported command type: " + commandRow.getType());
     }
 
-    public Trigger createTrigger(TriggerRow triggerRow) {
+    public Trigger createTrigger(TriggerRow triggerRow) throws BotErrorException {
         int id = triggerRow.getId();
         switch (triggerRow.getType()) {
             case CommandAlias.TYPE:
@@ -134,6 +154,11 @@ public class CommandSerializer {
                 return new CommandAlert(id, triggerRow.getText());
         }
         throw new IllegalArgumentException("Unsupported trigger type: " + triggerRow.getType());
+    }
+
+    public ReactionCommand createReactionCommand(final ReactionCommandRow reactionCommandRow, final Command command)
+            throws BotErrorException {
+        return new ReactionCommand(reactionCommandRow.getId(), command);
     }
 
     public void saveCommand(final int botHomeId, final Command command) {
@@ -181,7 +206,7 @@ public class CommandSerializer {
         }
     }
 
-    public Trigger getTrigger(int triggerId) {
+    public Trigger getTrigger(int triggerId) throws BotErrorException {
         TriggerRow triggerRow = triggerRepository.findById(triggerId).get();
         return createTrigger(triggerRow);
     }
@@ -201,6 +226,13 @@ public class CommandSerializer {
         @Override
         public void visitAddCommand(final AddCommand addCommand) {
             saveCommand(addCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitAddReactionCommand(final AddReactionCommand addReactionCommand) {
+            saveCommand(addReactionCommand, commandRow -> {
+                commandRow.setStringParameter(addReactionCommand.getEmoteName());
+            });
         }
 
         @Override
@@ -255,6 +287,23 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitJailCommand(final JailCommand jailCommand) {
+            saveCommand(jailCommand, commandRow -> {
+                commandRow.setStringParameter(jailCommand.getPrisonRole());
+                commandRow.setLongParameter(jailCommand.getThreshold());
+                commandRow.setStringParameter2(jailCommand.getVariableName());
+            });
+        }
+
+        @Override
+        public void visitJailBreakCommand(final JailBreakCommand jailBreakCommand) {
+            saveCommand(jailBreakCommand, commandRow -> {
+                commandRow.setStringParameter(jailBreakCommand.getPrisonRole());
+                commandRow.setStringParameter2(jailBreakCommand.getVariableName());
+            });
+        }
+
+        @Override
         public void visitJoinGameQueueCommand(final JoinGameQueueCommand joinGameQueueCommand) {
             saveCommand(joinGameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(joinGameQueueCommand.getGameQueueId());
@@ -300,6 +349,14 @@ public class CommandSerializer {
         public void visitSetStatusCommand(final SetStatusCommand setStatusCommand) {
             saveCommand(setStatusCommand, commandRow -> {
                 commandRow.setLongParameter(setStatusCommand.getBook().getId());
+            });
+        }
+
+        @Override
+        public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
+            saveCommand(setUsersRoleCommand, commandRow -> {
+                commandRow.setStringParameter(setUsersRoleCommand.getRole());
+                commandRow.setStringParameter2(setUsersRoleCommand.getMessage());
             });
         }
 

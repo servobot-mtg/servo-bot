@@ -11,6 +11,10 @@ public class FunctorSymbolTable implements SymbolTable {
         functorMap.put(name, functor);
     }
 
+    public void addValue(final String name, final Object value) {
+        addFunctor(name, () -> value);
+    }
+
     @Override
     public Object lookup(final String name) {
         Supplier<Object> functor = functorMap.get(name);

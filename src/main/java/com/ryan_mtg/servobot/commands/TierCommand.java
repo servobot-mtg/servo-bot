@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
@@ -12,7 +13,7 @@ public class TierCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) {
+    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
         User sender = event.getSender();
         String tier = getTier(event);
         String text = String.format("Hello, %s, your friendship tier is %s.", sender.getName(), tier);

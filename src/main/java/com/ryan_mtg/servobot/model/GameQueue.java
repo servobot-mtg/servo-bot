@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Validation;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,12 +29,14 @@ public class GameQueue {
     }
 
     public GameQueue(final int id, final String name, final State state, final int nextSpot,
-                     final int currentPlayerId) {
+                     final int currentPlayerId) throws BotErrorException {
         this.id = id;
         this.name = name;
         this.state = state;
         this.nextSpot = nextSpot;
         this.currentPlayerId = currentPlayerId;
+
+        Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
     }
 
     public int getId() {

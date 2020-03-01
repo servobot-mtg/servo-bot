@@ -55,9 +55,10 @@ public class DatabaseConfig {
     protected DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        String url = String.format("jdbc:mysql://%s:3306/botdb", server);
+        final String connectionUrlPattern = "jdbc:mysql://%s:3306/botdb?useUnicode=yes&characterEncoding=UTF-8";
+        String url = String.format(connectionUrlPattern, server);
         if (Application.isTesting()) {
-            url = String.format("jdbc:mysql://%s:3306/botdb", "localhost");
+            url = String.format(connectionUrlPattern, "localhost");
         }
         dataSource.setUrl(url);
         dataSource.setUsername(username);

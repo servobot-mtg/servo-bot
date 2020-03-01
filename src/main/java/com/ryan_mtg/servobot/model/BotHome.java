@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandListener;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
@@ -9,19 +11,24 @@ import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.scope.BookScope;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+
 public class BotHome {
     private int id;
     private Bot bot;
     private String name;
+    private String botName;
     private String timeZone;
     private Scope botHomeScope;
     private CommandTable commandTable;
@@ -34,12 +41,13 @@ public class BotHome {
     private boolean active = false;
     private MultiDelegatingListener eventListener;
 
-    public BotHome(final int id, final String name, final String timeZone,
+    public BotHome(final int id, final String name, final String botName, final String timeZone,
                    final CommandTable commandTable, final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
-                   final List<GameQueue> gameQueues, final List<Giveaway> giveaways) {
+                   final List<GameQueue> gameQueues, final List<Giveaway> giveaways) throws BotErrorException {
         this.id = id;
         this.name = name;
+        this.botName = botName;
         this.timeZone = timeZone;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
@@ -48,6 +56,10 @@ public class BotHome {
         this.books = books;
         this.gameQueues = gameQueues;
         this.giveaways = giveaways;
+
+        Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
+        Validation.validateStringLength(botName, Validation.MAX_NAME_LENGTH, "Bot name");
+        Validation.validateStringLength(timeZone, Validation.MAX_TIME_ZONE_LENGTH, "Time zone");
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
@@ -74,6 +86,19 @@ public class BotHome {
 
     public String getName() {
         return name;
+    }
+
+    public String getBotName() {
+        return botName;
+    }
+
+    public String getImageUrl() {
+        return getServiceHome(TwitchService.TYPE).getImageUrl();
+    }
+
+    public void setBotName(final String botName) {
+        this.botName = botName;
+        getServiceHome(DiscordService.TYPE).setName(botName);
     }
 
     public boolean isActive() {
@@ -168,7 +193,8 @@ public class BotHome {
         timeSymbolTable.addFunctor("dayOfWeek", () -> now().getDayOfWeek());
 
         Scope timeScope = new Scope(botScope, timeSymbolTable);
-        Scope botHomeScope = new Scope(timeScope, storageTable);
+        Scope bookScope = new Scope(timeScope, new BookScope(books));
+        Scope botHomeScope = new Scope(bookScope, storageTable);
 
         return botHomeScope;
     }

@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.model.alerts;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.time.Duration;
@@ -11,7 +12,7 @@ public class ContinualGenerator extends AlertGenerator {
     private Duration duration;
     private Instant goal;
 
-    public ContinualGenerator(final int id, final String alertToken, final Duration duration) {
+    public ContinualGenerator(final int id, final String alertToken, final Duration duration) throws BotErrorException {
         super(id, alertToken);
 
         this.duration = duration;

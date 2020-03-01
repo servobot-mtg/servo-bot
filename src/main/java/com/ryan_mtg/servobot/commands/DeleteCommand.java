@@ -29,7 +29,7 @@ public class DeleteCommand extends MessageCommand{
             throw new BotErrorException("Missing command name.");
         }
 
-        homeEditor.deleteCommand(commandName);
+        homeEditor.deleteCommand(event.getSender(), commandName);
 
         MessageCommand.say(event, String.format("Command %s deleted.", commandName));
     }

@@ -3,7 +3,8 @@ package com.ryan_mtg.servobot.controllers;
 import com.ryan_mtg.servobot.controllers.exceptions.AccessDeniedException;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.security.WebsiteUser;
+import com.ryan_mtg.servobot.security.WebsiteUserFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,6 +21,9 @@ import java.net.HttpURLConnection;
 
 @ControllerAdvice
 public class ErrorHandler {
+    @Autowired
+    private WebsiteUserFactory websiteUserFactory;
+
     @ExceptionHandler(BotErrorException.class)
     public ModelAndView renderBotError(final BotErrorException botError) {
         botError.printStackTrace();
@@ -75,7 +79,7 @@ public class ErrorHandler {
         modelAndView.setStatus(status);
         modelAndView.addObject("resource", exception.getMessage());
         modelAndView.addObject("stack_trace", extractStackTrace(exception));
-        modelAndView.addObject("user", new WebsiteUser(oAuth2AuthenticationToken));
+        modelAndView.addObject("user", websiteUserFactory.createWebsiteUser(oAuth2AuthenticationToken));
 
         return modelAndView;
     }

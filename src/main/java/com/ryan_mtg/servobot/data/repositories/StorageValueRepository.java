@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StorageValueRepository extends CrudRepository<StorageValueRow, Integer> {
     Iterable<StorageValueRow> findByBotHomeId(int botHomeId);
+    void deleteAllByBotHomeIdAndName(int botHomeId, String name);
 }

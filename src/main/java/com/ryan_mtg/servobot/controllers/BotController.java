@@ -8,16 +8,15 @@ import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
-import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +34,7 @@ public class BotController {
     private static Logger LOGGER = LoggerFactory.getLogger(BotController.class);
 
     @Autowired
-    @Qualifier("bot")
-    private Bot bot;
+    private BotRegistrar botRegistrar;
 
     @Autowired
     private SerializerContainer serializers;
@@ -56,10 +54,36 @@ public class BotController {
         return "index";
     }
 
+    @GetMapping("/home")
+    public String manage(final Model model) {
+        WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
+        if (!websiteUser.isAuthenticated() ) {
+            model.addAttribute("page", "homeless");
+            return "home/homeless";
+        }
+
+        if (websiteUser.hasInvite()) {
+            model.addAttribute("page", "invite");
+            model.addAttribute("timeZones", timeZones);
+            return "home/invite";
+        }
+
+        if (websiteUser.isAStreamer()) {
+            model.addAttribute("page", "control");
+            BotHome botHome = botRegistrar.getBotHome(websiteUser.getBotHomeId());
+            model.addAttribute("botHome", botHome);
+            model.addAttribute("timeZones", timeZones);
+            return "home/control";
+        }
+
+        model.addAttribute("page", "wandering");
+        return "home/wandering";
+    }
+
     @GetMapping("/home/{home}")
-    public String showHome(final Model model, @PathVariable("home") final String homeName) {
+    public String showHome(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
         model.addAttribute("page", "home");
-        BotHome botHome = bot.getHome(homeName);
+        BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
         }
@@ -71,7 +95,7 @@ public class BotController {
 
     @GetMapping("/home/{home}/hub")
     public String showHub(final Model model, @PathVariable("home") final String homeName) {
-        BotHome botHome = bot.getHome(homeName);
+        BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
         }
@@ -84,18 +108,12 @@ public class BotController {
 
         addBotHome(model, botHome);
         model.addAttribute("timeZones", timeZones);
-        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
-        if (serviceHome != null) {
-            model.addAttribute("emotes", serviceHome.getEmotes());
-        } else {
-            model.addAttribute("emotes", Lists.newArrayList());
-        }
         return "bot_home_hub";
     }
 
     @GetMapping("/home/{home}/users")
-    public String showUsers(final Model model, @PathVariable("home") final String homeName) {
-        BotHome botHome = bot.getHome(homeName);
+    public String showUsers(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
+        BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
         }
@@ -113,7 +131,7 @@ public class BotController {
 
     @GetMapping("/home/{home}/giveaways")
     public String showGiveaways(final Model model, @PathVariable("home") final String homeName) {
-        BotHome botHome = bot.getHome(homeName);
+        BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
         }
@@ -133,7 +151,7 @@ public class BotController {
                            @PathVariable("book") final String bookName) {
         model.addAttribute("page", "book");
 
-        BotHome botHome = bot.getHome(homeName);
+        BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
         }
@@ -150,7 +168,7 @@ public class BotController {
 
     @ModelAttribute
     private void addBot(final Model model) {
-        model.addAttribute("bot", bot);
+        model.addAttribute("bots", botRegistrar.getBots());
     }
 
     private void addBotHome(final Model model, final BotHome botHome) {
@@ -160,6 +178,15 @@ public class BotController {
         model.addAttribute("userSerializer", serializers.getUserSerializer());
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
+
+        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
+        if (serviceHome != null) {
+            model.addAttribute("emotes", serviceHome.getEmotes());
+            model.addAttribute("roles", serviceHome.getRoles());
+        } else {
+            model.addAttribute("emotes", Lists.newArrayList());
+            model.addAttribute("roles", Lists.newArrayList());
+        }
     }
 
     public static class TimeZoneDescriptor {
@@ -204,9 +231,6 @@ public class BotController {
 
     private boolean isPrivledged(final Model model, final BotHome botHome) {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
-
-        return websiteUser.isAuthenticated() &&
-                websiteUser.getRoles().contains(String.format("ROLE_MOD:%d", botHome.getId()));
+        return websiteUser.isPrivledged(botHome);
     }
-
 }

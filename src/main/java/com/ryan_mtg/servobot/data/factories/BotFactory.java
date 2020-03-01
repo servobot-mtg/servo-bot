@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.data.models.GameQueueRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +46,7 @@ public class BotFactory {
         serializers.setBotFactory(this);
     }
 
-    public Bot createBot(final BotRow botRow, final Scope globalScope) {
+    public Bot createBot(final BotRow botRow, final Scope globalScope) throws BotErrorException {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
 
@@ -56,14 +58,16 @@ public class BotFactory {
         return bot;
     }
 
-    public BotHome createBotHome(int botHomeId) {
+    public BotHome createBotHome(int botHomeId) throws BotErrorException {
         return createBotHome(serializers.getBotHomeRepository().findById(botHomeId));
     }
 
-    private BotHome createBotHome(final BotHomeRow botHomeRow) {
+    @Transactional(rollbackOn = BotErrorException.class)
+    protected BotHome createBotHome(final BotHomeRow botHomeRow) throws BotErrorException {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
         String homeName = botHomeRow.getHomeName();
+        String botName = botHomeRow.getBotName();
         String timeZone = botHomeRow.getTimeZone();
         int botHomeId = botHomeRow.getId();
 
@@ -74,7 +78,8 @@ public class BotFactory {
         }
 
         CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
-        ReactionTable reactionTable = serializers.getReactionTableSerializer().createReactionTable(botHomeId);
+        ReactionTable reactionTable =
+                serializers.getReactionTableSerializer().createReactionTable(botHomeId, commandTable);
         StorageTable storageTable = serializers.getStorageTableSerializer().createStorageTable(botHomeId);
 
         Map<Integer, ServiceHome> serviceHomes = new HashMap<>();
@@ -101,7 +106,7 @@ public class BotFactory {
 
         List<Giveaway> giveaways = new ArrayList<>();
         giveaways.add(new Giveaway());
-        return new BotHome(botHomeId, homeName, timeZone, commandTable, reactionTable, storageTable, serviceHomes,
-                books, gameQueues, giveaways);
+        return new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable, storageTable,
+                serviceHomes, books, gameQueues, giveaways);
     }
 }

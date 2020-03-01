@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot;
 
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.security.SecurityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,7 @@ public class Application {
     private int port;
 
     @Autowired
-    @Qualifier("bot")
-    private Bot bot;
+    private BotRegistrar botRegistrar;
 
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(Application.class);
@@ -41,16 +41,20 @@ public class Application {
         if (isTesting()) {
             String botSite = String.format("http://localhost:%d", port);
             LOGGER.info(String.format("Website link: %s", botSite));
-            for (BotHome home : bot.getHomes()) {
-                String homeSite = String.format("%s/home/%s", botSite, home.getName());
-                LOGGER.info(String.format("  - Home link: %s", homeSite));
+            for(Bot bot : botRegistrar.getBots()) {
+                for (BotHome home : bot.getHomes()) {
+                    String homeSite = String.format("%s/home/%s", botSite, home.getName());
+                    LOGGER.info(String.format("  - Home link: %s", homeSite));
+                }
             }
         }
     }
 
     @PostConstruct
     public void startApplication() throws Exception {
-        bot.startBot();
+        for(Bot bot : botRegistrar.getBots()) {
+            bot.startBot();
+        }
     }
 
     public static boolean isTesting() {

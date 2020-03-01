@@ -107,10 +107,7 @@
                                 <table th:if="${privledged}" class="alert-label label label-table"
                                        th:id="${'trigger-' + alert.id}">
                                     <tr>
-                                        <td>
-                                            <a th:href="${botHome.name + '/hub#alert-' + alert.alertToken}"
-                                               th:text="${alert.alertToken}"/>
-                                        </td>
+                                        <td th:text="${alert.alertToken}"/>
                                         <td class="pseudo-link alert-delete"
                                             th:onclick="'deleteTrigger(' + ${botHome.id} + ',' + ${alert.id} + ')'">x</td>
                                     </tr>
@@ -210,7 +207,11 @@
                         <option value="12">Show Arena Usernames Command</option>
                         <option value="3">Friendship Tier Command</option>
                         <option value="13">Set Role Command</option>
+                        <option value="27">Set User's Role Command</option>
                         <option value="14">Set Status Command</option>
+                        <option value="24">Add Reaction Command</option>
+                        <option th:if="${user.admin}" value="25">Jail Command</option>
+                        <option th:if="${user.admin}" value="26">Jail Break Command</option>
                     </select><br>
                 </div>
                 <div>
@@ -245,6 +246,22 @@
                             <option th:value="${book.id}" th:text="${book.name}"/>
                         </th:block>
                     </select><br>
+                </div>
+                <div id="add-command-role-div" class="hidden">
+                    <label id="add-command-role-label">Role</label><br>
+                    <select id='add-command-role-input'>
+                        <th:block th:each="role, status : ${roles}">
+                            <option th:value="${role}" th:text="${role}" th:selected="${status.index == 0}"/>
+                        </th:block>
+                    </select>
+                </div>
+                <div id="add-command-emote-div" class="hidden">
+                    <label id="add-command-emote-label">Emote</label><br>
+                    <select id='add-command-emote-input'>
+                        <th:block th:each="emote, status : ${emotes}">
+                            <option th:value="${emote}" th:text="${emote}" th:selected="${status.index == 0}"/>
+                        </th:block>
+                    </select>
                 </div>
                 <div id="add-command-game-queue-div" class="hidden">
                     <label id="add-command-game-queue-label">Game Queue</label><br>
@@ -331,7 +348,7 @@
             <form id="add-reaction-form" class="add-form hidden"
                   th:onsubmit="'addReaction(' + ${botHome.id} + '); return false;'">
                 <div>
-                    <label>Reaction Emote </label><br>
+                    <label>Reaction Emote</label><br>
                     <select id='add-reaction-emote-input'>
                         <th:block th:each="emote, status : ${emotes}">
                             <option th:value="${emote}" th:text="${emote}" th:selected="${status.index == 0}"/>
@@ -354,14 +371,19 @@
             <thead><tr>
                 <th>Keyword</th>
                 <th>Alert Description</th>
+                <th th:if="${privledged}">Trigger</th>
             </tr></thead>
             <th:block th:each="alert : ${botHome.alertGenerators}">
                 <tr>
                     <td>
                         <span th:text="${alert.alertToken}"/>
-                        <a th:name="${'alert-' + alert.alertToken}"/>
                     </td>
                     <td th:text="${alert.description}"/>
+                    <td th:if="${privledged}" class="pseudo-link" th:attr="data-alert-token=${alert.alertToken}"
+                        th:onclick="'triggerAlert(event, ' + ${botHome.id} + ',' + ${alert.id} + ')'">
+                        &#x1F6CE;&#xFE0F;
+                        <span th:id="'trigger-' + ${alert.id} + '-alert-response'"></span>
+                    </td>
                 </tr>
             </th:block>
         </table>
@@ -394,6 +416,33 @@
                 <li><a th:href="'book/' + ${book.name}" th:text="${book.name}"/><br></li>
             </th:block>
         </ul>
+    </div>
+
+    <!-- time zone -->
+    <div th:fragment="time_zone">
+        Time Zone
+        <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
+            <th:block th:each="timeZone : ${timeZones}">
+                <option th:value="${timeZone.value}" th:text="${timeZone.display}"
+                        th:selected="${timeZone.value == botHome.timeZone}"/>
+            </th:block>
+        </select> <span id="time-zone-updated" />
+    </div>
+
+    <!-- bot name -->
+    <div th:fragment="bot_name">
+        <td th:if="${exalted}">
+            <div id="bot-name-display">
+                Bot Name: <span th:text="${botHome.botName}" id="bot-name-value"/>
+                <span class="pseudo-link" onclick="editBotName()">&#x270F;&#xFE0F;</span>
+            </div>
+            <div id="bot-name-edit" class="hidden">
+                Bot Name: <input type="text" th:id="bot-name-input"
+                       th:value="${botHome.botName}" th:size="${botHome.botName.length() + 10}"/>
+                <span class="pseudo-link" th:onclick="'modifyBotName(' + ${botHome.id} + ')'">&#x1F4BE;</span>
+            </div>
+        </td>
+        <td th:if="${!exalted}" th:text="'Bot Name: ' + ${botHome.botName}"/>
     </div>
 </body>
 </html>

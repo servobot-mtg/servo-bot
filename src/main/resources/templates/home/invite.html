@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Invite Bot</title>
+    <div th:include="fragments :: includes" />
+    <script type="text/javascript" src="/script/privledged.js"></script>
+</head>
+<body th:with="privledged=true">
+    <div th:include="fragments :: header" />
+    <div class="content">
+        <h1>Bot Invitation</h1>
+        <p>Hello <span th:text="${user.name}"/>, you have been given a special invite for MoosersBot!
+            Just fill out a few pieces of information for it to join your channel.</p>
+        <form class="invite-form">
+            <div>
+                <label>Time Zone</label><br>
+                <select id="time-zone-select">
+                    <th:block th:each="timeZone : ${timeZones}">
+                        <option th:value="${timeZone.value}" th:text="${timeZone.display}"/>
+                    </th:block>
+                </select>
+            </div><br>
+            <div>
+                <label>Starter Commands</label>
+                <table>
+                    <thead><tr>
+                        <th>Command</th>
+                        <th>Include</th>
+                        <th>Description</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><input id="add-command-name-input" type="text" value="add" size="14"></td>
+                            <td><input id="use-add-command-name" type="checkbox" checked="true"></td>
+                            <td>Creates a new bot command</td>
+                        </tr>
+                        <tr>
+                            <td><input id="delete-command-name-input" type="text" value="del" size="14"></td>
+                            <td><input id="use-delete-command" type="checkbox" checked="true"></td>
+                            <td>Removes a bot command</td>
+                        </tr>
+                        <tr>
+                            <td><input id="show-commands-name-input" type="text" value="help" size="14"></td>
+                            <td><input id="use-show-commands" type="checkbox" checked="true"></td>
+                            <td>Links to the bot's commands</td>
+                        </tr>
+                        <tr class="text-command-row">
+                            <td><input class="text-command-name-input" type="text" value="twitter" size="14"></td>
+                            <td><input class="use-text-command" type="checkbox"></td>
+                            <td>Responds with <input class="text-command-value-input" type="text" size="100"
+                                 th:value="'Check out my twitter at https://twitter.com/' + ${user.name}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div><br>
+            <input type="button" value="Submit Invite" onclick="submitInvite()">
+        </form>
+        <p>You can go to the <a href="https://discordapp.com/invite/w7uJW67">Discord</a> channel to learn more.</p>
+    </div>
+    <div th:include="fragments :: footer" />
+</body>
+</html>

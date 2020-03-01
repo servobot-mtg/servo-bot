@@ -8,6 +8,8 @@ import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 
+import java.util.List;
+
 public class TwitchChannel implements Channel, Home {
     private TwitchChat twitchChat;
     private String channelName;
@@ -57,7 +59,17 @@ public class TwitchChannel implements Channel, Home {
 
     @Override
     public void setRole(final User user, final String role) throws BotErrorException {
-        throw new BotErrorException("Twitch doesn't set roles");
+        throw new BotErrorException("Twitch doesn't have roles");
+    }
+
+    @Override
+    public void setRole(final String username, final String role) throws BotErrorException {
+        throw new BotErrorException("Twitch doesn't have roles");
+    }
+
+    @Override
+    public List<String> clearRole(final String role) throws BotErrorException {
+        throw new BotErrorException("Twitch doesn't have roles");
     }
 
     @Override

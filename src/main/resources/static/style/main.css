@@ -6,8 +6,17 @@ h2 {
     clear: both;
 }
 
+li {
+    margin: 3px 0;
+}
+
 .pseudo-link {
     cursor: pointer;
+}
+
+.user-image {
+    height: 28px;
+    width: 32px;
 }
 
 .hidden.hidden.hidden {
@@ -111,12 +120,16 @@ h2 {
     border: black solid 1px;
     vertical-align: middle;
     display: block;
-    padding: 3px 13px;
+    padding: 3px 3px;
     margin: 6px 13px;
     height: 36px;
     line-height: 36px;
     min-width: 80px;
     background-color: silver;
+}
+
+.navbar .navicon {
+    min-width: 40px;
 }
 
 .navitem img {
@@ -175,6 +188,7 @@ h2 {
 .navbar .index a:hover {
     background-color: whitesmoke;
 }
+
 table {
     border-collapse: collapse;
     border: 2px solid black;
@@ -287,4 +301,38 @@ table {
 
 .add-giveaway {
     border: goldenrod solid 1px;
+}
+
+.invite-form {
+    display: inline-block;
+    margin: 12px;
+    padding: 12px;
+    border: black solid 2px;
+}
+
+.invite-form td {
+    padding: 3px 12px;
+    border: black solid 1px;
+}
+
+.invite-form label {
+    margin: 4px 0 0 0;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.invite-form div {
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-right: 5em;
+}
+
+.invite-form input[type=button] {
+    display: block;
+    margin: auto;
+}
+
+.invite-form input[type=text] {
+    box-sizing: border-box;
+    min-width: 10em;
 }

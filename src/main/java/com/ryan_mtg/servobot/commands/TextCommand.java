@@ -2,29 +2,27 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.parser.ParseException;
-import com.ryan_mtg.servobot.model.parser.Parser;
-import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
-import com.ryan_mtg.servobot.model.scope.Scope;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.utility.Validation;
 
 public class TextCommand extends MessageCommand {
     public static final int TYPE = 1;
-    private final String text;
-    private static Pattern REPLACEMENT_PATTERN = Pattern.compile("%([^%]*)%");
 
-    public TextCommand(final int id, final int flags, final Permission permission, final String text) {
+    private final String text;
+
+    public TextCommand(final int id, final int flags, final Permission permission, final String text)
+            throws BotErrorException {
         super(id, flags, permission);
         this.text = text;
+
+        Validation.validateStringLength(text, Validation.MAX_TEXT_LENGTH, "Command text");
     }
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        String finalText = evaluate(event);
-        MessageCommand.say(event, finalText);
+        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        symbolTable.addValue("input", arguments);
+        MessageCommand.say(event, symbolTable, text);
     }
 
     @Override
@@ -39,31 +37,5 @@ public class TextCommand extends MessageCommand {
 
     public String getText() {
         return text;
-    }
-
-    private String evaluate(final MessageSentEvent event) throws BotErrorException {
-        StringBuilder result = new StringBuilder();
-        Matcher matcher = REPLACEMENT_PATTERN.matcher(text);
-        int currentIndex = 0;
-
-        HomeEditor homeEditor = event.getHomeEditor();
-        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event));
-        Parser parser = new Parser(scope, homeEditor);
-
-        while (matcher.find()) {
-            result.append(text.substring(currentIndex, matcher.start()));
-            String expression = matcher.group(1);
-
-            try {
-                result.append(parser.parse(expression));
-            } catch (ParseException e) {
-                throw new BotErrorException(String.format("Failed to parse %%%s%%: %s", expression, e.getMessage()));
-            }
-
-            currentIndex = matcher.end();
-        }
-
-        result.append(text.substring(currentIndex));
-        return result.toString();
     }
 }

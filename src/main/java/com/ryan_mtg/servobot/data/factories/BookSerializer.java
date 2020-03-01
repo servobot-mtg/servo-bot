@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.models.BookRow;
 import com.ryan_mtg.servobot.data.models.StatementRow;
 import com.ryan_mtg.servobot.data.repositories.BookRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class BookSerializer {
@@ -22,7 +22,7 @@ public class BookSerializer {
     @Autowired
     private StatementRepository statementRepository;
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void saveBook(final int botHomeId, final Book book) {
         BookRow bookRow = new BookRow(book.getId(), botHomeId, book.getName());
         bookRepository.save(bookRow);
@@ -34,12 +34,13 @@ public class BookSerializer {
         }
     }
 
-    public List<Book> createBooks(final int botHomeId) {
+    public List<Book> createBooks(final int botHomeId) throws BotErrorException {
         List<Book> books = new ArrayList<>();
         for(BookRow bookRow : bookRepository.findAllByBotHomeId(botHomeId)) {
-            List<Statement> statements = statementRepository.findAllByBookId(bookRow.getId()).stream()
-                    .map(statementRow -> new Statement(statementRow.getId(), statementRow.getText()))
-                    .collect(Collectors.toList());
+            List<Statement> statements = new ArrayList<>();
+            for (StatementRow statementRow : statementRepository.findAllByBookId(bookRow.getId())) {
+                statements.add(new Statement(statementRow.getId(), statementRow.getText()));
+            }
             books.add(new Book(bookRow.getId(), bookRow.getName(), statements));
         }
         return books;

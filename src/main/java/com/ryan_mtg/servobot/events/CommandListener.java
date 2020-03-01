@@ -53,7 +53,7 @@ public class CommandListener implements EventListener {
             LOGGER.info("Peforming " + commandString + " for " + sender.getName() + " with arguments " + arguments);
 
             if (messageCommand.getService(messageSentEvent.getServiceType())) {
-                if (hasPermissions(messageSentEvent, sender, messageCommand)) {
+                if (messageCommand.hasPermissions(sender)) {
                     messageCommand.perform(messageSentEvent, arguments);
                 } else {
                     throw new BotErrorException(
@@ -69,13 +69,17 @@ public class CommandListener implements EventListener {
     @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
         for (HomeCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, HomeCommand.class)) {
-            command.perform(streamStartEvent.getHome());
+            try {
+                command.perform(streamStartEvent);
+            } catch (BotErrorException e) {
+                LOGGER.error(e.getErrorMessage(), e);
+            }
         }
     }
 
     @Override
     public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
-        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, UserCommand.class)) {
+        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.NEW_USER, UserCommand.class)) {
             command.perform(newUserEvent.getHome(), newUserEvent.getUser());
         }
     }
@@ -87,38 +91,10 @@ public class CommandListener implements EventListener {
                 commandTable.getCommandsFromAlertToken(alertEvent.getAlertToken(), HomeCommand.class)) {
             try {
                 LOGGER.info("Performing command " + command.getId());
-                command.perform(alertEvent.getHome());
+                command.perform(alertEvent);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private boolean hasPermissions(final MessageSentEvent event, final User sender,
-                                   final MessageCommand messageCommand) {
-        switch (messageCommand.getPermission()) {
-            case ANYONE:
-                return true;
-            case SUB:
-                if (sender.isSubscriber()) {
-                    return true;
-                }
-            case MOD:
-                if (sender.isModerator()) {
-                    return true;
-                }
-            case STREAMER:
-                if (event.getHome().isStreamer(sender)) {
-                    return true;
-                }
-            case ADMIN:
-                if (sender.isAdmin()) {
-                    return true;
-                }
-                break;
-            default:
-                throw new IllegalStateException("Unhandled permission: " + messageCommand.getPermission());
-        }
-        return false;
     }
 }

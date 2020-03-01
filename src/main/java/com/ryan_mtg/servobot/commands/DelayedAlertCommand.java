@@ -1,7 +1,9 @@
 package com.ryan_mtg.servobot.commands;
 
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.alerts.Alert;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.time.Duration;
 
@@ -10,9 +12,11 @@ public class DelayedAlertCommand extends HomeCommand {
     private Alert alert;
 
     public DelayedAlertCommand(final int id, final int flags, final Permission permission,
-                               final Duration delay, final String alertToken) {
+                               final Duration delay, final String alertToken) throws BotErrorException {
         super(id, flags, permission);
         alert = new Alert(delay, alertToken);
+
+        Validation.validateStringLength(alertToken, Validation.MAX_TRIGGER_LENGTH, "Alert token");
     }
 
     public Duration getDelay() {
@@ -24,8 +28,8 @@ public class DelayedAlertCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final Home home) {
-        home.getHomeEditor().scheduleAlert(alert);
+    public void perform(final HomeEvent homeEvent) {
+        homeEvent.getHomeEditor().scheduleAlert(alert);
     }
 
     @Override

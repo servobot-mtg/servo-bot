@@ -4,6 +4,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
@@ -12,6 +13,7 @@ import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,15 +28,20 @@ public class TwitchService implements Service {
     private TwitchEventGenerator generator;
     private Map<Long, Integer> homeIdMap = new HashMap<>();
     private Map<Long, String> channelNameMap = new HashMap<>();
+    private Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
     private UserSerializer userSerializer;
 
     public TwitchService(final String clientId, final String secret, final String oauthToken,
-                         final UserSerializer userSerializer) {
+                         final UserSerializer userSerializer) throws BotErrorException {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
         this.userSerializer = userSerializer;
+
+        Validation.validateStringLength(clientId, Validation.MAX_CLIENT_ID_LENGTH, "Client id");
+        Validation.validateStringLength(secret, Validation.MAX_CLIENT_SECRET_LENGTH, "Client secret");
+        Validation.validateStringLength(oauthToken, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "OAuthToken");
     }
 
     @Override
@@ -92,6 +99,16 @@ public class TwitchService implements Service {
         return new TwitchChannel(client.getChat(), getChannelName(channelId), homeEditor);
     }
 
+    public String getChannelImageUrl(final long channelId) {
+        if (channelImageMap.containsKey(channelId)) {
+            return channelImageMap.get(channelId);
+        }
+
+        String channelImage = fetchChannelImageUrl(channelId);
+        channelImageMap.put(channelId, channelImage);
+        return channelImage;
+    }
+
     public String getChannelName(final long channelId) {
         if (channelNameMap.containsKey(channelId)) {
             return channelNameMap.get(channelId);
@@ -112,9 +129,17 @@ public class TwitchService implements Service {
         client.getChat().leaveChannel(channelName);
     }
 
+    private String fetchChannelImageUrl(final long channelId) {
+        return fetchChannelUser(channelId).getProfileImageUrl();
+    }
+
     private String fetchChannelName(final long channelId) {
+        return fetchChannelUser(channelId).getLogin();
+    }
+
+    private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
         return client.getHelix().
                 getUsers(null, Arrays.asList(Long.toString(channelId)), null).execute()
-                .getUsers().get(0).getLogin();
+                .getUsers().get(0);
     }
 }

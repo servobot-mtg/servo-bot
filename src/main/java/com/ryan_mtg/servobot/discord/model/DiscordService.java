@@ -2,13 +2,14 @@ package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
-import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Validation;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -26,15 +27,18 @@ import java.util.stream.Collectors;
 
 public class DiscordService implements Service {
     public static final int TYPE = 2;
+
     private String token;
     private JDA jda;
     private UserSerializer userSerializer;
 
     private Map<Long, Integer> homeIdMap = new HashMap<>();
 
-    public DiscordService(final String token, final UserSerializer userSerializer) {
+    public DiscordService(final String token, final UserSerializer userSerializer) throws BotErrorException {
         this.token = token;
         this.userSerializer = userSerializer;
+
+        Validation.validateStringLength(token, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "Token");
     }
 
     @Override
@@ -101,5 +105,11 @@ public class DiscordService implements Service {
     public List<String> getEmotes(final long guildId) {
         Guild guild = jda.getGuildById(guildId);
         return guild.getEmotes().stream().map(emote -> emote.getName()).collect(Collectors.toList());
+    }
+
+    public List<String> getRoles(final long guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole())
+                .map(role -> role.getName()).collect(Collectors.toList());
     }
 }

@@ -1,3 +1,6 @@
+const deleteIcon = '&#x1F5D1;';
+const envelopeIcon = '&#x2709;&#xFE0F;';
+
 function runAdminTask() {
     const responseElement = document.getElementById('run-task-response');
     postRunAdminTask(responseElement);
@@ -9,15 +12,27 @@ async function postRunAdminTask(responseElement) {
 
 let selectedUsers = [];
 
+function giveInvite(userId) {
+    postGiveInvite(userId);
+}
+
+async function postGiveInvite(userId) {
+    const parameters = {userId: userId};
+    let response = await makePost('/admin/give_invite', parameters, [], false);
+    if (response.ok) {
+        let inviteElement = document.getElementById('user-' + userId + '-invite');
+        inviteElement.innerHTML = envelopeIcon;
+        inviteElement.onclick = null;
+    }
+}
+
 function mergeUsers() {
     const responseElement = document.getElementById('merge-users-response');
     postMergeUsers(responseElement);
 }
 
-const deleteIcon = '&#x1F5D1;';
-
 async function postMergeUsers(responseElement) {
-    const parameters = { userIds: selectedUsers};
+    const parameters = {userIds: selectedUsers};
     let response = await makePost('/admin/merge_users', parameters, [responseElement], true);
     if (response.ok) {
         const mergedUser = await response.json();
@@ -77,4 +92,3 @@ async function postDeleteArenaUsername(userId) {
         setElementValue(label + '-arena-username-delete-icon', '');
     }
 }
-

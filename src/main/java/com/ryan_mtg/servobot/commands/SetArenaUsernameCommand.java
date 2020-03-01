@@ -23,7 +23,7 @@ public class SetArenaUsernameCommand extends MessageCommand {
             throw new BotErrorException("The Arena Username is improperly formatted");
         }
 
-        event.getBotEditor().setArenaUsername(event.getSender(), arguments);
+        event.getBotEditor().setArenaUsername(event.getSender().getHomedUser().getId(), arguments);
 
         MessageCommand.say(event, "Username added.");
     }

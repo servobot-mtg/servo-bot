@@ -1,15 +1,21 @@
 package com.ryan_mtg.servobot.model.reaction;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Validation;
+
 public class Pattern {
     public static final int UNREGISTERED_ID = 0;
+
     private int id;
     private String patternString;
     private java.util.regex.Pattern pattern;
 
-    public Pattern(final int id, final String patternString) {
+    public Pattern(final int id, final String patternString) throws BotErrorException {
         this.id = id;
         this.patternString = patternString;
         this.pattern = createPattern(patternString);
+
+        Validation.validateStringLength(patternString, Validation.MAX_PATTERN_LENGTH, "Pattern");
     }
 
     public int getId() {

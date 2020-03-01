@@ -31,11 +31,23 @@ public class ServiceHomeRow {
         return botHomeId;
     }
 
+    public void setBotHomeId(final int botHomeId) {
+        this.botHomeId = botHomeId;
+    }
+
     public int getServiceType() {
         return serviceType;
     }
 
+    public void setServiceType(int serviceType) {
+        this.serviceType = serviceType;
+    }
+
     public long getLong() {
         return longValue;
+    }
+
+    public void setLong(final long longValue) {
+        this.longValue = longValue;
     }
 }

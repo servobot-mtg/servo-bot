@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.events;
 
+import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -25,17 +27,26 @@ public class ReactionListener implements EventListener {
             return;
         }
 
-        String content = message.getContent();
         Home home = message.getHome();
         for (Reaction reaction : reactionTable) {
-            if (reaction.matches(content)) {
+            if (reaction.matches(message)) {
                 String emoteName = reaction.getEmoteName();
                 Emote emote = home.getEmote(emoteName);
                 if (emote != null) {
                     LOGGER.info("Adding a " + emoteName + " reaction to " + sender + "'s message.");
                     message.addEmote(emote);
-                } else {
-                    LOGGER.warn("Unable to find emote " + emoteName + " in " + home.getName());
+                }
+
+                for(Command command : reaction.getCommands()) {
+                    if (command instanceof MessageCommand) {
+                        MessageCommand messageCommand = (MessageCommand) command;
+                        try {
+                            messageCommand.perform(messageSentEvent, null);
+                        } catch (BotErrorException e) {
+                            LOGGER.warn("Ignoring exception: " + e.getErrorMessage());
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }

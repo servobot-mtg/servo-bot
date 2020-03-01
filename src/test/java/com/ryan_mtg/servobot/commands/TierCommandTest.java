@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
@@ -21,7 +22,7 @@ public class TierCommandTest {
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
-    public void testPerform() {
+    public void testPerform() throws BotErrorException {
         TierCommand command = new TierCommand(ID, FLAGS, PERMISSION);
 
         Home home = mockHome();

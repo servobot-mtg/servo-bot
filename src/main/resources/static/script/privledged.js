@@ -13,6 +13,76 @@ const yellowCircleIcon = '&#x1F7E1;';
 const trashcanIcon = '&#x1F5D1;';
 const penIcon = '&#x270F;&#xFE0F;';
 const bookIcon = '&#x1F4BE;';
+const defaultCommandFlags = 2+4;
+
+function submitInvite() {
+    let timeZone = document.getElementById('time-zone-select').value;
+
+    let useAddCommand = document.getElementById('use-add-command-name').checked;
+    let addCommandName = useAddCommand ? document.getElementById('add-command-name-input').value : null;
+    let useDeleteCommand = document.getElementById('use-delete-command').checked;
+    let deleteCommandName =
+        useDeleteCommand ? document.getElementById('delete-command-name-input').value : null;
+    let useShowCommands = document.getElementById('use-show-commands').checked;
+    let showCommandsName = useShowCommands ? document.getElementById('show-commands-name-input').value : null;
+
+    let textCommands = [];
+
+    var textCommandRows = document.getElementsByClassName('text-command-row');
+    for (var i = 0; i < textCommandRows.length; i++) {
+        let row = textCommandRows[i];
+        let useTextCommand = row.getElementsByClassName('use-text-command').checked;
+        if (useTextCommand) {
+            let textCommandName = row.getElementsByClassName('text-commands-name-input')[0].value;
+            let textCommandValue = row.getElementsByClassName('text-commands-value-input')[0].value;
+            textCommands.push({name: textCommandName, value: textCommandValue});
+        }
+    }
+
+    postSubmitInvite(timeZone, addCommandName, deleteCommandName, showCommandsName, textCommands);
+}
+
+async function postSubmitInvite(timeZone, addCommandName, deleteCommandName, showCommandsName, textCommands) {
+    const parameters = {timeZone: timeZone, addCommandName: addCommandName, deleteCommandName: deleteCommandName,
+        showCommandsName:showCommandsName, textCommands: textCommands};
+
+    let response = await makePost('/api/create_bot_home', parameters, [], false);
+    if (response.ok) {
+        let botHome = await response.json();
+        window.location.href = '/home/' + botHome.name;
+    }
+}
+
+function editBotName() {
+    hideElementById('bot-name-display');
+    showElementById('bot-name-edit');
+}
+
+function modifyBotName(botHomeId) {
+    let inputElement = document.getElementById('bot-name-input');
+    let valueElement = document.getElementById('bot-name-value');
+
+    if (valueElement.innerText != inputElement.value) {
+        postModifyBotName(botHomeId, inputElement.value);
+    } else {
+        resetBotName();
+    }
+}
+
+async function postModifyBotName(botHomeId, text) {
+    const parameters = {botHomeId: botHomeId, text: text};
+    let response = await makePost('/api/modify_bot_name', parameters, [], false);
+    if (response.ok) {
+        let valueElement = document.getElementById('bot-name-value');
+        valueElement.innerText = text;
+        resetBotName();
+    }
+}
+
+function resetBotName() {
+    hideElementById('bot-name-edit');
+    showElementById('bot-name-display');
+}
 
 function secureCommand(botHomeId, commandId) {
     postSecureCommand(botHomeId, commandId, 'command-' + commandId);
@@ -120,22 +190,22 @@ function deleteReaction(botHomeId, reactionId) {
     postDelete('/api/delete_reaction', parameters, 'reaction-' + reactionId + '-row');
 }
 
-function deletePattern(botHomeId, patternId) {
-    const parameters = {botHomeId: botHomeId, objectId: patternId};
+function deletePattern(botHomeId, reactionId, patternId) {
+    const parameters = {botHomeId: botHomeId, reactionId: reactionId, patternId: patternId};
     postDelete('/api/delete_pattern', parameters, 'pattern-' + patternId);
 }
 
-function deleteStatement(event, botHomeId, bookId, statementId) {
+function deleteStatement(botHomeId, bookId, statementId) {
     const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId};
     postDelete('/api/delete_statement', parameters, 'statement-' + statementId + '-row');
 }
 
-function editStatement(event, statementId) {
+function editStatement(statementId) {
     hideElementById('statement-' + statementId + '-display');
     showElementById('statement-' + statementId + '-edit');
 }
 
-function modifyStatement(event, botHomeId, bookId, statementId) {
+function modifyStatement(botHomeId, bookId, statementId) {
     let inputElement = document.getElementById('statement-' + statementId + '-input');
 
     let valueElement = document.getElementById('statement-' + statementId + '-value');
@@ -259,6 +329,17 @@ function addTriggerTable(trigger, botHomeId, commandId, text) {
     triggersSpan.appendChild(triggerTable);
 }
 
+function triggerAlert(event, botHomeId, triggerId) {
+    const alertToken = event.currentTarget.dataset.alertToken;
+    postTriggerAlert(botHomeId, alertToken, triggerId);
+}
+
+async function postTriggerAlert(botHomeId, alertToken, triggerId) {
+    const parameters = {botHomeId: botHomeId, alertToken: alertToken};
+    const responseElement = document.getElementById('trigger-' + triggerId + '-alert-response');
+    makePost('/api/trigger_alert', parameters, [responseElement], true);
+}
+
 function showAddStatementForm() {
     hideElementById('add-statement-button');
 
@@ -302,8 +383,8 @@ function addStatementRow(statement, botHomeId, bookId) {
     displayDiv.appendChild(textSpan);
     let editButtonSpan = document.createElement('span');
     editButtonSpan.classList.add('pseudo-link');
-    editButtonSpan.onclick = function(event) {
-        editStatement(event, statement.id);
+    editButtonSpan.onclick = function() {
+        editStatement(statement.id);
     };
     editButtonSpan.innerHTML = penIcon;
     displayDiv.appendChild(editButtonSpan);
@@ -321,8 +402,8 @@ function addStatementRow(statement, botHomeId, bookId) {
 
     let modifyButtonSpan = document.createElement('span');
     modifyButtonSpan.classList.add('pseudo-link');
-    modifyButtonSpan.onclick = function(event) {
-        modifyStatement(event, botHomeId, bookId, statement.id);
+    modifyButtonSpan.onclick = function() {
+        modifyStatement(botHomeId, bookId, statement.id);
     };
     modifyButtonSpan.innerHTML = bookIcon;
     editDiv.appendChild(modifyButtonSpan);
@@ -334,8 +415,8 @@ function addStatementRow(statement, botHomeId, bookId) {
     let deleteCell = newRow.insertCell();
     deleteCell.classList.add('pseudo-link');
     deleteCell.innerHTML = trashcanIcon;
-    deleteCell.onclick = function (event) {
-        deleteStatement(event, botHomeId, bookId, statement.id);
+    deleteCell.onclick = function () {
+        deleteStatement(botHomeId, bookId, statement.id);
     };
 }
 
@@ -345,12 +426,14 @@ function showAddCommandForm() {
     let typeSelect = document.getElementById('add-command-type-input');
     typeSelect.selectedIndex = 0;
     changeAddCommandType(typeSelect);
-    document.getElementById('add-command-permissions-input').selectedIndex = 0;
+    document.getElementById('add-command-permissions-input').selectedIndex = 4;
     document.getElementById('add-command-secure-input').checked = false;
     document.getElementById('add-command-text-input').value = '';
     document.getElementById('add-command-text-2-input').value = '';
     document.getElementById('add-command-integer-input').value = 0;
     document.getElementById('add-command-book-input').selectedIndex = 0;
+    document.getElementById('add-command-emote-input').selectedIndex = 0;
+    document.getElementById('add-command-role-input').selectedIndex = 0;
     document.getElementById('add-command-game-queue-input').selectedIndex = 0;
     document.getElementById('add-command-service-input').selectedIndex = 0;
     showElementInlineById('add-command-form');
@@ -370,6 +453,8 @@ function addAddCommandParameter(parameters, inputId, parameterName) {
 function getParameterName(parameterId) {
     switch (parameterId) {
         case 'text':
+        case 'emote':
+        case 'role':
             return 'stringParameter';
         case 'text-2':
             return 'stringParameter2';
@@ -381,12 +466,17 @@ function getParameterName(parameterId) {
     }
 }
 
+function getAddCommandFlags() {
+    const secure = document.getElementById('add-command-secure-input').checked;
+    return defaultCommandFlags + secure;
+}
+
 function addCommand(botHomeId) {
     const parameters = {botHomeId: botHomeId};
     const commandType = parseInt(document.getElementById('add-command-type-input').value);
     addAddCommandParameter(parameters, 'type', 'type');
     addAddCommandParameter(parameters, 'permissions', 'permission');
-    addAddCommandParameter(parameters, 'secure', 'secure');
+    parameters['flags'] = getAddCommandFlags();
 
     const data = commandData[commandType];
     for (let i = 0; i < data.parameters.length; i++) {
@@ -430,7 +520,7 @@ const commandData = [
     {name: 'Remove From Game Queue Command', parameters: [{id: 'game-queue', name: 'Game Queue'}]}, //10
     {name: 'Set Arena Username Command', parameters: []}, //11
     {name: 'Show Arena Usernames Command', parameters: []}, //12
-    {name: 'Set Role Command', parameters: [{id: 'text', name: 'Role Name'}]}, //13
+    {name: 'Set Role Command', parameters: [{id: 'role', name: 'Role Name'}]}, //13
     {name: 'Set Status Command', parameters: [{id: 'book', name: 'Book'}]}, //14
     {name: 'Add Statement Command', parameters: []}, //15
     {name: 'Delayed Alert Command',
@@ -442,6 +532,13 @@ const commandData = [
     {name: 'Enter Giveaway Command', parameters: []}, //21
     {name: 'Giveaway Status Command', parameters: []}, //22
     {name: 'Select Giveaway Winner Command', parameters: []}, //23
+    {name: 'Add Reaction Command', parameters: [{id: 'emote', name: 'Emote'}]}, //24
+    {name: 'Jail Command', parameters: [{id: 'role', name: 'Role Name'}, {id: 'text-2', name: 'Variable Name'},
+            {id: 'integer', name: 'Strikes'}]}, //25
+    {name: 'Jail Break Command', parameters: [{id: 'role', name: 'Role Name'},
+            {id: 'text-2', name: 'Variable Name'}]}, //26
+    {name: 'Set User Role Command', parameters: [{id: 'role', name: 'Role Name'},
+            {id: 'text-2', name: 'Response message'}]}, //27
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];
@@ -470,7 +567,8 @@ function setElementText(elementId, text) {
 }
 
 const addCommandElements = ['add-command-text-div', 'add-command-text-2-div', 'add-command-service-div',
-    'add-command-book-div', 'add-command-game-queue-div', 'add-command-integer-div'];
+    'add-command-book-div', 'add-command-role-div', 'add-command-emote-div', 'add-command-game-queue-div',
+    'add-command-integer-div'];
 
 function showAddCommandElements(elementIds) {
     for (let i = 0; i < addCommandElements.length; i++) {
@@ -517,6 +615,14 @@ function addCommandRow(commandDescriptor, botHomeId) {
     aliasTriggersSpan.id = 'alias-triggers-' + commandDescriptor.command.id;
     triggersCell.appendChild(aliasTriggersSpan);
 
+    let eventTriggersSpan = document.createElement('span');
+    eventTriggersSpan.id = 'event-triggers-' + commandDescriptor.command.id;
+    triggersCell.appendChild(eventTriggersSpan);
+
+    let alertTriggersSpan = document.createElement('span');
+    alertTriggersSpan.id = 'alert-triggers-' + commandDescriptor.command.id;
+    triggersCell.appendChild(alertTriggersSpan);
+
     let addTriggerLabel = 'add-trigger-' + commandDescriptor.command.id;
     let addTriggerSpan = document.createElement('span');
     addTriggerSpan.classList.add('add-trigger');
@@ -543,8 +649,29 @@ function addCommandRow(commandDescriptor, botHomeId) {
     addTriggerTextInput.id = addTriggerLabel + '-text-input';
     addTriggerTextInput.type = 'text';
     addTriggerTextInput.name = 'trigger';
-    addTriggerTextInput.size = 5;
+    addTriggerTextInput.size = 9;
     addTriggerForm.appendChild(addTriggerTextInput);
+
+    let addTriggerTypeSelect = document.createElement('select');
+    addTriggerTypeSelect.id = addTriggerLabel + '-type-input';
+
+    let messageOption = document.createElement('option');
+    messageOption.text = 'Message';
+    messageOption.value = 1;
+    messageOption.selected = true;
+    addTriggerTypeSelect.add(messageOption);
+
+    let eventOption = document.createElement('option');
+    eventOption.text = 'Event';
+    eventOption.value = 2;
+    addTriggerTypeSelect.add(eventOption);
+
+    let alertOption = document.createElement('option');
+    alertOption.text = 'Alert';
+    alertOption.value = 3;
+    addTriggerTypeSelect.add(alertOption);
+
+    addTriggerForm.appendChild(addTriggerTypeSelect);
 
     let addTriggerSubmitInput = document.createElement('input');
     addTriggerSubmitInput.type = 'submit';
@@ -553,20 +680,56 @@ function addCommandRow(commandDescriptor, botHomeId) {
     addTriggerSpan.appendChild(addTriggerForm);
     triggersCell.appendChild(addTriggerSpan);
 
-    let secureCell = newRow.insertCell();
-    secureCell.classList.add('pseudo-link');
-    secureCell.onclick = function () {
-        secureCommand(botHomeId, commandDescriptor.command.id);
-    };
+    let iconCell = newRow.insertCell();
 
     let secureIconSpan = document.createElement('span');
     secureIconSpan.id = label + '-secured';
+    secureIconSpan.classList.add('pseudo-link');
+    secureIconSpan.onclick = function () {
+        secureCommand(botHomeId, commandDescriptor.command.id);
+    };
     secureIconSpan.innerHTML = commandDescriptor.command.secure ? lockedIcon : unlockedIcon;
-    secureCell.appendChild(secureIconSpan);
+    iconCell.appendChild(secureIconSpan);
 
     let secureResponseSpan = document.createElement('span');
-    secureResponseSpan.id = label + '-response';
-    secureCell.appendChild(secureResponseSpan);
+    secureResponseSpan.id = label + '-secure-response';
+    iconCell.appendChild(secureResponseSpan);
+
+    let twitchIconSpan = document.createElement('span');
+    twitchIconSpan.id = label + '-twitch';
+    twitchIconSpan.classList.add('pseudo-link');
+    twitchIconSpan.onclick = function () {
+        toggleCommandTwitch(botHomeId, commandDescriptor.command.id);
+    };
+    let twitchImg = document.createElement('img');
+    twitchImg.id = label + '-twitch-img';
+    twitchImg.classList.add('icon');
+    twitchImg.title = 'Toggle Twitch use';
+    twitchImg.src = commandDescriptor.command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico';
+    twitchIconSpan.appendChild(twitchImg);
+    iconCell.appendChild(twitchIconSpan);
+
+    let twitchResponseSpan = document.createElement('span');
+    twitchResponseSpan.id = label + '-twitch-response';
+    iconCell.appendChild(twitchResponseSpan);
+
+    let discordIconSpan = document.createElement('span');
+    discordIconSpan.id = label + '-discord';
+    discordIconSpan.classList.add('pseudo-link');
+    discordIconSpan.onclick = function () {
+        toggleCommandDiscord(botHomeId, commandDescriptor.command.id);
+    };
+    let discordImg = document.createElement('img');
+    discordImg.id = label + '-discord-img';
+    discordImg.classList.add('icon');
+    discordImg.title = 'Toggle Discord use';
+    discordImg.src = commandDescriptor.command.discord ? '/images/discord.ico' : '/images/no-discord.ico';
+    discordIconSpan.appendChild(discordImg);
+    iconCell.appendChild(discordIconSpan);
+
+    let discordResponseSpan = document.createElement('span');
+    discordResponseSpan.id = label + '-discord-response';
+    iconCell.appendChild(discordResponseSpan);
 
     let permissionsCell = newRow.insertCell();
     let permissionsSelect = document.createElement('select');
@@ -848,4 +1011,3 @@ async function postBestowReward(botHomeId, rewardId) {
         document.getElementById('reward-' + rewardId + '-status').innerText = 'BESTOWED';
     }
 }
-

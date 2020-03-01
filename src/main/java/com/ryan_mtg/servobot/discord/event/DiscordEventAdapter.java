@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ import java.util.Map;
 
 public class DiscordEventAdapter extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordEventAdapter.class);
-    private static final int HOMELESS = -1;
+    private static final int NO_HOME = -1;
 
     private EventListener listener;
     private Map<Long, Integer> homeIdMap;
@@ -50,7 +49,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onGuildMessageReceived(@Nonnull final GuildMessageReceivedEvent event) {
         try {
             int botHomeId = resolveHomeId(event.getGuild());
-            if (botHomeId == HOMELESS) {
+            if (botHomeId == NO_HOME) {
                 return;
             }
             DiscordUser sender = getUser(event.getMember(), botHomeId);
@@ -63,7 +62,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     @Override
     public void onUserActivityEnd(@Nonnull final UserActivityEndEvent event) {
         int botHomeId = resolveHomeId(event.getGuild());
-        if (botHomeId == HOMELESS) {
+        if (botHomeId == NO_HOME) {
             return;
         }
         streamStartRegulator.endActivity(event, botHomeId);
@@ -72,7 +71,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     @Override
     public void onUserActivityStart(@Nonnull final UserActivityStartEvent event) {
         int botHomeId = resolveHomeId(event.getGuild());
-        if (botHomeId == HOMELESS) {
+        if (botHomeId == NO_HOME) {
             return;
         }
         if (streamStartRegulator.startActivity(event, botHomeId)) {
@@ -81,14 +80,10 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     @Override
-    public void onUserUpdateOnlineStatus(@Nonnull UserUpdateOnlineStatusEvent event) {
-    }
-
-    @Override
     public void onGuildMemberJoin(@Nonnull final GuildMemberJoinEvent event) {
         try {
             int botHomeId = resolveHomeId(event.getGuild());
-            if (botHomeId == HOMELESS) {
+            if (botHomeId == NO_HOME) {
                 return;
             }
             DiscordUser member = getUser(event.getMember(), botHomeId);
@@ -99,13 +94,13 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     private int resolveHomeId(final Guild guild) {
-        if (homeIdMap.containsKey(guild.getIdLong())) {
-            return homeIdMap.get(guild.getIdLong());
+        if (!homeIdMap.containsKey(guild.getIdLong())) {
+            return NO_HOME;
         }
-        return HOMELESS;
+        return homeIdMap.get(guild.getIdLong());
     }
 
-    private DiscordUser getUser(final Member member, final int botHomeId) {
+    private DiscordUser getUser(final Member member, final int botHomeId) throws BotErrorException {
         boolean isModerator = false;
         for(Role role : member.getRoles()) {
             if (role.getPermissions().contains(Permission.KICK_MEMBERS)) {

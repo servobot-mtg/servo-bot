@@ -1,11 +1,13 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +20,7 @@ public class CommandTable {
 
     private Map<Integer, Command> idToCommandMap = new HashMap<>();
 
-    private Map<Trigger, Command> triggerCommandMap = new HashMap<>();
+    private Map<Trigger, Command> triggerCommandMap = new IdentityHashMap<>();
     private Map<Command, List<Trigger>> reverseTriggerMap = new HashMap<>();
     private List<Trigger> triggers = new ArrayList<>();
 
@@ -27,7 +29,7 @@ public class CommandTable {
     private Map<CommandEvent.Type, List<CommandEvent>> eventMap = new HashMap<>();
     private Map<String, List<CommandAlert>> alertMap = new HashMap<>();
 
-    private List<AlertGenerator> alertGenerators;
+    private List<AlertGenerator> alertGenerators = new ArrayList<>();
 
     public CommandTable(final boolean isCaseSensitive) {
         this.isCaseSensitive = isCaseSensitive;
@@ -56,7 +58,7 @@ public class CommandTable {
     }
 
 
-    public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) {
+    public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) throws BotErrorException {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
         commandTableEdit.save(newCommand, commandAlias, this::registerCommand, this::triggerSaved);
@@ -85,29 +87,28 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text) {
+    public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text)
+            throws BotErrorException {
         Command command = idToCommandMap.get(commandId);
         CommandTableEdit commandTableEdit;
         Trigger trigger;
         switch (triggerType) {
             case CommandAlias.TYPE:
                 commandTableEdit = deleteAlias(text, false);
-                trigger = createAlias((MessageCommand) command, text);
-                commandTableEdit.save(commandId, trigger, this::triggerSaved);
+                trigger = new CommandAlias(Trigger.UNREGISTERED_ID, text);
                 break;
             case CommandEvent.TYPE:
                 commandTableEdit = new CommandTableEdit();
                 trigger = new CommandEvent(Trigger.UNREGISTERED_ID, CommandEvent.Type.valueOf(text));
-                commandTableEdit.save(commandId, trigger, this::triggerSaved);
                 break;
             case CommandAlert.TYPE:
                 commandTableEdit = new CommandTableEdit();
                 trigger = new CommandAlert(Trigger.UNREGISTERED_ID, text);
-                commandTableEdit.save(commandId, trigger, this::triggerSaved);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported trigger type: " + triggerType);
         }
+        commandTableEdit.save(commandId, trigger, this::triggerSaved);
         registerCommand(command, trigger);
 
         return commandTableEdit;
@@ -127,8 +128,8 @@ public class CommandTable {
         trigger.acceptVisitor(new RegisterTriggerVisitor(command));
     }
 
-    public void setAlertGenerators(final List<AlertGenerator> alertGenerators) {
-        this.alertGenerators = alertGenerators;
+    public void addAlertGenerators(final List<AlertGenerator> alertGenerators) {
+        this.alertGenerators.addAll(alertGenerators);
     }
 
     public List<AlertGenerator> getAlertGenerators() {
@@ -185,7 +186,7 @@ public class CommandTable {
         return isCaseSensitive ? token : token.toLowerCase();
     }
 
-    private CommandAlias createAlias(final MessageCommand newCommand, final String text) {
+    private CommandAlias createAlias(final MessageCommand newCommand, final String text) throws BotErrorException {
         String canonicalAlias=canonicalize(text);
         commandMap.put(canonicalAlias, newCommand);
         CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, text);

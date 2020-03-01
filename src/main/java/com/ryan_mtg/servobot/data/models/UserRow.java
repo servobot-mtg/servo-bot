@@ -1,11 +1,14 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "user")
@@ -14,7 +17,7 @@ public class UserRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private boolean admin;
+    private int flags;
 
     @Column(name = "twitch_id")
     private int twitchId;
@@ -23,24 +26,31 @@ public class UserRow {
     private long discordId;
 
     @Column(name = "twitch_username")
+    @Size(max = Validation.MAX_USERNAME_LENGTH)
     private String twitchUsername;
 
     @Column(name = "discord_username")
+    @Size(max = Validation.MAX_USERNAME_LENGTH)
     private String discordUsername;
 
     @Column(name = "arena_username")
+    @Size(max = Validation.MAX_USERNAME_LENGTH)
     private String arenaUsername;
 
     public int getId() {
         return id;
     }
 
-    public boolean isAdmin() {
-        return admin;
+    public void setId(final int id) {
+        this.id = id;
     }
 
-    public void setAdmin(final boolean admin) {
-        this.admin = admin;
+    public int getFlags() {
+        return flags;
+    }
+
+    public void setFlags(final int flags) {
+        this.flags = flags;
     }
 
     public int getTwitchId() {

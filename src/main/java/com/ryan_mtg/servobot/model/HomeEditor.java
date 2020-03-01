@@ -27,10 +27,12 @@ import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
+import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +62,17 @@ public class HomeEditor {
         return botHome.getBotHomeScope();
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void modifyBotName(final String botName) {
+        botHome.setBotName(botName);
+
+        BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
+        BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
+        botHomeRow.setBotName(botName);
+        botHomeRepository.save(botHomeRow);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
     public void setTimeZone(final String timeZone) {
         botHome.setTimeZone(timeZone);
         botHome.getReactionTable().setTimeZone(timeZone);
@@ -74,39 +86,47 @@ public class HomeEditor {
         botHomeRepository.save(botHomeRow);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public boolean secureCommand(final int commandId, final boolean secure) {
         Command command = botHome.getCommandTable().secureCommand(commandId, secure);
         serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
         return command.isSecure();
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Reaction addReaction(final String emote, final boolean secure) throws BotErrorException {
         //return new Reaction(Reaction.UNREGISTERED_ID, emote, secure);
         throw new BotErrorException("Not supported");
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public boolean secureReaction(final int reactionId, final boolean secure) {
         Reaction reaction = botHome.getReactionTable().secureReaction(reactionId, secure);
         serializers.getReactionSerializer().saveReaction(botHome.getId(), reaction);
         return reaction.isSecure();
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void deleteReaction(final int reactionId) {
         ReactionTableEdit reactionTableEdit = botHome.getReactionTable().deleteReaction(reactionId);
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Pattern addPattern(final int reactionId, final String pattern) throws BotErrorException {
-        //return new Pattern(Pattern.UNREGISTERED_ID, pattern);
-        throw new BotErrorException("Not supported");
+        ReactionTableEdit reactionTableEdit = botHome.getReactionTable().addPattern(reactionId, pattern);
+        serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
+        return reactionTableEdit.getSavedPatterns().keySet().iterator().next();
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void deletePattern(final int reactionId, final int patternId) {
         ReactionTableEdit reactionTableEdit = botHome.getReactionTable().deletePattern(reactionId, patternId);
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
     }
 
-    public CommandDescriptor addCommand(final CommandRow commandRow) {
+    @Transactional(rollbackOn = BotErrorException.class)
+    public CommandDescriptor addCommand(final CommandRow commandRow) throws BotErrorException {
         Map<Integer, Book> bookMap = new HashMap<>();
         for (Book book : botHome.getBooks()) {
             bookMap.put(book.getId(), book);
@@ -121,23 +141,35 @@ public class HomeEditor {
         return new CommandDescriptor(command);
     }
 
-    public void addCommand(final String alias, final MessageCommand command) {
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void addCommand(final String alias, final MessageCommand command) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
 
         CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
-    public void deleteCommand(final String commandName) throws BotErrorException {
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void deleteCommand(final com.ryan_mtg.servobot.model.User deleter, final String commandName)
+            throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
+        Command command = commandTable.getCommand(commandName);
+
+        if (command == null) {
+            throw new BotErrorException(String.format("No command named '%s.'", commandName));
+        }
+
+        if (!command.hasPermissions(deleter)) {
+            throw new BotErrorException(
+                    String.format("%s is not allowed to delete '%s.'", deleter.getName(), commandName));
+        }
+
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandName);
 
-        if (commandTableEdit.getDeletedCommands().isEmpty()) {
-            throw new BotErrorException(String.format("Command '%s' not found.", commandName));
-        }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void deleteCommand(final int commandId) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandId);
@@ -148,6 +180,7 @@ public class HomeEditor {
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public List<Trigger> addTrigger(final int commandId, final int triggerType, final String text) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
         CommandTableEdit commandTableEdit = commandTable.addTrigger(commandId, triggerType, text);
@@ -167,6 +200,7 @@ public class HomeEditor {
         return response;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void deleteTrigger(final int triggerId) throws BotErrorException {
         Trigger trigger = serializers.getCommandSerializer().getTrigger(triggerId);
         CommandTable commandTable = botHome.getCommandTable();
@@ -186,6 +220,7 @@ public class HomeEditor {
         addStatement(getBook(bookName), text);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void deleteStatement(final int bookId, final int statementId) {
         botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
             book.deleteStatement(statementId);
@@ -193,6 +228,7 @@ public class HomeEditor {
         });
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void modifyStatement(final int bookId, final int statementId, final String text) {
         BookSerializer bookSerializer = serializers.getBookSerializer();
         botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
@@ -213,6 +249,7 @@ public class HomeEditor {
         botHome.getListener().onAlert(alertEvent);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public boolean setCommandService(final int commandId, final int serivceType, final boolean value) {
         Command command = botHome.getCommandTable().getCommand(commandId);
         command.setService(serivceType, value);
@@ -220,6 +257,7 @@ public class HomeEditor {
         return command.getService(serivceType);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Permission setCommandPermission(final int commandId, final Permission permission) {
         Command command = botHome.getCommandTable().getCommand(commandId);
         command.setPermission(permission);
@@ -227,9 +265,13 @@ public class HomeEditor {
         return command.getPermission();
     }
 
-    @Transactional
+    @Transactional(rollbackOn = BotErrorException.class)
     public void addSuggestion(final String command) {
         String alias = command.toLowerCase();
+        if (alias.length() > Validation.MAX_TRIGGER_LENGTH) {
+            return; //ignore suggestions that are absurd
+        }
+
         SuggestionRepository suggestionRepository = serializers.getSuggestionRepository();
         SuggestionRow suggestionRow = suggestionRepository.findByAlias(alias);
         if (suggestionRow == null) {
@@ -241,9 +283,7 @@ public class HomeEditor {
     }
 
     public StorageValue getStorageValue(final String name) throws BotErrorException {
-        if (!StorageValue.STORAGE_VALUE_NAME_PATTERN.matcher(name).matches()) {
-            throw new BotErrorException(String.format("%s doesn't look like a value name.", name));
-        }
+        StorageValue.validateName(name);
         StorageValue storageValue = botHome.getStorageTable().getStorage(name);
         if (storageValue == null) {
             throw new BotErrorException(String.format("No value with name %s.", name));
@@ -251,6 +291,25 @@ public class HomeEditor {
         return storageValue;
     }
 
+    public IntegerStorageValue getStorageValue(final int userId, final String name, final int defaultValue)
+            throws BotErrorException {
+        StorageValue.validateName(name);
+        StorageTable storageTable = botHome.getStorageTable();
+        StorageValue storageValue = storageTable.getStorage(userId, name);
+        if (storageValue == null) {
+            IntegerStorageValue newValue =
+                    new IntegerStorageValue(StorageValue.UNREGISTERED_ID, userId, name, defaultValue);
+            storageTable.registerValue(newValue);
+            return newValue;
+        }
+        if (storageValue instanceof IntegerStorageValue) {
+            return (IntegerStorageValue) storageValue;
+        }
+
+        throw new BotErrorException(String.format("%s is not a number", name));
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
     public StorageValue setStorageValue(final String name, final String value) throws BotErrorException {
         StorageValue storageValue = getStorageValue(name);
         if (storageValue instanceof IntegerStorageValue) {
@@ -267,17 +326,34 @@ public class HomeEditor {
         return storageValue;
     }
 
-    public StorageValue incrementStorageValue(final String name) throws BotErrorException {
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void remoteStorageVariables(final String name) {
+        botHome.getStorageTable().removeVariables(name);
+        serializers.getStorageTableSerializer().removeVariables(name, botHome.getId());
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public IntegerStorageValue incrementStorageValue(final String name) throws BotErrorException {
         StorageValue value = getStorageValue(name);
         if (value instanceof IntegerStorageValue) {
             IntegerStorageValue integerValue = (IntegerStorageValue) value;
             integerValue.setValue(integerValue.getValue() + 1);
             serializers.getStorageValueSerializer().save(integerValue, botHome.getId());
-            return value;
+            return integerValue;
         }
         throw new BotErrorException(String.format("%s is not a number", name));
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
+    public IntegerStorageValue incrementStorageValue(final int userId, final String name, final int defaultVariable)
+            throws BotErrorException {
+        IntegerStorageValue value = getStorageValue(userId, name, defaultVariable);
+        value.setValue(value.getValue() + 1);
+        serializers.getStorageValueSerializer().save(value, botHome.getId());
+        return value;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
     public String startGameQueue(final int gameQueueId, final String name) throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
@@ -298,6 +374,7 @@ public class HomeEditor {
         return String.format("Game queue '%s' started.", gameQueue.getName());
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public String closeGameQueue(final int gameQueueId) throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
@@ -315,6 +392,7 @@ public class HomeEditor {
         return String.format("Queue '%s' is now closed.", gameQueue.getName());
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public User popGameQueue(final int gameQueueId) throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (gameQueue.getState() == GameQueue.State.IDLE) {
@@ -344,6 +422,7 @@ public class HomeEditor {
         return serializers.getUserSerializer().lookupById(gameQueue.getCurrentPlayerId());
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public int joinGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
             throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
@@ -368,6 +447,7 @@ public class HomeEditor {
         return gameQueueEntry.getPosition();
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void removeFromGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
             throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
@@ -390,6 +470,7 @@ public class HomeEditor {
         serializers.getGameQueueSerializer().removeEntry(gameQueue, playerId);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void setGameQueueName(final int gameQueueId, final String name) throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
@@ -402,6 +483,7 @@ public class HomeEditor {
         serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public String stopGameQueue(int gameQueueId) throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (gameQueue.getState() == GameQueue.State.IDLE) {
@@ -415,6 +497,7 @@ public class HomeEditor {
         return String.format("Game queue '%s' stopped.", gameQueue.getName());
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public String showGameQueue(final int gameQueueId) throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
@@ -514,7 +597,7 @@ public class HomeEditor {
         botHome.getGiveaway(giveawayId).deleteReward(rewardId);
     }
 
-    public List<User> getArenaUsers() {
+    public List<User> getArenaUsers() throws BotErrorException {
         return serializers.getUserSerializer().getArenaUsers();
     }
 
@@ -559,7 +642,7 @@ public class HomeEditor {
         return statement;
     }
 
-    private String describePlayer(final int userId) {
+    private String describePlayer(final int userId) throws BotErrorException {
         User user = serializers.getUserSerializer().lookupById(userId);
         if (user.getTwitchUsername() != null) {
             return user.getTwitchUsername();

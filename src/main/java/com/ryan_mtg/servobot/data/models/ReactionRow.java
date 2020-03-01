@@ -1,11 +1,14 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.utility.Validation;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "reaction")
@@ -16,9 +19,13 @@ public class ReactionRow {
 
     private int filter;
 
+    @Column(name = "filter_value")
+    private int filterValue;
+
     @Column(name = "bot_home_id")
     private int botHomeId;
 
+    @Size(max = Validation.MAX_EMOTE_LENGTH)
     private String emote;
 
     private boolean secure;
@@ -39,6 +46,14 @@ public class ReactionRow {
         this.filter = filter;
     }
 
+    public int getFilterValue() {
+        return filterValue;
+    }
+
+    public void setFilterValue(final int filterValue) {
+        this.filterValue = filterValue;
+    }
+
     public int getBotHomeId() {
         return botHomeId;
     }
@@ -51,7 +66,7 @@ public class ReactionRow {
         return emote;
     }
 
-    public void setEmote(String emote) {
+    public void setEmote(final String emote) {
         this.emote = emote;
     }
 

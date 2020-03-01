@@ -45,7 +45,7 @@ public class GameQueueCommand extends MessageCommand {
             case "start":
                 String responseMessage = homeEditor.startGameQueue(gameQueueId, null);
                 if (responseMessage != null) {
-                    event.getChannel().say(responseMessage);
+                    MessageCommand.say(event, responseMessage);
                 }
                 return;
             case "pop":

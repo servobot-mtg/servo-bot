@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Book;
-import com.ryan_mtg.servobot.model.Home;
 
 public class SetStatusCommand extends HomeCommand {
     public static final int TYPE = 14;
@@ -17,8 +17,8 @@ public class SetStatusCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final Home home) {
-        home.setStatus(book.getRandomLine());
+    public void perform(final HomeEvent homeEvent) {
+        homeEvent.getHome().setStatus(book.getRandomLine());
     }
 
     @Override

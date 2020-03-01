@@ -11,6 +11,7 @@ import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
@@ -18,12 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public class CommandTableSerializer {
@@ -44,7 +44,8 @@ public class CommandTableSerializer {
     @Autowired
     private AlertGeneratorRepository alertGeneratorRepository;
 
-    public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap) {
+    public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap)
+            throws BotErrorException  {
         Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
         CommandTable commandTable = new CommandTable(false);
         Set<String> alertTokens = new HashSet<>();
@@ -62,11 +63,11 @@ public class CommandTableSerializer {
 
         Iterable<AlertGeneratorRow> alertGeneratorRows = alertGeneratorRepository.findByBotHomeId(botHomeId);
 
-        List<AlertGenerator> alertGenerators = StreamSupport.stream(alertGeneratorRows.spliterator(), true)
-                .map(alertGeneratorRow -> alertGeneratorSerializer.createAlertGenerator(alertGeneratorRow))
-                .collect(Collectors.toList());
-
-        commandTable.setAlertGenerators(alertGenerators);
+        List<AlertGenerator> alertGenerators = new ArrayList<>();
+        for (AlertGeneratorRow alertGeneratorRow : alertGeneratorRows) {
+            alertGenerators.add(alertGeneratorSerializer.createAlertGenerator(alertGeneratorRow));
+        }
+        commandTable.addAlertGenerators(alertGenerators);
 
         return commandTable;
     }

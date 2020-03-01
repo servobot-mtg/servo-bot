@@ -19,9 +19,7 @@ public class SetValueCommand extends MessageCommand {
         Scanner scanner = new Scanner(arguments);
 
         String name = scanner.next();
-        if (!StorageValue.STORAGE_VALUE_NAME_PATTERN.matcher(name).matches()) {
-            throw new BotErrorException(String.format("%s doesn't look like a value name.", name));
-        }
+        StorageValue.validateName(name);
 
         scanner.useDelimiter("\\z");
 

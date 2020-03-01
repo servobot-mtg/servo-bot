@@ -7,7 +7,8 @@
             type="text/javascript" src="/script/privledged.js"></script>
 </head>
 <body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
-      exalted=${user.admin || user.roles.contains('ROLE_STREAMER:' + botHome.id)}">
+      streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
+      exalted=${user.admin || streamer}">
     <div th:include="fragments :: header" />
     <div class="content">
         <h1 th:text="'Moderation Hub for ' + ${botHome.name}"/>
@@ -26,15 +27,9 @@
                 </span>
             </div>
             <ul style="float: left;">
-                <li th:text="'Id: ' + ${botHome.id}"></li>
-                <li>Time Zone
-                    <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
-                        <th:block th:each="timeZone : ${timeZones}">
-                            <option th:value="${timeZone.value}" th:text="${timeZone.display}"
-                                    th:selected="${timeZone.value == botHome.timeZone}"/>
-                        </th:block>
-                    </select> <span id="time-zone-updated" />
-                </li>
+                <li th:if="${streamer}"><a href="/home">Home Ownership</a></li>
+                <li><div th:include="bot_home_fragments :: bot_name"/></li>
+                <li><div th:include="bot_home_fragments :: time_zone"/></li>
                 <li><a href="users">Users</a></li>
                 <li><a href="giveaways">Giveaways</a></li>
             </ul>

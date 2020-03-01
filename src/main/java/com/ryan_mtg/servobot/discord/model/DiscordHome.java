@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DiscordHome implements Home {
@@ -80,6 +81,36 @@ public class DiscordHome implements Home {
     }
 
     @Override
+    public void setRole(final String username, final String roleName) throws BotErrorException {
+        List<Member> members = guild.getMembersByEffectiveName(username, true);
+        if (members.isEmpty()) {
+            throw new BotErrorException(String.format("No user named '%s'.", username));
+        }
+        List<Role> roles = guild.getRolesByName(roleName, false);
+        if (roles.isEmpty()) {
+            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
+        }
+        guild.addRoleToMember(members.get(0), roles.get(0)).queue();
+    }
+
+    @Override
+    public List<String> clearRole(final String roleName) throws BotErrorException {
+        List<Role> roles = guild.getRolesByName(roleName, false);
+        if (roles.isEmpty()) {
+            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
+        }
+
+        Role role = roles.get(0);
+        List<Member> members = guild.getMembersWithRoles(role);
+        List<String> names = new ArrayList<>();
+        for (Member member : members) {
+            guild.removeRoleFromMember(member, role).queue();
+            names.add(member.getEffectiveName());
+        }
+        return names;
+    }
+
+    @Override
     public Emote getEmote(final String emoteName) {
         List<net.dv8tion.jda.api.entities.Emote> emotes = guild.getEmotesByName(emoteName, true);
         if (!emotes.isEmpty()) {
@@ -115,6 +146,11 @@ public class DiscordHome implements Home {
         }
 
         LOGGER.warn("Unable to find emote " + emoteName + " in " + guild);
+        emotes = guild.getEmotes();
+        for (net.dv8tion.jda.api.entities.Emote emote : emotes) {
+            LOGGER.info("  " + emote.getName());
+        }
+
         return null;
     }
 
@@ -130,5 +166,9 @@ public class DiscordHome implements Home {
 
     private long getDiscordId(final User user) {
         return ((DiscordUser) user).getDiscordId();
+    }
+
+    public Guild getGuild() {
+        return guild;
     }
 }
