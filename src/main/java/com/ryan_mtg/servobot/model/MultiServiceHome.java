@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,6 +55,11 @@ public class MultiServiceHome implements Home {
 
     @Override
     public Emote getEmote(final String emoteName) {
+        return null;
+    }
+
+    @Override
+    public User getUser(final HomedUser homedUser) {
         return null;
     }
 

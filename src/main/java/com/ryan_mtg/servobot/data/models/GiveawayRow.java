@@ -44,6 +44,20 @@ public class GiveawayRow {
     @Column(name = "prize_requests")
     private int prizeRequests;
 
+    @Column(name = "start_raffle_command_name")
+    @Size(max = Validation.MAX_NAME_LENGTH)
+    private String startRaffleCommandName;
+
+    @Column(name = "start_raffle_command_id")
+    private int startRaffleCommandId;
+
+    @Column(name = "enter_raffle_command_name")
+    @Size(max = Validation.MAX_NAME_LENGTH)
+    private String enterRaffleCommandName;
+
+    @Column(name = "raffle_duration")
+    private int raffleDuration;
+
     public int getId() {
         return id;
     }
@@ -122,5 +136,37 @@ public class GiveawayRow {
 
     public void setPrizeRequests(final int prizeRequests) {
         this.prizeRequests = prizeRequests;
+    }
+
+    public String getStartRaffleCommandName() {
+        return startRaffleCommandName;
+    }
+
+    public void setStartRaffleCommandName(final String startRaffleCommandName) {
+        this.startRaffleCommandName = startRaffleCommandName;
+    }
+
+    public int getStartRaffleCommandId() {
+        return startRaffleCommandId;
+    }
+
+    public void setStartRaffleCommandId(final int startRaffleCommandId) {
+        this.startRaffleCommandId = startRaffleCommandId;
+    }
+
+    public String getEnterRaffleCommandName() {
+        return enterRaffleCommandName;
+    }
+
+    public void setEnterRaffleCommandName(final String enterRaffleCommandName) {
+        this.enterRaffleCommandName = enterRaffleCommandName;
+    }
+
+    public int getRaffleDuration() {
+        return raffleDuration;
+    }
+
+    public void setRaffleDuration(final int raffleDuration) {
+        this.raffleDuration = raffleDuration;
     }
 }

@@ -5,12 +5,12 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
+import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Validation;
 
-import java.time.Instant;
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,30 +29,36 @@ public class Giveaway {
     private int id;
     private String name;
     private boolean selfService;
-    private boolean raffle;
+    private boolean rafflesEnabled;
     private State state;
 
+    // Self Service
     private String requestPrizeCommandName;
+    private RequestPrizeCommand requestPrizeCommand;
     private int prizeRequestLimit = 50;
     private int prizeRequestUserLimit = 1;
     private int prizeRequests = 0;
-    private RequestPrizeCommand requestPrizeCommand;
+
+    // Raffle
+    private String startRaffleCommandName;
+    private StartGiveawayCommand startRaffleCommand;
+    private String enterRaffleCommandName;
+    private Duration raffleDuration = Duration.of(10, ChronoUnit.MINUTES);
 
     private List<Prize> prizes = new ArrayList<>();
-    //private String enterCommandString;
-    //private Duration duration = Duration.of(10, ChronoUnit.MINUTES);
+    private List<Raffle> raffles = new ArrayList<>();
 
-    public Giveaway(final int id, final String name, final boolean selfService, final boolean raffle) throws BotErrorException {
+    public Giveaway(final int id, final String name, final boolean selfService, final boolean rafflesEnabled) throws BotErrorException {
         this.id = id;
         this.name = name;
         this.selfService = selfService;
-        this.raffle = raffle;
+        this.rafflesEnabled = rafflesEnabled;
         this.state = State.CONFIGURING;
 
         Validation.validateStringValue(name, Validation.MAX_NAME_LENGTH, "Giveaway name",
                 Validation.NAME_PATTERN);
 
-        if (!selfService && !raffle) {
+        if (!selfService && !rafflesEnabled) {
             throw new BotErrorException("Giveaway must be at least one of self service or raffle.");
         }
 
@@ -78,7 +84,7 @@ public class Giveaway {
     }
 
     public boolean isRaffle() {
-        return raffle;
+        return rafflesEnabled;
     }
 
     public State getState() {
@@ -100,6 +106,14 @@ public class Giveaway {
         this.requestPrizeCommandName = requestPrizeCommandName;
     }
 
+    public Command getRequestPrizeCommand() {
+        return requestPrizeCommand;
+    }
+
+    public void setRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
+        this.requestPrizeCommand = requestPrizeCommand;
+    }
+
     public int getPrizeRequestLimit() {
         return prizeRequestLimit;
     }
@@ -116,12 +130,42 @@ public class Giveaway {
         this.prizeRequestUserLimit = prizeRequestUserLimit;
     }
 
-    public Command getRequestPrizeCommand() {
-        return requestPrizeCommand;
+    public String getStartRaffleCommandName() {
+        return startRaffleCommandName;
     }
 
-    public void setRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
-        this.requestPrizeCommand = requestPrizeCommand;
+    public void setStartRaffleCommandName(final String startRaffleCommandName) throws BotErrorException {
+        Validation.validateStringValue(startRaffleCommandName, Validation.MAX_NAME_LENGTH,
+                "Start raffle command name", Validation.NAME_PATTERN);
+
+        this.startRaffleCommandName = startRaffleCommandName;
+    }
+
+    public Command getStartRaffleCommand() {
+        return startRaffleCommand;
+    }
+
+    public void setStartRaffleCommand(final StartGiveawayCommand startRaffleCommand) {
+        this.startRaffleCommand = startRaffleCommand;
+    }
+
+    public Duration getRaffleDuration() {
+        return raffleDuration;
+    }
+
+    public void setRaffleDuration(final Duration raffleDuration) {
+        this.raffleDuration = raffleDuration;
+    }
+
+    public String getEnterRaffleCommandName() {
+        return enterRaffleCommandName;
+    }
+
+    public void setEnterRaffleCommandName(final String enterRaffleCommandName) throws BotErrorException {
+        Validation.validateStringValue(enterRaffleCommandName, Validation.MAX_NAME_LENGTH,
+                "Enter raffle command name", Validation.NAME_PATTERN);
+
+        this.enterRaffleCommandName = enterRaffleCommandName;
     }
 
     public List<Prize> getPrizes() {
@@ -131,6 +175,24 @@ public class Giveaway {
     public void addPrize(final Prize prize) {
         prizes.add(prize);
     }
+
+    public List<Raffle> getRaffles() {
+        return raffles;
+    }
+
+    public void addRaffle(final Raffle raffle) {
+        raffles.add(raffle);
+    }
+
+    public Raffle retrieveCurrentRaffle() throws BotErrorException {
+        for(Raffle raffle : raffles) {
+            if (raffle.getStatus() == Raffle.Status.IN_PROGRESS) {
+                return raffle;
+            }
+        }
+        throw new BotErrorException("There is no raffle currently in progress.");
+    }
+
 
     /*
     public List<Reward> getRewards() {
@@ -161,7 +223,7 @@ public class Giveaway {
             }
 
             if (commandTable.getCommand(requestPrizeCommandName) != null) {
-                throw new BotErrorException(String.format("There is alreayd a '' command.", requestPrizeCommandName));
+                throw new BotErrorException(String.format("There is already a '%s' command.", requestPrizeCommandName));
             }
 
             int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
@@ -182,7 +244,6 @@ public class Giveaway {
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
 
-        boolean awarded = false;
         Prize prize = prizes.stream().filter(p -> p.getStatus() == Prize.Status.AVAILABLE).findFirst()
                 .orElseThrow(() -> new BotErrorException("No prizes left :("));
 
@@ -190,6 +251,22 @@ public class Giveaway {
         giveawayEdit.addPrize(getId(), prize);
         return giveawayEdit;
     }
+
+    public GiveawayEdit reservePrize() throws BotErrorException {
+        if (!rafflesEnabled) {
+            throw new BotErrorException("Cannot request a prize from this type of giveaway");
+        }
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+
+        Prize prize = prizes.stream().filter(p -> p.getStatus() == Prize.Status.AVAILABLE).findFirst()
+                .orElseThrow(() -> new BotErrorException("No prizes left :("));
+
+        prize.setStatus(Prize.Status.RESERVED);
+        giveawayEdit.addPrize(getId(), prize);
+        return giveawayEdit;
+    }
+
 
     /*
     public StartGiveawayResult startGiveaway() throws BotErrorException {

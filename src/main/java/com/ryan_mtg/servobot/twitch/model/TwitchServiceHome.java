@@ -64,17 +64,21 @@ public class TwitchServiceHome implements ServiceHome {
 
     @Override
     public String getDescription() {
-        return String.format("Channel %s ", twitchService.getChannelName(channelId));
+        return String.format("Channel %s ", getChannelName());
     }
 
     @Override
     public String getLink() {
-        return String.format("http://twitch.tv/%s", twitchService.getChannelName(channelId));
+        return String.format("http://twitch.tv/%s", getChannelName());
     }
 
     @Override
     public String getImageUrl() {
         return twitchService.getChannelImageUrl(channelId);
+    }
+
+    public String getChannelName() {
+        return twitchService.getChannelName(channelId);
     }
 
     public long getChannelId() {

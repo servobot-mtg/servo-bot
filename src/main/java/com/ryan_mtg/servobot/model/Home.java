@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public interface Home {
     List<String> clearRole(String role) throws BotErrorException;
 
     Emote getEmote(String emoteName);
+
+    User getUser(HomedUser homedUser);
 
     HomeEditor getHomeEditor();
 

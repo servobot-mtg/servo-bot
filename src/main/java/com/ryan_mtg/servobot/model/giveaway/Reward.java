@@ -13,7 +13,6 @@ import java.util.Random;
 
 public class Reward {
     public static final int UNREGISTERED_ID = 0;
-    private static final Random RANDOM = new Random();
 
     public enum Status {
         READY,
@@ -100,8 +99,6 @@ public class Reward {
         if (entrants.size() == 0) {
             throw new BotErrorException("Cannot award giveaway with no entrants!");
         }
-
-        winner = entrants.get(RANDOM.nextInt(entrants.size())).getUser();
 
         status = Status.AWARDED;
     }

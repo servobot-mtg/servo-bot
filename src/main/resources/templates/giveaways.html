@@ -107,7 +107,7 @@
                             <label>Prize Request Limit</label><br>
                             <input type="number" th:id="${label} + '-prize-request-limit'"
                                    th:value="${giveaway.prizeRequestLimit}" min="1"><br>
-                        </div>
+                        </div><br>
                         <div class="form-block">
                             <label>Prize Request Limit per User</label><br>
                             <input type="number" th:id="${label} + '-prize-request-user-limit'"
@@ -123,31 +123,39 @@
                 <div th:if="${giveaway.raffle}" class="section">
                     <h3>Raffle</h3>
                     <div id="raffle" class="section-content">
-                        <div class="form-block">
-                            <label>Raffle options</label><br>
-                            <input type="checkbox">Automatic Redemption<br>
+                        <div class="form-block hidden">
+                            <label>Raffle Options</label><br>
+                            <input type="checkbox" th:checked="${false}">Automatic redemption<br>
                         </div>
                         <div class="form-block">
                             <label>Raffle End</label><br>
-                            <input type="radio" name="raffle-end" checked>Timed<br>
-                            <input type="radio" name="raffle-end">Manual<br>
-                        </div><br>
-                        <div class="form-block">
-                            <label>Start Raffle Command Name</label><br>
-                            <input type="text" id="start-raffle-command"><br>
+                            <input type="radio" th:name="${label} + '-raffle-end'" value="TIMED" checked>Timed<br>
+                            <input type="radio" th:name="${label} + '-raffle-end'" value="MANUAL">Manual<br>
                         </div>
                         <div class="form-block">
                             <label>Raffle Duration (min)</label><br>
-                            <input type="number" id="raffle-duration" value="30"><br>
+                            <input type="number" th:id="${label} + '-raffle-duration'"
+                                   th:value="${giveaway.raffleDuration.toMinutes()}"><br>
+                        </div><br>
+                        <div class="form-block">
+                            <label>Start Raffle Command</label><br>
+                            <input type="text" th:id="${label} + '-start-raffle-command'"
+                                   th:value="${giveaway.startRaffleCommandName}"><br>
                         </div><br>
                         <div class="form-block">
                             <label>Raffle Entry Command Name</label><br>
-                            <input type="text" id="raffle-entry-command"><br>
-                        </div>
-                        <div class="form-block">
+                            <input type="text" th:id="${label} + '-enter-raffle-command'"
+                                   th:value="${giveaway.enterRaffleCommandName}"><br>
+                        </div><br>
+                        <div class="form-block hidden">
                             <label>Select Raffle Winner Command Name</label><br>
                             <input type="text" id="select-raffle-winner-command"><br>
                         </div><br>
+                        <div class="pseudo-link save-button"
+                             th:onclick="'saveRaffleSettings(' + ${botHome.id} + ',' + ${giveaway.id} + ')'">
+                            <div>&#x1F4BE;</div>
+                            <span th:id="${label} + '-raffle-save-response'"/>
+                        </div>
                     </div>
                 </div>
 

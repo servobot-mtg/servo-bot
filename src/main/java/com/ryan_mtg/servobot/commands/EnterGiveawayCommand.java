@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.commands;
 
-import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 
@@ -19,7 +18,7 @@ public class EnterGiveawayCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        event.getHomeEditor().enterGiveaway(event.getSender().getHomedUser(), giveawayId);
+        event.getHomeEditor().enterRaffle(event.getSender().getHomedUser(), giveawayId);
         MessageCommand.say(event, String.format("%s has been entered.", event.getSender().getName()));
     }
 

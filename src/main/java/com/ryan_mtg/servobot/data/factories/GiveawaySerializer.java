@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.data.factories;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
+import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
 import com.ryan_mtg.servobot.data.models.GiveawayRow;
 import com.ryan_mtg.servobot.data.models.PrizeRow;
 import com.ryan_mtg.servobot.data.repositories.GiveawayRepository;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,10 +58,16 @@ public class GiveawaySerializer {
         giveawayRow.setState(giveaway.getState());
 
         giveawayRow.setRequestPrizeCommandName(giveaway.getRequestPrizeCommandName());
-        giveawayRow.setPrizeRequestLimit(giveaway.getPrizeRequestLimit());
-        giveawayRow.setPrizeRequestUserLimit(giveaway.getPrizeRequestUserLimit());
         Command requestPrizeCommand = giveaway.getRequestPrizeCommand();
         giveawayRow.setRequestPrizeCommandId(requestPrizeCommand != null ? requestPrizeCommand.getId() : 0);
+        giveawayRow.setPrizeRequestLimit(giveaway.getPrizeRequestLimit());
+        giveawayRow.setPrizeRequestUserLimit(giveaway.getPrizeRequestUserLimit());
+
+        giveawayRow.setStartRaffleCommandName(giveaway.getStartRaffleCommandName());
+        Command startRaffleCommand = giveaway.getStartRaffleCommand();
+        giveawayRow.setStartRaffleCommandId(startRaffleCommand != null ? startRaffleCommand.getId() : 0);
+        giveawayRow.setEnterRaffleCommandName(giveaway.getEnterRaffleCommandName());
+        giveawayRow.setRaffleDuration((int)giveaway.getRaffleDuration().getSeconds());
 
         giveawayRepository.save(giveawayRow);
 
@@ -107,6 +115,19 @@ public class GiveawaySerializer {
                         (RequestPrizeCommand) commandTable.getCommand(giveawayRow.getRequestPrizeCommandId());
                 giveaway.setRequestPrizeCommand(requestPrizeCommand);
             }
+        }
+
+        if (giveaway.isRaffle()) {
+            giveaway.setStartRaffleCommandName(giveawayRow.getStartRaffleCommandName());
+
+            if (giveawayRow.getStartRaffleCommandId() != Command.UNREGISTERED_ID) {
+                StartGiveawayCommand startRaffleCommand =
+                        (StartGiveawayCommand) commandTable.getCommand(giveawayRow.getStartRaffleCommandId());
+                giveaway.setStartRaffleCommand(startRaffleCommand);
+            }
+
+            giveaway.setEnterRaffleCommandName(giveawayRow.getEnterRaffleCommandName());
+            giveaway.setRaffleDuration(Duration.ofSeconds(giveawayRow.getRaffleDuration()));
         }
 
         for (PrizeRow prizeRow : prizeRepository.findAllByGiveawayId(giveaway.getId())) {

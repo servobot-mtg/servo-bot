@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.user.HomedUser;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
@@ -41,7 +42,7 @@ public class DiscordHome implements Home {
         if (serviceType != DiscordService.TYPE) {
             return null;
         }
-        List<TextChannel> channels = guild.getTextChannelsByName(channelName, false);
+        List<TextChannel> channels = guild.getTextChannelsByName(channelName, true);
         if (channels.size() > 0) {
             return new DiscordChannel(this, channels.get(0));
         }
@@ -152,6 +153,12 @@ public class DiscordHome implements Home {
         }
 
         return null;
+    }
+
+    @Override
+    public User getUser(final HomedUser homedUser) {
+        Member member = guild.getMemberById(homedUser.getDiscordId());
+        return new DiscordUser(homedUser, member);
     }
 
     @Override

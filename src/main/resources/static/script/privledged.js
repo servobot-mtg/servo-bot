@@ -969,13 +969,34 @@ function saveSelfService(botHomeId, giveawayId) {
         prizeRequestUserLimit);
 }
 
-async function postSaveGiveawaySelfService(botHomeId, giveawayId, requestPrizeCommandName, prizeRequestLimit, prizeRequestUserLimit) {
+async function postSaveGiveawaySelfService(botHomeId, giveawayId, requestPrizeCommandName, prizeRequestLimit,
+        prizeRequestUserLimit) {
     const label = 'giveaway-' + giveawayId;
     const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, requestPrizeCommandName: requestPrizeCommandName,
         prizeRequestLimit: prizeRequestLimit, prizeRequestUserLimit: prizeRequestUserLimit};
     const responseElement = document.getElementById(label + '-self-service-save-response');
-    let response = await makePost('/api/save_giveaway_self_service', parameters, [responseElement], false);
+    await makePost('/api/save_giveaway_self_service', parameters, [responseElement], false);
 }
+
+function saveRaffleSettings(botHomeId, giveawayId) {
+    const label = 'giveaway-' + giveawayId;
+    const raffleDuration = document.getElementById(label + '-raffle-duration').value;
+    const startRaffleCommandName = document.getElementById(label + '-start-raffle-command').value;
+    const enterRaffleCommandName = document.getElementById(label + '-enter-raffle-command').value;
+
+    postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffleCommandName,
+        enterRaffleCommandName);
+}
+
+async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffleCommandName,
+        enterRaffleCommandName) {
+    const label = 'giveaway-' + giveawayId;
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, raffleDuration: raffleDuration,
+        startRaffleCommandName: startRaffleCommandName, enterRaffleCommandName: enterRaffleCommandName};
+    const responseElement = document.getElementById(label + '-raffle-save-response');
+    await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], false);
+}
+
 
 function showAddPrizeForm(giveawayId) {
     const label = 'giveaway-' + giveawayId + '-add-prize';

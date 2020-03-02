@@ -21,7 +21,7 @@ public class SelectWinnerCommand extends HomeCommand {
     public void perform(final HomeEvent homeEvent) {
         try {
             HomeEditor homeEditor = homeEvent.getHomeEditor();
-            homeEditor.awardReward(giveawayId, homeEditor.getGiveaway(giveawayId).getId());
+            homeEditor.selectRaffleWinner(giveawayId);
         } catch (BotErrorException e) {
             e.printStackTrace();
         }

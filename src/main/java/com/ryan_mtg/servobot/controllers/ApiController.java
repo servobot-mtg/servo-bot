@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -537,6 +539,34 @@ public class ApiController {
         }
     }
 
+    @PostMapping(value = "/save_giveaway_raffle_settings", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway saveGiveawaySelfService(@RequestBody final SaveRaffleSettingsRequest request)
+            throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
+                Duration.of(request.getRaffleDuration(), ChronoUnit.MINUTES),
+                request.getStartRaffleCommandName(), request.getEnterRaffleCommandName());
+    }
+
+    public static class SaveRaffleSettingsRequest extends GiveawayRequest {
+        private int raffleDuration;
+        private String startRaffleCommandName;
+        private String enterRaffleCommandName;
+
+        public int getRaffleDuration() {
+            return raffleDuration;
+        }
+
+        public String getStartRaffleCommandName() {
+            return startRaffleCommandName;
+        }
+
+        public String getEnterRaffleCommandName() {
+            return enterRaffleCommandName;
+        }
+    }
+
     @PostMapping(value = "/start_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Giveaway startGiveaway(@RequestBody final GiveawayRequest request) throws BotErrorException {
@@ -559,31 +589,12 @@ public class ApiController {
         }
     }
 
-    @PostMapping(value = "/add_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public Reward addReward(@RequestBody final AddRewardRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.addReward(request.getGiveawayId(), request.getPrize());
-    }
-
-    public static class AddRewardRequest extends BotHomeRequest {
-        private String prize;
-        private int giveawayId;
-
-        public int getGiveawayId() {
-            return giveawayId;
-        }
-
-        public String getPrize() {
-            return prize;
-        }
-    }
-
     @PostMapping(value = "/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public HomedUser awardReward(@RequestBody final RewardRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.awardReward(request.getGiveawayId(), request.getRewardId());
+        //HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        //return homeEditor.awardReward(request.getGiveawayId(), request.getRewardId());
+        return null;
     }
 
     @PostMapping(value = "/bestow_reward", consumes = MediaType.APPLICATION_JSON_VALUE,

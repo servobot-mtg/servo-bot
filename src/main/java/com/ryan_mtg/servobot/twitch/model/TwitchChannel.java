@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.List;
 
@@ -75,6 +76,11 @@ public class TwitchChannel implements Channel, Home {
     @Override
     public Emote getEmote(final String emoteName) {
         return null;
+    }
+
+    @Override
+    public User getUser(final HomedUser homedUser) {
+        return new TwitchUser(twitchChat, homedUser);
     }
 
     @Override
