@@ -9,6 +9,7 @@ public class BotHomeAlertEvent extends AbstractHomedEvent implements AlertEvent 
 
     public BotHomeAlertEvent(final int homeId, final String alertToken, final Home home) {
         super(homeId);
+        setHomeEditor(home.getHomeEditor());
         this.alertToken = alertToken;
         this.home = home;
         setHomeEditor(home.getHomeEditor());
