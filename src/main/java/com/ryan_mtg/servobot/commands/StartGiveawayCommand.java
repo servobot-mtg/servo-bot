@@ -19,11 +19,14 @@ public class StartGiveawayCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        /*
+        TODO: FIX
         Reward reward = event.getHomeEditor().startGiveaway(giveawayId);
         String message =
                 String.format("The giveaway has started! There are %d minutes left to type !enter in the Discord.",
                         reward.getTimeLeft().toMinutes());
         MessageCommand.say(event, message);
+         */
     }
 
     @Override

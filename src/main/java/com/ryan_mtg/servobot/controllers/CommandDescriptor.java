@@ -20,6 +20,7 @@ import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
 import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
@@ -218,6 +219,12 @@ public class CommandDescriptor {
         public void visitRemoveFromGameQueueCommand(final RemoveFromGameQueueCommand removeFromGameQueueCommand) {
             type = "Remove From Game Queue Command";
             description = "Removes the user from the game queue";
+        }
+
+        @Override
+        public void visitRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
+            type = "Request Prize Command";
+            description = "Requests a giveaway prize";
         }
 
         @Override

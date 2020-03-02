@@ -6,12 +6,27 @@ h2 {
     clear: both;
 }
 
+h3 {
+    margin: 10px 0 0 0;
+}
+
 li {
     margin: 3px 0;
 }
 
+input[type=number] {
+    width: 5em;
+    text-align: right;
+}
+
 .pseudo-link {
     cursor: pointer;
+}
+
+.save-button {
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 .user-image {
@@ -231,7 +246,24 @@ table {
     display: inline-block;
     float: left;
     margin: 7px;
+}
+
+.title-section {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.section {
+    clear: left;
+    display: inline-block;
+}
+
+.section-content {
+    display: inline-block;
+    position: relative;
+    border: black solid 1px;
     padding: 7px;
+    margin-bottom: 10px;
 }
 
 .add-statement {
@@ -254,17 +286,16 @@ table {
     margin: 12px;
 }
 
-
 .add-button {
     height: var(--add-button-size, 12px);
     width: var(--add-button-size, 12px);
     display: inline-block;
     background-color: white;
-    color: midnightblue;
+    color: var(--add-color, midnightblue);
     font-weight: bold;
     line-height: var(--add-button-size, 12px);
     text-align: center;
-    border: midnightblue solid 2px;
+    border: solid 2px var(--add-color, midnightblue);
     border-radius: 50%;
 }
 
@@ -274,7 +305,7 @@ table {
 .add-form {
     margin: 12px;
     padding: 12px;
-    border: midnightblue solid 2px;
+    border: solid 2px var(--add-color, midnightblue);
 }
 
 .add-form label {
@@ -299,8 +330,39 @@ table {
     min-width: 50em;
 }
 
+input[type=text].name {
+    box-sizing: border-box;
+    min-width: 19em;
+}
+
 .add-giveaway {
-    border: goldenrod solid 1px;
+    --add-button-size: 24px;
+    --add-color: goldenrod;
+    margin: 12px;
+}
+
+.giveaway {
+    margin: 12px;
+    padding: 12px;
+    border: solid 1px goldenrod;
+}
+
+.add-prize {
+    --add-button-size: 18px;
+    --add-color: darkred;
+    margin: 6px;
+}
+
+.form-block {
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-right: 3em;
+}
+
+.giveaway label {
+    margin: 4px 0 0 0;
+    display: inline-block;
+    font-weight: bold;
 }
 
 .invite-form {

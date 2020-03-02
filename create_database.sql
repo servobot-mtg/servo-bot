@@ -50,3 +50,10 @@ CREATE TABLE IF NOT EXISTS command_trigger (id INTEGER AUTO_INCREMENT PRIMARY KE
 
 CREATE TABLE IF NOT EXISTS storage_value (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, type INTEGER,
                                           user_id INTEGER, name VARCHAR(30), number INTEGER, string VARCHAR(200));
+
+CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, name VARCHAR(30),
+         flags INTEGER, state INTEGER, request_prize_command_name VARCHAR(30), request_prize_limit INTEGER,
+         request_prize_user_limit INTEGER, request_prize_command_id INTEGER, prize_requests INTEGER);
+
+CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
+         status INTEGER, winner_id INTEGER);

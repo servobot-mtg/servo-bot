@@ -104,8 +104,7 @@ public class BotFactory {
             gameQueues.add(gameQueue);
         }
 
-        List<Giveaway> giveaways = new ArrayList<>();
-        giveaways.add(new Giveaway());
+        List<Giveaway> giveaways = serializers.getGiveawaySerializer().createGiveaways(botHomeId, commandTable);
         return new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable, storageTable,
                 serviceHomes, books, gameQueues, giveaways);
     }

@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.utility.Flags;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +23,7 @@ public abstract class Command {
     public static final int TWITCH_FLAG = 1<<TwitchService.TYPE;
     public static final int DISCORD_FLAG = 1<<DiscordService.TYPE;
     public static final int DEFAULT_FLAGS = TWITCH_FLAG | DISCORD_FLAG;
+    public static final int TEMPORARY_FLAG = 1<<10;
 
     private int id;
     private int flags;
@@ -46,15 +48,15 @@ public abstract class Command {
     }
 
     public boolean isSecure() {
-        return (flags & SECURE_FLAG) != 0;
+        return Flags.hasFlag(flags, SECURE_FLAG);
     }
 
     public boolean isTwitch() {
-        return (flags & TWITCH_FLAG) != 0;
+        return Flags.hasFlag(flags, TWITCH_FLAG);
     }
 
     public boolean isDiscord() {
-        return (flags & DISCORD_FLAG) != 0;
+        return Flags.hasFlag(flags, DISCORD_FLAG);
     }
 
     public void setSecure(final boolean secure) {
@@ -62,11 +64,19 @@ public abstract class Command {
     }
 
     public boolean getService(int serivceType) {
-        return (flags & 1<<serivceType) != 0;
+        return Flags.hasFlag(flags, 1<<serivceType);
     }
 
     public void setService(int serivceType, boolean value) {
         setFlag(1<<serivceType, value);
+    }
+
+    public boolean isTemporary() {
+        return Flags.hasFlag(flags, TEMPORARY_FLAG);
+    }
+
+    public void setTemporary() {
+        setFlag(TEMPORARY_FLAG, true);
     }
 
     public Permission getPermission() {
@@ -108,11 +118,7 @@ public abstract class Command {
     }
 
     private void setFlag(final int flag, final boolean value) {
-        if (value) {
-            flags = flags | flag;
-        } else {
-            flags = flags & ~flag;
-        }
+        flags = Flags.setFlag(flags, flag, value);
     }
 
     protected static void say(final Channel channel, final Event event, final Scope scope, final String text)

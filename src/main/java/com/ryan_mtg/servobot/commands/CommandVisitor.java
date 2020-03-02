@@ -16,6 +16,7 @@ public interface CommandVisitor {
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
+    void visitRequestPrizeCommand(RequestPrizeCommand requestPrizeCommand);
     void visitSelectWinnerCommand(SelectWinnerCommand selectWinnerCommand);
     void visitSetArenaUsernameCommand(SetArenaUsernameCommand setArenaUsernameCommand);
     void visitSetRoleCommand(SetRoleCommand setRoleCommand);

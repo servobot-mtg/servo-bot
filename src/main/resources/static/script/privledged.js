@@ -10,10 +10,11 @@ const decodedLockedIcon = decodeHtmlEntity('&#x1F512;');
 const checkmarkIcon = '&#x2714;&#xFE0F;';
 const crossIcon = '&#x274C;';
 const yellowCircleIcon = '&#x1F7E1;';
-const trashcanIcon = '&#x1F5D1;';
+const trashcanIcon = '&#x1F5D1;&#xFE0F;';
 const penIcon = '&#x270F;&#xFE0F;';
 const bookIcon = '&#x1F4BE;';
 const defaultCommandFlags = 2+4;
+const emptySetIcon = '&#x2205';
 
 function submitInvite() {
     let timeZone = document.getElementById('time-zone-select').value;
@@ -912,68 +913,128 @@ function addReactionRow(reaction, botHomeId) {
     };
 }
 
-function showAddRewardForm() {
-    const label = 'add-reward';
+function showAddGiveawayForm() {
+    const label = 'add-giveaway';
     hideElementById(label + '-button');
 
-    let prizeInputElement = document.getElementById(label + '-prize-input');
-    prizeInputElement.value = '';
-    prizeInputElement.style.minWidth = "5em";
-    prizeInputElement.size = 30;
+    let giveawayNameInput = document.getElementById(label + '-name');
+    giveawayNameInput.value = '';
     showElementInlineById(label + '-form');
 }
 
-function addReward(botHomeId) {
-    const prize = document.getElementById('add-reward-prize-input').value;
-    postAddReward(botHomeId, prize);
+function addGiveaway(botHomeId) {
+    const name = document.getElementById('add-giveaway-name').value;
+    const selfService = document.getElementById('add-giveaway-self-service').checked;
+    const raffle = document.getElementById('add-giveaway-raffle').checked;
+    postAddGiveaway(botHomeId, name, selfService, raffle);
 }
 
-async function postAddReward(botHomeId, prize) {
-    const label = 'add-reward';
-    const parameters = {botHomeId: botHomeId, prize: prize};
-    let response = await makePost('/api/add_reward', parameters, [], false);
+async function postAddGiveaway(botHomeId, name, selfService, raffle) {
+    const label = 'add-giveaway';
+    const parameters = {botHomeId: botHomeId, name: name, selfService: selfService, raffle: raffle};
+    let response = await makePost('/api/add_giveaway', parameters, [], false);
 
     if (response.ok) {
         hideElementById(label + '-form');
         showElementInlineById(label + '-button');
 
-        let reward = await response.json();
-        addRewardRow(botHomeId, reward);
+        location.reload();
     }
 }
 
-function addRewardRow(botHomeId, reward) {
-    let rewardTable = document.getElementById('reward-table');
-    let newRow = rewardTable.insertRow();
+function startGiveaway(botHomeId, giveawayId) {
+    postStartGiveaway(botHomeId, botHomeId, giveawayId);
+}
 
-    const label = 'reward-' + reward.id;
+async function postStartGiveaway(botHomeId, giveawayId) {
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId};
+    let response = await makePost('/api/start_giveaway', parameters, [], false);
+
+    if (response.ok) {
+        const label = 'giveaway-' + giveawayId;
+        hideElementById(label + '-play-button');
+        showElementInlineById(label + '-pause-button');
+        document.getElementById(label + '-state');
+        statusElement.innerHTML = 'Active';
+    }
+}
+
+function saveSelfService(botHomeId, giveawayId) {
+    const label = 'giveaway-' + giveawayId;
+    const requestPrizeCommandName = document.getElementById(label + '-request-prize-command').value;
+    const prizeRequestLimit = document.getElementById(label + '-prize-request-limit').value;
+    const prizeRequestUserLimit = document.getElementById(label + '-prize-request-user-limit').value;
+
+    postSaveGiveawaySelfService(botHomeId, giveawayId, requestPrizeCommandName, prizeRequestLimit,
+        prizeRequestUserLimit);
+}
+
+async function postSaveGiveawaySelfService(botHomeId, giveawayId, requestPrizeCommandName, prizeRequestLimit, prizeRequestUserLimit) {
+    const label = 'giveaway-' + giveawayId;
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, requestPrizeCommandName: requestPrizeCommandName,
+        prizeRequestLimit: prizeRequestLimit, prizeRequestUserLimit: prizeRequestUserLimit};
+    const responseElement = document.getElementById(label + '-self-service-save-response');
+    let response = await makePost('/api/save_giveaway_self_service', parameters, [responseElement], false);
+}
+
+function showAddPrizeForm(giveawayId) {
+    const label = 'giveaway-' + giveawayId + '-add-prize';
+    hideElementById(label + '-button');
+
+    let rewardInputElement = document.getElementById(label + '-reward');
+    rewardInputElement.value = '';
+    showElementInlineById(label + '-form');
+    rewardInputElement.focus();
+}
+
+function addPrize(botHomeId, giveawayId) {
+    const label = 'giveaway-' + giveawayId + '-add-prize';
+    const reward = document.getElementById(label + '-reward').value;
+    postAddPrize(botHomeId, giveawayId, reward);
+}
+
+async function postAddPrize(botHomeId, giveawayId, reward) {
+    const label = 'giveaway-' + giveawayId + '-add-prize';
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, reward: reward};
+    let response = await makePost('/api/add_prize', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let prize = await response.json();
+        addPrizeRow(botHomeId, giveawayId, prize);
+    }
+}
+
+function addPrizeRow(botHomeId, giveawayId, prize) {
+    const label = 'giveaway-' + giveawayId;
+    let prizeTable = document.getElementById(label + '-prize-table');
+    let newRow = prizeTable.insertRow();
+
+    const prizeLabel = 'prize-' + prize.id;
     newRow.id = label + '-row';
-    let prizeCell = newRow.insertCell();
-    prizeCell.innerHTML = reward.prize;
+    let rewardCell = newRow.insertCell();
+    rewardCell.innerHTML = prize.reward;
 
     let statusCell = newRow.insertCell();
-    statusCell.innerHTML = reward.status;
-
-    let timeRemainingCell = newRow.insertCell();
-
-    let entrantsCell = newRow.insertCell();
-    entrantsCell.innerHTML = "0";
+    statusCell.innerHTML = prize.status;
 
     let actionsCell = newRow.insertCell();
     actionsCell.innerHTML = "";
 
     let winnerCell = newRow.insertCell();
-    if (reward.winner) {
-        winnerCell.innerHTML = reward.winner;
+    if (prize.winner) {
+        winnerCell.innerHTML = prize.winner;
     } else {
-        winnerCell.innerHTML = '&#x2205';
+        winnerCell.innerHTML = emptySetIcon;
     }
 
     let deleteCell = newRow.insertCell();
     deleteCell.classList.add('pseudo-link');
     deleteCell.innerHTML = trashcanIcon;
     deleteCell.onclick = function () {
-        deleteReward(botHomeId, reward.id);
+        deletePrize(botHomeId, giveawayId, prize.id);
     };
 }
 

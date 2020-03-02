@@ -17,6 +17,7 @@ import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
 import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
@@ -110,6 +111,9 @@ public class CommandSerializer {
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new RemoveFromGameQueueCommand(id, flags, permission, gameQueueId);
+            case RequestPrizeCommand.TYPE:
+                giveawayId = (int) (long) commandRow.getLongParameter();
+                return new RequestPrizeCommand(id, flags, permission, giveawayId);
             case SelectWinnerCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new SelectWinnerCommand(id, flags, permission, giveawayId);
@@ -323,6 +327,13 @@ public class CommandSerializer {
         public void visitRemoveFromGameQueueCommand(final RemoveFromGameQueueCommand removeFromGameQueueCommand) {
             saveCommand(removeFromGameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(removeFromGameQueueCommand.getGameQueueId());
+            });
+        }
+
+        @Override
+        public void visitRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
+            saveCommand(requestPrizeCommand, commandRow -> {
+                commandRow.setLongParameter(requestPrizeCommand.getGiveawayId());
             });
         }
 

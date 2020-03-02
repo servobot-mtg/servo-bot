@@ -161,6 +161,10 @@ public class BotHome {
         return giveaways.stream().filter(g -> g.getId() == giveawayId).findFirst().orElse(null);
     }
 
+    public void addGiveaway(final Giveaway giveaway) {
+        giveaways.add(giveaway);
+    }
+
     public GameQueue getGameQueue(final int gameQueueId) {
         return gameQueues.stream().filter(gameQueue -> gameQueue.getId() == gameQueueId).findFirst().orElse(null);
     }

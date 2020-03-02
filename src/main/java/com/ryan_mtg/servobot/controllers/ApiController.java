@@ -8,6 +8,8 @@ import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
+import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.giveaway.Reward;
 import com.ryan_mtg.servobot.model.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
@@ -473,6 +475,88 @@ public class ApiController {
     @PostMapping(value = "/start_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean restartHome(@RequestBody final BotHomeRequest request) {
         return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).restartHome(request.getBotHomeId()));
+    }
+
+    @PostMapping(value = "/add_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway addGiveaway(@RequestBody final AddGiveawayRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addGiveaway(request.getName(), request.isSelfService(), request.isRaffle());
+    }
+
+    public static class AddGiveawayRequest extends BotHomeRequest {
+        private String name;
+        private boolean selfService;
+        private boolean raffle;
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isSelfService() {
+            return selfService;
+        }
+
+        public boolean isRaffle() {
+            return raffle;
+        }
+    }
+
+    @PostMapping(value = "/save_giveaway_self_service", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway saveGiveawaySelfService(@RequestBody final SaveSelfServiceRequest request)
+            throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.saveGiveawaySelfService(request.getGiveawayId(), request.getRequestPrizeCommandName(),
+                request.getPrizeRequestLimit(), request.getPrizeRequestUserLimit());
+    }
+
+    public static class GiveawayRequest extends BotHomeRequest {
+        private int giveawayId;
+
+        public int getGiveawayId() {
+            return giveawayId;
+        }
+    }
+
+    public static class SaveSelfServiceRequest extends GiveawayRequest {
+        private String requestPrizeCommandName;
+        private int prizeRequestLimit;
+        private int prizeRequestUserLimit;
+
+        public String getRequestPrizeCommandName() {
+            return requestPrizeCommandName;
+        }
+
+        public int getPrizeRequestLimit() {
+            return prizeRequestLimit;
+        }
+
+        public int getPrizeRequestUserLimit() {
+            return prizeRequestUserLimit;
+        }
+    }
+
+    @PostMapping(value = "/start_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway startGiveaway(@RequestBody final GiveawayRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.startGiveaway(request.getGiveawayId());
+    }
+
+    @PostMapping(value = "/add_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Prize addPrize(@RequestBody final AddPrizeRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addPrize(request.getGiveawayId(), request.getReward());
+    }
+
+    public static class AddPrizeRequest extends GiveawayRequest {
+        private String reward;
+
+        public String getReward() {
+            return reward;
+        }
     }
 
     @PostMapping(value = "/add_reward", consumes = MediaType.APPLICATION_JSON_VALUE,

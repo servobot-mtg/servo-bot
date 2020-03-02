@@ -150,6 +150,14 @@ public class UserSerializer {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
+    public HomedUser getHomedUser(final int botHomeId, final int winnerId) throws BotErrorException {
+        UserHomeRow userHomeRow = userHomeRepository.findByUserIdAndBotHomeId(winnerId, botHomeId);
+
+        UserRow userRow = userRepository.findById(winnerId);
+        return createHomedUser(userRow, new UserStatus(userHomeRow.getState()));
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
     public List<HomedUser> getHomedUsers(final int botHomeId) throws BotErrorException {
         return getHomedUsersWithFilter(botHomeId, userHomeRow -> true);
     }

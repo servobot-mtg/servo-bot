@@ -20,6 +20,7 @@ public class Validation {
     public static final int MAX_STATEMENT_LENGTH = 256;
     public static final int MAX_USERNAME_LENGTH = 50;
 
+    public static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
     private Validation(){}
 
@@ -32,7 +33,7 @@ public class Validation {
 
     public static void validateStringValue(final String value, final int maxLength, final String name,
             final Pattern valuePattern) throws BotErrorException {
-        if (!valuePattern.matcher(value).matches()) {
+        if (value != null && !valuePattern.matcher(value).matches()) {
             throw new BotErrorException(String.format("Invalid %s pattern: %s", name, value));
         }
 

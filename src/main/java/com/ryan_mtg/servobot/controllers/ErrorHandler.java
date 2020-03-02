@@ -42,6 +42,8 @@ public class ErrorHandler {
             httpErrorCode = (Integer) httpRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
         }
 
+        exception.printStackTrace();
+
         HttpStatus status = HttpStatus.resolve(httpErrorCode);
         String errorMessage = "Http Error Code: " + httpErrorCode + ". " + status;
         ModelAndView modelAndView = setupModelAndView("error/error", status, exception, oAuth2AuthenticationToken);

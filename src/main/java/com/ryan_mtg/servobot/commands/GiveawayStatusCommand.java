@@ -23,6 +23,8 @@ public class GiveawayStatusCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        // TODO: Implement
+        /*
         Reward reward = event.getHomeEditor().getGiveaway(giveawayId);
         if (reward == null) {
             MessageCommand.say(event, "There is no giveaway running currently.");
@@ -32,6 +34,7 @@ public class GiveawayStatusCommand extends MessageCommand {
                             reward.getTimeLeft().toMinutes());
             MessageCommand.say(event, message);
         }
+         */
     }
 
     @Override

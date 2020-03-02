@@ -6,12 +6,14 @@
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
             type="text/javascript" src="/script/privledged.js"></script>
 </head>
-<body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}">
+<body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
+      streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
+      exalted=${user.admin || streamer}">
 <div th:include="fragments :: header" />
 <div class="content">
     <div th:if="${privledged}">
         <h2>Giveaways</h2>
-        <th:block th:each="giveaway : ${botHome.giveaways}">
+        <th:block th:if="false">
             <table id="reward-table" class="data-table">
                 <thead><tr>
                     <th>Prize</th>
@@ -59,13 +61,161 @@
                 </form>
             </div>
         </th:block>
-        <form class="add-giveaway add-form">
-            <div>
-                <label>Giveaway Name</label><br>
-                <input type="text" id="add-giveaway-name"><br>
+
+        <th:block th:each="giveaway : ${botHome.giveaways}" th:with="label=${'giveaway-' + giveaway.id},
+                    CONF=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).CONFIGURING},
+                    ACTIVE=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).ACTIVE},
+                    COMPLETE=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).COMPLETE}">
+            <div class="giveaway">
+                <div>
+                    <div class="title-section">
+                        <h2 th:text="${giveaway.name}"/>
+                    </div>
+                    <div class="home-controls">
+                        <span th:id="${label} + '-state'" class="home-status" th:text=
+                            "${giveaway.state == ACTIVE ? 'Active' : giveaway.state == CONF ? 'Idle' : 'Complete'}"/>
+
+                        <span th:id="${label} + '-start-button'" class="pseudo-link home-control" title="Start giveaway"
+                              th:style="'display: ' + ${giveaway.state == CONF ? 'inline-block' : 'none'}"
+                              th:onclick="'startGiveaway(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
+                            &#x25B6;
+                        </span>
+
+                        <span th:id="${label} + '-pause-button'" class="pseudo-link home-control" title="Pause giveaway"
+                              th:style="'display: ' + ${giveaway.state == ACTIVE ? 'inline-block' : 'none'}"
+                              th:onclick="'pauseGiveaway(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
+                            &#x23F8;
+                        </span>
+
+                        <span th:id="${label} + '-stop-button'" class="pseudo-link home-control" title="Stop giveaway"
+                              th:style="'display: ' + ${giveaway.state != COMPLETE ? 'inline-block' : 'none'}"
+                              th:onclick="'stopGiveaway(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
+                            &#x23F9;
+                        </span>
+                    </div>
+                </div><br>
+
+                <div th:if="${giveaway.selfService}" class="section">
+                    <h3>Self Service</h3>
+                    <div id="self-service" class="section-content">
+                        <div class="form-block">
+                            <label>Request Prize Command</label><br>
+                            <input type="text" th:id="${label} + '-request-prize-command'"
+                                   th:value="${giveaway.requestPrizeCommandName}"><br>
+                        </div>
+                        <div class="form-block">
+                            <label>Prize Request Limit</label><br>
+                            <input type="number" th:id="${label} + '-prize-request-limit'"
+                                   th:value="${giveaway.prizeRequestLimit}" min="1"><br>
+                        </div>
+                        <div class="form-block">
+                            <label>Prize Request Limit per User</label><br>
+                            <input type="number" th:id="${label} + '-prize-request-user-limit'"
+                                   th:value="${giveaway.prizeRequestUserLimit}" min="1"><br>
+                        </div>
+                        <div class="pseudo-link save-button"
+                             th:onclick="'saveSelfService(' + ${botHome.id} + ',' + ${giveaway.id} + ')'">
+                            <div>&#x1F4BE;</div>
+                            <span th:id="${label} + '-self-service-save-response'"/>
+                        </div>
+                    </div>
+                </div><br th:if="${giveaway.selfService}">
+                <div th:if="${giveaway.raffle}" class="section">
+                    <h3>Raffle</h3>
+                    <div id="raffle" class="section-content">
+                        <div class="form-block">
+                            <label>Raffle options</label><br>
+                            <input type="checkbox">Automatic Redemption<br>
+                        </div>
+                        <div class="form-block">
+                            <label>Raffle End</label><br>
+                            <input type="radio" name="raffle-end" checked>Timed<br>
+                            <input type="radio" name="raffle-end">Manual<br>
+                        </div><br>
+                        <div class="form-block">
+                            <label>Start Raffle Command Name</label><br>
+                            <input type="text" id="start-raffle-command"><br>
+                        </div>
+                        <div class="form-block">
+                            <label>Raffle Duration (min)</label><br>
+                            <input type="number" id="raffle-duration" value="30"><br>
+                        </div><br>
+                        <div class="form-block">
+                            <label>Raffle Entry Command Name</label><br>
+                            <input type="text" id="raffle-entry-command"><br>
+                        </div>
+                        <div class="form-block">
+                            <label>Select Raffle Winner Command Name</label><br>
+                            <input type="text" id="select-raffle-winner-command"><br>
+                        </div><br>
+                    </div>
+                </div>
+
+                <h3>Prizes</h3>
+                <table th:if="${!giveaway.prizes.empty}" th:id="${label} + '-prize-table'" class="data-table">
+                    <thead><tr>
+                        <th>Prize</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>Winner</th>
+                        <th th:if="${exalted}">Delete</th>
+                    </tr></thead>
+                    <th:block th:each="prize : ${giveaway.prizes}">
+                        <tr th:with="prizeLabel=${'prize-' + prize.id}" th:id="${prizeLabel} + '-row'">
+                            <td th:if="${exalted}" th:text="${prize.reward}"/>
+                            <td th:if="${!exalted}">&#x1F947;</td>
+
+                            <td th:id="${prizeLabel + '-status'}" th:text="${prize.status}"/>
+                            <td>
+                                <input type="button" value="Bestow Prize"
+                                       th:if="${prize.status == T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED}"
+                                       th:onclick="'bestowReward(' + ${botHome.id} + ',' + ${prize.id} + ')'"/>
+                            </td>
+                            <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner != null}"
+                                th:text="${prize.winner.name}"/>
+                            <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner == null}">&#x2205;</td>
+                            <td th:if="${exalted}" class="pseudo-link"
+                                th:onclick="'deletePrize(' + ${botHome.id} + ', ' + ${giveaway.id}+ ', ' + ${prize.id} + ')'">
+                                &#x1F5D1;&#xFE0F;
+                            </td>
+                        </tr>
+                    </th:block>
+                </table>
+
+                <div class="add-prize">
+                    <div th:id="${label} + '-add-prize-button'" class="pseudo-link add-button" title="Add a Prize"
+                         th:onclick="'showAddPrizeForm(' + ${giveaway.id} + ')'" >
+                        +
+                    </div>
+                    <form th:id="${label} + '-add-prize-form'" class="add-form hidden"
+                          th:onsubmit="'addPrize(' + ${botHome.id} + ', ' + ${giveaway.id}+ '); return false;'">
+                        <div>
+                            <label>Reward</label><br>
+                            <input type="text" th:id="${label} + '-add-prize-reward'" size="30" class="name"><br>
+                        </div><br>
+                        <input type="submit" value="Add Prize">
+                    </form>
+                </div>
             </div>
-            <input type="submit" value="New Giveaway">
-        </form>
+        </th:block>
+
+        <div class="add-giveaway">
+            <div id="add-giveaway-button" class="pseudo-link add-button" onclick="showAddGiveawayForm()"
+                 title="Add a Giveaway">+</div>
+            <form id="add-giveaway-form" class="add-form hidden"
+                  th:onsubmit="'addGiveaway(' + ${botHome.id} + '); return false;'">
+                <div>
+                    <label>Giveaway Name</label><br>
+                    <input type="text" id="add-giveaway-name" size="30" class="name"><br>
+                </div><br>
+                <div>
+                    <label>Type</label><br>
+                    <input type="checkbox" id="add-giveaway-self-service">Self Service<br>
+                    <input type="checkbox" id="add-giveaway-raffle">Raffle<br>
+                </div>
+                <input type="submit" value="Create Giveaway">
+            </form>
+        </div>
     </div>
 </div>
 <div th:include="fragments :: footer" />

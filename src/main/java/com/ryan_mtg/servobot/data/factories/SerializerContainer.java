@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.data.factories;
 
-import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
@@ -34,6 +33,9 @@ public class SerializerContainer {
 
     @Autowired
     private GameQueueEntryRepository gameQueueEntryRepository;
+
+    @Autowired
+    private GiveawaySerializer giveawaySerializer;
 
     @Autowired
     private ReactionSerializer reactionSerializer;
@@ -96,6 +98,10 @@ public class SerializerContainer {
 
     public GameQueueEntryRepository getGameQueueEntryRepository() {
         return gameQueueEntryRepository;
+    }
+
+    public GiveawaySerializer getGiveawaySerializer() {
+        return giveawaySerializer;
     }
 
     public ReactionTableSerializer getReactionTableSerializer() {

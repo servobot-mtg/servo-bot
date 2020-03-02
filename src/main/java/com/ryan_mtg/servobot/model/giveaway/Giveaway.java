@@ -1,30 +1,138 @@
 package com.ryan_mtg.servobot.model.giveaway;
 
+import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.CommandTable;
+import com.ryan_mtg.servobot.commands.CommandTableEdit;
+import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Validation;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Giveaway {
-    public static int nextRewardId = 1;
-    public static final String DISCORD_CHANNEL = "mooseland";
-    public static final String TWITCH_CHANNEL = "themightylinguine";
+    public static final int UNREGISTERED_ID = 0;
+
+    private static final String DEFAULT_PRIZE_REQUEST_COMMAND = "code";
+
+    public enum State {
+        CONFIGURING,
+        ACTIVE,
+        COMPLETE,
+    }
 
     private int id;
-    private List<Reward> rewards = new ArrayList<>();
-    private Reward currentReward;
-    private String enterCommandString;
-    private Duration duration = Duration.of(10, ChronoUnit.MINUTES);
+    private String name;
+    private boolean selfService;
+    private boolean raffle;
+    private State state;
+
+    private String requestPrizeCommandName;
+    private int prizeRequestLimit = 50;
+    private int prizeRequestUserLimit = 1;
+    private int prizeRequests = 0;
+    private RequestPrizeCommand requestPrizeCommand;
+
+    private List<Prize> prizes = new ArrayList<>();
+    //private String enterCommandString;
+    //private Duration duration = Duration.of(10, ChronoUnit.MINUTES);
+
+    public Giveaway(final int id, final String name, final boolean selfService, final boolean raffle) throws BotErrorException {
+        this.id = id;
+        this.name = name;
+        this.selfService = selfService;
+        this.raffle = raffle;
+        this.state = State.CONFIGURING;
+
+        Validation.validateStringValue(name, Validation.MAX_NAME_LENGTH, "Giveaway name",
+                Validation.NAME_PATTERN);
+
+        if (!selfService && !raffle) {
+            throw new BotErrorException("Giveaway must be at least one of self service or raffle.");
+        }
+
+        if (selfService) {
+            requestPrizeCommandName = DEFAULT_PRIZE_REQUEST_COMMAND;
+        }
+    }
 
     public int getId() {
         return id;
     }
 
+    public void setId(final int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isSelfService() {
+        return selfService;
+    }
+
+    public boolean isRaffle() {
+        return raffle;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(final State state) {
+        this.state = state;
+    }
+
+    public String getRequestPrizeCommandName() {
+        return requestPrizeCommandName;
+    }
+
+    public void setRequestPrizeCommandName(final String requestPrizeCommandName) throws BotErrorException {
+        Validation.validateStringValue(requestPrizeCommandName, Validation.MAX_NAME_LENGTH,
+                "Request prize command name", Validation.NAME_PATTERN);
+
+        this.requestPrizeCommandName = requestPrizeCommandName;
+    }
+
+    public int getPrizeRequestLimit() {
+        return prizeRequestLimit;
+    }
+
+    public void setPrizeRequestLimit(final int prizeRequestLimit) {
+        this.prizeRequestLimit = prizeRequestLimit;
+    }
+
+    public int getPrizeRequestUserLimit() {
+        return prizeRequestUserLimit;
+    }
+
+    public void setPrizeRequestUserLimit(final int prizeRequestUserLimit) {
+        this.prizeRequestUserLimit = prizeRequestUserLimit;
+    }
+
+    public Command getRequestPrizeCommand() {
+        return requestPrizeCommand;
+    }
+
+    public void setRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
+        this.requestPrizeCommand = requestPrizeCommand;
+    }
+
+    public List<Prize> getPrizes() {
+        return prizes;
+    }
+
+    public void addPrize(final Prize prize) {
+        prizes.add(prize);
+    }
+
+    /*
     public List<Reward> getRewards() {
         return rewards;
     }
@@ -36,7 +144,54 @@ public class Giveaway {
     public void addReward(final Reward reward) {
         rewards.add(reward);
     }
+    */
 
+    public GiveawayEdit start(final CommandTable commandTable) throws BotErrorException {
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        switch (state) {
+            case ACTIVE:
+                return giveawayEdit;
+            case COMPLETE:
+                throw new BotErrorException("Can't start a giveaway that has been completed.");
+        }
+
+        if (selfService) {
+            if (requestPrizeCommandName == null || requestPrizeCommandName.isEmpty()) {
+                throw new BotErrorException("Must set request prize command name");
+            }
+
+            if (commandTable.getCommand(requestPrizeCommandName) != null) {
+                throw new BotErrorException(String.format("There is alreayd a '' command.", requestPrizeCommandName));
+            }
+
+            int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
+            requestPrizeCommand =
+                    new RequestPrizeCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, id);
+
+            CommandTableEdit commandTableEdit = commandTable.addCommand(requestPrizeCommandName, requestPrizeCommand);
+            giveawayEdit.merge(commandTableEdit);
+        }
+        giveawayEdit.addGiveaway(this);
+        return giveawayEdit;
+    }
+
+    public GiveawayEdit requestPrize(final HomedUser requester) throws BotErrorException {
+        if (!selfService) {
+            throw new BotErrorException("Cannot request a prize from this type of giveaway");
+        }
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+
+        boolean awarded = false;
+        Prize prize = prizes.stream().filter(p -> p.getStatus() == Prize.Status.AVAILABLE).findFirst()
+                .orElseThrow(() -> new BotErrorException("No prizes left :("));
+
+        prize.bestowTo(requester);
+        giveawayEdit.addPrize(getId(), prize);
+        return giveawayEdit;
+    }
+
+    /*
     public StartGiveawayResult startGiveaway() throws BotErrorException {
         if (currentReward != null) {
             throw new BotErrorException("A giveaway is already under way.");
@@ -97,4 +252,5 @@ public class Giveaway {
         }
         rewards.removeIf(reward -> reward.getId() == rewardId);
     }
+     */
 }
