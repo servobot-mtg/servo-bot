@@ -6,11 +6,11 @@ public interface CommandVisitor {
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
-    void visitEnterGiveawayCommand(EnterGiveawayCommand enterGiveawayCommand);
+    void visitEnterGiveawayCommand(EnterRaffleCommand enterRaffleCommand);
     void visitEvaluateExpressionCommand(EvaluateExpressionCommand evaluateExpressionCommand);
     void visitFactsCommand(FactsCommand factsCommand);
     void visitGameQueueCommand(GameQueueCommand gameQueueCommand);
-    void visitGiveawayStatusCommand(GiveawayStatusCommand giveawayStatusCommand);
+    void visitGiveawayStatusCommand(RaffleStatusCommand raffleStatusCommand);
     void visitJailCommand(JailCommand jailCommand);
     void visitJailBreakCommand(JailBreakCommand jailBreakCommand);
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
@@ -26,7 +26,7 @@ public interface CommandVisitor {
     void visitShowArenaUsernamesCommand(ShowArenaUsernamesCommand showArenaUsernamesCommand);
     void visitShowGameQueueCommand(ShowGameQueueCommand showGameQueueCommand);
     void visitShowValueCommand(ShowValueCommand showValueCommand);
-    void visitStartGiveawayCommand(StartGiveawayCommand startGiveawayCommand);
+    void visitStartGiveawayCommand(StartRaffleCommand startRaffleCommand);
     void visitTextCommand(TextCommand textCommand);
     void visitTierCommand(TierCommand tierCommand);
 }

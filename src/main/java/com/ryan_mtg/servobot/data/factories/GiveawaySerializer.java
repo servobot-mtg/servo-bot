@@ -3,7 +3,7 @@ package com.ryan_mtg.servobot.data.factories;
 import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
-import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
+import com.ryan_mtg.servobot.commands.StartRaffleCommand;
 import com.ryan_mtg.servobot.data.models.GiveawayRow;
 import com.ryan_mtg.servobot.data.models.PrizeRow;
 import com.ryan_mtg.servobot.data.repositories.GiveawayRepository;
@@ -122,8 +122,8 @@ public class GiveawaySerializer {
             giveaway.setStartRaffleCommandName(giveawayRow.getStartRaffleCommandName());
 
             if (giveawayRow.getStartRaffleCommandId() != Command.UNREGISTERED_ID) {
-                StartGiveawayCommand startRaffleCommand =
-                        (StartGiveawayCommand) commandTable.getCommand(giveawayRow.getStartRaffleCommandId());
+                StartRaffleCommand startRaffleCommand =
+                        (StartRaffleCommand) commandTable.getCommand(giveawayRow.getStartRaffleCommandId());
                 giveaway.setStartRaffleCommand(startRaffleCommand);
             }
 

@@ -5,11 +5,11 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
 
-public class GiveawayStatusCommand extends MessageCommand {
+public class RaffleStatusCommand extends MessageCommand {
     public static final int TYPE = 22;
     private int giveawayId;
 
-    public GiveawayStatusCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
+    public RaffleStatusCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
         super(id, flags, permission);
         this.giveawayId = giveawayId;
     }

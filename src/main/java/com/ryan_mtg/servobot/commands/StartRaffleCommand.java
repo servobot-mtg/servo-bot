@@ -8,11 +8,11 @@ import com.ryan_mtg.servobot.model.giveaway.Raffle;
 
 import java.time.temporal.ChronoUnit;
 
-public class StartGiveawayCommand extends MessageCommand {
+public class StartRaffleCommand extends MessageCommand {
     public static final int TYPE = 20;
     private int giveawayId;
 
-    public StartGiveawayCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
+    public StartRaffleCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
         super(id, flags, permission);
         this.giveawayId = giveawayId;
     }

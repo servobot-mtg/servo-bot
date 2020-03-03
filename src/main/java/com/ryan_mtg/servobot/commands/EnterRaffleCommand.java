@@ -3,11 +3,11 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 
-public class EnterGiveawayCommand extends MessageCommand {
+public class EnterRaffleCommand extends MessageCommand {
     public static final int TYPE = 21;
     private int giveawayId;
 
-    public EnterGiveawayCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
+    public EnterRaffleCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
         super(id, flags, permission);
         this.giveawayId = giveawayId;
     }

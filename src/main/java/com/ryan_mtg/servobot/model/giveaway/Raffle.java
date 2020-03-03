@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.model.giveaway;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
-import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
+import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Entrant;
@@ -25,19 +25,19 @@ public class Raffle {
 
     private int id;
     private Status status;
-    private EnterGiveawayCommand enterRaffleCommand;
-    private GiveawayStatusCommand raffleStatusCommand;
+    private EnterRaffleCommand enterRaffleCommand;
+    private RaffleStatusCommand raffleStatusCommand;
     private SelectWinnerCommand selectWinnerCommand;
     private Prize prize;
     private Instant stopTime;
     private List<Entrant> entrants = new ArrayList<>();
 
-    public Raffle(final int id, final EnterGiveawayCommand enterGiveawayCommand,
-            final GiveawayStatusCommand giveawayStatusCommand, SelectWinnerCommand selectWinnerCommand,
-            final Prize prize, final Instant stopTime) {
+    public Raffle(final int id, final EnterRaffleCommand enterRaffleCommand,
+                  final RaffleStatusCommand raffleStatusCommand, SelectWinnerCommand selectWinnerCommand,
+                  final Prize prize, final Instant stopTime) {
         this.status = Status.IN_PROGRESS;
-        this.enterRaffleCommand = enterGiveawayCommand;
-        this.raffleStatusCommand = giveawayStatusCommand;
+        this.enterRaffleCommand = enterRaffleCommand;
+        this.raffleStatusCommand = raffleStatusCommand;
         this.selectWinnerCommand = selectWinnerCommand;
         this.prize = prize;
         this.stopTime = stopTime;

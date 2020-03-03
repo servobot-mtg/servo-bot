@@ -10,11 +10,11 @@ import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
-import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
+import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
-import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.JailBreakCommand;
 import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
@@ -30,7 +30,7 @@ import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.ShowValueCommand;
-import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
+import com.ryan_mtg.servobot.commands.StartRaffleCommand;
 import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
@@ -157,7 +157,7 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitEnterGiveawayCommand(final EnterGiveawayCommand enterGiveawayCommand) {
+        public void visitEnterGiveawayCommand(final EnterRaffleCommand enterRaffleCommand) {
             type = "Enter Giveaway Command";
             description = "Enters the user into the current giveaway";
         }
@@ -182,7 +182,7 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
+        public void visitGiveawayStatusCommand(final RaffleStatusCommand raffleStatusCommand) {
             type = "Giveaway Status Command";
             description = "Displays the status of the current giveaway";
         }
@@ -286,7 +286,7 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitStartGiveawayCommand(final StartGiveawayCommand startGiveawayCommand) {
+        public void visitStartGiveawayCommand(final StartRaffleCommand startRaffleCommand) {
             type = "Start Giveaway Command";
             description = "Starts a new giveaway";
         }

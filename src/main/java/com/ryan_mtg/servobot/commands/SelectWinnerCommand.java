@@ -18,13 +18,9 @@ public class SelectWinnerCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final HomeEvent homeEvent) {
-        try {
-            HomeEditor homeEditor = homeEvent.getHomeEditor();
-            homeEditor.selectRaffleWinner(giveawayId);
-        } catch (BotErrorException e) {
-            e.printStackTrace();
-        }
+    public void perform(final HomeEvent homeEvent) throws BotErrorException {
+        HomeEditor homeEditor = homeEvent.getHomeEditor();
+        homeEditor.selectRaffleWinner(giveawayId);
     }
 
     @Override

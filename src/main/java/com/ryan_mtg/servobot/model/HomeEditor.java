@@ -4,12 +4,12 @@ import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
-import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
-import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
+import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
-import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
+import com.ryan_mtg.servobot.commands.StartRaffleCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.BookSerializer;
@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -610,7 +609,7 @@ public class HomeEditor {
             }
 
             int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
-            StartGiveawayCommand startRaffleCommand = new StartGiveawayCommand(Command.UNREGISTERED_ID,
+            StartRaffleCommand startRaffleCommand = new StartRaffleCommand(Command.UNREGISTERED_ID,
                     flags, Permission.STREAMER, giveawayId);
             giveawayEdit.merge(commandTable.addCommand(startRaffleCommandName, startRaffleCommand));
             giveaway.setStartRaffleCommand(startRaffleCommand);
@@ -689,9 +688,9 @@ public class HomeEditor {
         Prize prize = giveawayEdit.getSavedPrizes().keySet().iterator().next();
 
         int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
-        EnterGiveawayCommand enterGiveawayCommand =
-                new EnterGiveawayCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
-        giveawayEdit.merge(commandTable.addCommand(enterRaffleCommandName, enterGiveawayCommand));
+        EnterRaffleCommand enterRaffleCommand =
+                new EnterRaffleCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
+        giveawayEdit.merge(commandTable.addCommand(enterRaffleCommandName, enterRaffleCommand));
 
         Duration raffleDuration = giveaway.getRaffleDuration();
         Instant stopTime = Instant.now().plus(raffleDuration);
@@ -703,14 +702,14 @@ public class HomeEditor {
                 new SelectWinnerCommand(Command.UNREGISTERED_ID, flags,Permission.STREAMER, giveawayId);
         giveawayEdit.merge(commandTable.addCommand(selectWinnerCommand));
 
-        GiveawayStatusCommand giveawayStatusCommand = null;
+        RaffleStatusCommand raffleStatusCommand = null;
 
         if (raffleStatusCommandName != null) {
-            giveawayStatusCommand = new GiveawayStatusCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
-            giveawayEdit.merge(commandTable.addCommand(raffleStatusCommandName, giveawayStatusCommand));
+            raffleStatusCommand = new RaffleStatusCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
+            giveawayEdit.merge(commandTable.addCommand(raffleStatusCommandName, raffleStatusCommand));
         }
 
-        Raffle raffle = new Raffle(Raffle.UNREGISTERED_ID, enterGiveawayCommand, giveawayStatusCommand,
+        Raffle raffle = new Raffle(Raffle.UNREGISTERED_ID, enterRaffleCommand, raffleStatusCommand,
                 selectWinnerCommand, prize, stopTime);
         giveaway.addRaffle(raffle);
 

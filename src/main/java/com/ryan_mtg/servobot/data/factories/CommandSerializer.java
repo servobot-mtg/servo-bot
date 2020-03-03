@@ -8,10 +8,10 @@ import com.ryan_mtg.servobot.commands.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
 import com.ryan_mtg.servobot.commands.DeleteCommand;
-import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
+import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
-import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
+import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.JailBreakCommand;
 import com.ryan_mtg.servobot.commands.JailCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
@@ -27,7 +27,7 @@ import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.ShowValueCommand;
-import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
+import com.ryan_mtg.servobot.commands.StartRaffleCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.commands.TriggerVisitor;
 import com.ryan_mtg.servobot.data.models.CommandRow;
@@ -80,18 +80,18 @@ public class CommandSerializer {
                         Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter().trim());
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, flags, permission);
-            case EnterGiveawayCommand.TYPE:
+            case EnterRaffleCommand.TYPE:
                 int giveawayId = (int) (long) commandRow.getLongParameter();
-                return new EnterGiveawayCommand(id, flags, permission, giveawayId);
+                return new EnterRaffleCommand(id, flags, permission, giveawayId);
             case EvaluateExpressionCommand.TYPE:
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
                 return new EvaluateExpressionCommand(id, flags, permission, gabyEasterEgg);
             case FactsCommand.TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
                 return new FactsCommand(id, flags, permission, bookMap.get(bookId));
-            case GiveawayStatusCommand.TYPE:
+            case RaffleStatusCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
-                return new GiveawayStatusCommand(id, flags, permission, giveawayId);
+                return new RaffleStatusCommand(id, flags, permission, giveawayId);
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
@@ -136,9 +136,9 @@ public class CommandSerializer {
                 return new ShowGameQueueCommand(id, flags, permission, gameQueueId);
             case ShowValueCommand.TYPE:
                 return new ShowValueCommand(id, flags, permission);
-            case StartGiveawayCommand.TYPE:
+            case StartRaffleCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
-                return new StartGiveawayCommand(id, flags, permission, giveawayId);
+                return new StartRaffleCommand(id, flags, permission, giveawayId);
             case TextCommand.TYPE:
                 return new TextCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case TierCommand.TYPE:
@@ -258,9 +258,9 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitEnterGiveawayCommand(final EnterGiveawayCommand enterGiveawayCommand) {
-            saveCommand(enterGiveawayCommand, commandRow -> {
-                commandRow.setLongParameter(enterGiveawayCommand.getGiveawayId());
+        public void visitEnterGiveawayCommand(final EnterRaffleCommand enterRaffleCommand) {
+            saveCommand(enterRaffleCommand, commandRow -> {
+                commandRow.setLongParameter(enterRaffleCommand.getGiveawayId());
             });
         }
 
@@ -284,9 +284,9 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
-            saveCommand(giveawayStatusCommand, commandRow -> {
-                commandRow.setLongParameter(giveawayStatusCommand.getGiveawayId());
+        public void visitGiveawayStatusCommand(final RaffleStatusCommand raffleStatusCommand) {
+            saveCommand(raffleStatusCommand, commandRow -> {
+                commandRow.setLongParameter(raffleStatusCommand.getGiveawayId());
             });
         }
 
@@ -394,9 +394,9 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitStartGiveawayCommand(final StartGiveawayCommand startGiveawayCommand) {
-            saveCommand(startGiveawayCommand, commandRow -> {
-                commandRow.setLongParameter(startGiveawayCommand.getGiveawayId());
+        public void visitStartGiveawayCommand(final StartRaffleCommand startRaffleCommand) {
+            saveCommand(startRaffleCommand, commandRow -> {
+                commandRow.setLongParameter(startRaffleCommand.getGiveawayId());
             });
         }
 

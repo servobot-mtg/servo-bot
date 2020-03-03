@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
-import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
+import com.ryan_mtg.servobot.commands.StartRaffleCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -41,7 +41,7 @@ public class Giveaway {
 
     // Raffle
     private String startRaffleCommandName;
-    private StartGiveawayCommand startRaffleCommand;
+    private StartRaffleCommand startRaffleCommand;
     private String enterRaffleCommandName;
     private String raffleStatusCommandName;
     private Duration raffleDuration = Duration.of(10, ChronoUnit.MINUTES);
@@ -146,7 +146,7 @@ public class Giveaway {
         return startRaffleCommand;
     }
 
-    public void setStartRaffleCommand(final StartGiveawayCommand startRaffleCommand) {
+    public void setStartRaffleCommand(final StartRaffleCommand startRaffleCommand) {
         this.startRaffleCommand = startRaffleCommand;
     }
 
