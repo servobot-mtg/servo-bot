@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.commands.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
+import com.ryan_mtg.servobot.commands.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -693,13 +695,15 @@ public class HomeEditor {
         giveawayEdit.merge(commandTable.addCommand(enterRaffleCommandName, enterRaffleCommand));
 
         Duration raffleDuration = giveaway.getRaffleDuration();
-        Instant stopTime = Instant.now().plus(raffleDuration);
 
+        Map<String, Command> tokenMap = new HashMap();
         List<Alert> alerts = new ArrayList<>();
+        List<Command> alertCommands = new ArrayList<>();
         String winnerAlertToken = "winner";
         alerts.add(new Alert(raffleDuration, winnerAlertToken));
         SelectWinnerCommand selectWinnerCommand =
-                new SelectWinnerCommand(Command.UNREGISTERED_ID, flags,Permission.STREAMER, giveawayId);
+                new SelectWinnerCommand(Command.UNREGISTERED_ID, flags, Permission.STREAMER, giveawayId);
+        tokenMap.put(winnerAlertToken, selectWinnerCommand);
         giveawayEdit.merge(commandTable.addCommand(selectWinnerCommand));
 
         RaffleStatusCommand raffleStatusCommand = null;
@@ -709,15 +713,35 @@ public class HomeEditor {
             giveawayEdit.merge(commandTable.addCommand(raffleStatusCommandName, raffleStatusCommand));
         }
 
+        int[] waitMinutes = { 5, 1 };
+        int[] thresholdMinutes = { 10, 3 };
+        for (int i = 0; i < waitMinutes.length; i++) {
+            if (raffleDuration.toMinutes() >= thresholdMinutes[i]) {
+                String waitAlertToken = String.format("min%d", waitMinutes[i]);
+                Duration waitDuration = Duration.of(waitMinutes[i], ChronoUnit.MINUTES);
+                alerts.add(new Alert(waitDuration, waitAlertToken));
+                String alertMessage = String.format("%d minutes left in the giveaway.", waitMinutes[i]);
+                Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE,
+                        TwitchService.TYPE, getTwitchChannelName(botHome), alertMessage);
+
+                tokenMap.put(waitAlertToken, alertCommand);
+                alertCommands.add(alertCommand);
+                giveawayEdit.merge(commandTable.addCommand(alertCommand));
+            }
+        }
+
+        Instant stopTime = Instant.now().plus(raffleDuration);
         Raffle raffle = new Raffle(Raffle.UNREGISTERED_ID, enterRaffleCommand, raffleStatusCommand,
-                selectWinnerCommand, prize, stopTime);
+                selectWinnerCommand, alertCommands, prize, stopTime);
         giveaway.addRaffle(raffle);
 
         serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
         // TODO: make it so this can go with the previous commit
-        CommandTableEdit commandTableEdit =
-                commandTable.addTrigger(selectWinnerCommand.getId(), CommandAlert.TYPE, winnerAlertToken);
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        for (Map.Entry<String, Command> entry : tokenMap.entrySet()) {
+            CommandTableEdit commandTableEdit =
+                    commandTable.addTrigger(entry.getValue().getId(), CommandAlert.TYPE, entry.getKey());
+            serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        }
 
         for (Alert alert : alerts) {
             scheduleAlert(alert);
@@ -733,30 +757,6 @@ public class HomeEditor {
         raffle.enter(entrant);
     }
 
-    /*
-    public StartGiveawayResult startGiveaway() throws BotErrorException {
-        currentReward = getReadyReward();
-        if (currentReward == null) {
-            throw new BotErrorException("Nothing to give away!");
-        }
-
-        currentReward.setStatus(Reward.Status.IN_PROGRESS);
-        currentReward.setStopTime(Instant.now().plus(duration));
-
-        List<Alert> alerts = new ArrayList<>();
-
-        if (duration.toMinutes() > 5) {
-            alerts.add(new Alert(duration.minus(5, ChronoUnit.MINUTES), "5min"));
-        }
-
-        if (duration.toMinutes() > 1) {
-            alerts.add(new Alert(duration.minus(1, ChronoUnit.MINUTES), "1min"));
-        }
-
-        return new StartGiveawayResult(alerts, currentReward);
-    }
-     */
-
     public HomedUser selectRaffleWinner(final int giveawayId) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
         Raffle raffle = giveaway.retrieveCurrentRaffle();
@@ -766,16 +766,17 @@ public class HomeEditor {
         HomedUser winner = raffle.selectWinner(giveaway, commandTable, giveawayEdit);
         serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
 
+        String message;
         if (winner == null) {
-            throw new BotErrorException("The raffle  has no winner, because there were no entrants.");
+            message = "The raffle  has no winner, because there were no entrants.";
+        } else {
+            message = String.format("The raffle winner is " + winner.getName());
         }
 
-        String message = String.format("The raffle winner is " + winner.getName());
         sendMessage(DiscordService.TYPE, "RIGGED", message);
-        sendMessage(TwitchService.TYPE,
-                ((TwitchServiceHome) botHome.getServiceHome(TwitchService.TYPE)).getChannelName(), message);
+        sendMessage(TwitchService.TYPE, getTwitchChannelName(botHome), message);
 
-        if (winner.getDiscordId() != 0) {
+        if (winner != null && winner.getDiscordId() != 0) {
             Prize prize = raffle.getPrize();
             prize.bestowTo(winner);
             String prizeMessage = String.format("Congratulations %s, your code is: %s", winner.getName(),
@@ -815,7 +816,6 @@ public class HomeEditor {
     private void whisperMessage(final int serviceType, final HomedUser user, final String message) {
         botHome.getServiceHome(serviceType).getHome().getUser(user).whisper(message);
     }
-
 
     public List<User> getArenaUsers() throws BotErrorException {
         return serializers.getUserSerializer().getArenaUsers();
@@ -859,5 +859,9 @@ public class HomeEditor {
             return user.getTwitchUsername();
         }
         return user.getDiscordUsername();
+    }
+
+    private String getTwitchChannelName(final BotHome botHome) {
+        return ((TwitchServiceHome) botHome.getServiceHome(TwitchService.TYPE)).getChannelName();
     }
 }

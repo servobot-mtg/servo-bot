@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.model.giveaway;
 
+import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
@@ -28,17 +29,19 @@ public class Raffle {
     private EnterRaffleCommand enterRaffleCommand;
     private RaffleStatusCommand raffleStatusCommand;
     private SelectWinnerCommand selectWinnerCommand;
+    private List<Command> alertCommands;
     private Prize prize;
     private Instant stopTime;
     private List<Entrant> entrants = new ArrayList<>();
 
     public Raffle(final int id, final EnterRaffleCommand enterRaffleCommand,
                   final RaffleStatusCommand raffleStatusCommand, SelectWinnerCommand selectWinnerCommand,
-                  final Prize prize, final Instant stopTime) {
+                  final List<Command> alertCommands, final Prize prize, final Instant stopTime) {
         this.status = Status.IN_PROGRESS;
         this.enterRaffleCommand = enterRaffleCommand;
         this.raffleStatusCommand = raffleStatusCommand;
         this.selectWinnerCommand = selectWinnerCommand;
+        this.alertCommands = alertCommands;
         this.prize = prize;
         this.stopTime = stopTime;
     }
@@ -90,6 +93,9 @@ public class Raffle {
         }
         if (selectWinnerCommand != null) {
             giveawayEdit.merge(commandTable.deleteCommand(selectWinnerCommand.getId()));
+        }
+        for (Command alertCommand : alertCommands) {
+            giveawayEdit.merge(commandTable.deleteCommand(alertCommand.getId()));
         }
         return winner;
     }
