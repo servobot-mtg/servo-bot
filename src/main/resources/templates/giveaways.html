@@ -71,7 +71,7 @@
                         </div>
                     </div>
                 </div><br th:if="${giveaway.selfService}">
-                <div th:if="${giveaway.raffle}" class="section">
+                <div th:if="${giveaway.rafflesEnabled}" class="section">
                     <h3>Raffle</h3>
                     <div id="raffle" class="section-content">
                         <div class="form-block hidden">
@@ -142,6 +142,7 @@
                                     <input type="button" value="Copy Message"
                                            th:onclick="'copyPrizeMessage(' + ${prize.id} + ')'">
                                 </div>
+                            </td>
                             <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner != null}"
                                 th:text="${prize.winner.name}"/>
                             <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner == null}">&#x2205;</td>
@@ -166,6 +167,26 @@
                         </div><br>
                         <input type="submit" value="Add Prize">
                     </form>
+                </div>
+
+                <div th:if="${giveaway.rafflesEnabled}">
+                    <h3>Raffle</h3>
+                    <table th:if="${!giveaway.raffles.empty}" th:id="${label} + '-raffle-table'" class="data-table">
+                        <thead><tr>
+                            <th>Status</th>
+                            <th>Entrants</th>
+                            <th>Actions</th>
+                            <th>Time Remaining</th>
+                        </tr></thead>
+                        <th:block th:each="raffle : ${giveaway.raffles}">
+                            <tr th:with="raffleLabel=${'raffle-' + raffle}" th:id="${raffleLabel} + '-row'">
+                                <td th:id="${raffleLabel + '-status'}" th:text="${raffle.status}"/>
+                                <td th:text="${raffle.entrants.size()}"/>
+                                <td></td>
+                                <td th:text="${raffle.timeLeft}"/>
+                            </tr>
+                        </th:block>
+                    </table>
                 </div>
             </div>
         </th:block>

@@ -69,6 +69,10 @@ public class Raffle {
         return result;
     }
 
+    public int getEntrantCount() {
+        return entrants.size();
+    }
+
     public HomedUser selectWinner(final Giveaway giveaway, final CommandTable commandTable,
                                   final GiveawayEdit giveawayEdit) throws BotErrorException {
         if (!getTimeLeft().isZero()) {

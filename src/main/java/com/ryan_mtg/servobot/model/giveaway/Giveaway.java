@@ -84,7 +84,7 @@ public class Giveaway {
         return selfService;
     }
 
-    public boolean isRaffle() {
+    public boolean isRafflesEnabled() {
         return rafflesEnabled;
     }
 

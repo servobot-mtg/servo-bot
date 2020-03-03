@@ -118,7 +118,7 @@ public class GiveawaySerializer {
             }
         }
 
-        if (giveaway.isRaffle()) {
+        if (giveaway.isRafflesEnabled()) {
             giveaway.setStartRaffleCommandName(giveawayRow.getStartRaffleCommandName());
 
             if (giveawayRow.getStartRaffleCommandId() != Command.UNREGISTERED_ID) {
@@ -153,7 +153,7 @@ public class GiveawaySerializer {
         if (giveaway.isSelfService()) {
             flags |= SELF_SERVICE_FLAG;
         }
-        if (giveaway.isRaffle()) {
+        if (giveaway.isRafflesEnabled()) {
             flags |= RAFFLE_FLAG;
         }
         return flags;
