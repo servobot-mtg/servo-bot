@@ -13,55 +13,6 @@
 <div class="content">
     <div th:if="${privledged}">
         <h2>Giveaways</h2>
-        <th:block th:if="false">
-            <table id="reward-table" class="data-table">
-                <thead><tr>
-                    <th>Prize</th>
-                    <th>Status</th>
-                    <th>Time Remaining</th>
-                    <th>Entrants</th>
-                    <th>Actions</th>
-                    <th>Winner</th>
-                    <th th:if="${exalted}">Delete</th>
-                </tr></thead>
-                <th:block th:each="reward : ${giveaway.rewards}">
-                    <tr th:with="label=${'reward-' + reward.id}">
-                        <td th:if="${exalted}" th:text="${reward.prize}"/>
-                        <td th:if="${!exalted}">&#x1F947;</td>
-                        <td th:id="${label + '-status'}" th:text="${reward.status}"/>
-                        <td th:text="${reward.timeLeft}"/>
-                        <td th:text="${reward.entrants.size()}"/>
-                        <td>
-                            <input type="button" value="Select Winner"
-                                   th:onclick="'awardReward(' + ${botHome.id} + ',' + ${reward.id} + ')'"/>
-                            <input type="button" value="Bestow Prize"
-                                   th:onclick="'bestowReward(' + ${botHome.id} + ',' + ${reward.id} + ')'"/>
-                        </td>
-                        <td th:id="${label + '-winner'}" th:if="${reward.winner != null}"
-                            th:text="${reward.winner.discordUsername}"/>
-                        <td th:id="${label + '-winner'}" th:if="${reward.winner == null}">&#x2205;</td>
-                        <td th:if="${exalted}" class="pseudo-link"
-                            th:onclick="'deleteReward(' + ${botHome.id} + ',' + ${reward.id} + ')'">
-                            &#x1F5D1;
-                        </td>
-                    </tr>
-                </th:block>
-            </table>
-
-            <div th:if="${privledged}" class="add-reward">
-                <div id="add-reward-button" class="pseudo-link add-button" onclick="showAddRewardForm()"
-                     title="Add a Reward">+</div>
-                <form id="add-reward-form" class="add-form hidden"
-                      th:onsubmit="'addReward(' + ${botHome.id} + '); return false;'">
-                    <div>
-                        <label>Prize</label><br>
-                        <input type="text" id="add-reward-prize-input"><br>
-                    </div><br>
-                    <input type="submit" value="Submit Prize">
-                </form>
-            </div>
-        </th:block>
-
         <th:block th:each="giveaway : ${botHome.giveaways}" th:with="label=${'giveaway-' + giveaway.id},
                     CONF=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).CONFIGURING},
                     ACTIVE=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).ACTIVE},
@@ -177,13 +128,20 @@
                             <td>
                                 <input type="button" value="Bestow Prize"
                                        th:if="${prize.status == T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED}"
-                                       th:onclick="'bestowReward(' + ${botHome.id} + ',' + ${prize.id} + ')'"/>
-                            </td>
+                                       th:onclick="'bestowPrize(' + ${botHome.id} + ',' + ${prize.id} + ')'"/>
+
+                                <div th:if="${exalted && prize.status ==
+                                        T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED}">
+                                    <input type="text" th:id="${prizeLabel} + '-message'" class="hidden"
+                                           th:value="'\whisper ' + ${prize.winner.name} + ' your code is \'' + ${prize.reward} + '\''">
+                                    <input type="button" value="Copy Message"
+                                           th:onclick="'copyPrizeMessage(' + ${prize.id} + ')'">
+                                </div>
                             <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner != null}"
                                 th:text="${prize.winner.name}"/>
                             <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner == null}">&#x2205;</td>
                             <td th:if="${exalted}" class="pseudo-link"
-                                th:onclick="'deletePrize(' + ${botHome.id} + ', ' + ${giveaway.id}+ ', ' + ${prize.id} + ')'">
+                                th:onclick="'deletePrize(' + ${botHome.id} + ', ' + ${giveaway.id} + ', ' + ${prize.id} + ')'">
                                 &#x1F5D1;&#xFE0F;
                             </td>
                         </tr>

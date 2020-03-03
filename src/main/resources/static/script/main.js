@@ -24,6 +24,15 @@ async function makePost(endpoint, parameters, responseElements, showOk) {
     return response;
 }
 
+async function makeGet(endpoint, parameters) {
+    let url = new URL(endpoint, location.origin);
+    url.search = new URLSearchParams(parameters).toString();
+    const settings = getGetSettings();
+
+    return await fetch(url, settings);
+}
+
+
 function hideElementById(elementId) {
     document.getElementById(elementId).style.display = 'none';
 }
@@ -50,5 +59,15 @@ function getPostSettings(parameters) {
     const security = securityElement.dataset;
 
     settings.headers[security.header] = security.token;
+    return settings;
+}
+
+function getGetSettings() {
+    let settings = {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    };
     return settings;
 }

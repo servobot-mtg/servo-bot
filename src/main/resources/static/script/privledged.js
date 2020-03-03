@@ -997,7 +997,6 @@ async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDurat
     await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], false);
 }
 
-
 function showAddPrizeForm(giveawayId) {
     const label = 'giveaway-' + giveawayId + '-add-prize';
     hideElementById(label + '-button');
@@ -1081,15 +1080,21 @@ async function postAwardReward(botHomeId, rewardId) {
     }
 }
 
-function bestowReward(botHomeId, rewardId) {
-    postBestowReward(botHomeId, rewardId);
+function bestowPrize(botHomeId, prizeId) {
+    postBestowPrize(botHomeId, prizeId);
 }
 
-async function postBestowReward(botHomeId, rewardId) {
-    const parameters = {botHomeId: botHomeId, objectId: rewardId};
+async function postBestowPrize(botHomeId, prizeId) {
+    const parameters = {botHomeId: botHomeId, objectId: prizeId};
     let response = await makePost('/api/bestow_reward', parameters, [], false);
 
     if (response.ok) {
-        document.getElementById('reward-' + rewardId + '-status').innerText = 'BESTOWED';
+        document.getElementById('prize-' + prizeId + '-status').innerText = 'BESTOWED';
     }
+}
+
+function copyPrizeMessage(prizeId) {
+    let element = document.getElementById('prize-' + prizeId + '-message');
+    console.log(element.value);
+    navigator.clipboard.writeText(element.value);
 }
