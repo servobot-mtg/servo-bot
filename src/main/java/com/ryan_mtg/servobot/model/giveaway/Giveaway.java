@@ -43,6 +43,7 @@ public class Giveaway {
     private String startRaffleCommandName;
     private StartGiveawayCommand startRaffleCommand;
     private String enterRaffleCommandName;
+    private String raffleStatusCommandName;
     private Duration raffleDuration = Duration.of(10, ChronoUnit.MINUTES);
 
     private List<Prize> prizes = new ArrayList<>();
@@ -166,6 +167,17 @@ public class Giveaway {
                 "Enter raffle command name", Validation.NAME_PATTERN);
 
         this.enterRaffleCommandName = enterRaffleCommandName;
+    }
+
+    public String getRaffleStatusCommandName() {
+        return raffleStatusCommandName;
+    }
+
+    public void setRaffleStatusCommandName(final String raffleStatusCommandName) throws BotErrorException {
+        Validation.validateStringValue(raffleStatusCommandName, Validation.MAX_NAME_LENGTH,
+                "Raffle status command name", Validation.NAME_PATTERN);
+
+        this.raffleStatusCommandName = raffleStatusCommandName;
     }
 
     public List<Prize> getPrizes() {

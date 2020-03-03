@@ -983,16 +983,18 @@ function saveRaffleSettings(botHomeId, giveawayId) {
     const raffleDuration = document.getElementById(label + '-raffle-duration').value;
     const startRaffleCommandName = document.getElementById(label + '-start-raffle-command').value;
     const enterRaffleCommandName = document.getElementById(label + '-enter-raffle-command').value;
+    const raffleStatusCommandName = document.getElementById(label + '-raffle-status-command').value;
 
     postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffleCommandName,
-        enterRaffleCommandName);
+        enterRaffleCommandName, raffleStatusCommandName);
 }
 
 async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffleCommandName,
-        enterRaffleCommandName) {
+        enterRaffleCommandName, raffleStatusCommandName) {
     const label = 'giveaway-' + giveawayId;
     const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, raffleDuration: raffleDuration,
-        startRaffleCommandName: startRaffleCommandName, enterRaffleCommandName: enterRaffleCommandName};
+        startRaffleCommandName: startRaffleCommandName, enterRaffleCommandName: enterRaffleCommandName,
+        raffleStatusCommandName: raffleStatusCommandName};
     const responseElement = document.getElementById(label + '-raffle-save-response');
     await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], false);
 }

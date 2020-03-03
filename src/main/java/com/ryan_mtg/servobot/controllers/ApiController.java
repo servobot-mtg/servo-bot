@@ -546,14 +546,15 @@ public class ApiController {
             throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
-                Duration.of(request.getRaffleDuration(), ChronoUnit.MINUTES),
-                request.getStartRaffleCommandName(), request.getEnterRaffleCommandName());
+                Duration.of(request.getRaffleDuration(), ChronoUnit.MINUTES), request.getStartRaffleCommandName(),
+                request.getEnterRaffleCommandName(), request.getRaffleStatusCommandName());
     }
 
     public static class SaveRaffleSettingsRequest extends GiveawayRequest {
         private int raffleDuration;
         private String startRaffleCommandName;
         private String enterRaffleCommandName;
+        private String raffleStatusCommandName;
 
         public int getRaffleDuration() {
             return raffleDuration;
@@ -565,6 +566,10 @@ public class ApiController {
 
         public String getEnterRaffleCommandName() {
             return enterRaffleCommandName;
+        }
+
+        public String getRaffleStatusCommandName() {
+            return raffleStatusCommandName;
         }
     }
 

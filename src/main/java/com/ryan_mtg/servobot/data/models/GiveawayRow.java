@@ -55,6 +55,10 @@ public class GiveawayRow {
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String enterRaffleCommandName;
 
+    @Column(name = "raffle_status_command_name")
+    @Size(max = Validation.MAX_NAME_LENGTH)
+    private String raffleStatusCommandName;
+
     @Column(name = "raffle_duration")
     private int raffleDuration;
 
@@ -160,6 +164,14 @@ public class GiveawayRow {
 
     public void setEnterRaffleCommandName(final String enterRaffleCommandName) {
         this.enterRaffleCommandName = enterRaffleCommandName;
+    }
+
+    public String getRaffleStatusCommandName() {
+        return raffleStatusCommandName;
+    }
+
+    public void setRaffleStatusCommandName(final String raffleStatusCommandName) {
+        this.raffleStatusCommandName = raffleStatusCommandName;
     }
 
     public int getRaffleDuration() {

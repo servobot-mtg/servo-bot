@@ -75,8 +75,14 @@ public class Raffle {
         setStatus(Raffle.Status.CONCLUDED);
         giveawayEdit.addPrize(giveaway.getId(), prize);
 
-        HomedUser winner = entrants.get(RANDOM.nextInt(entrants.size())).getUser();
-        prize.awardTo(winner);
+        HomedUser winner = null;
+
+        if (entrants.size() > 0) {
+            winner = entrants.get(RANDOM.nextInt(entrants.size())).getUser();
+            prize.awardTo(winner);
+        } else {
+            prize.setStatus(Prize.Status.AVAILABLE);
+        }
 
         giveawayEdit.merge(commandTable.deleteCommand(enterRaffleCommand.getId()));
         if (raffleStatusCommand != null) {
@@ -85,7 +91,6 @@ public class Raffle {
         if (selectWinnerCommand != null) {
             giveawayEdit.merge(commandTable.deleteCommand(selectWinnerCommand.getId()));
         }
-
         return winner;
     }
 

@@ -2,7 +2,8 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.giveaway.Reward;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
+import com.ryan_mtg.servobot.model.giveaway.Raffle;
 
 public class GiveawayStatusCommand extends MessageCommand {
     public static final int TYPE = 22;
@@ -23,18 +24,15 @@ public class GiveawayStatusCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        // TODO: Implement
-        /*
-        Reward reward = event.getHomeEditor().getGiveaway(giveawayId);
-        if (reward == null) {
-            MessageCommand.say(event, "There is no giveaway running currently.");
+        Giveaway giveaway = event.getHomeEditor().getGiveaway(giveawayId);
+        Raffle raffle = giveaway.retrieveCurrentRaffle();
+        if (raffle == null) {
+            MessageCommand.say(event, "There is no raffle currently running.");
         } else {
             String message =
-                    String.format("There are %d minutes left to enter. Type !enter in the Discord.",
-                            reward.getTimeLeft().toMinutes());
+                    String.format("There are %d minutes left to enter.", raffle.getTimeLeft().toMinutes());
             MessageCommand.say(event, message);
         }
-         */
     }
 
     @Override

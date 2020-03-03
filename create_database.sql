@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_
          flags INTEGER, state INTEGER, request_prize_command_name VARCHAR(30), prize_request_limit INTEGER,
          prize_request_user_limit INTEGER, request_prize_command_id INTEGER, prize_requests INTEGER,
          start_raffle_command_name VARCHAR(30), start_raffle_command_id INTEGER, enter_raffle_command_name VARCHAR(30),
-         raffle_duration INTEGER);
+         raffle_status_command_name VARCHAR(30), raffle_duration INTEGER);
 
 CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
          status INTEGER, winner_id INTEGER);

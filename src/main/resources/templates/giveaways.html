@@ -94,9 +94,14 @@
                                    th:value="${giveaway.startRaffleCommandName}"><br>
                         </div><br>
                         <div class="form-block">
-                            <label>Raffle Entry Command Name</label><br>
+                            <label>Enter Raffle Command Name</label><br>
                             <input type="text" th:id="${label} + '-enter-raffle-command'"
                                    th:value="${giveaway.enterRaffleCommandName}"><br>
+                        </div><br>
+                        <div class="form-block">
+                            <label>Raffle Status Command Name</label><br>
+                            <input type="text" th:id="${label} + '-raffle-status-command'"
+                                   th:value="${giveaway.raffleStatusCommandName}"><br>
                         </div><br>
                         <div class="form-block hidden">
                             <label>Select Raffle Winner Command Name</label><br>

@@ -67,6 +67,7 @@ public class GiveawaySerializer {
         Command startRaffleCommand = giveaway.getStartRaffleCommand();
         giveawayRow.setStartRaffleCommandId(startRaffleCommand != null ? startRaffleCommand.getId() : 0);
         giveawayRow.setEnterRaffleCommandName(giveaway.getEnterRaffleCommandName());
+        giveawayRow.setRaffleStatusCommandName(giveaway.getRaffleStatusCommandName());
         giveawayRow.setRaffleDuration((int)giveaway.getRaffleDuration().getSeconds());
 
         giveawayRepository.save(giveawayRow);
@@ -127,6 +128,7 @@ public class GiveawaySerializer {
             }
 
             giveaway.setEnterRaffleCommandName(giveawayRow.getEnterRaffleCommandName());
+            giveaway.setRaffleStatusCommandName(giveawayRow.getRaffleStatusCommandName());
             giveaway.setRaffleDuration(Duration.ofSeconds(giveawayRow.getRaffleDuration()));
         }
 
