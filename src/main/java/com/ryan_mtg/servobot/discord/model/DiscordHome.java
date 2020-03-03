@@ -24,7 +24,6 @@ public class DiscordHome implements Home {
     private static Logger LOGGER = LoggerFactory.getLogger(DiscordHome.class);
 
     private Guild guild;
-
     private HomeEditor homeEditor;
 
     public DiscordHome(final Guild guild, final HomeEditor homeEditor) {
@@ -83,15 +82,12 @@ public class DiscordHome implements Home {
 
     @Override
     public void setRole(final String username, final String roleName) throws BotErrorException {
-        List<Member> members = guild.getMembersByEffectiveName(username, true);
-        if (members.isEmpty()) {
-            throw new BotErrorException(String.format("No user named '%s'.", username));
-        }
+        Member member = getMember(username);
         List<Role> roles = guild.getRolesByName(roleName, false);
         if (roles.isEmpty()) {
             throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
         }
-        guild.addRoleToMember(members.get(0), roles.get(0)).queue();
+        guild.addRoleToMember(member, roles.get(0)).queue();
     }
 
     @Override
@@ -109,6 +105,13 @@ public class DiscordHome implements Home {
             names.add(member.getEffectiveName());
         }
         return names;
+    }
+
+    @Override
+    public boolean isHigherRanked(final String firstUserName, final User secondUser) throws BotErrorException {
+        Member firstMember = getMember(firstUserName);
+        Member secondMember = ((DiscordUser)secondUser).getMember();
+        return getPosition(firstMember) > getPosition(secondMember);
     }
 
     @Override
@@ -177,5 +180,23 @@ public class DiscordHome implements Home {
 
     public Guild getGuild() {
         return guild;
+    }
+
+    private Member getMember(final String username) throws BotErrorException {
+        List<Member> members = guild.getMembersByEffectiveName(username, true);
+        if (members.isEmpty()) {
+            throw new BotErrorException(String.format("No user named '%s'.", username));
+        }
+        return members.get(0);
+    }
+
+    private int getPosition(final Member member) {
+        int position = -1;
+        for (Role role : member.getRoles()) {
+            if (!role.getName().toLowerCase().contains("jail")) {
+                position = Math.max(position, role.getPosition());
+            }
+        }
+        return position;
     }
 }

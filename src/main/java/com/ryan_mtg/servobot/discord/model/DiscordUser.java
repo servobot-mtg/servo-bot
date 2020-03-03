@@ -51,4 +51,8 @@ public class DiscordUser implements User {
     public long getDiscordId() {
         return member.getIdLong();
     }
+
+    public Member getMember() {
+        return member;
+    }
 }

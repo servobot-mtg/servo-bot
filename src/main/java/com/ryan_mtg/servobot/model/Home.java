@@ -14,6 +14,7 @@ public interface Home {
     void setRole(User user, String role) throws BotErrorException;
     void setRole(String username, String role) throws BotErrorException;
     List<String> clearRole(String role) throws BotErrorException;
+    boolean isHigherRanked(String userName, User sender) throws BotErrorException;
 
     Emote getEmote(String emoteName);
 

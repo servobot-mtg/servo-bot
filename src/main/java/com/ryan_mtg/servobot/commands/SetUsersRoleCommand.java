@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 
@@ -30,23 +31,31 @@ public class SetUsersRoleCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+        Home home = event.getHome();
+
         String userName = arguments;
         if (userName == null) {
-            throw new BotErrorException("Noone specified.");
+            throw new BotErrorException("No one specified.");
         }
 
         if (userName.startsWith("@")) {
             userName = userName.substring(1);
         }
 
-        event.getHome().setRole(userName, role);
+        if (home.isHigherRanked(userName, event.getSender())) {
+            home.setRole(event.getSender(), role);
 
-        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
-        symbolTable.addValue("input", arguments);
-        symbolTable.addValue("user", userName);
-        symbolTable.addValue("role", role);
+            MessageCommand.say(event, "I see through your tricks! I'm checking %sender% into the greybar hotel.");
+        } else {
+            home.setRole(userName, role);
 
-        MessageCommand.say(event, symbolTable, message);
+            FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+            symbolTable.addValue("input", arguments);
+            symbolTable.addValue("user", userName);
+            symbolTable.addValue("role", role);
+
+            MessageCommand.say(event, symbolTable, message);
+        }
     }
 
     @Override

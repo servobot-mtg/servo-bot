@@ -74,6 +74,11 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
+    public boolean isHigherRanked(final String userName, final User sender) {
+        return false;
+    }
+
+    @Override
     public Emote getEmote(final String emoteName) {
         return null;
     }

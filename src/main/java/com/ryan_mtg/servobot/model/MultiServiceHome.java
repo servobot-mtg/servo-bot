@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.Arrays;
@@ -51,6 +52,11 @@ public class MultiServiceHome implements Home {
     @Override
     public List<String> clearRole(final String role) {
         return Arrays.asList();
+    }
+
+    @Override
+    public boolean isHigherRanked(final String userName, final User sender) {
+        return false;
     }
 
     @Override
