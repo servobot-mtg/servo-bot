@@ -157,13 +157,16 @@ public class AlertQueue {
 
         @Override
         public void schedule(final Instant now) {
+            LOGGER.trace("Scheduling {} for {}", generator.getAlertToken(), now);
             Instant goal = generator.getNextAlertTime(now);
             Duration wait = Duration.between(now, goal);
+            LOGGER.trace("  - goal is {} with wait {}", goal, wait);
 
             if (wait.compareTo(Duration.ofSeconds(5)) < 0) {
                 Instant later = now.plus(5, ChronoUnit.SECONDS);
                 goal = generator.getNextAlertTime(later);
-                wait = Duration.between(later, goal);
+                wait = Duration.between(now, goal);
+                LOGGER.trace("  wait was too small, changed: goal is {} with wait {}", goal, wait);
             }
 
             alertTask = new AlertTask(this, goal);
