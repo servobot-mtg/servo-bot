@@ -29,8 +29,8 @@ public class RaffleStatusCommand extends MessageCommand {
         if (raffle == null) {
             MessageCommand.say(event, "There is no raffle currently running.");
         } else {
-            String message =
-                    String.format("There are %d minutes left to enter.", raffle.getTimeLeft().toMinutes());
+            String message = String.format("There are %d minutes left to enter. Type !enter to enter",
+                    raffle.getTimeLeft().toMinutes());
             MessageCommand.say(event, message);
         }
     }

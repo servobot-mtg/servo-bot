@@ -718,7 +718,7 @@ public class HomeEditor {
         for (int i = 0; i < waitMinutes.length; i++) {
             if (raffleDuration.toMinutes() >= thresholdMinutes[i]) {
                 String waitAlertToken = String.format("min%d", waitMinutes[i]);
-                Duration waitDuration = Duration.of(waitMinutes[i], ChronoUnit.MINUTES);
+                Duration waitDuration = Duration.of(raffleDuration.toMinutes() - waitMinutes[i], ChronoUnit.MINUTES);
                 alerts.add(new Alert(waitDuration, waitAlertToken));
                 String alertMessage = String.format("%d minutes left in the giveaway.", waitMinutes[i]);
                 Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE,
@@ -770,7 +770,7 @@ public class HomeEditor {
         if (winner == null) {
             message = "The raffle  has no winner, because there were no entrants.";
         } else {
-            message = String.format("The raffle winner is " + winner.getName());
+            message = String.format(String.format("The raffle winner is %s. Thanks to Zlubar Gaming! #sponsored", winner.getName()));
         }
 
         sendMessage(DiscordService.TYPE, "RIGGED", message);

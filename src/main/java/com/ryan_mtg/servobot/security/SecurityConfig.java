@@ -75,7 +75,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
             .antMatchers("/admin**", "/admin/**", "/script/admin.js").access("hasRole('ADMIN')")
             .antMatchers("/script/privledged.js").access("isPrivledged()")
-                .antMatchers("/home/{home}/**").access("isPrivledged(#home)")
+            .antMatchers("/script/invite.js").access("isInvited()")
+            .antMatchers("/home/{home}/**").access("isPrivledged(#home)")
             .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home", "/home/{home}").permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager())
@@ -128,6 +129,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         public boolean isPrivledged() {
             return websiteUser.isPrivledged();
+        }
+
+        public boolean isInvited() {
+            return websiteUser.hasInvite();
         }
 
         public boolean isPrivledged(final String botHomeName) {
