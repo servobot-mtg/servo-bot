@@ -13,6 +13,11 @@ async function makePost(endpoint, parameters, responseElements, showOk) {
             set = true;
         }
     } else {
+        let json = await response.json();
+        if (json.hasOwnProperty('message')) {
+            showErrorMessage(json.message);
+        }
+
         Array.from(responseElements).forEach((responseElement) => responseElement.innerHTML = '&#x274C;');
         set = true;
     }
@@ -43,6 +48,24 @@ function showElementById(elementId) {
 
 function showElementInlineById(elementId) {
     document.getElementById(elementId).style.display = 'inline-block';
+}
+
+function dismissErrorMessage() {
+    hideElementById('error-banner');
+}
+
+function showErrorMessage(message) {
+    document.getElementById('error-message').innerText = message;
+    showElementInlineById('error-banner');
+}
+
+function dismissWarningMessage() {
+    hideElementById('warning-banner');
+}
+
+function showWarningMessage(message) {
+    document.getElementById('warning-message').innerText = message;
+    showElementInlineById('warning-banner');
 }
 
 function getPostSettings(parameters) {

@@ -7,6 +7,20 @@
     <!-- header -->
     <div th:fragment="header">
         <span id="security-token" th:attr="data-token=${_csrf.token}, data-header=${_csrf.headerName}"/>
+
+        <div class="info-banner-frame">
+            <div id="error-banner" class="banner">
+                <span class="banner-icon">&#x2622;&#xFE0F;</span>
+                <span id="error-message">Warning I'm an evil error message!</span>
+                <span class="banner-icon pseudo-link" onclick="dismissErrorMessage()">&#x2612;</span>
+            </div>
+            <div id="warning-banner" class="banner">
+                <span class="banner-icon">&#x26A0;&#xFE0F;</span>
+                <span id="warning-message">Warning I'm an evil warning message!</span>
+                <span class="banner-icon pseudo-link" onclick="dismissWarningMessage()">&#x2612;</span>
+            </div>
+        </div>
+
         <div class="navbar">
             <ul>
                 <li><div class="navitem index">

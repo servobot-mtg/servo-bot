@@ -23,6 +23,43 @@ input[type=number] {
     cursor: pointer;
 }
 
+.info-banner-frame {
+    margin-bottom: 10px;
+    position: absolute;
+    left: 10%;
+    top: 10px;
+    text-align: center;
+    width: 80%;
+}
+
+.banner {
+    display: none;
+    padding: 0.3em;
+    margin: 5px 0.8em;
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1;
+    font-size: 20px;
+    border-radius: 5px 5px 5px 5px;
+}
+
+#warning-banner {
+    color: black;
+    background-color: goldenrod;
+}
+
+#error-banner {
+    color: white;
+    background-color: red;
+}
+
+.banner-icon {
+    color: black;
+    font-weight: bold;
+    padding: 0 10px;
+}
+
 .save-button {
     position: absolute;
     top: 0;
