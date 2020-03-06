@@ -605,23 +605,23 @@ public class ApiController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean bestowPrize(@RequestBody final PrizeRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.bestowReward(request.getGiveawayId(), request.getRewardId());
+        return homeEditor.bestowPrize(request.getGiveawayId(), request.getPrizeId());
     }
 
     public static class PrizeRequest extends GiveawayRequest {
         private int prizeId;
 
-        public int getRewardId() {
+        public int getPrizeId() {
             return prizeId;
         }
     }
 
-    @PostMapping(value = "/delete_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/delete_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteReward(@RequestBody final DeleteGiveawayObjectRequest request) {
         return wrapCall(() -> {
             HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteReward(request.getGiveawayId(), request.getObjectId());
+            homeEditor.deletePrize(request.getGiveawayId(), request.getObjectId());
         });
     }
 

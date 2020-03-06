@@ -131,16 +131,18 @@
 
                             <td th:id="${prizeLabel + '-status'}" th:text="${prize.status}"/>
                             <td>
-                                <input type="button" value="Bestow Prize"
-                                       th:if="${prize.status == T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED}"
-                                       th:onclick="'bestowPrize(' + ${botHome.id} + ',' + ${prize.id} + ')'"/>
+                                <div th:id="${prizeLabel} + '-awarded-buttons'" th:classappend="${prize.status !=
+                                    T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED ? 'hidden ' : ''}">
 
-                                <div th:if="${exalted && prize.status ==
-                                        T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED}">
-                                    <input type="text" th:id="${prizeLabel} + '-message'" class="hidden"
-                                           th:value="'\whisper ' + ${prize.winner.name} + ' your code is \'' + ${prize.reward} + '\''">
-                                    <input type="button" value="Copy Message"
-                                           th:onclick="'copyPrizeMessage(' + ${prize.id} + ')'">
+                                    <input type="button" value="Bestow Prize" th:onclick= "'bestowPrize(' +
+                                            ${botHome.id} + ', ' + ${giveaway.id} + ', ' + ${prize.id} + ')'"/>
+                                    <div th:if="${exalted}">
+                                        <input th:if="${prize.winner}" type="text" th:id="${prizeLabel} + '-message'"
+                                               th:value="'\whisper ' + ${prize.winner.name} + ' your code is \''
+                                               + ${prize.reward} + '\''" class="hidden">
+                                        <input type="button" value="Copy Message"
+                                               th:onclick="'copyPrizeMessage(' + ${prize.id} + ')'">
+                                    </div>
                                 </div>
                             </td>
                             <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner != null}"
@@ -181,7 +183,7 @@
                         <th:block th:each="raffle : ${giveaway.raffles}">
                             <tr th:with="raffleLabel=${'raffle-' + raffle}" th:id="${raffleLabel} + '-row'">
                                 <td th:id="${raffleLabel + '-status'}" th:text="${raffle.status}"/>
-                                <td th:text="${raffle.entrants.size()}"/>
+                                <td th:text="${raffle.entrantCount}"/>
                                 <td></td>
                                 <td th:text="${raffle.timeLeft}"/>
                             </tr>

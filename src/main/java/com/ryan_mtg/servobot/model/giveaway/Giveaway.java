@@ -266,7 +266,7 @@ public class Giveaway {
 
     public GiveawayEdit reservePrize() throws BotErrorException {
         if (!rafflesEnabled) {
-            throw new BotErrorException("Cannot request a prize from this type of giveaway");
+            throw new BotErrorException("Cannot reserve a prize from this type of giveaway");
         }
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
@@ -279,67 +279,25 @@ public class Giveaway {
         return giveawayEdit;
     }
 
+    public GiveawayEdit bestowPrize(final int prizeId) throws BotErrorException {
+        Prize prize = getPrize(prizeId);
 
-    /*
-    public StartGiveawayResult startGiveaway() throws BotErrorException {
-        if (currentReward != null) {
-            throw new BotErrorException("A giveaway is already under way.");
+        if (prize.getStatus() != Prize.Status.AWARDED) {
+            throw new BotErrorException(String.format("Invalid prize state for bestowing: %s", prize.getStatus()));
         }
 
-        currentReward = getReadyReward();
-        if (currentReward == null) {
-            throw new BotErrorException("Nothing to give away!");
-        }
-
-        currentReward.setStatus(Reward.Status.IN_PROGRESS);
-        currentReward.setStopTime(Instant.now().plus(duration));
-
-        List<Alert> alerts = new ArrayList<>();
-
-        if (duration.toMinutes() > 5) {
-            alerts.add(new Alert(duration.minus(5, ChronoUnit.MINUTES), "5min"));
-        }
-
-        if (duration.toMinutes() > 1) {
-            alerts.add(new Alert(duration.minus(1, ChronoUnit.MINUTES), "1min"));
-        }
-
-        alerts.add(new Alert(duration, "winner"));
-        return new StartGiveawayResult(alerts, currentReward);
+        prize.setStatus(Prize.Status.BESTOWED);
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        giveawayEdit.addPrize(getId(), prize);
+        return giveawayEdit;
     }
 
-    public void enterGiveaway(final HomedUser homedUser) throws BotErrorException {
-        if (currentReward == null) {
-            throw new BotErrorException("There is not a giveaway currently.");
+    private Prize getPrize(final int prizeId) throws BotErrorException {
+        for (Prize prize : prizes) {
+            if (prize.getId() == prizeId) {
+                return prize;
+            }
         }
-
-        if (currentReward.getStatus() != Reward.Status.IN_PROGRESS) {
-            throw new BotErrorException("The giveaway has expired.");
-        }
-
-        currentReward.enter(homedUser);
+        throw new BotErrorException(String.format("No prize with id %d", prizeId));
     }
-
-    public void finishGiveaway() {
-        if (currentReward != null) {
-            currentReward.setStatus(Reward.Status.BESTOWED);
-            currentReward = null;
-        }
-    }
-
-    private Reward getReadyReward() {
-        return getRewardInStatus(Reward.Status.READY);
-    }
-
-    private Reward getRewardInStatus(final Reward.Status status) {
-        return rewards.stream().filter(reward -> reward.getStatus() == status).findFirst().orElse(null);
-    }
-
-    public void deleteReward(final int rewardId) {
-        if (currentReward.getId() == rewardId) {
-            currentReward = null;
-        }
-        rewards.removeIf(reward -> reward.getId() == rewardId);
-    }
-     */
 }

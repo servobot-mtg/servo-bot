@@ -547,6 +547,7 @@ public class HomeEditor {
         return botHome.getGiveaway(giveawayId);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway addGiveaway(final String name, final boolean selfService, final boolean raffle)
             throws BotErrorException {
         Giveaway giveaway = new Giveaway(Giveaway.UNREGISTERED_ID, name, selfService, raffle);
@@ -556,6 +557,7 @@ public class HomeEditor {
         return giveaway;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway saveGiveawaySelfService(final int giveawayId, final String requestPrizeCommandName,
             final int prizeRequestLimit, final int prizeRequestUserLimit) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
@@ -571,6 +573,7 @@ public class HomeEditor {
         return giveaway;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
             final String startRaffleCommandName, final String enterRaffleCommandName,
             final String raffleStatusCommandName) throws BotErrorException {
@@ -631,6 +634,7 @@ public class HomeEditor {
         return giveaway;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway startGiveaway(final int giveawayId) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
@@ -641,6 +645,7 @@ public class HomeEditor {
         return giveaway;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Prize addPrize(final int giveawayId, final String reward) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
@@ -654,6 +659,7 @@ public class HomeEditor {
         return prize;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Prize requestPrize(final int giveawayId, final HomedUser requester) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
@@ -664,6 +670,7 @@ public class HomeEditor {
         return prize;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public Raffle startRaffle(final int giveawayId) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
@@ -750,6 +757,7 @@ public class HomeEditor {
         return raffle;
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public void enterRaffle(final HomedUser entrant, final int giveawayId) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
@@ -757,6 +765,7 @@ public class HomeEditor {
         raffle.enter(entrant);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
     public HomedUser selectRaffleWinner(final int giveawayId) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
         Raffle raffle = giveaway.retrieveCurrentRaffle();
@@ -764,7 +773,6 @@ public class HomeEditor {
         GiveawayEdit giveawayEdit = new GiveawayEdit();
         CommandTable commandTable = botHome.getCommandTable();
         HomedUser winner = raffle.selectWinner(giveaway, commandTable, giveawayEdit);
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
 
         String message;
         if (winner == null) {
@@ -783,28 +791,22 @@ public class HomeEditor {
                     prize.getReward());
             whisperMessage(DiscordService.TYPE, winner, prizeMessage);
         }
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
 
         return winner;
     }
 
-    public boolean bestowReward(final int giveawayId, final int rewardId) throws BotErrorException {
-        // TODO: implement
-        /*
-        Reward reward = getReward(giveawayId, rewardId);
-        if (reward.getStatus() != Reward.Status.AWARDED) {
-            throw new BotErrorException("Invalid reward state");
-        }
-        String prize = reward.getPrize();
-        HomedUser winner = reward.getWinner();
-        botHome.getGiveaway(giveawayId).finishGiveaway();
 
-        String announcement = "Congratulations, your code is: " + prize;
-        bot.getService(DiscordService.TYPE).whisper(winner, announcement);
-         */
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean bestowPrize(int giveawayId, int prizeId) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+
+        GiveawayEdit giveawayEdit = giveaway.bestowPrize(prizeId);
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
         return true;
     }
 
-    public void deleteReward(final int giveawayId, final int rewardId) {
+    public void deletePrize(final int giveawayId, final int prizeId) {
         // TODO: implement
         //botHome.getGiveaway(giveawayId).deleteReward(rewardId);
     }

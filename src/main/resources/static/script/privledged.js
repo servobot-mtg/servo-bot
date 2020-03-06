@@ -1044,13 +1044,13 @@ async function postAwardReward(botHomeId, rewardId) {
     }
 }
 
-function bestowPrize(botHomeId, prizeId) {
-    postBestowPrize(botHomeId, prizeId);
+function bestowPrize(botHomeId, giveawayId, prizeId) {
+    postBestowPrize(botHomeId, giveawayId, prizeId);
 }
 
-async function postBestowPrize(botHomeId, prizeId) {
-    const parameters = {botHomeId: botHomeId, objectId: prizeId};
-    let response = await makePost('/api/bestow_reward', parameters, [], false);
+async function postBestowPrize(botHomeId, giveawayId, prizeId) {
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, prizeId: prizeId};
+    let response = await makePost('/api/bestow_prize', parameters, [], false);
 
     if (response.ok) {
         document.getElementById('prize-' + prizeId + '-status').innerText = 'BESTOWED';
