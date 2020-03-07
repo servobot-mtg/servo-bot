@@ -61,6 +61,11 @@ public class HomeEditor {
     private BotHome botHome;
     private SerializerContainer serializers;
 
+    private static final String START_RAFFLE_DESCRIPTION = "Start raffle command name";
+    private static final String ENTER_RAFFLE_DESCRIPTION = "Enter raffle command name";
+    private static final String RAFFLE_STATUS_DESCRIPTION = "Raffle status command name";
+    private static final String REQUEST_PRIZE_DESCRIPTION = "Request prize command name";
+
     public HomeEditor(final Bot bot, final BotHome botHome) {
         this.bot = bot;
         this.botHome = botHome;
@@ -564,6 +569,14 @@ public class HomeEditor {
         if (giveaway.getState() != Giveaway.State.CONFIGURING) {
             throw new BotErrorException("Can only save configuration when giveaway in in configuring state");
         }
+
+        CommandTable commandTable = botHome.getCommandTable();
+        Validation.validateSetTemporaryCommandName(requestPrizeCommandName, giveaway.getRequestPrizeCommandName(),
+                commandTable, true, REQUEST_PRIZE_DESCRIPTION);
+
+        Validation.validateRange(prizeRequestLimit, "Prize request limit", 1, 1000);
+        Validation.validateRange(prizeRequestUserLimit, "Prize request limit per user", 1, 10);
+
         giveaway.setRequestPrizeCommandName(requestPrizeCommandName);
         giveaway.setPrizeRequestLimit(prizeRequestLimit);
         giveaway.setPrizeRequestUserLimit(prizeRequestUserLimit);
@@ -584,23 +597,21 @@ public class HomeEditor {
         }
         CommandTable commandTable = botHome.getCommandTable();
 
-        if (!startRaffleCommandName.equals(giveaway.getStartRaffleCommandName())) {
-            if (commandTable.getCommand(startRaffleCommandName) != null) {
-                throw new BotErrorException(String.format("There is already a '%s' command.", startRaffleCommandName));
-            }
-        }
+        Validation.validateSetTemporaryCommandName(startRaffleCommandName, giveaway.getStartRaffleCommandName(),
+                commandTable, true, START_RAFFLE_DESCRIPTION);
 
-        if (!enterRaffleCommandName.equals(giveaway.getEnterRaffleCommandName())) {
-            if (commandTable.getCommand(enterRaffleCommandName) != null) {
-                throw new BotErrorException(String.format("There is already a '%s' command.", enterRaffleCommandName));
-            }
-        }
+        Validation.validateSetTemporaryCommandName(enterRaffleCommandName, giveaway.getEnterRaffleCommandName(),
+                commandTable, true, ENTER_RAFFLE_DESCRIPTION);
 
-        if (!raffleStatusCommandName.equals(giveaway.getRaffleStatusCommandName())) {
-            if (commandTable.getCommand(raffleStatusCommandName) != null) {
-                throw new BotErrorException(String.format("There is already a '%s' command.", raffleStatusCommandName));
-            }
-        }
+        Validation.validateSetTemporaryCommandName(raffleStatusCommandName, giveaway.getRaffleStatusCommandName(),
+                commandTable, false, RAFFLE_STATUS_DESCRIPTION);
+
+        Validation.validateNotSame(startRaffleCommandName, enterRaffleCommandName, START_RAFFLE_DESCRIPTION,
+                ENTER_RAFFLE_DESCRIPTION);
+        Validation.validateNotSame(startRaffleCommandName, raffleStatusCommandName, START_RAFFLE_DESCRIPTION,
+                RAFFLE_STATUS_DESCRIPTION);
+        Validation.validateNotSame(enterRaffleCommandName, raffleStatusCommandName, ENTER_RAFFLE_DESCRIPTION,
+                RAFFLE_STATUS_DESCRIPTION);
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
         giveawayEdit.addGiveaway(giveaway);

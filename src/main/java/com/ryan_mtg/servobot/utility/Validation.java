@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.utility;
 
+import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.events.BotErrorException;
 
 import java.util.regex.Pattern;
@@ -38,5 +39,46 @@ public class Validation {
         }
 
         Validation.validateStringLength(value, maxLength, name);
+    }
+
+    public static void validateSetTemporaryCommandName(final String newCommandName, final String savedCommandName,
+            final CommandTable commandTable, final boolean required, final String commandDescription)
+            throws BotErrorException {
+        if (required) {
+            if (newCommandName == null || newCommandName.isEmpty()) {
+                throw new BotErrorException(String.format("%s must not be empty", commandDescription));
+            }
+        }
+
+        if (newCommandName != null && newCommandName.equals(savedCommandName)) {
+            return;
+        }
+
+        if (newCommandName == null || newCommandName.isEmpty()) {
+            return;
+        }
+
+        validateStringValue(newCommandName, MAX_NAME_LENGTH, commandDescription, NAME_PATTERN);
+        if (commandTable.getCommand(newCommandName) != null) {
+            throw new BotErrorException(String.format("There is already a '%s' command.", newCommandName));
+        }
+    }
+
+    public static void validateNotSame(final String string, final String otherString, final String description,
+                                       final String otherDescription) throws BotErrorException {
+        if(string.equals(otherString)) {
+            throw new BotErrorException(String.format("%s cannot be the same as %s", description, otherDescription));
+        }
+    }
+
+    public static void validateRange(final int value, final String description, final int lowerBound,
+                                     final int upperBound) throws BotErrorException {
+        if (value < lowerBound) {
+            throw new BotErrorException(String.format("%s (%d) is less than the lower bound (%d) ",
+                    description, value, lowerBound));
+        } else if (value < lowerBound) {
+            throw new BotErrorException(String.format("%s (%d) is less than the lower bound (%d) ",
+                    description, value, lowerBound));
+        }
     }
 }
