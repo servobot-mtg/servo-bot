@@ -29,6 +29,7 @@ import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
+import com.ryan_mtg.servobot.model.giveaway.RaffleSettings;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
@@ -61,9 +62,6 @@ public class HomeEditor {
     private BotHome botHome;
     private SerializerContainer serializers;
 
-    private static final String START_RAFFLE_DESCRIPTION = "Start raffle command name";
-    private static final String ENTER_RAFFLE_DESCRIPTION = "Enter raffle command name";
-    private static final String RAFFLE_STATUS_DESCRIPTION = "Raffle status command name";
     private static final String REQUEST_PRIZE_DESCRIPTION = "Request prize command name";
 
     public HomeEditor(final Bot bot, final BotHome botHome) {
@@ -595,30 +593,18 @@ public class HomeEditor {
         if (giveaway.getState() != Giveaway.State.CONFIGURING) {
             throw new BotErrorException("Can only save configuration when giveaway in in configuring state");
         }
+        RaffleSettings previousSettings = giveaway.getRaffleSettings();
+
+        RaffleSettings raffleSettings = new RaffleSettings(startRaffleCommandName, enterRaffleCommandName,
+                raffleStatusCommandName, raffleDuration);
+
         CommandTable commandTable = botHome.getCommandTable();
-
-        Validation.validateSetTemporaryCommandName(startRaffleCommandName, giveaway.getStartRaffleCommandName(),
-                commandTable, true, START_RAFFLE_DESCRIPTION);
-
-        Validation.validateSetTemporaryCommandName(enterRaffleCommandName, giveaway.getEnterRaffleCommandName(),
-                commandTable, true, ENTER_RAFFLE_DESCRIPTION);
-
-        Validation.validateSetTemporaryCommandName(raffleStatusCommandName, giveaway.getRaffleStatusCommandName(),
-                commandTable, false, RAFFLE_STATUS_DESCRIPTION);
-
-        Validation.validateNotSame(startRaffleCommandName, enterRaffleCommandName, START_RAFFLE_DESCRIPTION,
-                ENTER_RAFFLE_DESCRIPTION);
-        Validation.validateNotSame(startRaffleCommandName, raffleStatusCommandName, START_RAFFLE_DESCRIPTION,
-                RAFFLE_STATUS_DESCRIPTION);
-        Validation.validateNotSame(enterRaffleCommandName, raffleStatusCommandName, ENTER_RAFFLE_DESCRIPTION,
-                RAFFLE_STATUS_DESCRIPTION);
+        raffleSettings.validate(previousSettings, commandTable);
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
         giveawayEdit.addGiveaway(giveaway);
 
-        if (!startRaffleCommandName.equals(giveaway.getStartRaffleCommandName())) {
-            giveaway.setStartRaffleCommandName(startRaffleCommandName);
-
+        if (!startRaffleCommandName.equals(previousSettings.getStartRaffleCommandName())) {
             Command oldCommand = giveaway.getStartRaffleCommand();
             if (oldCommand != null) {
                 giveawayEdit.merge(commandTable.deleteCommand(oldCommand.getId()));
@@ -631,15 +617,7 @@ public class HomeEditor {
             giveaway.setStartRaffleCommand(startRaffleCommand);
         }
 
-        if (!enterRaffleCommandName.equals(giveaway.getEnterRaffleCommandName())) {
-            giveaway.setEnterRaffleCommandName(enterRaffleCommandName);
-        }
-
-        if (!raffleStatusCommandName.equals(giveaway.getRaffleStatusCommandName())) {
-            giveaway.setRaffleStatusCommandName(raffleStatusCommandName);
-        }
-
-        giveaway.setRaffleDuration(raffleDuration);
+        giveaway.setRaffleSettings(raffleSettings);
         serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
 
         return giveaway;
@@ -685,24 +663,9 @@ public class HomeEditor {
     public Raffle startRaffle(final int giveawayId) throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
+        RaffleSettings raffleSettings = giveaway.getRaffleSettings();
         CommandTable commandTable = botHome.getCommandTable();
-
-        String enterRaffleCommandName = giveaway.getEnterRaffleCommandName();
-        if (enterRaffleCommandName == null || enterRaffleCommandName.isEmpty()) {
-            throw new BotErrorException("No enter raffle command is set");
-        }
-        if (commandTable.getCommand(enterRaffleCommandName) != null) {
-            throw new BotErrorException(String.format("There is already a '%s' command.", enterRaffleCommandName));
-        }
-
-        String raffleStatusCommandName = giveaway.getRaffleStatusCommandName();
-        if (raffleStatusCommandName != null && !raffleStatusCommandName.isEmpty()) {
-            if (commandTable.getCommand(raffleStatusCommandName) != null) {
-                throw new BotErrorException(String.format("There is already a '%s' command.", raffleStatusCommandName));
-            }
-        } else {
-            raffleStatusCommandName = null;
-        }
+        raffleSettings.validate(commandTable);
 
         GiveawayEdit giveawayEdit = giveaway.reservePrize();
         Prize prize = giveawayEdit.getSavedPrizes().keySet().iterator().next();
@@ -710,9 +673,9 @@ public class HomeEditor {
         int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
         EnterRaffleCommand enterRaffleCommand =
                 new EnterRaffleCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
-        giveawayEdit.merge(commandTable.addCommand(enterRaffleCommandName, enterRaffleCommand));
+        giveawayEdit.merge(commandTable.addCommand(raffleSettings.getEnterRaffleCommandName(), enterRaffleCommand));
 
-        Duration raffleDuration = giveaway.getRaffleDuration();
+        Duration raffleDuration = raffleSettings.getRaffleDuration();
 
         Map<String, Command> tokenMap = new HashMap();
         List<Alert> alerts = new ArrayList<>();
@@ -726,9 +689,9 @@ public class HomeEditor {
 
         RaffleStatusCommand raffleStatusCommand = null;
 
-        if (raffleStatusCommandName != null) {
+        if (raffleSettings.hasRaffleStatusCommand()) {
             raffleStatusCommand = new RaffleStatusCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
-            giveawayEdit.merge(commandTable.addCommand(raffleStatusCommandName, raffleStatusCommand));
+            giveawayEdit.merge(commandTable.addCommand(raffleSettings.getStartRaffleCommandName(), raffleStatusCommand));
         }
 
         int[] waitMinutes = { 5, 1 };

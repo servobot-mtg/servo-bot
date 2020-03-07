@@ -937,7 +937,7 @@ async function postSaveGiveawaySelfService(botHomeId, giveawayId, requestPrizeCo
     const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, requestPrizeCommandName: requestPrizeCommandName,
         prizeRequestLimit: prizeRequestLimit, prizeRequestUserLimit: prizeRequestUserLimit};
     const responseElement = document.getElementById(label + '-self-service-save-response');
-    await makePost('/api/save_giveaway_self_service', parameters, [responseElement], false);
+    await makePost('/api/save_giveaway_self_service', parameters, [responseElement], true);
 }
 
 function saveRaffleSettings(botHomeId, giveawayId) {
@@ -958,7 +958,7 @@ async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDurat
         startRaffleCommandName: startRaffleCommandName, enterRaffleCommandName: enterRaffleCommandName,
         raffleStatusCommandName: raffleStatusCommandName};
     const responseElement = document.getElementById(label + '-raffle-save-response');
-    await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], false);
+    await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], true);
 }
 
 function showAddPrizeForm(giveawayId) {

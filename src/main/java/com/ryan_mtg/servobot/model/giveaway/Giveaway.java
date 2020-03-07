@@ -10,8 +10,6 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Validation;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +38,8 @@ public class Giveaway {
     private int prizeRequests = 0;
 
     // Raffle
-    private String startRaffleCommandName;
+    private RaffleSettings raffleSettings;
     private StartRaffleCommand startRaffleCommand;
-    private String enterRaffleCommandName;
-    private String raffleStatusCommandName;
-    private Duration raffleDuration = Duration.of(10, ChronoUnit.MINUTES);
 
     private List<Prize> prizes = new ArrayList<>();
     private List<Raffle> raffles = new ArrayList<>();
@@ -61,6 +56,10 @@ public class Giveaway {
 
         if (!selfService && !rafflesEnabled) {
             throw new BotErrorException("Giveaway must be at least one of self service or raffle.");
+        }
+
+        if (rafflesEnabled) {
+            raffleSettings = new RaffleSettings();
         }
 
         if (selfService) {
@@ -131,15 +130,12 @@ public class Giveaway {
         this.prizeRequestUserLimit = prizeRequestUserLimit;
     }
 
-    public String getStartRaffleCommandName() {
-        return startRaffleCommandName;
+    public RaffleSettings getRaffleSettings() {
+        return raffleSettings;
     }
 
-    public void setStartRaffleCommandName(final String startRaffleCommandName) throws BotErrorException {
-        Validation.validateStringValue(startRaffleCommandName, Validation.MAX_NAME_LENGTH,
-                "Start raffle command name", Validation.NAME_PATTERN);
-
-        this.startRaffleCommandName = startRaffleCommandName;
+    public void setRaffleSettings(final RaffleSettings raffleSettings) {
+        this.raffleSettings = raffleSettings;
     }
 
     public Command getStartRaffleCommand() {
@@ -148,36 +144,6 @@ public class Giveaway {
 
     public void setStartRaffleCommand(final StartRaffleCommand startRaffleCommand) {
         this.startRaffleCommand = startRaffleCommand;
-    }
-
-    public Duration getRaffleDuration() {
-        return raffleDuration;
-    }
-
-    public void setRaffleDuration(final Duration raffleDuration) {
-        this.raffleDuration = raffleDuration;
-    }
-
-    public String getEnterRaffleCommandName() {
-        return enterRaffleCommandName;
-    }
-
-    public void setEnterRaffleCommandName(final String enterRaffleCommandName) throws BotErrorException {
-        Validation.validateStringValue(enterRaffleCommandName, Validation.MAX_NAME_LENGTH,
-                "Enter raffle command name", Validation.NAME_PATTERN);
-
-        this.enterRaffleCommandName = enterRaffleCommandName;
-    }
-
-    public String getRaffleStatusCommandName() {
-        return raffleStatusCommandName;
-    }
-
-    public void setRaffleStatusCommandName(final String raffleStatusCommandName) throws BotErrorException {
-        Validation.validateStringValue(raffleStatusCommandName, Validation.MAX_NAME_LENGTH,
-                "Raffle status command name", Validation.NAME_PATTERN);
-
-        this.raffleStatusCommandName = raffleStatusCommandName;
     }
 
     public List<Prize> getPrizes() {

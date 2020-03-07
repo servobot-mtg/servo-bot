@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
+import com.ryan_mtg.servobot.model.giveaway.RaffleSettings;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Flags;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,12 +64,13 @@ public class GiveawaySerializer {
         giveawayRow.setPrizeRequestLimit(giveaway.getPrizeRequestLimit());
         giveawayRow.setPrizeRequestUserLimit(giveaway.getPrizeRequestUserLimit());
 
-        giveawayRow.setStartRaffleCommandName(giveaway.getStartRaffleCommandName());
+        RaffleSettings raffleSettings = giveaway.getRaffleSettings();
+        giveawayRow.setStartRaffleCommandName(raffleSettings.getStartRaffleCommandName());
         Command startRaffleCommand = giveaway.getStartRaffleCommand();
         giveawayRow.setStartRaffleCommandId(startRaffleCommand != null ? startRaffleCommand.getId() : 0);
-        giveawayRow.setEnterRaffleCommandName(giveaway.getEnterRaffleCommandName());
-        giveawayRow.setRaffleStatusCommandName(giveaway.getRaffleStatusCommandName());
-        giveawayRow.setRaffleDuration((int)giveaway.getRaffleDuration().getSeconds());
+        giveawayRow.setEnterRaffleCommandName(raffleSettings.getEnterRaffleCommandName());
+        giveawayRow.setRaffleStatusCommandName(raffleSettings.getRaffleStatusCommandName());
+        giveawayRow.setRaffleDuration((int)raffleSettings.getRaffleDuration().getSeconds());
 
         giveawayRepository.save(giveawayRow);
 
@@ -119,21 +121,20 @@ public class GiveawaySerializer {
         }
 
         if (giveaway.isRafflesEnabled()) {
-            giveaway.setStartRaffleCommandName(giveawayRow.getStartRaffleCommandName());
-
             if (giveawayRow.getStartRaffleCommandId() != Command.UNREGISTERED_ID) {
                 StartRaffleCommand startRaffleCommand =
                         (StartRaffleCommand) commandTable.getCommand(giveawayRow.getStartRaffleCommandId());
                 giveaway.setStartRaffleCommand(startRaffleCommand);
             }
+            RaffleSettings raffleSettings = new RaffleSettings(giveawayRow.getStartRaffleCommandName(),
+                    giveawayRow.getEnterRaffleCommandName(), giveawayRow.getRaffleStatusCommandName(),
+                    Duration.ofSeconds(giveawayRow.getRaffleDuration()));
 
-            giveaway.setEnterRaffleCommandName(giveawayRow.getEnterRaffleCommandName());
-            giveaway.setRaffleStatusCommandName(giveawayRow.getRaffleStatusCommandName());
-            giveaway.setRaffleDuration(Duration.ofSeconds(giveawayRow.getRaffleDuration()));
-        }
+            giveaway.setRaffleSettings(raffleSettings);
 
-        for (PrizeRow prizeRow : prizeRepository.findAllByGiveawayId(giveaway.getId())) {
-            giveaway.addPrize(createPrize(botHomeId, prizeRow));
+            for (PrizeRow prizeRow : prizeRepository.findAllByGiveawayId(giveaway.getId())) {
+                giveaway.addPrize(createPrize(botHomeId, prizeRow));
+            }
         }
 
         return giveaway;
