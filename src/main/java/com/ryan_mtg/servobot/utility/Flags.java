@@ -5,6 +5,10 @@ public class Flags {
         return (flags & flag) != 0;
     }
 
+    public static int value(final int flag, final boolean value) {
+        return value ? flag : 0;
+    }
+
     public static int setFlag(final int flags, final int flag, final boolean value) {
         if (value) {
             return flags | flag;

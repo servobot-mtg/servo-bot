@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.data.models.PrizeRow;
 import com.ryan_mtg.servobot.data.repositories.GiveawayRepository;
 import com.ryan_mtg.servobot.data.repositories.PrizeRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.giveaway.CommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
@@ -65,7 +66,11 @@ public class GiveawaySerializer {
         giveawayRow.setPrizeRequestUserLimit(giveaway.getPrizeRequestUserLimit());
 
         RaffleSettings raffleSettings = giveaway.getRaffleSettings();
-        giveawayRow.setStartRaffleCommandName(raffleSettings.getStartRaffleCommandName());
+        giveawayRow.setStartRaffleCommandName(raffleSettings.getStartRaffle().getCommandName());
+        giveawayRow.setStartRaffleFlags(raffleSettings.getStartRaffle().getFlags());
+        giveawayRow.setStartRafflePermission(raffleSettings.getStartRaffle().getPermission());
+        giveawayRow.setStartRaffleMessage(raffleSettings.getStartRaffle().getMessage());
+
         Command startRaffleCommand = giveaway.getStartRaffleCommand();
         giveawayRow.setStartRaffleCommandId(startRaffleCommand != null ? startRaffleCommand.getId() : 0);
         giveawayRow.setEnterRaffleCommandName(raffleSettings.getEnterRaffleCommandName());
@@ -126,7 +131,11 @@ public class GiveawaySerializer {
                         (StartRaffleCommand) commandTable.getCommand(giveawayRow.getStartRaffleCommandId());
                 giveaway.setStartRaffleCommand(startRaffleCommand);
             }
-            RaffleSettings raffleSettings = new RaffleSettings(giveawayRow.getStartRaffleCommandName(),
+
+            CommandSettings startRaffle = new CommandSettings(giveawayRow.getStartRaffleCommandName(),
+                    giveawayRow.getStartRaffleFlags(), giveawayRow.getStartRafflePermission(),
+                    giveawayRow.getStartRaffleMessage());
+            RaffleSettings raffleSettings = new RaffleSettings(startRaffle,
                     giveawayRow.getEnterRaffleCommandName(), giveawayRow.getRaffleStatusCommandName(),
                     Duration.ofSeconds(giveawayRow.getRaffleDuration()));
 

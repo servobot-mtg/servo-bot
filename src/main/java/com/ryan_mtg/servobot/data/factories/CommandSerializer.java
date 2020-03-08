@@ -138,7 +138,7 @@ public class CommandSerializer {
                 return new ShowValueCommand(id, flags, permission);
             case StartRaffleCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
-                return new StartRaffleCommand(id, flags, permission, giveawayId);
+                return new StartRaffleCommand(id, flags, permission, giveawayId, commandRow.getStringParameter());
             case TextCommand.TYPE:
                 return new TextCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case TierCommand.TYPE:
@@ -397,6 +397,7 @@ public class CommandSerializer {
         public void visitStartGiveawayCommand(final StartRaffleCommand startRaffleCommand) {
             saveCommand(startRaffleCommand, commandRow -> {
                 commandRow.setLongParameter(startRaffleCommand.getGiveawayId());
+                commandRow.setStringParameter(startRaffleCommand.getMessage());
             });
         }
 

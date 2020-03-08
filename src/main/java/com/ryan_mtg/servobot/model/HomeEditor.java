@@ -25,6 +25,7 @@ import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.model.alerts.Alert;
+import com.ryan_mtg.servobot.model.giveaway.CommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
@@ -586,7 +587,7 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
-            final String startRaffleCommandName, final String enterRaffleCommandName,
+            final CommandSettings startRaffle, final String enterRaffleCommandName,
             final String raffleStatusCommandName) throws BotErrorException {
 
         Giveaway giveaway = getGiveaway(giveawayId);
@@ -595,7 +596,7 @@ public class HomeEditor {
         }
         RaffleSettings previousSettings = giveaway.getRaffleSettings();
 
-        RaffleSettings raffleSettings = new RaffleSettings(startRaffleCommandName, enterRaffleCommandName,
+        RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffleCommandName,
                 raffleStatusCommandName, raffleDuration);
 
         CommandTable commandTable = botHome.getCommandTable();
@@ -604,16 +605,15 @@ public class HomeEditor {
         GiveawayEdit giveawayEdit = new GiveawayEdit();
         giveawayEdit.addGiveaway(giveaway);
 
-        if (!startRaffleCommandName.equals(previousSettings.getStartRaffleCommandName())) {
+        if (!startRaffle.equals(previousSettings.getStartRaffle())) {
             Command oldCommand = giveaway.getStartRaffleCommand();
             if (oldCommand != null) {
                 giveawayEdit.merge(commandTable.deleteCommand(oldCommand.getId()));
             }
 
-            int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
             StartRaffleCommand startRaffleCommand = new StartRaffleCommand(Command.UNREGISTERED_ID,
-                    flags, Permission.STREAMER, giveawayId);
-            giveawayEdit.merge(commandTable.addCommand(startRaffleCommandName, startRaffleCommand));
+                    startRaffle.getFlags(), Permission.STREAMER, giveawayId, startRaffle.getMessage());
+            giveawayEdit.merge(commandTable.addCommand(startRaffle.getCommandName(), startRaffleCommand));
             giveaway.setStartRaffleCommand(startRaffleCommand);
         }
 
@@ -691,7 +691,7 @@ public class HomeEditor {
 
         if (raffleSettings.hasRaffleStatusCommand()) {
             raffleStatusCommand = new RaffleStatusCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
-            giveawayEdit.merge(commandTable.addCommand(raffleSettings.getStartRaffleCommandName(), raffleStatusCommand));
+            giveawayEdit.merge(commandTable.addCommand(raffleSettings.getRaffleStatusCommandName(), raffleStatusCommand));
         }
 
         int[] waitMinutes = { 5, 1 };

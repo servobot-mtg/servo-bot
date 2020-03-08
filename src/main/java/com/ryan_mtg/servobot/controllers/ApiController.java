@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.commands.Command;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.data.models.CommandRow;
@@ -8,6 +9,7 @@ import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.giveaway.CommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.Statement;
@@ -16,6 +18,8 @@ import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Flags;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -544,22 +548,46 @@ public class ApiController {
             throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
-                Duration.of(request.getRaffleDuration(), ChronoUnit.MINUTES), request.getStartRaffleCommandName(),
+                Duration.of(request.getRaffleDuration(), ChronoUnit.MINUTES), request.getStartRaffle().toSettings(),
                 request.getEnterRaffleCommandName(), request.getRaffleStatusCommandName());
+    }
+
+    public static class CommandSettings {
+        @Getter
+        private String name;
+
+        @Getter
+        private Permission permission;
+
+        @Getter
+        private String message;
+
+        @Getter
+        private boolean twitch;
+
+        @Getter
+        private boolean discord;
+
+        @Getter
+        private boolean secure;
+
+        public com.ryan_mtg.servobot.model.giveaway.CommandSettings toSettings() {
+            int flags = Flags.value(Command.SECURE_FLAG, secure) | Flags.value(Command.TWITCH_FLAG, twitch)
+                    | Flags.value(Command.DISCORD_FLAG, discord) | Command.TEMPORARY_FLAG;
+            return new com.ryan_mtg.servobot.model.giveaway.CommandSettings(name, flags, permission, message);
+        }
     }
 
     public static class SaveRaffleSettingsRequest extends GiveawayRequest {
         private int raffleDuration;
-        private String startRaffleCommandName;
+
+        @Getter
+        private CommandSettings startRaffle;
         private String enterRaffleCommandName;
         private String raffleStatusCommandName;
 
         public int getRaffleDuration() {
             return raffleDuration;
-        }
-
-        public String getStartRaffleCommandName() {
-            return startRaffleCommandName;
         }
 
         public String getEnterRaffleCommandName() {

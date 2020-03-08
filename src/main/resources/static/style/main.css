@@ -396,6 +396,15 @@ input[type=text].name {
     margin-right: 3em;
 }
 
+.command-settings {
+    padding: 10px;
+    border: black solid 1px;
+}
+
+.message-input {
+    min-width: 50em;
+}
+
 .giveaway label {
     margin: 4px 0 0 0;
     display: inline-block;

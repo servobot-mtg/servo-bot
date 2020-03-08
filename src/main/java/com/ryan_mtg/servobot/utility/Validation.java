@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.utility;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.giveaway.CommandSettings;
 
 import java.util.regex.Pattern;
 
@@ -80,5 +81,11 @@ public class Validation {
             throw new BotErrorException(String.format("%s (%d) is less than the lower bound (%d) ",
                     description, value, lowerBound));
         }
+    }
+
+    public static void validateCommandSettings(final CommandSettings settings, final CommandSettings previousSettings,
+           final CommandTable commandTable, final boolean required, final String description) throws BotErrorException {
+        Validation.validateSetTemporaryCommandName(settings.getCommandName(), previousSettings.getCommandName(),
+                commandTable, required, description);
     }
 }

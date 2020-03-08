@@ -1,7 +1,10 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -46,7 +49,21 @@ public class GiveawayRow {
 
     @Column(name = "start_raffle_command_name")
     @Size(max = Validation.MAX_NAME_LENGTH)
+    @Getter @Setter
     private String startRaffleCommandName;
+
+    @Column(name = "start_raffle_flags")
+    @Getter @Setter
+    private int startRaffleFlags;
+
+    @Column(name = "start_raffle_permission")
+    @Getter @Setter
+    private Permission startRafflePermission;
+
+    @Column(name = "start_raffle_message")
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    @Getter @Setter
+    private String startRaffleMessage;
 
     @Column(name = "start_raffle_command_id")
     private int startRaffleCommandId;
@@ -140,14 +157,6 @@ public class GiveawayRow {
 
     public void setPrizeRequests(final int prizeRequests) {
         this.prizeRequests = prizeRequests;
-    }
-
-    public String getStartRaffleCommandName() {
-        return startRaffleCommandName;
-    }
-
-    public void setStartRaffleCommandName(final String startRaffleCommandName) {
-        this.startRaffleCommandName = startRaffleCommandName;
     }
 
     public int getStartRaffleCommandId() {

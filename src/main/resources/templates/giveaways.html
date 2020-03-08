@@ -5,6 +5,7 @@
     <div th:include="fragments :: includes" />
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
             type="text/javascript" src="/script/privledged.js"></script>
+    <script type="text/javascript" src="/script/giveaway.js"></script>
 </head>
 <body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
       streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
@@ -88,10 +89,51 @@
                             <input type="number" th:id="${label} + '-raffle-duration'"
                                    th:value="${giveaway.raffleSettings.raffleDuration.toMinutes()}"><br>
                         </div><br>
-                        <div class="form-block">
-                            <label>Start Raffle Command</label><br>
-                            <input type="text" th:id="${label} + '-start-raffle-command'"
-                                   th:value="${giveaway.raffleSettings.startRaffleCommandName}"><br>
+                        <div class="command-settings form-block"
+                             th:with="commandLabel=${label + '-start-raffle'},settingsId=1">
+                            <h3>Start Raffle Command</h3>
+                            <div class="form-block">
+                                <label>Name</label><br>
+                                <input type="text" th:id="${commandLabel} + '-command'"
+                                       th:value="${giveaway.raffleSettings.startRaffle.commandName}"><br>
+                            </div>
+                            <div class="form-block">
+                                <label>Options</label><br>
+
+                                <span th:id="${commandLabel} + '-secured'" class="pseudo-link"
+                                      th:onclick="'secureGiveawayCommand(' + ${giveaway.id} + ', ' + ${settingsId} + ')'"
+                                      th:text="${giveaway.raffleSettings.startRaffle.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+
+                                <span th:id="${commandLabel} + '-twitch'" class="pseudo-link"
+                                      th:onclick="'toggleGiveawayCommandTwitch(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
+                                    <img th:id="${commandLabel} + '-twitch-img'" class="icon" title="Toggle Twitch use"
+                                         th:src="${giveaway.raffleSettings.startRaffle.twitch ? '/images/twitch.ico'
+                                         : '/images/no-twitch.ico'}">
+                                </span>
+
+                                <span th:id="${commandLabel} + '-discord'" class="pseudo-link"
+                                      th:onclick="'toggleGiveawayCommandDiscord(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
+                                    <img th:id="${commandLabel} + '-discord-img'" class="icon" title="Toggle Discord use"
+                                         th:src="${giveaway.raffleSettings.startRaffle.discord ? '/images/discord.ico'
+                                         : '/images/no-discord.ico'}">
+                                </span>
+                            </div>
+
+                            <div class="form-block">
+                                <label>Permissions</label><br>
+                                <select th:id="${commandLabel} + '-permission'">
+                                    <th:block th:each="permission : ${permissions}">
+                                        <option th:value="${permission}" th:text="${permission}"
+                                                th:selected="${permission == giveaway.raffleSettings.startRaffle.permission}"/>
+                                    </th:block>
+                                </select>
+                                <span th:id="${label}+ '-permission-updated'"/>
+                            </div><br>
+                            <div>
+                                <label>Response</label><br>
+                                <input type="text" th:id="${label} + '-start-raffle-message'" class="message-input"
+                                       th:value="${giveaway.raffleSettings.startRaffle.message}"><br>
+                            </div><br>
                         </div><br>
                         <div class="form-block">
                             <label>Enter Raffle Command Name</label><br>
