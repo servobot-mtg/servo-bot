@@ -184,12 +184,22 @@
                     <form th:id="${label} + '-add-prize-form'" class="add-form hidden"
                           th:onsubmit="'addPrize(' + ${botHome.id} + ', ' + ${giveaway.id}+ '); return false;'">
                         <div>
+                            <label>Enter multiple prizes</label>
+                            <input type="checkbox" th:id="${label} + '-add-prize-multiple'"
+                                   th:onchange="'toggleAddPrizeMultiples(' + ${giveaway.id} + ')'"><br>
+                        </div><br>
+                        <div th:id="${label} + '-add-prize-reward-div'">
                             <label>Reward</label><br>
                             <input type="text" th:id="${label} + '-add-prize-reward'" size="30" class="name"><br>
                         </div><br>
                         <div>
                             <label>Description</label><br>
                             <input type="text" th:id="${label} + '-add-prize-description'" size="50"><br>
+                        </div><br>
+                        <div th:id="${label} + '-add-prize-reward-multiple-div'" class="hidden">
+                            <label>Rewards</label><br>
+                            <textarea th:id="${label} + '-add-prize-reward-multiple'" rows="20" cols="30"></textarea>
+                            <br>
                         </div><br>
                         <input type="submit" value="Add Prize">
                     </form>

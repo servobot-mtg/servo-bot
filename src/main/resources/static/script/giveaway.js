@@ -104,17 +104,36 @@ function showAddPrizeForm(giveawayId) {
     const label = 'giveaway-' + giveawayId + '-add-prize';
     hideElementById(label + '-button');
 
+    document.getElementById(label + '-multiple').checked = false;
     let rewardInputElement = document.getElementById(label + '-reward');
     rewardInputElement.value = '';
     showElementInlineById(label + '-form');
     rewardInputElement.focus();
 }
 
+function toggleAddPrizeMultiples(giveawayId) {
+    const label = 'giveaway-' + giveawayId + '-add-prize';
+    const multiples = document.getElementById(label + '-multiple').checked;
+    if (multiples) {
+        hideElementById(label + '-reward-div');
+        showElementById(label + '-reward-multiple-div');
+    } else {
+        showElementById(label + '-reward-div');
+        hideElementById(label + '-reward-multiple-div');
+    }
+}
+
 function addPrize(botHomeId, giveawayId) {
     const label = 'giveaway-' + giveawayId + '-add-prize';
-    const reward = document.getElementById(label + '-reward').value;
+    const multiples = document.getElementById(label + '-multiple').checked;
     const description = document.getElementById(label + '-description').value;
-    postAddPrize(botHomeId, giveawayId, reward, description);
+    if (multiples) {
+        const rewards = document.getElementById(label + '-reward-multiple').value;
+        postAddPrizes(botHomeId, giveawayId, rewards, description);
+    } else {
+        const reward = document.getElementById(label + '-reward').value;
+        postAddPrize(botHomeId, giveawayId, reward, description);
+    }
 }
 
 async function postAddPrize(botHomeId, giveawayId, reward, description) {
@@ -128,6 +147,22 @@ async function postAddPrize(botHomeId, giveawayId, reward, description) {
 
         let prize = await response.json();
         addPrizeRow(botHomeId, giveawayId, prize);
+    }
+}
+
+async function postAddPrizes(botHomeId, giveawayId, rewards, description) {
+    const label = 'giveaway-' + giveawayId + '-add-prize';
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, rewards: rewards, description: description};
+    let response = await makePost('/api/add_prizes', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let prizes = await response.json();
+        for (let i = 0; i < prizes.length; i++) {
+            addPrizeRow(botHomeId, giveawayId, prizes[i]);
+        }
     }
 }
 

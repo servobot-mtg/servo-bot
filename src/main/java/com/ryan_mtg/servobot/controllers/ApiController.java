@@ -623,6 +623,21 @@ public class ApiController {
         private String description;
     }
 
+    @PostMapping(value = "/add_prizes", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Prize> addPrizes(@RequestBody final AddPrizesRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addPrizes(request.getGiveawayId(), request.getRewards(), request.getDescription());
+    }
+
+    public static class AddPrizesRequest extends GiveawayRequest {
+        @Getter
+        private String rewards;
+
+        @Getter
+        private String description;
+    }
+
     @PostMapping(value = "/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public HomedUser awardReward(@RequestBody final PrizeRequest request) throws BotErrorException {

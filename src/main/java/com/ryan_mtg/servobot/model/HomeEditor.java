@@ -42,6 +42,7 @@ import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -641,7 +642,7 @@ public class HomeEditor {
             throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
-        Prize prize = new Prize(Prize.UNREGISTERED_ID, reward, description);
+        Prize prize = new Prize(Prize.UNREGISTERED_ID, Strings.trim(reward), Strings.trim(description));
         giveaway.addPrize(prize);
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
@@ -649,6 +650,27 @@ public class HomeEditor {
         serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
 
         return prize;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public List<Prize> addPrizes(final int giveawayId, final String rewards, final String description)
+            throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+        List<Prize> prizes = new ArrayList<>();
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        for(String reward : rewards.split("\\r?\\n")) {
+            reward = Strings.trim(reward);
+            if (!reward.isEmpty()) {
+                Prize prize = new Prize(Prize.UNREGISTERED_ID, reward, Strings.trim(description));
+                prizes.add(prize);
+                giveawayEdit.addPrize(giveaway.getId(), prize);
+            }
+        }
+        prizes.forEach(giveaway::addPrize);
+
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        return prizes;
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
