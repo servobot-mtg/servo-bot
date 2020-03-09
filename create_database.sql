@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_
          prize_request_user_limit INTEGER, request_prize_command_id INTEGER, prize_requests INTEGER,
          start_raffle_command_name VARCHAR(30), start_raffle_flags INTEGER, start_raffle_permission INTEGER,
          start_raffle_message VARCHAR(200), start_raffle_command_id INTEGER, enter_raffle_command_name VARCHAR(30),
+         enter_raffle_permission INTEGER, enter_raffle_flags INTEGER, enter_raffle_message VARCHAR(200),
          raffle_status_command_name VARCHAR(30), raffle_duration INTEGER);
 
 CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
@@ -64,3 +65,7 @@ CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveawa
 ALTER TABLE giveaway ADD COLUMN start_raffle_permission INTEGER;
 ALTER TABLE giveaway ADD COLUMN start_raffle_flags INTEGER;
 ALTER TABLE giveaway ADD COLUMN start_raffle_message VARCHAR(200);
+
+ALTER TABLE giveaway ADD COLUMN enter_raffle_permission INTEGER;
+ALTER TABLE giveaway ADD COLUMN enter_raffle_flags INTEGER;
+ALTER TABLE giveaway ADD COLUMN enter_raffle_message VARCHAR(200);

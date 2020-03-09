@@ -66,14 +66,19 @@ public class GiveawaySerializer {
         giveawayRow.setPrizeRequestUserLimit(giveaway.getPrizeRequestUserLimit());
 
         RaffleSettings raffleSettings = giveaway.getRaffleSettings();
+
         giveawayRow.setStartRaffleCommandName(raffleSettings.getStartRaffle().getCommandName());
         giveawayRow.setStartRaffleFlags(raffleSettings.getStartRaffle().getFlags());
         giveawayRow.setStartRafflePermission(raffleSettings.getStartRaffle().getPermission());
         giveawayRow.setStartRaffleMessage(raffleSettings.getStartRaffle().getMessage());
 
+        giveawayRow.setEnterRaffleCommandName(raffleSettings.getEnterRaffle().getCommandName());
+        giveawayRow.setEnterRaffleFlags(raffleSettings.getEnterRaffle().getFlags());
+        giveawayRow.setEnterRafflePermission(raffleSettings.getEnterRaffle().getPermission());
+        giveawayRow.setEnterRaffleMessage(raffleSettings.getEnterRaffle().getMessage());
+
         Command startRaffleCommand = giveaway.getStartRaffleCommand();
         giveawayRow.setStartRaffleCommandId(startRaffleCommand != null ? startRaffleCommand.getId() : 0);
-        giveawayRow.setEnterRaffleCommandName(raffleSettings.getEnterRaffleCommandName());
         giveawayRow.setRaffleStatusCommandName(raffleSettings.getRaffleStatusCommandName());
         giveawayRow.setRaffleDuration((int)raffleSettings.getRaffleDuration().getSeconds());
 
@@ -135,9 +140,13 @@ public class GiveawaySerializer {
             CommandSettings startRaffle = new CommandSettings(giveawayRow.getStartRaffleCommandName(),
                     giveawayRow.getStartRaffleFlags(), giveawayRow.getStartRafflePermission(),
                     giveawayRow.getStartRaffleMessage());
-            RaffleSettings raffleSettings = new RaffleSettings(startRaffle,
-                    giveawayRow.getEnterRaffleCommandName(), giveawayRow.getRaffleStatusCommandName(),
-                    Duration.ofSeconds(giveawayRow.getRaffleDuration()));
+
+            CommandSettings enterRaffle = new CommandSettings(giveawayRow.getEnterRaffleCommandName(),
+                    giveawayRow.getEnterRaffleFlags(), giveawayRow.getEnterRafflePermission(),
+                    giveawayRow.getEnterRaffleMessage());
+
+            RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle,
+                    giveawayRow.getRaffleStatusCommandName(), Duration.ofSeconds(giveawayRow.getRaffleDuration()));
 
             giveaway.setRaffleSettings(raffleSettings);
 

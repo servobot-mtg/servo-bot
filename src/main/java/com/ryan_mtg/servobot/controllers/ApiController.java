@@ -549,7 +549,7 @@ public class ApiController {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
                 Duration.of(request.getRaffleDuration(), ChronoUnit.MINUTES), request.getStartRaffle().toSettings(),
-                request.getEnterRaffleCommandName(), request.getRaffleStatusCommandName());
+                request.getEnterRaffle().toSettings(), request.getRaffleStatusCommandName());
     }
 
     public static class CommandSettings {
@@ -579,24 +579,17 @@ public class ApiController {
     }
 
     public static class SaveRaffleSettingsRequest extends GiveawayRequest {
+        @Getter
         private int raffleDuration;
 
         @Getter
         private CommandSettings startRaffle;
-        private String enterRaffleCommandName;
+
+        @Getter
+        private CommandSettings enterRaffle;
+
+        @Getter
         private String raffleStatusCommandName;
-
-        public int getRaffleDuration() {
-            return raffleDuration;
-        }
-
-        public String getEnterRaffleCommandName() {
-            return enterRaffleCommandName;
-        }
-
-        public String getRaffleStatusCommandName() {
-            return raffleStatusCommandName;
-        }
     }
 
     @PostMapping(value = "/start_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,

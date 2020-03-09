@@ -39,7 +39,7 @@ public class StartRaffleCommand extends MessageCommand {
         long minutesLeft = raffle.getTimeLeft().plus(30, ChronoUnit.SECONDS).toMinutes();
         String message =
                 String.format("A raffle has started, sponsored by Zlubar Gaming! It will last %d minutes. To enter type !%s #sponsored",
-                        minutesLeft, giveaway.getRaffleSettings().getEnterRaffleCommandName());
+                        minutesLeft, giveaway.getRaffleSettings().getEnterRaffle().getCommandName());
         MessageCommand.say(event, message);
     }
 

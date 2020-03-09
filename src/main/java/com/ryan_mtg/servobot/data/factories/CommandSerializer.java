@@ -82,7 +82,8 @@ public class CommandSerializer {
                 return new DeleteCommand(id, flags, permission);
             case EnterRaffleCommand.TYPE:
                 int giveawayId = (int) (long) commandRow.getLongParameter();
-                return new EnterRaffleCommand(id, flags, permission, giveawayId);
+                return new EnterRaffleCommand(id, flags, permission, giveawayId,
+                        commandRow.getStringParameter().trim());
             case EvaluateExpressionCommand.TYPE:
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
                 return new EvaluateExpressionCommand(id, flags, permission, gabyEasterEgg);
@@ -138,7 +139,8 @@ public class CommandSerializer {
                 return new ShowValueCommand(id, flags, permission);
             case StartRaffleCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
-                return new StartRaffleCommand(id, flags, permission, giveawayId, commandRow.getStringParameter());
+                return new StartRaffleCommand(id, flags, permission, giveawayId,
+                        commandRow.getStringParameter().trim());
             case TextCommand.TYPE:
                 return new TextCommand(id, flags, permission, commandRow.getStringParameter().trim());
             case TierCommand.TYPE:
@@ -261,6 +263,7 @@ public class CommandSerializer {
         public void visitEnterGiveawayCommand(final EnterRaffleCommand enterRaffleCommand) {
             saveCommand(enterRaffleCommand, commandRow -> {
                 commandRow.setLongParameter(enterRaffleCommand.getGiveawayId());
+                commandRow.setStringParameter(enterRaffleCommand.getResponse());
             });
         }
 

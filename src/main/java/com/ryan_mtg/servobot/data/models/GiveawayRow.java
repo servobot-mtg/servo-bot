@@ -72,6 +72,19 @@ public class GiveawayRow {
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String enterRaffleCommandName;
 
+    @Column(name = "enter_raffle_flags")
+    @Getter @Setter
+    private int enterRaffleFlags;
+
+    @Column(name = "enter_raffle_permission")
+    @Getter @Setter
+    private Permission enterRafflePermission;
+
+    @Column(name = "enter_raffle_message")
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    @Getter @Setter
+    private String enterRaffleMessage;
+
     @Column(name = "raffle_status_command_name")
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String raffleStatusCommandName;

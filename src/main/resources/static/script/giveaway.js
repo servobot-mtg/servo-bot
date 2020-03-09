@@ -80,19 +80,18 @@ function saveRaffleSettings(botHomeId, giveawayId) {
     const raffleDuration = document.getElementById(label + '-raffle-duration').value;
 
     const startRaffle = getCommandSettings(label + '-start-raffle');
-    const enterRaffleCommandName = document.getElementById(label + '-enter-raffle-command').value;
+    const enterRaffle = getCommandSettings(label + '-enter-raffle');
     const raffleStatusCommandName = document.getElementById(label + '-raffle-status-command').value;
 
-    postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle,
-        enterRaffleCommandName, raffleStatusCommandName);
+    postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle, enterRaffle,
+        raffleStatusCommandName);
 }
 
-async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle,
-                                              enterRaffleCommandName, raffleStatusCommandName) {
+async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle, enterRaffle,
+                                              raffleStatusCommandName) {
     const label = 'giveaway-' + giveawayId;
     const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, raffleDuration: raffleDuration,
-        startRaffle: startRaffle, enterRaffleCommandName: enterRaffleCommandName,
-        raffleStatusCommandName: raffleStatusCommandName};
+        startRaffle: startRaffle, enterRaffle: enterRaffle, raffleStatusCommandName: raffleStatusCommandName};
     const responseElement = document.getElementById(label + '-raffle-save-response');
     await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], true);
 }
@@ -202,13 +201,14 @@ function copyPrizeMessage(prizeId) {
 const giveawayCommandsData = [
     {},
     {label: 'start-raffle'},
+    {label: 'enter-raffle'},
 ];
 
-function toggleGiveawayCommandTwitch(giveawayId, settingsId) {
+function toggleTwitchCommandSetting(giveawayId, settingsId) {
     setCommandService(giveawayId, settingsId, 'twitch');
 }
 
-function toggleGiveawayCommandDiscord(giveawayId, settingsId) {
+function toggleDiscordCommandSetting(giveawayId, settingsId) {
     setCommandService(giveawayId, settingsId, 'discord');
 }
 
@@ -228,7 +228,7 @@ function setCommandService(giveawayId, settingsId, service, serviceType) {
     }
 }
 
-function secureGiveawayCommand(giveawayId, settingsId) {
+function toggleSecureCommandSetting(giveawayId, settingsId) {
     const label = 'giveaway-' + giveawayId + '-' + giveawayCommandsData[settingsId].label;
     let valueElement = document.getElementById(label + '-secured');
     const secure = valueElement.innerText != decodedLockedIcon;
@@ -239,5 +239,3 @@ function secureGiveawayCommand(giveawayId, settingsId) {
         valueElement.innerHTML = unlockedIcon;
     }
 }
-
-

@@ -587,7 +587,7 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
-            final CommandSettings startRaffle, final String enterRaffleCommandName,
+            final CommandSettings startRaffle, final CommandSettings enterRaffle,
             final String raffleStatusCommandName) throws BotErrorException {
 
         Giveaway giveaway = getGiveaway(giveawayId);
@@ -596,7 +596,7 @@ public class HomeEditor {
         }
         RaffleSettings previousSettings = giveaway.getRaffleSettings();
 
-        RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffleCommandName,
+        RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle,
                 raffleStatusCommandName, raffleDuration);
 
         CommandTable commandTable = botHome.getCommandTable();
@@ -670,10 +670,12 @@ public class HomeEditor {
         GiveawayEdit giveawayEdit = giveaway.reservePrize();
         Prize prize = giveawayEdit.getSavedPrizes().keySet().iterator().next();
 
+        CommandSettings enterCommandSettings = raffleSettings.getEnterRaffle();
         int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
-        EnterRaffleCommand enterRaffleCommand =
-                new EnterRaffleCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
-        giveawayEdit.merge(commandTable.addCommand(raffleSettings.getEnterRaffleCommandName(), enterRaffleCommand));
+        EnterRaffleCommand enterRaffleCommand = new EnterRaffleCommand(Command.UNREGISTERED_ID,
+                enterCommandSettings.getFlags(), enterCommandSettings.getPermission(), giveawayId,
+                enterCommandSettings.getMessage());
+        giveawayEdit.merge(commandTable.addCommand(enterCommandSettings.getCommandName(), enterRaffleCommand));
 
         Duration raffleDuration = raffleSettings.getRaffleDuration();
 
