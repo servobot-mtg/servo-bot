@@ -190,7 +190,7 @@ public class CommandDescriptor {
         @Override
         public void visitJailCommand(final JailCommand jailCommand) {
             type = "Jail Command";
-            description = String.format("Puts the user in into '%s' if triggered %d times",
+            description = String.format("Puts the user into '%s' if triggered %d times",
                     jailCommand.getPrisonRole(), jailCommand.getThreshold());
         }
 

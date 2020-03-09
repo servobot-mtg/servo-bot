@@ -66,7 +66,7 @@
                                    th:value="${giveaway.prizeRequestUserLimit}" min="1"><br>
                         </div>
                         <div class="pseudo-link save-button"
-                             th:onclick="'saveSelfService(' + ${botHome.id} + ',' + ${giveaway.id} + ')'">
+                             th:onclick="'saveSelfService(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
                             <div>&#x1F4BE;</div>
                             <span th:id="${label} + '-self-service-save-response'"/>
                         </div>
@@ -87,7 +87,21 @@
                         <div class="form-block">
                             <label>Raffle Duration (min)</label><br>
                             <input type="number" th:id="${label} + '-raffle-duration'"
-                                   th:value="${giveaway.raffleSettings.raffleDuration.toMinutes()}"><br>
+                                   th:value="${giveaway.raffleSettings.duration.toMinutes()}"><br>
+                        </div>
+                        <div class="form-block">
+                            <label>Winners per Raffle</label><br>
+                            <input type="number" th:id="${label} + '-raffle-winner-count'"
+                                   th:value="${giveaway.raffleSettings.winnerCount}"><br>
+                        </div>
+                        <div class="form-block" th:if="${!channels.empty}">
+                            <label>Discord Channel</label><br>
+                            <select th:id="${label} + '-discord-channel'">
+                                <th:block th:each="channel : ${channels}">
+                                    <option th:value="${channel}" th:text="${channel}"
+                                            th:selected="${channel == giveaway.raffleSettings.discordChannel}"/>
+                                </th:block>
+                            </select>
                         </div><br>
 
                         <div th:include="fragments :: command_settings (description = 'Start Raffle Command',
@@ -102,12 +116,17 @@
                             label = ${label + '-raffle-status'}, settingsId = ${3},
                             commandSettings = ${giveaway.raffleSettings.raffleStatus})" />
 
+                        <div>
+                            <label>Winner Response</label><br>
+                            <input type="text" th:id="${label} + '-raffle-winner-response'" class="message-input"
+                                   th:value="${giveaway.raffleSettings.winnerResponse}"><br>
+                        </div><br>
                         <div class="form-block hidden">
                             <label>Select Raffle Winner Command Name</label><br>
                             <input type="text" id="select-raffle-winner-command"><br>
                         </div><br>
                         <div class="pseudo-link save-button"
-                             th:onclick="'saveRaffleSettings(' + ${botHome.id} + ',' + ${giveaway.id} + ')'">
+                             th:onclick="'saveRaffleSettings(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
                             <div>&#x1F4BE;</div>
                             <span th:id="${label} + '-raffle-save-response'"/>
                         </div>

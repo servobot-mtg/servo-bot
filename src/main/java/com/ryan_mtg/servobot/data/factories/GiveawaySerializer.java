@@ -67,7 +67,8 @@ public class GiveawaySerializer {
 
         RaffleSettings raffleSettings = giveaway.getRaffleSettings();
 
-        giveawayRow.setRaffleDuration((int)raffleSettings.getRaffleDuration().getSeconds());
+        giveawayRow.setRaffleDuration((int)raffleSettings.getDuration().getSeconds());
+        giveawayRow.setRaffleWinnerCount(raffleSettings.getWinnerCount());
         Command startRaffleCommand = giveaway.getStartRaffleCommand();
         giveawayRow.setStartRaffleCommandId(startRaffleCommand != null ? startRaffleCommand.getId() : 0);
 
@@ -85,6 +86,9 @@ public class GiveawaySerializer {
         giveawayRow.setRaffleStatusFlags(raffleSettings.getRaffleStatus().getFlags());
         giveawayRow.setRaffleStatusPermission(raffleSettings.getRaffleStatus().getPermission());
         giveawayRow.setRaffleStatusMessage(raffleSettings.getRaffleStatus().getMessage());
+
+        giveawayRow.setRaffleWinnerResponse(raffleSettings.getWinnerResponse());
+        giveawayRow.setDiscordChannel(raffleSettings.getDiscordChannel());
 
         giveawayRepository.save(giveawayRow);
 
@@ -154,7 +158,8 @@ public class GiveawaySerializer {
                     giveawayRow.getRaffleStatusMessage());
 
             RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle, raffleStatus,
-                    Duration.ofSeconds(giveawayRow.getRaffleDuration()));
+                    Duration.ofSeconds(giveawayRow.getRaffleDuration()), giveawayRow.getRaffleWinnerCount(),
+                    giveawayRow.getRaffleWinnerResponse(), giveawayRow.getDiscordChannel());
 
             giveaway.setRaffleSettings(raffleSettings);
 

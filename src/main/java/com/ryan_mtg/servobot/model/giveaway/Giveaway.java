@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Giveaway {
     public static final int UNREGISTERED_ID = 0;
@@ -230,18 +231,24 @@ public class Giveaway {
         return giveawayEdit;
     }
 
-    public GiveawayEdit reservePrize() throws BotErrorException {
+    public GiveawayEdit reservePrizes(final int winnerCount) throws BotErrorException {
         if (!rafflesEnabled) {
             throw new BotErrorException("Cannot reserve a prize from this type of giveaway");
         }
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
 
-        Prize prize = prizes.stream().filter(p -> p.getStatus() == Prize.Status.AVAILABLE).findFirst()
-                .orElseThrow(() -> new BotErrorException("No prizes left :("));
+        List<Prize> reservedPrizes = prizes.stream().filter(p -> p.getStatus() == Prize.Status.AVAILABLE)
+                .limit(winnerCount).collect(Collectors.toList());
 
-        prize.setStatus(Prize.Status.RESERVED);
-        giveawayEdit.addPrize(getId(), prize);
+        if (reservedPrizes.isEmpty()) {
+            throw new BotErrorException("No prizes left");
+        }
+
+        for (Prize prize : reservedPrizes) {
+            prize.setStatus(Prize.Status.RESERVED);
+            giveawayEdit.addPrize(getId(), prize);
+        }
         return giveawayEdit;
     }
 

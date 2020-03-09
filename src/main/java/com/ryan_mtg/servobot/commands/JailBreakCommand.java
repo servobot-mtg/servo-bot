@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.List;
@@ -56,25 +57,6 @@ public class JailBreakCommand extends MessageCommand {
         }
 
         MessageCommand.say(event,
-                String.format("%s broke %s out of %s!", sender.getName(), print(inmates),prisonRole));
-    }
-
-    private String print(final List<String> names) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(names.get(0));
-        if (names.size() == 2) {
-            builder.append(" and ").append(names.get(1));
-            return builder.toString();
-        }
-
-        for (int i = 1; i < names.size(); i++) {
-            builder.append(", ");
-            if (i + 1 == names.size()) {
-                builder.append("and ");
-            }
-            builder.append(names.get(i));
-        }
-
-        return builder.toString();
+                String.format("%s broke %s out of %s!", sender.getName(), Strings.join(inmates),prisonRole));
     }
 }

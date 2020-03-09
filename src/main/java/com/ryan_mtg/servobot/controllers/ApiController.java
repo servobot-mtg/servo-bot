@@ -548,8 +548,9 @@ public class ApiController {
             throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
-                Duration.of(request.getRaffleDuration(), ChronoUnit.MINUTES), request.getStartRaffle().toSettings(),
-                request.getEnterRaffle().toSettings(), request.getRaffleStatus().toSettings());
+                Duration.of(request.getDuration(), ChronoUnit.MINUTES), request.getWinnerCount(),
+                request.getStartRaffle().toSettings(), request.getEnterRaffle().toSettings(),
+                request.getRaffleStatus().toSettings(), request.getWinnerResponse(), request.getDiscordChannel());
     }
 
     public static class CommandSettings {
@@ -580,7 +581,16 @@ public class ApiController {
 
     public static class SaveRaffleSettingsRequest extends GiveawayRequest {
         @Getter
-        private int raffleDuration;
+        private int duration;
+
+        @Getter
+        private int winnerCount;
+
+        @Getter
+        private String winnerResponse;
+
+        @Getter
+        private String discordChannel;
 
         @Getter
         private CommandSettings startRaffle;

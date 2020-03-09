@@ -13,6 +13,7 @@ public interface ServiceHome {
     Home getHome();
     List<String> getEmotes();
     List<String> getRoles();
+    List<String> getChannels();
 
     void start(BotHome botHome);
     void stop(BotHome botHome);

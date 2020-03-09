@@ -40,6 +40,11 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public List<String> getChannels() {
+        return Lists.newArrayList(getChannelName());
+    }
+
+    @Override
     public void start(final BotHome botHome) {
         twitchService.joinChannel(channelId);
     }

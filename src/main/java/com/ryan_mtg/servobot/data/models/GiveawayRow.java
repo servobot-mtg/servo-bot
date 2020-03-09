@@ -106,7 +106,22 @@ public class GiveawayRow {
 
 
     @Column(name = "raffle_duration")
+    @Getter @Setter
     private int raffleDuration;
+
+    @Column(name = "raffle_winner_count")
+    @Getter @Setter
+    private int raffleWinnerCount;
+
+    @Column(name = "raffle_winner_response")
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    @Getter @Setter
+    private String raffleWinnerResponse;
+
+    @Column(name = "discord_channel")
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    @Getter @Setter
+    private String discordChannel;
 
     public int getId() {
         return id;
@@ -194,13 +209,5 @@ public class GiveawayRow {
 
     public void setStartRaffleCommandId(final int startRaffleCommandId) {
         this.startRaffleCommandId = startRaffleCommandId;
-    }
-
-    public int getRaffleDuration() {
-        return raffleDuration;
-    }
-
-    public void setRaffleDuration(final int raffleDuration) {
-        this.raffleDuration = raffleDuration;
     }
 }

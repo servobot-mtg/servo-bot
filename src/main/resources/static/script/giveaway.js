@@ -77,20 +77,25 @@ function getCommandSettings(label) {
 
 function saveRaffleSettings(botHomeId, giveawayId) {
     const label = 'giveaway-' + giveawayId;
-    const raffleDuration = document.getElementById(label + '-raffle-duration').value;
+    const duration = document.getElementById(label + '-raffle-duration').value;
+    const winnerCount = document.getElementById(label + '-raffle-winner-count').value;
 
     const startRaffle = getCommandSettings(label + '-start-raffle');
     const enterRaffle = getCommandSettings(label + '-enter-raffle');
     const raffleStatus = getCommandSettings(label + '-raffle-status');
 
-    postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle, enterRaffle, raffleStatus);
+    const winnerResponse = document.getElementById(label + '-raffle-winner-response').value;
+    const discordChannel = document.getElementById(label + '-discord-channel').value;
+
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, duration: duration, winnerCount: winnerCount,
+        winnerResponse: winnerResponse, discordChannel: discordChannel, startRaffle: startRaffle,
+        enterRaffle: enterRaffle, raffleStatus: raffleStatus};
+
+    postSaveGiveawayRaffleSettings(botHomeId, parameters);
 }
 
-async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle, enterRaffle,
-                                              raffleStatus) {
+async function postSaveGiveawayRaffleSettings(giveawayId, parameters) {
     const label = 'giveaway-' + giveawayId;
-    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, raffleDuration: raffleDuration,
-        startRaffle: startRaffle, enterRaffle: enterRaffle, raffleStatus: raffleStatus};
     const responseElement = document.getElementById(label + '-raffle-save-response');
     await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], true);
 }

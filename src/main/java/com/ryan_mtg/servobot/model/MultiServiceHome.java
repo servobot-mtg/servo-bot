@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.Arrays;
@@ -28,7 +27,7 @@ public class MultiServiceHome implements Home {
         if (serviceHome != null) {
             return serviceHome.getHome().getChannel(channelName, serviceType);
         }
-        return  null;
+        return null;
     }
 
     @Override

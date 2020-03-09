@@ -59,6 +59,11 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public List<String> getChannels() {
+        return discordService.getChannels(guildId);
+    }
+
+    @Override
     public void start(final BotHome botHome) {
         setName(botHome.getBotName());
     }

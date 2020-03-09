@@ -183,9 +183,11 @@ public class BotController {
         if (serviceHome != null) {
             model.addAttribute("emotes", serviceHome.getEmotes());
             model.addAttribute("roles", serviceHome.getRoles());
+            model.addAttribute("channels", serviceHome.getChannels());
         } else {
             model.addAttribute("emotes", Lists.newArrayList());
             model.addAttribute("roles", Lists.newArrayList());
+            model.addAttribute("channels", Lists.newArrayList());
         }
     }
 

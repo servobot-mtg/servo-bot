@@ -112,4 +112,9 @@ public class DiscordService implements Service {
         return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole())
                 .map(role -> role.getName()).collect(Collectors.toList());
     }
+
+    public List<String> getChannels(long guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        return guild.getTextChannels().stream().map(channel -> channel.getName()).collect(Collectors.toList());
+    }
 }

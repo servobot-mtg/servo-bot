@@ -8,6 +8,8 @@ import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Entrant;
 import com.ryan_mtg.servobot.user.HomedUser;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -25,36 +27,30 @@ public class Raffle {
     }
 
     private int id;
+
+    @Getter @Setter
     private Status status;
+
     private EnterRaffleCommand enterRaffleCommand;
     private RaffleStatusCommand raffleStatusCommand;
     private SelectWinnerCommand selectWinnerCommand;
     private List<Command> alertCommands;
-    private Prize prize;
+
+    @Getter
+    private List<Prize> prizes;
     private Instant stopTime;
     private List<Entrant> entrants = new ArrayList<>();
 
     public Raffle(final int id, final EnterRaffleCommand enterRaffleCommand,
                   final RaffleStatusCommand raffleStatusCommand, SelectWinnerCommand selectWinnerCommand,
-                  final List<Command> alertCommands, final Prize prize, final Instant stopTime) {
+                  final List<Command> alertCommands, final List<Prize> prizes, final Instant stopTime) {
         this.status = Status.IN_PROGRESS;
         this.enterRaffleCommand = enterRaffleCommand;
         this.raffleStatusCommand = raffleStatusCommand;
         this.selectWinnerCommand = selectWinnerCommand;
         this.alertCommands = alertCommands;
-        this.prize = prize;
+        this.prizes = prizes;
         this.stopTime = stopTime;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(final Status status) {
-        this.status = status;
-    }
-    public Prize getPrize() {
-        return prize;
     }
 
     public Duration getTimeLeft() {
@@ -73,22 +69,26 @@ public class Raffle {
         return entrants.size();
     }
 
-    public HomedUser selectWinner(final Giveaway giveaway, final CommandTable commandTable,
+    public List<HomedUser> selectWinners(final Giveaway giveaway, final CommandTable commandTable,
                                   final GiveawayEdit giveawayEdit) throws BotErrorException {
         if (!getTimeLeft().isZero()) {
             throw new BotErrorException("Selecting, but the raffle isn't over!");
         }
 
         setStatus(Raffle.Status.CONCLUDED);
-        giveawayEdit.addPrize(giveaway.getId(), prize);
 
-        HomedUser winner = null;
+        List<HomedUser> winners = new ArrayList<>();
 
-        if (entrants.size() > 0) {
-            winner = entrants.get(RANDOM.nextInt(entrants.size())).getUser();
-            prize.awardTo(winner);
-        } else {
-            prize.setStatus(Prize.Status.AVAILABLE);
+        for (Prize prize : prizes) {
+            if (entrants.size() > 0) {
+                Entrant entrant = entrants.get(RANDOM.nextInt(entrants.size()));
+                prize.awardTo(entrant.getUser());
+                winners.add(entrant.getUser());
+                entrants.remove(entrant);
+            } else {
+                prize.setStatus(Prize.Status.AVAILABLE);
+            }
+            giveawayEdit.addPrize(giveaway.getId(), prize);
         }
 
         giveawayEdit.merge(commandTable.deleteCommand(enterRaffleCommand.getId()));
@@ -101,7 +101,7 @@ public class Raffle {
         for (Command alertCommand : alertCommands) {
             giveawayEdit.merge(commandTable.deleteCommand(alertCommand.getId()));
         }
-        return winner;
+        return winners;
     }
 
     public void enter(final HomedUser user) throws BotErrorException {

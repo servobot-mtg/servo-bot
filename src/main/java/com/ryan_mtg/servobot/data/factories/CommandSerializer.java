@@ -118,7 +118,8 @@ public class CommandSerializer {
                 return new RequestPrizeCommand(id, flags, permission, giveawayId);
             case SelectWinnerCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
-                return new SelectWinnerCommand(id, flags, permission, giveawayId);
+                return new SelectWinnerCommand(id, flags, permission, giveawayId,
+                        commandRow.getStringParameter().trim(), commandRow.getStringParameter2().trim());
             case SetArenaUsernameCommand.TYPE:
                 return new SetArenaUsernameCommand(id, flags, permission);
             case SetRoleCommand.TYPE:
@@ -346,6 +347,8 @@ public class CommandSerializer {
         public void visitSelectWinnerCommand(final SelectWinnerCommand selectWinnerCommand) {
             saveCommand(selectWinnerCommand, commandRow -> {
                 commandRow.setLongParameter(selectWinnerCommand.getGiveawayId());
+                commandRow.setStringParameter(selectWinnerCommand.getResponse());
+                commandRow.setStringParameter2(selectWinnerCommand.getDiscordChannel());
             });
         }
 

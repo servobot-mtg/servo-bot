@@ -25,34 +25,47 @@ public class RaffleSettings {
 
     @Getter
     private CommandSettings raffleStatus;
-    private Duration raffleDuration = Duration.of(10, ChronoUnit.MINUTES);
+
+    @Getter
+    private Duration duration = Duration.of(10, ChronoUnit.MINUTES);
+
+    @Getter
+    private int winnerCount = 1;
+
+    @Getter
+    private String winnerResponse;
+
+    @Getter
+    private String discordChannel;
 
     public RaffleSettings() {
         startRaffle = new CommandSettings("giveaway", DEFAULT_FLAGS, Permission.STREAMER,
-                "The raffle is starting.");
-        startRaffle = new CommandSettings("enter", DEFAULT_FLAGS, Permission.ANYONE,
-                "%sender% has been entered.");
+        "A raffle has started! It will last %raffle.timeLeft%. To enter type !%raffle.enterCommandName%");
+        enterRaffle = new CommandSettings("enter", DEFAULT_FLAGS, Permission.ANYONE,
+        "%sender% has been entered.");
         raffleStatus = new CommandSettings("status", DEFAULT_FLAGS, Permission.ANYONE,
-                "There are %raffle.timeLeft% minutes left in the raffle. Type !%raffle.enterCommandName%");
+        "There are %raffle.timeLeft% minutes left in the raffle. Type !%raffle.enterCommandName% to enter.");
+
+        winnerResponse = "The raffle winner is %winner%.";
     }
 
     public RaffleSettings(final CommandSettings startRaffle, final CommandSettings enterRaffle,
-                          final CommandSettings raffleStatus, final Duration raffleDuration) {
+                          final CommandSettings raffleStatus, final Duration duration, final int winnerCount,
+                          final String winnerResponse, final String discordChannel) {
         this.startRaffle = startRaffle;
         this.enterRaffle = enterRaffle;
         this.raffleStatus = raffleStatus;
-        this.raffleDuration = raffleDuration;
+        this.duration = duration;
+        this.winnerCount = winnerCount;
+        this.winnerResponse = winnerResponse;
+        this.discordChannel = discordChannel;
     }
 
     public boolean hasRaffleStatusCommand() {
         return raffleStatus.getCommandName() != null && !raffleStatus.getCommandName().isEmpty();
     }
 
-    public Duration getRaffleDuration() {
-        return raffleDuration;
-    }
-
-    public void validate(final RaffleSettings previousSettings, final CommandTable commandTable)
+    public void validateOnSave(final RaffleSettings previousSettings, final CommandTable commandTable)
             throws BotErrorException  {
         Validation.validateCommandSettings(startRaffle, previousSettings.getStartRaffle(), commandTable, true,
                 START_RAFFLE_DESCRIPTION);
@@ -69,9 +82,12 @@ public class RaffleSettings {
                 RAFFLE_STATUS_DESCRIPTION);
         Validation.validateNotSame(enterRaffle.getCommandName(), raffleStatus.getCommandName(), ENTER_RAFFLE_DESCRIPTION,
                 RAFFLE_STATUS_DESCRIPTION);
+
+        Validation.validateStringLength(winnerResponse, Validation.MAX_TEXT_LENGTH, "Winner response");
+        Validation.validateStringLength(discordChannel, Validation.MAX_TEXT_LENGTH, "Discord channel");
     }
 
-    public void validate(final CommandTable commandTable) throws BotErrorException {
+    public void validateOnStart(final CommandTable commandTable) throws BotErrorException {
         if (enterRaffle.getCommandName() == null || enterRaffle.getCommandName().isEmpty()) {
             throw new BotErrorException("No enter raffle command is set");
         }
