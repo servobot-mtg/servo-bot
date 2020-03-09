@@ -780,9 +780,9 @@ public class HomeEditor {
         return true;
     }
 
-    public void deletePrize(final int giveawayId, final int prizeId) {
-        // TODO: implement
-        //botHome.getGiveaway(giveawayId).deleteReward(rewardId);
+    public void deletePrize(final int giveawayId, final int prizeId) throws BotErrorException {
+        GiveawayEdit giveawayEdit = botHome.getGiveaway(giveawayId).deletePrize(prizeId);
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
     }
 
     public String getTwitchChannelName() {

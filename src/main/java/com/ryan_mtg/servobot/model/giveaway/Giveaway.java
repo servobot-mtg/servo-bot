@@ -265,6 +265,21 @@ public class Giveaway {
         return giveawayEdit;
     }
 
+    public GiveawayEdit deletePrize(final int prizeId) throws BotErrorException {
+        Prize prize = getPrize(prizeId);
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+
+        if (prize.getStatus() == Prize.Status.RESERVED) {
+            throw new BotErrorException("Cannot delete a prize that is reserved");
+        }
+
+        prizes.remove(prize);
+
+        giveawayEdit.deletePrize(prize);
+        return giveawayEdit;
+    }
+
     private Prize getPrize(final int prizeId) throws BotErrorException {
         for (Prize prize : prizes) {
             if (prize.getId() == prizeId) {

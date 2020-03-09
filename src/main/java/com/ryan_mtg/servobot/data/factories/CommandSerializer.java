@@ -44,6 +44,7 @@ import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Book;
 import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
+import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,18 +73,18 @@ public class CommandSerializer {
             case AddCommand.TYPE:
                 return new AddCommand(id, flags, permission);
             case AddReactionCommand.TYPE:
-                return new AddReactionCommand(id, flags, permission, commandRow.getStringParameter().trim());
+                return new AddReactionCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()));
             case AddStatementCommand.TYPE:
                 return new AddStatementCommand(id, flags, permission);
             case DelayedAlertCommand.TYPE:
-                return new DelayedAlertCommand(id, flags, permission,
-                        Duration.ofSeconds(commandRow.getLongParameter()), commandRow.getStringParameter().trim());
+                return new DelayedAlertCommand(id, flags, permission, Duration.ofSeconds(commandRow.getLongParameter()),
+                        Strings.trim(commandRow.getStringParameter()));
             case DeleteCommand.TYPE:
                 return new DeleteCommand(id, flags, permission);
             case EnterRaffleCommand.TYPE:
                 int giveawayId = (int) (long) commandRow.getLongParameter();
                 return new EnterRaffleCommand(id, flags, permission, giveawayId,
-                        commandRow.getStringParameter().trim());
+                        Strings.trim(commandRow.getStringParameter()));
             case EvaluateExpressionCommand.TYPE:
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
                 return new EvaluateExpressionCommand(id, flags, permission, gabyEasterEgg);
@@ -93,23 +94,23 @@ public class CommandSerializer {
             case RaffleStatusCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new RaffleStatusCommand(id, flags, permission, giveawayId,
-                        commandRow.getStringParameter().trim());
+                        Strings.trim(commandRow.getStringParameter()));
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
             case JailCommand.TYPE:
                 int jailThreshold = (int) (long) commandRow.getLongParameter();
-                return new JailCommand(id, flags, permission, commandRow.getStringParameter().trim(), jailThreshold,
+                return new JailCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()), jailThreshold,
                         commandRow.getStringParameter2().trim());
             case JailBreakCommand.TYPE:
-                return new JailBreakCommand(id, flags, permission, commandRow.getStringParameter().trim(),
-                        commandRow.getStringParameter2().trim());
+                return new JailBreakCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()),
+                        Strings.trim(commandRow.getStringParameter2()));
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new JoinGameQueueCommand(id, flags, permission, gameQueueId);
             case MessageChannelCommand.TYPE:
                 return new MessageChannelCommand(id, flags, permission, commandRow.getLongParameter().intValue(),
-                        commandRow.getStringParameter().trim(), commandRow.getStringParameter2().trim());
+                        Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
             case RemoveFromGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new RemoveFromGameQueueCommand(id, flags, permission, gameQueueId);
@@ -119,17 +120,17 @@ public class CommandSerializer {
             case SelectWinnerCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new SelectWinnerCommand(id, flags, permission, giveawayId,
-                        commandRow.getStringParameter().trim(), commandRow.getStringParameter2().trim());
+                        Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
             case SetArenaUsernameCommand.TYPE:
                 return new SetArenaUsernameCommand(id, flags, permission);
             case SetRoleCommand.TYPE:
-                return new SetRoleCommand(id, flags, permission, commandRow.getStringParameter().trim());
+                return new SetRoleCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()));
             case SetStatusCommand.TYPE:
                 bookId = (int) (long) commandRow.getLongParameter();
                 return new SetStatusCommand(id, flags, permission, bookMap.get(bookId));
             case SetUsersRoleCommand.TYPE:
-                return new SetUsersRoleCommand(id, flags, permission, commandRow.getStringParameter().trim(),
-                        commandRow.getStringParameter2().trim());
+                return new SetUsersRoleCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()),
+                        Strings.trim(commandRow.getStringParameter2()));
             case SetValueCommand.TYPE:
                 return new SetValueCommand(id, flags, permission);
             case ShowArenaUsernamesCommand.TYPE:
@@ -142,9 +143,9 @@ public class CommandSerializer {
             case StartRaffleCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new StartRaffleCommand(id, flags, permission, giveawayId,
-                        commandRow.getStringParameter().trim());
+                        Strings.trim(commandRow.getStringParameter()));
             case TextCommand.TYPE:
-                return new TextCommand(id, flags, permission, commandRow.getStringParameter().trim());
+                return new TextCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()));
             case TierCommand.TYPE:
                 return new TierCommand(id, flags, permission);
         }

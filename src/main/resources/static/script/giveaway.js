@@ -161,9 +161,17 @@ function addPrizeRow(botHomeId, giveawayId, prize) {
     };
 }
 
-function deleteReward(botHomeId, rewardId) {
-    const parameters = {botHomeId: botHomeId, objectId: rewardId};
-    postDelete('/api/delete_reward', parameters, 'reward-' + rewardId + '-row');
+function deletePrize(botHomeId, giveawayId, prizeId) {
+    const label = 'prize-' + prizeId;
+    let performDelete = true;
+    const statusElement = document.getElementById(label + '-status');
+    if (statusElement.innerText != 'BESTOWED') {
+        performDelete = window.confirm('Are you sure you want to delete the command?');
+    }
+    if (performDelete) {
+        const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, objectId: prizeId};
+        postDelete('/api/delete_prize', parameters, label + '-row');
+    }
 }
 
 function awardReward(botHomeId, rewardId) {

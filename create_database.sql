@@ -67,16 +67,12 @@ CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveawa
 
 ALTER TABLE giveaway ADD COLUMN start_raffle_permission INTEGER;
 ALTER TABLE giveaway ADD COLUMN start_raffle_flags INTEGER;
-ALTER TABLE giveaway ADD COLUMN start_raffle_message VARCHAR(200);
 
 ALTER TABLE giveaway ADD COLUMN enter_raffle_permission INTEGER;
 ALTER TABLE giveaway ADD COLUMN enter_raffle_flags INTEGER;
-ALTER TABLE giveaway ADD COLUMN enter_raffle_message VARCHAR(200);
 
 ALTER TABLE giveaway ADD COLUMN raffle_status_permission INTEGER;
 ALTER TABLE giveaway ADD COLUMN raffle_status_flags INTEGER;
-ALTER TABLE giveaway ADD COLUMN raffle_status_message VARCHAR(200);
 
 ALTER TABLE giveaway ADD COLUMN raffle_winner_count INTEGER;
 ALTER TABLE giveaway ADD COLUMN raffle_winner_response VARCHAR(200);
-ALTER TABLE giveaway ADD COLUMN discord_channel VARCHAR(200);

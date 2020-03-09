@@ -21,4 +21,11 @@ public class Strings {
 
         return builder.toString();
     }
+
+    public static String trim(final String string) {
+        if (string == null) {
+            return string;
+        }
+        return string.trim();
+    }
 }

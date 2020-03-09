@@ -46,8 +46,8 @@ public class GiveawaySerializer {
         commandTableSerializer.commit(botHomeId, giveawayEdit.getCommandTableEdit());
 
         giveawayEdit.getSavedPrizes().forEach((key, value) -> savePrize(value, key));
-
         giveawayEdit.getSavedGiveaways().forEach(giveaway -> saveGiveaway(botHomeId, giveaway));
+        giveawayEdit.getDeletedPrizes().forEach(prize -> prizeRepository.deleteById(prize.getId()));
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

@@ -154,13 +154,13 @@
 
                                     <input type="button" value="Bestow Prize" th:onclick= "'bestowPrize(' +
                                             ${botHome.id} + ', ' + ${giveaway.id} + ', ' + ${prize.id} + ')'"/>
-                                    <div th:if="${exalted}">
+                                    <span th:if="${exalted}">
                                         <input th:if="${prize.winner}" type="text" th:id="${prizeLabel} + '-message'"
                                                th:value="'\whisper ' + ${prize.winner.name} + ' your code is \''
                                                + ${prize.reward} + '\''" class="hidden">
                                         <input type="button" value="Copy Message"
                                                th:onclick="'copyPrizeMessage(' + ${prize.id} + ')'">
-                                    </div>
+                                    </span>
                                 </div>
                             </td>
                             <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner != null}"
