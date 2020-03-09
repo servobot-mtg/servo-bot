@@ -27,7 +27,7 @@ public class ReactionTable implements Iterable<Reaction> {
     }
 
     public void setTimeZone(final String timeZone) {
-        reactions.stream().forEach(reaction -> reaction.getFilter().setTimeZone(timeZone));
+        reactions.forEach(reaction -> reaction.getFilter().setTimeZone(timeZone));
     }
 
     public Reaction secureReaction(final int reactionId, final boolean secure) {
@@ -40,9 +40,7 @@ public class ReactionTable implements Iterable<Reaction> {
     public ReactionTableEdit deleteReaction(final int reactionId) {
         ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
         reactions.stream().filter(reaction -> reaction.getId() == reactionId).forEach(reaction -> {
-            reaction.getPatterns().stream().forEach(pattern -> {
-                reactionTableEdit.delete(pattern);
-            });
+            reaction.getPatterns().forEach(reactionTableEdit::delete);
             reactionTableEdit.delete(reaction);
         });
         return reactionTableEdit;
@@ -64,9 +62,8 @@ public class ReactionTable implements Iterable<Reaction> {
         ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
         reactions.stream().filter(reaction -> reaction.getId() == reactionId).forEach(reaction -> {
             Set<Pattern> patternsToDelete = new HashSet<>();
-            reaction.getPatterns().stream().filter(pattern -> pattern.getId() == patternId).forEach(pattern -> {
-                patternsToDelete.add(pattern);
-            });
+            reaction.getPatterns().stream().filter(pattern -> pattern.getId() == patternId)
+                    .forEach(patternsToDelete::add);
 
             for(Pattern pattern: patternsToDelete) {
                 reaction.remove(pattern);

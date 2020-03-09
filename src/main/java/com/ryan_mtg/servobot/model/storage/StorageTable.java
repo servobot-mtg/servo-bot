@@ -44,7 +44,7 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
     public void removeVariables(final String name) {
         Set<StorageKey> keysToRemove = new HashSet<>();
         storageMap.keySet().stream()
-                .filter(key -> key.getName().equalsIgnoreCase(name)).forEach(key -> keysToRemove.add(key));
+                .filter(key -> key.getName().equalsIgnoreCase(name)).forEach(keysToRemove::add);
         keysToRemove.forEach(key -> storageMap.remove(key));
     }
 

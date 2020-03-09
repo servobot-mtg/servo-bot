@@ -77,9 +77,9 @@ public class Validation {
         if (value < lowerBound) {
             throw new BotErrorException(String.format("%s (%d) is less than the lower bound (%d) ",
                     description, value, lowerBound));
-        } else if (value < lowerBound) {
-            throw new BotErrorException(String.format("%s (%d) is less than the lower bound (%d) ",
-                    description, value, lowerBound));
+        } else if (upperBound < value) {
+            throw new BotErrorException(String.format("%s (%d) is greater than the upper bound (%d) ",
+                    description, value, upperBound));
         }
     }
 

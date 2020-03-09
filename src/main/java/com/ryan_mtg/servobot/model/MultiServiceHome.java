@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.user.HomedUser;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public class MultiServiceHome implements Home {
 
     @Override
     public List<String> clearRole(final String role) {
-        return Arrays.asList();
+        return Collections.emptyList();
     }
 
     @Override

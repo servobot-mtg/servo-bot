@@ -63,12 +63,12 @@ public abstract class Command {
         setFlag(SECURE_FLAG, secure);
     }
 
-    public boolean getService(int serivceType) {
-        return Flags.hasFlag(flags, 1<<serivceType);
+    public boolean getService(final int serviceType) {
+        return Flags.hasFlag(flags, 1<<serviceType);
     }
 
-    public void setService(int serivceType, boolean value) {
-        setFlag(1<<serivceType, value);
+    public void setService(final int serviceType, final boolean value) {
+        setFlag(1<<serviceType, value);
     }
 
     public boolean isTemporary() {
@@ -134,7 +134,7 @@ public abstract class Command {
         Parser parser = new Parser(scope, event.getHomeEditor());
 
         while (matcher.find()) {
-            result.append(text.substring(currentIndex, matcher.start()));
+            result.append(text, currentIndex, matcher.start());
             String expression = matcher.group(1);
 
             try {

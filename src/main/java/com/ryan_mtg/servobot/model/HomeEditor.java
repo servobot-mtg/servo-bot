@@ -670,7 +670,7 @@ public class HomeEditor {
         raffleSettings.validateOnStart(commandTable);
 
         GiveawayEdit giveawayEdit = giveaway.reservePrizes(raffleSettings.getWinnerCount());
-        List<Prize> prizes = giveawayEdit.getSavedPrizes().keySet().stream().collect(Collectors.toList());
+        List<Prize> prizes = new ArrayList<>(giveawayEdit.getSavedPrizes().keySet());
 
         CommandSettings enterCommandSettings = raffleSettings.getEnterRaffle();
         EnterRaffleCommand enterRaffleCommand = new EnterRaffleCommand(Command.UNREGISTERED_ID,
@@ -680,7 +680,7 @@ public class HomeEditor {
 
         Duration duration = raffleSettings.getDuration();
 
-        Map<String, Command> tokenMap = new HashMap();
+        Map<String, Command> tokenMap = new HashMap<>();
         List<Alert> alerts = new ArrayList<>();
         List<Command> alertCommands = new ArrayList<>();
         String winnerAlertToken = "winner";

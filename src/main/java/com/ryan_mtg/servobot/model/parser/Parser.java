@@ -84,8 +84,7 @@ public class Parser {
                 lexer.getNextToken();
                 result = parseExpression();
                 if (!(result instanceof IntegerStorageValue)) {
-                    throw new ParseException(
-                            String.format("Invalid expression to increment"));
+                    throw new ParseException("Invalid expression to increment");
                 }
                 try {
                     result = homeEditor.incrementStorageValue(((IntegerStorageValue) result).getName());
@@ -104,8 +103,7 @@ public class Parser {
         while (lexer.isNextToken(INCREMENT)) {
             lexer.getNextToken();
             if (!(result instanceof IntegerStorageValue)) {
-                throw new ParseException(
-                        String.format("Invalid expression to increment"));
+                throw new ParseException("Invalid expression to increment");
             }
             IntegerStorageValue value = (IntegerStorageValue) result;
             result = value.getValue();
@@ -127,13 +125,13 @@ public class Parser {
         return tokenType == Token.Type.MULTIPLY;
     }
 
-    private Object apply(final Token.Type operation, final Object leftHandOpeerand, final Object rightHandOperand)
+    private Object apply(final Token.Type operation, final Object leftHandOperand, final Object rightHandOperand)
             throws ParseException {
         switch (operation) {
             case ADD:
-                return getInteger(leftHandOpeerand) + getInteger(rightHandOperand);
+                return getInteger(leftHandOperand) + getInteger(rightHandOperand);
             case MULTIPLY:
-                return getInteger(leftHandOpeerand) * getInteger(rightHandOperand);
+                return getInteger(leftHandOperand) * getInteger(rightHandOperand);
         }
         throw new ParseException(String.format("Invalid Operation '%s'", operation));
     }

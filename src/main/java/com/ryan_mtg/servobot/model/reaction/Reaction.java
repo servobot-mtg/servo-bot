@@ -81,6 +81,6 @@ public class Reaction {
     }
 
     public List<Command> getCommands() {
-        return commands.stream().map(reactionCommand -> reactionCommand.getCommand()).collect(Collectors.toList());
+        return commands.stream().map(ReactionCommand::getCommand).collect(Collectors.toList());
     }
 }

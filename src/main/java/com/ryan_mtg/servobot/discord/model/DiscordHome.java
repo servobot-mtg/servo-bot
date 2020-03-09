@@ -60,8 +60,8 @@ public class DiscordHome implements Home {
         }
         Member member = guild.getMemberById(getDiscordId(user));
         List<Role> roles = member.getRoles();
-        for (Role role : roles) {
-            return role.getName();
+        if (!roles.isEmpty()) {
+            return roles.get(0).getName();
         }
         return "Pleb";
     }
@@ -132,20 +132,6 @@ public class DiscordHome implements Home {
         emotes = jda.getEmotesByName(emoteName, true);
         if (!emotes.isEmpty()) {
             net.dv8tion.jda.api.entities.Emote emote = emotes.get(0);
-            Guild timeoutClub = jda.getGuildsByName("TimeoutClub", true).get(0);
-            if (emote.canProvideRoles()) {
-                for (Role role : emote.getRoles()) {
-                    LOGGER.info("Role: " + role.getName());
-                }
-            }
-            Member timeoutMember = timeoutClub.getMember(jda.getSelfUser());
-            TextChannel timeoutChannel = timeoutClub.getDefaultChannel();
-            LOGGER.info(timeoutClub.getName());
-            LOGGER.info("Timeout permission in timeout: " + timeoutMember.hasPermission(timeoutChannel, Permission.MESSAGE_EXT_EMOJI));
-            timeoutChannel.sendMessage(emote.getAsMention()).queue();
-
-            Member mooselandMember = guild.getMember(jda.getSelfUser());
-            LOGGER.info("Mooseland permission in mooseland: " + mooselandMember.hasPermission(guild.getDefaultChannel(), Permission.MESSAGE_EXT_EMOJI));
             return new DiscordEmote(emote);
         }
 

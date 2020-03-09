@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Scanner;
 
 public class CommandListener implements EventListener {
-    static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
     private CommandTable commandTable;
 
     public CommandListener(final CommandTable commandTable) {
@@ -50,7 +50,7 @@ public class CommandListener implements EventListener {
 
         if (command instanceof MessageCommand) {
             MessageCommand messageCommand = (MessageCommand) command;
-            LOGGER.info("Peforming " + commandString + " for " + sender.getName() + " with arguments " + arguments);
+            LOGGER.info("Performing " + commandString + " for " + sender.getName() + " with arguments " + arguments);
 
             if (messageCommand.getService(messageSentEvent.getServiceType())) {
                 if (messageCommand.hasPermissions(sender)) {
@@ -62,7 +62,8 @@ public class CommandListener implements EventListener {
             }
         } else if (command == null){
             messageSentEvent.getHomeEditor().addSuggestion(commandString);
-            LOGGER.warn("Unknown command " + command + " for " + messageSentEvent.getSender().getName() + " with arguments " + arguments);
+            LOGGER.warn("Unknown command " + commandString + " for " + messageSentEvent.getSender().getName()
+                    + " with arguments " + arguments);
         }
     }
 

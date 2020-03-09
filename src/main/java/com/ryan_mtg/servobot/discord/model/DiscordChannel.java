@@ -43,10 +43,10 @@ public class DiscordChannel implements Channel {
             String name = text.substring(start + 1, end);
             List<Member> members = guild.getMembersByName(name, true);
             if (!members.isEmpty()) {
-                message.append(text.substring(index, start));
+                message.append(text, index, start);
                 message.append(members.get(0).getAsMention());
             } else {
-                message.append(text.substring(index, end));
+                message.append(text, index, end);
             }
             index = end;
         }

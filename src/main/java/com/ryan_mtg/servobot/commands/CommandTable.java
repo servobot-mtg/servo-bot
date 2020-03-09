@@ -148,9 +148,8 @@ public class CommandTable {
                                                        final Class<CommandType> commandClass) {
         List<CommandEvent> events = eventMap.get(eventType);
         if (events != null) {
-            return events.stream().map(event -> triggerCommandMap.get(event))
-                    .filter(command -> commandClass.isInstance(command)).map(command -> commandClass.cast(command))
-                    .collect(Collectors.toList());
+            return events.stream().map(event -> triggerCommandMap.get(event)).filter(commandClass::isInstance)
+                    .map(commandClass::cast).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
@@ -159,9 +158,8 @@ public class CommandTable {
                                                        final Class<CommandType> commandClass) {
         List<CommandAlert> alerts = alertMap.get(alertToken);
         if (alerts != null) {
-            return alerts.stream().map(alert -> triggerCommandMap.get(alert))
-                    .filter(command -> commandClass.isInstance(command)).map(command -> commandClass.cast(command))
-                    .collect(Collectors.toList());
+            return alerts.stream().map(alert -> triggerCommandMap.get(alert)).filter(commandClass::isInstance)
+                    .map(commandClass::cast).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }

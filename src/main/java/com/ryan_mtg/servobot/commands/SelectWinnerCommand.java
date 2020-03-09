@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.Getter;
@@ -49,7 +50,7 @@ public class SelectWinnerCommand extends HomeCommand {
             message = "The raffle has no winner, because there were no entrants.";
         } else {
             String winnerString = Strings.join(
-                    winners.stream().map(winner -> winner.getName()).collect(Collectors.toList()));
+                    winners.stream().map(User::getName).collect(Collectors.toList()));
             FunctorSymbolTable symbolTable = new FunctorSymbolTable();
             scope = new Scope(scope, symbolTable);
             symbolTable.addValue("winner", winnerString);

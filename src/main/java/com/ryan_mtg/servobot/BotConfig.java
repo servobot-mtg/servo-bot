@@ -33,14 +33,12 @@ public class BotConfig {
         Function<Book, String> randomStatement = Book::randomStatement;
         symbolTable.addValue("randomStatement", randomStatement);
 
-        Scope globalScope = new Scope(null, symbolTable);
-        return globalScope;
+        return new Scope(null, symbolTable);
     }
 
     @Bean
     public BotRegistrar botRegistrar(@Qualifier("globalScope") final Scope globalScope) throws BotErrorException {
         Bot bot = botFactory.createBot(botRepository.findFirst().get(), globalScope);
-        BotRegistrar botRegistrar = new BotRegistrar(bot);
-        return botRegistrar;
+        return new BotRegistrar(bot);
     }
 }

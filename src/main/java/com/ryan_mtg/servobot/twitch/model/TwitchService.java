@@ -15,7 +15,7 @@ import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Validation;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,7 +79,7 @@ public class TwitchService implements Service {
     }
 
     @Override
-    public void start(final EventListener eventListener) throws Exception {
+    public void start(final EventListener eventListener) {
         OAuth2Credential credential = new OAuth2Credential("twitch", oauthToken);
 
         client = TwitchClientBuilder.builder().withEnableHelix(true).withEnableChat(true)
@@ -139,7 +139,7 @@ public class TwitchService implements Service {
 
     private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
         return client.getHelix().
-                getUsers(null, Arrays.asList(Long.toString(channelId)), null).execute()
+                getUsers(null, Collections.singletonList(Long.toString(channelId)), null).execute()
                 .getUsers().get(0);
     }
 }

@@ -55,10 +55,7 @@ public class ErrorHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ModelAndView defaultExceptionHandler(final ResponseStatusException exception,
                                final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
-        ModelAndView modelAndView =
-                setupModelAndView("error/error", exception.getStatus(), exception, oAuth2AuthenticationToken);
-
-        return modelAndView;
+       return setupModelAndView("error/error", exception.getStatus(), exception, oAuth2AuthenticationToken);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

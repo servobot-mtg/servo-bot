@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
         // For the redirectUriTemplate to use the proper URL, because the server is behind a proxy
-        final FilterRegistrationBean<ForwardedHeaderFilter> filterRegistrationBean = new FilterRegistrationBean<ForwardedHeaderFilter>();
+        final FilterRegistrationBean<ForwardedHeaderFilter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
         filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return filterRegistrationBean;
@@ -86,9 +86,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
             .antMatchers("/admin**", "/admin/**", "/script/admin.js").access("hasRole('ADMIN')")
-            .antMatchers("/script/privledged.js").access("isPrivledged()")
+            .antMatchers("/script/privledged.js").access("isPriviledged()")
             .antMatchers("/script/invite.js").access("isInvited()")
-            .antMatchers("/home/{home}/**").access("isPrivledged(#home)")
+            .antMatchers("/home/{home}/**").access("isPriviledged(#home)")
             .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home", "/home/{home}").permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager())
@@ -106,7 +106,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AccessDecisionManager accessDecisionManager() {
         WebExpressionVoter webExpressionVoter = new WebExpressionVoter();
         webExpressionVoter.setExpressionHandler(new WebSecurityExpressionHandler());
-        List<AccessDecisionVoter<? extends Object>> decisionVoters =
+        List<AccessDecisionVoter<?>> decisionVoters =
                 Arrays.asList(webExpressionVoter,new RoleVoter(), new AuthenticatedVoter());
         return new AffirmativeBased(decisionVoters);
     }
@@ -139,7 +139,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             this.websiteUser = websiteUser;
         }
 
-        public boolean isPrivledged() {
+        public boolean isPriviledged() {
             return websiteUser.isPrivledged();
         }
 
@@ -147,7 +147,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             return websiteUser.hasInvite();
         }
 
-        public boolean isPrivledged(final String botHomeName) {
+        public boolean isPriviledged(final String botHomeName) {
             BotHome botHome = botRegistrar.getBotHome(botHomeName);
             return websiteUser.isPrivledged(botHome);
         }

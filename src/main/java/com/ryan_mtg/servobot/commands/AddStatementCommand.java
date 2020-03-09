@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class AddStatementCommand extends MessageCommand {
     public static final int TYPE = 15;
-    public static final Pattern bookPattern = Pattern.compile("\\w+");
+    private static final Pattern BOOK_PATTERN = Pattern.compile("\\w+");
 
     public AddStatementCommand(final int id, final int flags, final Permission permission) {
         super(id, flags, permission);
@@ -40,7 +40,7 @@ public class AddStatementCommand extends MessageCommand {
 
         scanner.useDelimiter("\\z");
 
-        if (!bookPattern.matcher(book).matches()) {
+        if (!BOOK_PATTERN.matcher(book).matches()) {
             throw new BotErrorException(String.format("%s isn't properly formatted.", book));
         }
 

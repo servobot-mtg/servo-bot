@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.model.parser;
 
 public class Token {
-    public static enum Type {
+    public enum Type {
         IDENTIFIER,
         INTEGER,
         OPEN_PARENTHESIS,

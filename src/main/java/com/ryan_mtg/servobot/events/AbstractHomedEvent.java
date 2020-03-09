@@ -9,7 +9,7 @@ public abstract class AbstractHomedEvent implements Event {
     private HomeEditor homeEditor;
     private int homeId;
 
-    public AbstractHomedEvent(final int homeId) {
+    protected AbstractHomedEvent(final int homeId) {
         this.homeId = homeId;
     }
 

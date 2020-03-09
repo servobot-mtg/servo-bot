@@ -58,6 +58,6 @@ public class Application {
 
     public static boolean isTesting() {
         String osName = System.getProperty("os.name").toLowerCase();
-        return osName.indexOf("win") >= 0;
+        return osName.contains("win");
     }
 }

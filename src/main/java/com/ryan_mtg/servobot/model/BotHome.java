@@ -198,9 +198,7 @@ public class BotHome {
 
         Scope timeScope = new Scope(botScope, timeSymbolTable);
         Scope bookScope = new Scope(timeScope, new BookScope(books));
-        Scope botHomeScope = new Scope(bookScope, storageTable);
-
-        return botHomeScope;
+        return new Scope(bookScope, storageTable);
     }
 
     private ZonedDateTime now() {

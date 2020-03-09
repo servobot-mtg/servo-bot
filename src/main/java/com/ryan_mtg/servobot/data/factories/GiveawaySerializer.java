@@ -47,7 +47,7 @@ public class GiveawaySerializer {
 
         giveawayEdit.getSavedPrizes().forEach((key, value) -> savePrize(value, key));
 
-        giveawayEdit.getSavedGiveaways().stream().forEach(giveaway -> saveGiveaway(botHomeId, giveaway));
+        giveawayEdit.getSavedGiveaways().forEach(giveaway -> saveGiveaway(botHomeId, giveaway));
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

@@ -19,7 +19,7 @@ public class AdministrationApiController {
     private UserSerializer userSerializer;
 
     @PostMapping(value = "/give_invite", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean giveInvite(@RequestBody final UserRequest request) throws BotErrorException {
+    public boolean giveInvite(@RequestBody final UserRequest request) {
         userSerializer.inviteUser(request.getUserId());
         return true;
     }
@@ -35,8 +35,7 @@ public class AdministrationApiController {
     @PostMapping(value = "/merge_users", consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
     public User mergeUsers(@RequestBody final MergeUsersRequest request) throws BotErrorException {
-        User user = userSerializer.mergeUsers(request.getUserIds());
-        return user;
+        return userSerializer.mergeUsers(request.getUserIds());
     }
 
     public static class MergeUsersRequest {

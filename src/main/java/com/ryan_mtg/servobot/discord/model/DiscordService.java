@@ -13,8 +13,11 @@ import com.ryan_mtg.servobot.utility.Validation;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 
 import java.time.ZoneId;
@@ -104,17 +107,17 @@ public class DiscordService implements Service {
 
     public List<String> getEmotes(final long guildId) {
         Guild guild = jda.getGuildById(guildId);
-        return guild.getEmotes().stream().map(emote -> emote.getName()).collect(Collectors.toList());
+        return guild.getEmotes().stream().map(Emote::getName).collect(Collectors.toList());
     }
 
     public List<String> getRoles(final long guildId) {
         Guild guild = jda.getGuildById(guildId);
         return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole())
-                .map(role -> role.getName()).collect(Collectors.toList());
+                .map(Role::getName).collect(Collectors.toList());
     }
 
     public List<String> getChannels(long guildId) {
         Guild guild = jda.getGuildById(guildId);
-        return guild.getTextChannels().stream().map(channel -> channel.getName()).collect(Collectors.toList());
+        return guild.getTextChannels().stream().map(GuildChannel::getName).collect(Collectors.toList());
     }
 }

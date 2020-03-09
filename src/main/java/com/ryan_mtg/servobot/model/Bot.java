@@ -64,12 +64,12 @@ public class Bot {
         home.setBot(this);
         homeEditorMap.put(home.getId(), new HomeEditor(this, home));
         listener.register(home);
-        services.values().stream().forEach(service -> service.register(home));
+        services.values().forEach(service -> service.register(home));
     }
 
     public void removeHome(final BotHome home) {
         home.stop(alertQueue);
-        services.values().stream().forEach(service -> service.unregister(home));
+        services.values().forEach(service -> service.unregister(home));
         listener.unregister(home);
         homeEditorMap.remove(home.getId());
         homes.remove(home);
@@ -115,8 +115,8 @@ public class Bot {
             service.start(listener);
         }
 
-        homes.stream().forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
+        homes.forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
         alertQueue.start();
-        homes.stream().forEach(home -> alertQueue.scheduleAlert(home, new Alert(Duration.ofSeconds(30), "startup")));
+        homes.forEach(home -> alertQueue.scheduleAlert(home, new Alert(Duration.ofSeconds(30), "startup")));
     }
 }

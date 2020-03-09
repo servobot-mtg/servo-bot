@@ -18,10 +18,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class AlertQueue {
-    static Logger LOGGER = LoggerFactory.getLogger(AlertQueue.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AlertQueue.class);
 
     private Bot bot;
-    boolean active = false;
+    private boolean active = false;
     private Map<AlertGenerator, RepeatingAlertable> alertableMap = new HashMap<>();
     private Set<Alertable> alertables = new HashSet<>();
     private Timer timer = new Timer();

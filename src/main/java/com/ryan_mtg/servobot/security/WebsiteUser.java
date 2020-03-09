@@ -35,11 +35,11 @@ public class WebsiteUser implements Principal {
     }
 
     public boolean isAdmin() {
-        return user != null ? user.isAdmin() : false;
+        return user != null && user.isAdmin();
     }
 
     public boolean hasInvite() {
-        return user != null ? user.hasInvite() : false;
+        return user != null && user.hasInvite();
     }
 
     public boolean isAStreamer() {
@@ -48,7 +48,7 @@ public class WebsiteUser implements Principal {
         }
 
         return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
-                .filter(authority -> authority.getAuthority().startsWith("ROLE_STREAMER")).findAny().isPresent();
+                .anyMatch(authority -> authority.getAuthority().startsWith("ROLE_STREAMER"));
     }
 
     public int getBotHomeId() {
@@ -67,7 +67,7 @@ public class WebsiteUser implements Principal {
         }
 
         return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
-                .map(authority -> authority.getAuthority()).collect(Collectors.toList());
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
 
     public boolean isPrivledged() {

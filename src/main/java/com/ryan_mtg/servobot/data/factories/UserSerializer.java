@@ -90,13 +90,13 @@ public class UserSerializer {
     public List<Integer> getHomesModerated(final int userId) {
         List<UserHomeRow> userHomeRows = userHomeRepository.findByUserId(userId);
         return userHomeRows.stream().filter(userHomeRow -> new UserStatus(userHomeRow.getState()).isModerator())
-                .map(userHomeRow -> userHomeRow.getBotHomeId()).collect(Collectors.toList());
+                .map(UserHomeRow::getBotHomeId).collect(Collectors.toList());
     }
 
     public List<Integer> getHomesStreamed(final int userId) {
         List<UserHomeRow> userHomeRows = userHomeRepository.findByUserId(userId);
         return userHomeRows.stream().filter(userHomeRow -> new UserStatus(userHomeRow.getState()).isStreamer())
-                .map(userHomeRow -> userHomeRow.getBotHomeId()).collect(Collectors.toList());
+                .map(UserHomeRow::getBotHomeId).collect(Collectors.toList());
     }
 
     public void saveUser(final User user) {

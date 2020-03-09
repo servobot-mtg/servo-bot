@@ -1,7 +1,5 @@
 package com.ryan_mtg.servobot.model.parser;
 
-import java.util.regex.Pattern;
-
 public class Lexer {
     private String input;
     private int position;
@@ -81,7 +79,6 @@ public class Lexer {
                 position++;
             }
             nextToken = new Token(Token.Type.IDENTIFIER, input.substring(start, position));
-            return;
         }
     }
 }

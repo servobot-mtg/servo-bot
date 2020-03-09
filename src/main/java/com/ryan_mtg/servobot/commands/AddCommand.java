@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class AddCommand extends MessageCommand {
     public static final int TYPE = 5;
-    public static final Pattern commandPattern = Pattern.compile("\\w+");
+    private static final Pattern commandPattern = Pattern.compile("\\w+");
 
     public AddCommand(final int id, final int flags, final Permission permission) {
         super(id, flags, permission);

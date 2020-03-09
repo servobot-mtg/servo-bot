@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class TwitchEventGenerator {
-    static Logger LOGGER = LoggerFactory.getLogger(TwitchEventGenerator.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(TwitchEventGenerator.class);
     private EventListener eventListener;
     private Map<Long, Integer> homeIdMap;
     private UserSerializer userSerializer;

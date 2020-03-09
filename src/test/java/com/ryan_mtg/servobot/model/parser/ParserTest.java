@@ -11,7 +11,7 @@ import com.ryan_mtg.servobot.model.storage.StorageValue;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -108,22 +108,22 @@ public class ParserTest {
 
     @Test
     public void testBookExpression() throws ParseException, BotErrorException {
-        List<Statement> statements = Arrays.asList(new Statement(Statement.UNREGISTERED_ID, TEXT));
+        List<Statement> statements = Collections.singletonList(new Statement(Statement.UNREGISTERED_ID, TEXT));
         Book book = new Book(Book.UNREGISTERED_ID, "name", statements);
         functorSymbolTable.addFunctor("variable", () -> book);
         assertEquals(TEXT, parser.parse("variable").evaluate());
     }
 
     @Test
-    public void testFunctionExpression() throws ParseException, BotErrorException {
+    public void testFunctionExpression() throws ParseException {
         Function<Integer, Integer> f = (a) -> a + 1;
         functorSymbolTable.addValue("function", f);
         assertEquals("3", parser.parse("function(2)").evaluate());
     }
 
     @Test(expected = ParseException.class)
-    public void testFunctionExpressionWithBadParameterType() throws ParseException, BotErrorException {
-        Function<String, Integer> f = (a) -> a.length();
+    public void testFunctionExpressionWithBadParameterType() throws ParseException {
+        Function<String, Integer> f = String::length;
         functorSymbolTable.addValue("function", f);
         assertEquals("5", parser.parse("function(2)").evaluate());
     }
