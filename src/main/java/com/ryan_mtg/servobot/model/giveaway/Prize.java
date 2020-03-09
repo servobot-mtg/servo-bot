@@ -3,6 +3,8 @@ package com.ryan_mtg.servobot.model.giveaway;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 public class Prize {
     public static final int UNREGISTERED_ID = 0;
@@ -14,45 +16,29 @@ public class Prize {
         BESTOWED,
     }
 
+    @Getter @Setter
     private int id;
+
+    @Getter @Setter
     private Status status;
+
+    @Getter @Setter
     private HomedUser winner;
+
+    @Getter
     private String reward;
 
-    public Prize(final int id, final String reward) throws BotErrorException {
+    @Getter
+    private String description;
+
+    public Prize(final int id, final String reward, final String description) throws BotErrorException {
         this.id = id;
-        this.reward = reward;
         this.status = Status.AVAILABLE;
+        this.reward = reward;
+        this.description = description;
 
         Validation.validateStringLength(reward, Validation.MAX_TEXT_LENGTH, "Reward");
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(final Status status) {
-        this.status = status;
-    }
-
-    public HomedUser getWinner() {
-        return winner;
-    }
-
-    public void setWinner(final HomedUser winner) {
-        this.winner = winner;
-    }
-
-    public String getReward() {
-        return reward;
+        Validation.validateStringLength(description, Validation.MAX_TEXT_LENGTH, "Description");
     }
 
     public void awardTo(final HomedUser winner) {

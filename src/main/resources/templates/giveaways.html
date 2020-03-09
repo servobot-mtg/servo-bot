@@ -138,6 +138,7 @@
                     <thead><tr>
                         <th>Prize</th>
                         <th>Status</th>
+                        <th>Description</th>
                         <th>Actions</th>
                         <th>Winner</th>
                         <th th:if="${exalted}">Delete</th>
@@ -148,6 +149,7 @@
                             <td th:if="${!exalted}">&#x1F947;</td>
 
                             <td th:id="${prizeLabel + '-status'}" th:text="${prize.status}"/>
+                            <td th:text="${prize.description}"/>
                             <td>
                                 <div th:id="${prizeLabel} + '-awarded-buttons'" th:classappend="${prize.status !=
                                     T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED ? 'hidden ' : ''}">
@@ -184,6 +186,10 @@
                         <div>
                             <label>Reward</label><br>
                             <input type="text" th:id="${label} + '-add-prize-reward'" size="30" class="name"><br>
+                        </div><br>
+                        <div>
+                            <label>Description</label><br>
+                            <input type="text" th:id="${label} + '-add-prize-description'" size="50"><br>
                         </div><br>
                         <input type="submit" value="Add Prize">
                     </form>

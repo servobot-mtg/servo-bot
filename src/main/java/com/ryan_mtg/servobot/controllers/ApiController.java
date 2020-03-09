@@ -612,15 +612,15 @@ public class ApiController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Prize addPrize(@RequestBody final AddPrizeRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.addPrize(request.getGiveawayId(), request.getReward());
+        return homeEditor.addPrize(request.getGiveawayId(), request.getReward(), request.getDescription());
     }
 
     public static class AddPrizeRequest extends GiveawayRequest {
+        @Getter
         private String reward;
 
-        public String getReward() {
-            return reward;
-        }
+        @Getter
+        private String description;
     }
 
     @PostMapping(value = "/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,

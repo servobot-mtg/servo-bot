@@ -102,6 +102,7 @@ public class GiveawaySerializer {
         prizeRow.setId(prize.getId());
         prizeRow.setStatus(prize.getStatus());
         prizeRow.setReward(prize.getReward());
+        prizeRow.setDescription(prize.getDescription());
         prizeRow.setWinnerId(prize.getWinner() == null ? 0 : prize.getWinner().getId());
 
         prizeRepository.save(prizeRow);
@@ -172,7 +173,7 @@ public class GiveawaySerializer {
     }
 
     private Prize createPrize(final int botHomeId, final PrizeRow prizeRow) throws BotErrorException {
-        Prize prize = new Prize(prizeRow.getId(), prizeRow.getReward());
+        Prize prize = new Prize(prizeRow.getId(), prizeRow.getReward(), prizeRow.getDescription());
         prize.setStatus(prizeRow.getStatus());
         if (prizeRow.getWinnerId() != HomedUser.UNREGISTERED_ID) {
             prize.setWinner(userSerializer.getHomedUser(botHomeId, prizeRow.getWinnerId()));

@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,53 +18,26 @@ import javax.validation.constraints.Size;
 public class PrizeRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter @Setter
     private int id;
 
     @Column(name = "giveaway_id")
+    @Setter
     private int giveawayId;
 
+    @Getter @Setter
     private Prize.Status status;
 
     @Size(max = Validation.MAX_TEXT_LENGTH)
+    @Getter @Setter
     private String reward;
 
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    @Getter @Setter
+    private String description;
+
     @Column(name = "winner_id")
+    @Getter @Setter
     private int winnerId;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Prize.Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(final Prize.Status status) {
-        this.status = status;
-    }
-
-    public void setGiveawayId(int giveawayId) {
-        this.giveawayId = giveawayId;
-    }
-
-    public String getReward() {
-        return reward;
-    }
-
-    public void setReward(String reward) {
-        this.reward = reward;
-    }
-
-    public int getWinnerId() {
-        return winnerId;
-    }
-
-    public void setWinnerId(int winnerId) {
-        this.winnerId = winnerId;
-    }
 }
 

@@ -637,10 +637,11 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public Prize addPrize(final int giveawayId, final String reward) throws BotErrorException {
+    public Prize addPrize(final int giveawayId, final String reward, final String description)
+            throws BotErrorException {
         Giveaway giveaway = getGiveaway(giveawayId);
 
-        Prize prize = new Prize(Prize.UNREGISTERED_ID, reward);
+        Prize prize = new Prize(Prize.UNREGISTERED_ID, reward, description);
         giveaway.addPrize(prize);
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();

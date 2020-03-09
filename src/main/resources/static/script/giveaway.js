@@ -113,12 +113,13 @@ function showAddPrizeForm(giveawayId) {
 function addPrize(botHomeId, giveawayId) {
     const label = 'giveaway-' + giveawayId + '-add-prize';
     const reward = document.getElementById(label + '-reward').value;
-    postAddPrize(botHomeId, giveawayId, reward);
+    const description = document.getElementById(label + '-description').value;
+    postAddPrize(botHomeId, giveawayId, reward, description);
 }
 
-async function postAddPrize(botHomeId, giveawayId, reward) {
+async function postAddPrize(botHomeId, giveawayId, reward, description) {
     const label = 'giveaway-' + giveawayId + '-add-prize';
-    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, reward: reward};
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, reward: reward, description: description};
     let response = await makePost('/api/add_prize', parameters, [], false);
 
     if (response.ok) {
@@ -141,7 +142,11 @@ function addPrizeRow(botHomeId, giveawayId, prize) {
     rewardCell.innerHTML = prize.reward;
 
     let statusCell = newRow.insertCell();
+    statusCell.id = label + '-status';
     statusCell.innerHTML = prize.status;
+
+    let descriptionCell = newRow.insertCell();
+    descriptionCell.innerHTML = prize.description;
 
     let actionsCell = newRow.insertCell();
     actionsCell.innerHTML = "";

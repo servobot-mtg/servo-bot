@@ -63,16 +63,6 @@ CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_
 
 
 CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
-         status INTEGER, winner_id INTEGER);
+         description VARCHAR(200), status INTEGER, winner_id INTEGER);
 
-ALTER TABLE giveaway ADD COLUMN start_raffle_permission INTEGER;
-ALTER TABLE giveaway ADD COLUMN start_raffle_flags INTEGER;
-
-ALTER TABLE giveaway ADD COLUMN enter_raffle_permission INTEGER;
-ALTER TABLE giveaway ADD COLUMN enter_raffle_flags INTEGER;
-
-ALTER TABLE giveaway ADD COLUMN raffle_status_permission INTEGER;
-ALTER TABLE giveaway ADD COLUMN raffle_status_flags INTEGER;
-
-ALTER TABLE giveaway ADD COLUMN raffle_winner_count INTEGER;
-ALTER TABLE giveaway ADD COLUMN raffle_winner_response VARCHAR(200);
+ALTER TABLE prize ADD COLUMN description VARCHAR(200);
