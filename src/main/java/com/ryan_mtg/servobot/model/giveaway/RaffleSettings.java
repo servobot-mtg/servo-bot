@@ -22,7 +22,9 @@ public class RaffleSettings {
 
     @Getter
     private CommandSettings enterRaffle;
-    private String raffleStatusCommandName =  "status";
+
+    @Getter
+    private CommandSettings raffleStatus;
     private Duration raffleDuration = Duration.of(10, ChronoUnit.MINUTES);
 
     public RaffleSettings() {
@@ -30,22 +32,20 @@ public class RaffleSettings {
                 "The raffle is starting.");
         startRaffle = new CommandSettings("enter", DEFAULT_FLAGS, Permission.ANYONE,
                 "%sender% has been entered.");
+        raffleStatus = new CommandSettings("status", DEFAULT_FLAGS, Permission.ANYONE,
+                "There are %raffle.timeLeft% minutes left in the raffle. Type !%raffle.enterCommandName%");
     }
 
     public RaffleSettings(final CommandSettings startRaffle, final CommandSettings enterRaffle,
-                          final String raffleStatusCommandName, final Duration raffleDuration) {
+                          final CommandSettings raffleStatus, final Duration raffleDuration) {
         this.startRaffle = startRaffle;
         this.enterRaffle = enterRaffle;
-        this.raffleStatusCommandName = raffleStatusCommandName;
+        this.raffleStatus = raffleStatus;
         this.raffleDuration = raffleDuration;
     }
 
     public boolean hasRaffleStatusCommand() {
-        return raffleStatusCommandName != null && !raffleStatusCommandName.isEmpty();
-    }
-
-    public String getRaffleStatusCommandName() {
-        return raffleStatusCommandName;
+        return raffleStatus.getCommandName() != null && !raffleStatus.getCommandName().isEmpty();
     }
 
     public Duration getRaffleDuration() {
@@ -60,14 +60,14 @@ public class RaffleSettings {
         Validation.validateCommandSettings(enterRaffle, previousSettings.getEnterRaffle(), commandTable, true,
                 ENTER_RAFFLE_DESCRIPTION);
 
-        Validation.validateSetTemporaryCommandName(raffleStatusCommandName,
-                previousSettings.getRaffleStatusCommandName(), commandTable, false, RAFFLE_STATUS_DESCRIPTION);
+        Validation.validateCommandSettings(raffleStatus, previousSettings.getRaffleStatus(), commandTable, false,
+                ENTER_RAFFLE_DESCRIPTION);
 
         Validation.validateNotSame(startRaffle.getCommandName(), enterRaffle.getCommandName(), START_RAFFLE_DESCRIPTION,
                 ENTER_RAFFLE_DESCRIPTION);
-        Validation.validateNotSame(startRaffle.getCommandName(), raffleStatusCommandName, START_RAFFLE_DESCRIPTION,
+        Validation.validateNotSame(startRaffle.getCommandName(), raffleStatus.getCommandName(), START_RAFFLE_DESCRIPTION,
                 RAFFLE_STATUS_DESCRIPTION);
-        Validation.validateNotSame(enterRaffle.getCommandName(), raffleStatusCommandName, ENTER_RAFFLE_DESCRIPTION,
+        Validation.validateNotSame(enterRaffle.getCommandName(), raffleStatus.getCommandName(), ENTER_RAFFLE_DESCRIPTION,
                 RAFFLE_STATUS_DESCRIPTION);
     }
 
@@ -80,9 +80,10 @@ public class RaffleSettings {
                     String.format("There is already a '%s' command.", enterRaffle.getCommandName()));
         }
 
-        if (raffleStatusCommandName != null && !raffleStatusCommandName.isEmpty()) {
-            if (commandTable.getCommand(raffleStatusCommandName) != null) {
-                throw new BotErrorException(String.format("There is already a '%s' command.", raffleStatusCommandName));
+        if (hasRaffleStatusCommand()) {
+            if (commandTable.getCommand(raffleStatus.getCommandName()) != null) {
+                throw new BotErrorException(
+                        String.format("There is already a '%s' command.", raffleStatus.getCommandName()));
             }
         }
     }

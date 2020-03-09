@@ -98,11 +98,10 @@
                             label = ${label + '-enter-raffle'}, settingsId = ${2},
                             commandSettings = ${giveaway.raffleSettings.enterRaffle})" />
 
-                        <div class="form-block">
-                            <label>Raffle Status Command Name</label><br>
-                            <input type="text" th:id="${label} + '-raffle-status-command'"
-                                   th:value="${giveaway.raffleSettings.raffleStatusCommandName}"><br>
-                        </div><br>
+                        <div th:include="fragments :: command_settings (description = 'Raffle Status Command',
+                            label = ${label + '-raffle-status'}, settingsId = ${3},
+                            commandSettings = ${giveaway.raffleSettings.raffleStatus})" />
+
                         <div class="form-block hidden">
                             <label>Select Raffle Winner Command Name</label><br>
                             <input type="text" id="select-raffle-winner-command"><br>

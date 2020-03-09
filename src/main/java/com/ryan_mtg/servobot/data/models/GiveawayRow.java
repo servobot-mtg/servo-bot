@@ -70,6 +70,7 @@ public class GiveawayRow {
 
     @Column(name = "enter_raffle_command_name")
     @Size(max = Validation.MAX_NAME_LENGTH)
+    @Getter @Setter
     private String enterRaffleCommandName;
 
     @Column(name = "enter_raffle_flags")
@@ -87,7 +88,22 @@ public class GiveawayRow {
 
     @Column(name = "raffle_status_command_name")
     @Size(max = Validation.MAX_NAME_LENGTH)
+    @Getter @Setter
     private String raffleStatusCommandName;
+
+    @Column(name = "raffle_status_flags")
+    @Getter @Setter
+    private int raffleStatusFlags;
+
+    @Column(name = "raffle_status_permission")
+    @Getter @Setter
+    private Permission raffleStatusPermission;
+
+    @Column(name = "raffle_status_message")
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    @Getter @Setter
+    private String raffleStatusMessage;
+
 
     @Column(name = "raffle_duration")
     private int raffleDuration;
@@ -178,22 +194,6 @@ public class GiveawayRow {
 
     public void setStartRaffleCommandId(final int startRaffleCommandId) {
         this.startRaffleCommandId = startRaffleCommandId;
-    }
-
-    public String getEnterRaffleCommandName() {
-        return enterRaffleCommandName;
-    }
-
-    public void setEnterRaffleCommandName(final String enterRaffleCommandName) {
-        this.enterRaffleCommandName = enterRaffleCommandName;
-    }
-
-    public String getRaffleStatusCommandName() {
-        return raffleStatusCommandName;
-    }
-
-    public void setRaffleStatusCommandName(final String raffleStatusCommandName) {
-        this.raffleStatusCommandName = raffleStatusCommandName;
     }
 
     public int getRaffleDuration() {

@@ -92,7 +92,8 @@ public class CommandSerializer {
                 return new FactsCommand(id, flags, permission, bookMap.get(bookId));
             case RaffleStatusCommand.TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
-                return new RaffleStatusCommand(id, flags, permission, giveawayId);
+                return new RaffleStatusCommand(id, flags, permission, giveawayId,
+                        commandRow.getStringParameter().trim());
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
@@ -290,6 +291,7 @@ public class CommandSerializer {
         public void visitGiveawayStatusCommand(final RaffleStatusCommand raffleStatusCommand) {
             saveCommand(raffleStatusCommand, commandRow -> {
                 commandRow.setLongParameter(raffleStatusCommand.getGiveawayId());
+                commandRow.setStringParameter(raffleStatusCommand.getResponse());
             });
         }
 

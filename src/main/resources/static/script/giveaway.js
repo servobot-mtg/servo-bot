@@ -81,17 +81,16 @@ function saveRaffleSettings(botHomeId, giveawayId) {
 
     const startRaffle = getCommandSettings(label + '-start-raffle');
     const enterRaffle = getCommandSettings(label + '-enter-raffle');
-    const raffleStatusCommandName = document.getElementById(label + '-raffle-status-command').value;
+    const raffleStatus = getCommandSettings(label + '-raffle-status');
 
-    postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle, enterRaffle,
-        raffleStatusCommandName);
+    postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle, enterRaffle, raffleStatus);
 }
 
 async function postSaveGiveawayRaffleSettings(botHomeId, giveawayId, raffleDuration, startRaffle, enterRaffle,
-                                              raffleStatusCommandName) {
+                                              raffleStatus) {
     const label = 'giveaway-' + giveawayId;
     const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, raffleDuration: raffleDuration,
-        startRaffle: startRaffle, enterRaffle: enterRaffle, raffleStatusCommandName: raffleStatusCommandName};
+        startRaffle: startRaffle, enterRaffle: enterRaffle, raffleStatus: raffleStatus};
     const responseElement = document.getElementById(label + '-raffle-save-response');
     await makePost('/api/save_giveaway_raffle_settings', parameters, [responseElement], true);
 }
@@ -202,6 +201,7 @@ const giveawayCommandsData = [
     {},
     {label: 'start-raffle'},
     {label: 'enter-raffle'},
+    {label: 'raffle-status'},
 ];
 
 function toggleTwitchCommandSetting(giveawayId, settingsId) {

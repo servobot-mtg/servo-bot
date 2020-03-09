@@ -587,8 +587,8 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
-            final CommandSettings startRaffle, final CommandSettings enterRaffle,
-            final String raffleStatusCommandName) throws BotErrorException {
+            final CommandSettings startRaffle, final CommandSettings enterRaffle, final CommandSettings raffleStatus)
+            throws BotErrorException {
 
         Giveaway giveaway = getGiveaway(giveawayId);
         if (giveaway.getState() != Giveaway.State.CONFIGURING) {
@@ -596,8 +596,7 @@ public class HomeEditor {
         }
         RaffleSettings previousSettings = giveaway.getRaffleSettings();
 
-        RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle,
-                raffleStatusCommandName, raffleDuration);
+        RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle, raffleStatus, raffleDuration);
 
         CommandTable commandTable = botHome.getCommandTable();
         raffleSettings.validate(previousSettings, commandTable);
@@ -671,7 +670,6 @@ public class HomeEditor {
         Prize prize = giveawayEdit.getSavedPrizes().keySet().iterator().next();
 
         CommandSettings enterCommandSettings = raffleSettings.getEnterRaffle();
-        int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
         EnterRaffleCommand enterRaffleCommand = new EnterRaffleCommand(Command.UNREGISTERED_ID,
                 enterCommandSettings.getFlags(), enterCommandSettings.getPermission(), giveawayId,
                 enterCommandSettings.getMessage());
@@ -684,6 +682,7 @@ public class HomeEditor {
         List<Command> alertCommands = new ArrayList<>();
         String winnerAlertToken = "winner";
         alerts.add(new Alert(raffleDuration, winnerAlertToken));
+        int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
         SelectWinnerCommand selectWinnerCommand =
                 new SelectWinnerCommand(Command.UNREGISTERED_ID, flags, Permission.STREAMER, giveawayId);
         tokenMap.put(winnerAlertToken, selectWinnerCommand);
@@ -692,8 +691,11 @@ public class HomeEditor {
         RaffleStatusCommand raffleStatusCommand = null;
 
         if (raffleSettings.hasRaffleStatusCommand()) {
-            raffleStatusCommand = new RaffleStatusCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE, giveawayId);
-            giveawayEdit.merge(commandTable.addCommand(raffleSettings.getRaffleStatusCommandName(), raffleStatusCommand));
+            CommandSettings raffleStatusSettings = raffleSettings.getRaffleStatus();
+            raffleStatusCommand = new RaffleStatusCommand(Command.UNREGISTERED_ID, raffleStatusSettings.getFlags(),
+                    raffleStatusSettings.getPermission(), giveawayId, raffleStatusSettings.getMessage());
+            giveawayEdit.merge(
+                    commandTable.addCommand(raffleSettings.getRaffleStatus().getCommandName(), raffleStatusCommand));
         }
 
         int[] waitMinutes = { 5, 1 };

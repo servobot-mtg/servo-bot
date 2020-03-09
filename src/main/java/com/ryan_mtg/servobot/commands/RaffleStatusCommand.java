@@ -4,18 +4,24 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
+import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 public class RaffleStatusCommand extends MessageCommand {
     public static final int TYPE = 22;
+    @Getter
     private int giveawayId;
 
-    public RaffleStatusCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
+    @Getter
+    private String response;
+
+    public RaffleStatusCommand(final int id, final int flags, final Permission permission, final int giveawayId,
+                               final String response) throws BotErrorException {
         super(id, flags, permission);
         this.giveawayId = giveawayId;
-    }
+        this.response = response;
 
-    public int getGiveawayId() {
-        return giveawayId;
+        Validation.validateStringLength(response, Validation.MAX_TEXT_LENGTH, "Response");
     }
 
     public void setGiveawayId(final int giveawayId) {
@@ -29,9 +35,7 @@ public class RaffleStatusCommand extends MessageCommand {
         if (raffle == null) {
             MessageCommand.say(event, "There is no raffle currently running.");
         } else {
-            String message = String.format("There are %d minutes left to enter. Type !enter to enter",
-                    raffle.getTimeLeft().toMinutes());
-            MessageCommand.say(event, message);
+            MessageCommand.say(event, response);
         }
     }
 
