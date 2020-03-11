@@ -27,7 +27,9 @@ public class DiscordChannel implements Channel {
 
     @Override
     public void say(final String message) {
-        channel.sendMessage(replaceNames(message)).queue();
+        if (!message.isEmpty()) {
+            channel.sendMessage(replaceNames(message)).queue();
+        }
     }
 
     private String replaceNames(final String text) {

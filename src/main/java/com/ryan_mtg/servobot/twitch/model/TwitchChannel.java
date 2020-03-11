@@ -29,7 +29,9 @@ public class TwitchChannel implements Channel, Home {
 
     @Override
     public void say(final String message) {
-        twitchChat.sendMessage(channelName, message);
+        if (!message.isEmpty()) {
+            twitchChat.sendMessage(channelName, message);
+        }
     }
 
     @Override
