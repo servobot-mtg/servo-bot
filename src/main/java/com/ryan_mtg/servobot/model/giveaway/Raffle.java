@@ -31,6 +31,9 @@ public class Raffle {
     @Getter @Setter
     private Status status;
 
+    @Getter
+    private String enterRaffleCommandName;
+
     private EnterRaffleCommand enterRaffleCommand;
     private RaffleStatusCommand raffleStatusCommand;
     private SelectWinnerCommand selectWinnerCommand;
@@ -41,10 +44,11 @@ public class Raffle {
     private Instant stopTime;
     private List<Entrant> entrants = new ArrayList<>();
 
-    public Raffle(final int id, final EnterRaffleCommand enterRaffleCommand,
+    public Raffle(final int id, final String enterRaffleCommandName, final EnterRaffleCommand enterRaffleCommand,
                   final RaffleStatusCommand raffleStatusCommand, SelectWinnerCommand selectWinnerCommand,
                   final List<Command> alertCommands, final List<Prize> prizes, final Instant stopTime) {
         this.status = Status.IN_PROGRESS;
+        this.enterRaffleCommandName = enterRaffleCommandName;
         this.enterRaffleCommand = enterRaffleCommand;
         this.raffleStatusCommand = raffleStatusCommand;
         this.selectWinnerCommand = selectWinnerCommand;

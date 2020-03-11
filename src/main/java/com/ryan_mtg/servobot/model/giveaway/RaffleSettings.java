@@ -40,11 +40,11 @@ public class RaffleSettings {
 
     public RaffleSettings() {
         startRaffle = new CommandSettings("giveaway", DEFAULT_FLAGS, Permission.STREAMER,
-        "A raffle has started! It will last %raffle.timeLeft%. To enter type !%raffle.enterCommandName%");
+    "A raffle has started! It will last %raffle.timeLeft%. To enter type !%raffle.enterCommandName%");
         enterRaffle = new CommandSettings("enter", DEFAULT_FLAGS, Permission.ANYONE,
-        "%sender% has been entered.");
+    "%sender% has been entered.");
         raffleStatus = new CommandSettings("status", DEFAULT_FLAGS, Permission.ANYONE,
-        "There are %raffle.timeLeft% minutes left in the raffle. Type !%raffle.enterCommandName% to enter.");
+    "There are %raffle.timeLeft% minutes left in the raffle. Type !%raffle.enterRaffleCommandName% to enter.");
 
         winnerResponse = "The raffle winner is %winner%.";
     }

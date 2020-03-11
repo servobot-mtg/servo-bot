@@ -743,8 +743,8 @@ public class HomeEditor {
         }
 
         Instant stopTime = Instant.now().plus(duration);
-        Raffle raffle = new Raffle(Raffle.UNREGISTERED_ID, enterRaffleCommand, raffleStatusCommand,
-                selectWinnerCommand, alertCommands, prizes, stopTime);
+        Raffle raffle = new Raffle(Raffle.UNREGISTERED_ID, enterCommandSettings.getCommandName(), enterRaffleCommand,
+                raffleStatusCommand, selectWinnerCommand, alertCommands, prizes, stopTime);
         giveaway.addRaffle(raffle);
 
         serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
