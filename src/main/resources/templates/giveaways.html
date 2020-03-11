@@ -134,7 +134,8 @@
                 </div>
 
                 <h3>Prizes</h3>
-                <table th:if="${!giveaway.prizes.empty}" th:id="${label} + '-prize-table'" class="data-table">
+                <table th:if="${!giveaway.prizes.empty}" th:id="${label} + '-prize-table'"
+                       class="data-table prize-table">
                     <thead><tr>
                         <th>Prize</th>
                         <th>Status</th>
@@ -207,7 +208,8 @@
 
                 <div th:if="${giveaway.rafflesEnabled}">
                     <h3>Raffle</h3>
-                    <table th:if="${!giveaway.raffles.empty}" th:id="${label} + '-raffle-table'" class="data-table">
+                    <table th:if="${!giveaway.raffles.empty}" th:id="${label} + '-raffle-table'"
+                           class="data-table raffle-table">
                         <thead><tr>
                             <th>Status</th>
                             <th>Entrants</th>

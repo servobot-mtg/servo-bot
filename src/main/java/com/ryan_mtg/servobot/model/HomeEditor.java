@@ -732,7 +732,7 @@ public class HomeEditor {
                 String waitAlertToken = String.format("min%d", waitMinutes[i]);
                 Duration waitDuration = Duration.of(duration.toMinutes() - waitMinutes[i], ChronoUnit.MINUTES);
                 alerts.add(new Alert(waitDuration, waitAlertToken));
-                String alertMessage = String.format("%d minutes left in the giveaway.", waitMinutes[i]);
+                String alertMessage = String.format("%d minutes left in the raffle.", waitMinutes[i]);
                 Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID, flags, Permission.ANYONE,
                         TwitchService.TYPE, getTwitchChannelName(), alertMessage);
 

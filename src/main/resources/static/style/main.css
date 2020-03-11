@@ -381,7 +381,16 @@ input[type=text].name {
 .giveaway {
     margin: 12px;
     padding: 12px;
-    border: solid 1px goldenrod;
+    border: solid 3px goldenrod;
+}
+
+.giveaway label {
+    display: inline-block;
+    font-weight: bold;
+}
+
+.prize-table {
+    border-color: darkred;
 }
 
 .add-prize {
@@ -390,25 +399,32 @@ input[type=text].name {
     margin: 6px;
 }
 
+.raffle-table {
+    border-color: darkblue;
+}
+
 .form-block {
     display: inline-block;
-    margin-bottom: 10px;
+    margin-bottom: 7px;
     margin-right: 3em;
 }
 
+.small-vertical-bottom-padding {
+    margin-bottom: 5px;
+}
+
 .command-settings {
-    padding: 10px;
+    padding: 0 10px;
     border: black solid 1px;
+    border-radius: 5px;
+}
+
+.command-settings h3 {
+    margin: 0;
 }
 
 .message-input {
     min-width: 50em;
-}
-
-.giveaway label {
-    margin: 4px 0 0 0;
-    display: inline-block;
-    font-weight: bold;
 }
 
 .invite-form {

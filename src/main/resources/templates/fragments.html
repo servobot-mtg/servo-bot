@@ -98,11 +98,11 @@
                     </th:block>
                 </select>
             </div><br>
-            <div>
+            <div th:class="small-vertical-bottom-padding">
                 <label>Response</label><br>
                 <input type="text" th:id="${label} + '-message'" class="message-input"
                        th:value="${commandSettings.message}"><br>
-            </div><br>
+            </div>
         </div><br>
     </div>
 
