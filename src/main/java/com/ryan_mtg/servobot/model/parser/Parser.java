@@ -6,11 +6,18 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StringEvaluatable;
+import com.ryan_mtg.servobot.utility.Time;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.time.Duration;
 import java.util.function.Function;
 
 import static com.ryan_mtg.servobot.model.parser.Token.Type.CLOSE_PARENTHESIS;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.IDENTIFIER;
 import static com.ryan_mtg.servobot.model.parser.Token.Type.INCREMENT;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.MEMBER_ACCESSOR;
 import static com.ryan_mtg.servobot.model.parser.Token.Type.OPEN_PARENTHESIS;
 
 public class Parser {
@@ -73,6 +80,12 @@ public class Parser {
                 result = scope.lookup(identifierToken.getLexeme());
                 if (result == null) {
                     throw new ParseException(String.format("No value named %s.", identifierToken.getLexeme()));
+                }
+
+                while (lexer.isNextToken(MEMBER_ACCESSOR)) {
+                    lexer.getNextToken();
+                    Token field = expect(IDENTIFIER);
+                    result = accessMember(result, field.getLexeme());
                 }
 
                 if (lexer.isNextToken(OPEN_PARENTHESIS)) {
@@ -152,6 +165,20 @@ public class Parser {
         }
     }
 
+    private Object accessMember(final Object object, final String field) throws ParseException {
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(object.getClass());
+            for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+                if (propertyDescriptor.getName().equals(field)) {
+                    return propertyDescriptor.getReadMethod().invoke(object);
+                }
+            }
+            throw new ParseException(String.format("No field %s", field));
+        } catch (Exception e) {
+            throw new ParseException(String.format("Unable to access field %s", field), e);
+        }
+    }
+
     private int getInteger(final Object object) throws ParseException {
         if (object instanceof Integer) {
             return (Integer) object;
@@ -186,6 +213,10 @@ public class Parser {
 
         if (value instanceof Integer) {
             return new StringEvaluatable(Integer.toString((int) value));
+        }
+
+        if (value instanceof Duration) {
+            return new StringEvaluatable(Time.toReadableString((Duration) value));
         }
 
         throw new ParseException(String.format("Unknown type '%s' for value: %s", value.getClass(), value));

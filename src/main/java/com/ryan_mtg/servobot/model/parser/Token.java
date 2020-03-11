@@ -6,6 +6,7 @@ public class Token {
         INTEGER,
         OPEN_PARENTHESIS,
         CLOSE_PARENTHESIS,
+        MEMBER_ACCESSOR,
         INCREMENT,
         ADD,
         MULTIPLY,

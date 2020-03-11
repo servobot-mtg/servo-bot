@@ -53,6 +53,10 @@ public class Lexer {
                 nextToken = new Token(Token.Type.MULTIPLY, "*");
                 position++;
                 return;
+            case '.':
+                nextToken = new Token(Token.Type.MEMBER_ACCESSOR, ".");
+                position++;
+                return;
             case '+':
                 if (position + 1 < input.length() && input.charAt(position + 1) == '+') {
                     nextToken = new Token(Token.Type.INCREMENT, "++");

@@ -8,9 +8,12 @@ import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -126,5 +129,24 @@ public class ParserTest {
         Function<String, Integer> f = String::length;
         functorSymbolTable.addValue("function", f);
         assertEquals("5", parser.parse("function(2)").evaluate());
+    }
+
+    @Test
+    public void testDurationExpression() throws ParseException {
+        functorSymbolTable.addValue("duration", Duration.ofSeconds(2));
+        assertEquals("2 seconds", parser.parse("duration").evaluate());
+    }
+
+    private static class Container {
+        @Getter @Setter
+        private int field;
+    }
+
+    @Test
+    public void testMemberAccess() throws ParseException {
+        Container container = new Container();
+        container.setField(5);
+        functorSymbolTable.addValue("container", container);
+        assertEquals("5", parser.parse("container.field").evaluate());
     }
 }
