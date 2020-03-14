@@ -14,15 +14,22 @@ import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class ReactionTableSerializer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReactionTableSerializer.class);
+
     @Autowired
     private ReactionSerializer reactionSerializer;
 
@@ -37,18 +44,33 @@ public class ReactionTableSerializer {
 
     public ReactionTable createReactionTable(final int botHomeId, final CommandTable commandTable)
             throws BotErrorException {
-        Iterable<ReactionRow> reactionRows = reactionRepository.findAllByBotHomeId(botHomeId);
         ReactionTable reactionTable = new ReactionTable();
+        Iterable<ReactionRow> reactionRows = reactionRepository.findAllByBotHomeId(botHomeId);
+
+        List<Integer> reactionIds = StreamSupport.stream(reactionRows.spliterator(), false)
+                .map(reactionRow -> reactionRow.getId()).collect(Collectors.toList());
+
+        Map<Integer, List<ReactionPatternRow>> patternRowMap = new HashMap<>();
+        reactionIds.forEach(reactionId -> patternRowMap.put(reactionId, new ArrayList<>()));
+        for(ReactionPatternRow reactionPatternRow : reactionPatternRepository.findAllByReactionIdIn(reactionIds)) {
+            patternRowMap.get(reactionPatternRow.getReactionId()).add(reactionPatternRow);
+        }
+
+        Map<Integer, List<ReactionCommandRow>> commandRowMap = new HashMap<>();
+        reactionIds.forEach(reactionId -> commandRowMap.put(reactionId, new ArrayList<>()));
+        for(ReactionCommandRow reactionCommandRow : reactionCommandRepository.findAllByReactionIdIn(reactionIds)) {
+            commandRowMap.get(reactionCommandRow.getReactionId()).add(reactionCommandRow);
+        }
 
         for (ReactionRow reactionRow : reactionRows) {
             List<Pattern> patterns = new ArrayList<>();
-            for (ReactionPatternRow pattern : reactionPatternRepository.findAllByReactionId(reactionRow.getId())) {
+            LOGGER.info("Trying to read: {}", reactionRow.getId());
+            for (ReactionPatternRow pattern : patternRowMap.get(reactionRow.getId())) {
                 patterns.add(reactionSerializer.createPattern(pattern));
             }
 
             List<ReactionCommand> commands = new ArrayList<>();
-            for (ReactionCommandRow reactionCommandRow :
-                    reactionCommandRepository.findAllByReactionId(reactionRow.getId())) {
+            for (ReactionCommandRow reactionCommandRow : commandRowMap.get(reactionRow.getId())) {
                 Command command = commandTable.getCommand(reactionCommandRow.getCommandId());
                 commands.add(new ReactionCommand(reactionCommandRow.getId(), command));
             }
