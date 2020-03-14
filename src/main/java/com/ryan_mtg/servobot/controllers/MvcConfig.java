@@ -1,8 +1,11 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.Application;
+import org.springframework.boot.web.server.ConfigurableWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -42,6 +45,15 @@ public class MvcConfig implements WebMvcConfigurer {
             registration.setCachePeriod(0);
         } else {
             registration.addResourceLocations("classpath:/static/");
+        }
+    }
+
+    @Component
+    public class ServerPortCustomizer implements WebServerFactoryCustomizer<ConfigurableWebServerFactory> {
+        @Override
+        public void customize(final ConfigurableWebServerFactory factory) {
+            //AWS Elastic Beanstalk port
+            factory.setPort(5000);
         }
     }
 }

@@ -7,13 +7,13 @@ import com.ryan_mtg.servobot.security.SecurityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
 
@@ -22,8 +22,8 @@ import javax.annotation.PostConstruct;
 public class Application {
     private static Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-    @Value("${server.port}")
-    private int port;
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private BotRegistrar botRegistrar;
@@ -38,6 +38,7 @@ public class Application {
     @EventListener(ApplicationReadyEvent.class)
     public void printAddress(final ApplicationReadyEvent event) {
         if (isTesting()) {
+            int port = Integer.parseInt(environment.getProperty("local.server.port"));
             String botSite = String.format("http://localhost:%d", port);
             LOGGER.info(String.format("Website link: %s", botSite));
             for(Bot bot : botRegistrar.getBots()) {
