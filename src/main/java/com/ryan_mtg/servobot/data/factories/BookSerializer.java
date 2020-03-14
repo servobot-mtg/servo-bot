@@ -12,7 +12,11 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class BookSerializer {
@@ -36,9 +40,20 @@ public class BookSerializer {
 
     public List<Book> createBooks(final int botHomeId) throws BotErrorException {
         List<Book> books = new ArrayList<>();
+
+        Iterable<BookRow> bookRows = bookRepository.findAllByBotHomeId(botHomeId);
+        Iterable<Integer> bookIds = StreamSupport.stream(bookRows.spliterator(), false)
+                .map(bookRow -> bookRow.getId()).collect(Collectors.toList());
+
+        Map<Integer, List<StatementRow>> statementRowMap = new HashMap<>();
+        bookIds.forEach(bookId -> statementRowMap.put(bookId, new ArrayList<>()));
+        for(StatementRow statementRow : statementRepository.findAllByBookIdIn(bookIds)) {
+            statementRowMap.get(statementRow.getBookId()).add(statementRow);
+        }
+
         for(BookRow bookRow : bookRepository.findAllByBotHomeId(botHomeId)) {
             List<Statement> statements = new ArrayList<>();
-            for (StatementRow statementRow : statementRepository.findAllByBookId(bookRow.getId())) {
+            for (StatementRow statementRow : statementRowMap.get(bookRow.getId())) {
                 statements.add(new Statement(statementRow.getId(), statementRow.getText()));
             }
             books.add(new Book(bookRow.getId(), bookRow.getName(), statements));

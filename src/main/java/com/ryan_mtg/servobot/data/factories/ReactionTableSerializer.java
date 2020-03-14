@@ -64,7 +64,6 @@ public class ReactionTableSerializer {
 
         for (ReactionRow reactionRow : reactionRows) {
             List<Pattern> patterns = new ArrayList<>();
-            LOGGER.info("Trying to read: {}", reactionRow.getId());
             for (ReactionPatternRow pattern : patternRowMap.get(reactionRow.getId())) {
                 patterns.add(reactionSerializer.createPattern(pattern));
             }
