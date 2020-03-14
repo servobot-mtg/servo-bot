@@ -20,11 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public class ReactionTableSerializer {
@@ -47,20 +44,15 @@ public class ReactionTableSerializer {
         ReactionTable reactionTable = new ReactionTable();
         Iterable<ReactionRow> reactionRows = reactionRepository.findAllByBotHomeId(botHomeId);
 
-        List<Integer> reactionIds = StreamSupport.stream(reactionRows.spliterator(), false)
-                .map(reactionRow -> reactionRow.getId()).collect(Collectors.toList());
+        Iterable<Integer> reactionIds = SerializationSupport.getIds(reactionRows, reactionRow -> reactionRow.getId());
 
-        Map<Integer, List<ReactionPatternRow>> patternRowMap = new HashMap<>();
-        reactionIds.forEach(reactionId -> patternRowMap.put(reactionId, new ArrayList<>()));
-        for(ReactionPatternRow reactionPatternRow : reactionPatternRepository.findAllByReactionIdIn(reactionIds)) {
-            patternRowMap.get(reactionPatternRow.getReactionId()).add(reactionPatternRow);
-        }
+        Map<Integer, List<ReactionPatternRow>> patternRowMap = SerializationSupport.getIdMapping(
+                reactionPatternRepository.findAllByReactionIdIn(reactionIds), reactionIds,
+                reactionPatternRow -> reactionPatternRow.getReactionId());
 
-        Map<Integer, List<ReactionCommandRow>> commandRowMap = new HashMap<>();
-        reactionIds.forEach(reactionId -> commandRowMap.put(reactionId, new ArrayList<>()));
-        for(ReactionCommandRow reactionCommandRow : reactionCommandRepository.findAllByReactionIdIn(reactionIds)) {
-            commandRowMap.get(reactionCommandRow.getReactionId()).add(reactionCommandRow);
-        }
+        Map<Integer, List<ReactionCommandRow>> commandRowMap = SerializationSupport.getIdMapping(
+                reactionCommandRepository.findAllByReactionIdIn(reactionIds), reactionIds,
+                reactionCommandRow -> reactionCommandRow.getReactionId());
 
         for (ReactionRow reactionRow : reactionRows) {
             List<Pattern> patterns = new ArrayList<>();

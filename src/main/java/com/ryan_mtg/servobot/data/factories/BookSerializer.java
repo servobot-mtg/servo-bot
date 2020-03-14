@@ -12,11 +12,8 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public class BookSerializer {
@@ -42,14 +39,10 @@ public class BookSerializer {
         List<Book> books = new ArrayList<>();
 
         Iterable<BookRow> bookRows = bookRepository.findAllByBotHomeId(botHomeId);
-        Iterable<Integer> bookIds = StreamSupport.stream(bookRows.spliterator(), false)
-                .map(bookRow -> bookRow.getId()).collect(Collectors.toList());
+        Iterable<Integer> bookIds = SerializationSupport.getIds(bookRows, bookRow -> bookRow.getId());
 
-        Map<Integer, List<StatementRow>> statementRowMap = new HashMap<>();
-        bookIds.forEach(bookId -> statementRowMap.put(bookId, new ArrayList<>()));
-        for(StatementRow statementRow : statementRepository.findAllByBookIdIn(bookIds)) {
-            statementRowMap.get(statementRow.getBookId()).add(statementRow);
-        }
+        Map<Integer, List<StatementRow>> statementRowMap = SerializationSupport.getIdMapping(
+            statementRepository.findAllByBookIdIn(bookIds), bookIds, statementRow -> statementRow.getBookId());
 
         for(BookRow bookRow : bookRepository.findAllByBotHomeId(botHomeId)) {
             List<Statement> statements = new ArrayList<>();

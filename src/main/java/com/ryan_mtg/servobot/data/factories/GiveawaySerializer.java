@@ -23,6 +23,7 @@ import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class GiveawaySerializer {
@@ -113,19 +114,28 @@ public class GiveawaySerializer {
     public List<Giveaway> createGiveaways(final int botHomeId, final CommandTable commandTable)
             throws BotErrorException {
         Iterable<GiveawayRow> giveawayRows = giveawayRepository.findAllByBotHomeId(botHomeId);
+        Iterable<Integer> giveawayIds = SerializationSupport.getIds(giveawayRows, giveawayRow -> giveawayRow.getId());
+
+        Map<Integer, List<PrizeRow>> prizeRowMap = SerializationSupport.getIdMapping(
+            prizeRepository.findAllByGiveawayIdIn(giveawayIds), giveawayIds, prizeRow -> prizeRow.getGiveawayId());
+
         List<Giveaway> giveaways = new ArrayList<>();
         for (GiveawayRow giveawayRow : giveawayRows) {
-            giveaways.add(createGiveaway(botHomeId, giveawayRow, commandTable));
+            giveaways.add(createGiveaway(botHomeId, giveawayRow, commandTable, prizeRowMap));
         }
         return giveaways;
     }
 
-    private Giveaway createGiveaway(final int botHomeId, final GiveawayRow giveawayRow, final CommandTable commandTable)
-            throws BotErrorException {
+    private Giveaway createGiveaway(final int botHomeId, final GiveawayRow giveawayRow, final CommandTable commandTable,
+            final Map<Integer, List<PrizeRow>> prizeRowMap) throws BotErrorException {
         int flags = giveawayRow.getFlags();
         Giveaway giveaway = new Giveaway(giveawayRow.getId(), giveawayRow.getName(),
                 Flags.hasFlag(flags, SELF_SERVICE_FLAG), Flags.hasFlag(flags, RAFFLE_FLAG));
         giveaway.setState(giveawayRow.getState());
+
+        for (PrizeRow prizeRow : prizeRowMap.get(giveawayRow.getId())) {
+            giveaway.addPrize(createPrize(botHomeId, prizeRow));
+        }
 
         if (giveaway.isSelfService()) {
             giveaway.setRequestPrizeCommandName(giveawayRow.getRequestPrizeCommandName());
@@ -163,10 +173,6 @@ public class GiveawaySerializer {
                     giveawayRow.getRaffleWinnerResponse(), giveawayRow.getDiscordChannel());
 
             giveaway.setRaffleSettings(raffleSettings);
-
-            for (PrizeRow prizeRow : prizeRepository.findAllByGiveawayId(giveaway.getId())) {
-                giveaway.addPrize(createPrize(botHomeId, prizeRow));
-            }
         }
 
         return giveaway;

@@ -22,7 +22,7 @@ public class PrizeRow {
     private int id;
 
     @Column(name = "giveaway_id")
-    @Setter
+    @Getter @Setter
     private int giveawayId;
 
     @Getter @Setter

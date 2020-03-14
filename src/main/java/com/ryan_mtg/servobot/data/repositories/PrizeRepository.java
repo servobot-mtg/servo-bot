@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PrizeRepository extends CrudRepository<PrizeRow, Integer> {
-    Iterable<PrizeRow> findAllByGiveawayId(int giveawayId);
-    PrizeRow findById(int prizeId);
+    Iterable<PrizeRow> findAllByGiveawayIdIn(Iterable<Integer> giveawayIds);
 }
