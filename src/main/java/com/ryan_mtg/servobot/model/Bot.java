@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
@@ -110,13 +113,28 @@ public class Bot {
         return alertQueue;
     }
 
-    public void startBot() throws Exception {
-        for (Service service : services.values()) {
-            service.start(listener);
-        }
+    public void startBot() throws InterruptedException {
+        startServices();
 
         homes.forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
         alertQueue.start();
         homes.forEach(home -> alertQueue.scheduleAlert(home, new Alert(Duration.ofSeconds(30), "startup")));
+    }
+
+    private void startServices() throws InterruptedException {
+        ExecutorService executor = Executors.newFixedThreadPool(services.size());
+
+        for (Service service : services.values()) {
+            executor.submit(() -> {
+                try {
+                    service.start(listener);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        executor.shutdown();
+        executor.awaitTermination(5, TimeUnit.MINUTES);
     }
 }
