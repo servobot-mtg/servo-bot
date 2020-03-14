@@ -20,10 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class CommandTableSerializer {
@@ -47,16 +50,25 @@ public class CommandTableSerializer {
     public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap)
             throws BotErrorException  {
         LOGGER.info(">>>>>>>>> Starting CommandTable creation: {} ", botHomeId);
-        Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
         CommandTable commandTable = new CommandTable(false);
-
+        Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
+        Iterable<Integer> commandIds = StreamSupport.stream(commandRows.spliterator(), false)
+                .map(commandRow -> commandRow.getId()).collect(Collectors.toList());
         LOGGER.info("--------- got command rows: {} ", botHomeId);
+
+        Map<Integer, List<TriggerRow>> triggerRowMap = new HashMap<>();
+        commandIds.forEach(commandId -> triggerRowMap.put(commandId, new ArrayList<>()));
+        for(TriggerRow triggerRow : triggerRepository.findAllByCommandIdIn(commandIds)) {
+            triggerRowMap.get(triggerRow.getCommandId()).add(triggerRow);
+        }
+        LOGGER.info("--------- got trigger rows: {} ", botHomeId);
+
         for (CommandRow commandRow : commandRows) {
             Command command = commandSerializer.createCommand(commandRow, bookMap);
 
             commandTable.registerCommand(command);
 
-            Iterable<TriggerRow> triggerRows = triggerRepository.findAllByCommandId(commandRow.getId());
+            Iterable<TriggerRow> triggerRows = triggerRowMap.get(commandRow.getId());
             for (TriggerRow triggerRow : triggerRows) {
                 commandTable.registerCommand(command, commandSerializer.createTrigger(triggerRow));
             }
