@@ -6,7 +6,10 @@ function decodeHtmlEntity(html) {
 
 const lockedIcon = '&#x1F512;';
 const unlockedIcon = '&#x1F511;';
-const decodedLockedIcon = decodeHtmlEntity('&#x1F512;');
+const decodedLockedIcon = decodeHtmlEntity(lockedIcon);
+const tvIcon = '&#x1F4FA;';
+const decodedTvIcon = decodeHtmlEntity(tvIcon);
+const clockIcon = '&#x1F570;&#xFE0F;';
 const checkmarkIcon = '&#x2714;&#xFE0F;';
 const crossIcon = '&#x274C;';
 const yellowCircleIcon = '&#x1F7E1;';
@@ -81,6 +84,27 @@ function setSecure(rowElement, iconElement, secure) {
     } else {
         iconElement.innerHTML = unlockedIcon;
         rowElement.classList.remove('secure');
+    }
+}
+
+function setOnlyWhileStreaming(botHomeId, commandId) {
+    postSetOnlyWhileStreaming(botHomeId, commandId);
+}
+
+async function postSetOnlyWhileStreaming(botHomeId, commandId) {
+    const elementId = 'command-' + commandId + '-while-streaming';
+    let valueElement = document.getElementById(elementId);
+    const onlyWhileStreamingValue = valueElement.innerText != decodedTvIcon;
+    const parameters = {botHomeId: botHomeId, commandId: commandId, onlyWhileStreaming: onlyWhileStreamingValue};
+    let response = await makePost('/api/set_command_only_while_streaming', parameters, [], false);
+    if (response.ok) {
+        if (onlyWhileStreamingValue) {
+            valueElement.innerHTML = tvIcon;
+            valueElement.title = 'Allow only while streaming';
+        } else {
+            valueElement.innerHTML = clockIcon;
+            valueElement.title = 'Allow anytime';
+        }
     }
 }
 
@@ -657,6 +681,15 @@ function addCommandRow(commandDescriptor, botHomeId) {
     let secureResponseSpan = document.createElement('span');
     secureResponseSpan.id = label + '-secure-response';
     iconCell.appendChild(secureResponseSpan);
+
+    let onlyWhileStreamingIconSpan = document.createElement('span');
+    onlyWhileStreamingIconSpan.id = label + '-while-streaming';
+    onlyWhileStreamingIconSpan.classList.add('pseudo-link');
+    onlyWhileStreamingIconSpan.onclick = function () {
+        setOnlyWhileStreaming(botHomeId, commandDescriptor.command.id);
+    };
+    onlyWhileStreamingIconSpan.innerHTML = commandDescriptor.command.onlyWhileStreaming ? tvIcon : clockIcon;
+    iconCell.appendChild(onlyWhileStreamingIconSpan);
 
     let twitchIconSpan = document.createElement('span');
     twitchIconSpan.id = label + '-twitch';

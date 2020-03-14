@@ -29,13 +29,14 @@ public class DiscordEventAdapter extends ListenerAdapter {
     private EventListener listener;
     private Map<Long, Integer> homeIdMap;
     private UserSerializer userSerializer;
-    private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
+    private StreamStartRegulator streamStartRegulator;
 
     public DiscordEventAdapter(final EventListener listener, final Map<Long, Integer> homeIdMap,
-                               final UserSerializer userSerializer) {
+                               final UserSerializer userSerializer, final StreamStartRegulator streamStartRegulator) {
         this.listener = listener;
         this.homeIdMap = homeIdMap;
         this.userSerializer = userSerializer;
+        this.streamStartRegulator = streamStartRegulator;
     }
 
     @Override

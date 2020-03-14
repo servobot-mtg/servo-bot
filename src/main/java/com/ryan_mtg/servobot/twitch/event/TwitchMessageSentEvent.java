@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.twitch.event;
 
+import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.BotEditor;
@@ -13,6 +14,7 @@ import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 
 public class TwitchMessageSentEvent implements MessageSentEvent {
+    private TwitchClient client;
     private int homeId;
     private ChannelMessageEvent event;
     private TwitchUser sender;
@@ -20,7 +22,9 @@ public class TwitchMessageSentEvent implements MessageSentEvent {
     private BotEditor botEditor;
     private HomeEditor homeEditor;
 
-    public TwitchMessageSentEvent(final ChannelMessageEvent event, int homeId, final TwitchUser sender) {
+    public TwitchMessageSentEvent(final TwitchClient client, final ChannelMessageEvent event, int homeId,
+                                  final TwitchUser sender) {
+        this.client = client;
         this.homeId = homeId;
         this.event = event;
         this.sender = sender;
@@ -73,7 +77,7 @@ public class TwitchMessageSentEvent implements MessageSentEvent {
 
     public TwitchChannel getChannel() {
         if (twitchChannel == null) {
-            twitchChannel = new TwitchChannel(event.getTwitchChat(), event.getChannel().getName(), getHomeEditor());
+            twitchChannel = new TwitchChannel(client, event.getChannel().getName(), getHomeEditor());
         }
         return twitchChannel;
     }

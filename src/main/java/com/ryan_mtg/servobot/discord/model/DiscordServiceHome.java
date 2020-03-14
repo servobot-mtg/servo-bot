@@ -19,6 +19,16 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public Service getService() {
+        return discordService;
+    }
+
+    @Override
+    public Home getHome() {
+        return discordService.getHome(guildId, homeEditor);
+    }
+
+    @Override
     public int getServiceType() {
         return DiscordService.TYPE;
     }
@@ -39,16 +49,6 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public Service getService() {
-        return discordService;
-    }
-
-    @Override
-    public Home getHome() {
-        return discordService.getHome(guildId, homeEditor);
-    }
-
-    @Override
     public List<String> getEmotes() {
         return discordService.getEmotes(guildId);
     }
@@ -61,6 +61,11 @@ public class DiscordServiceHome implements ServiceHome {
     @Override
     public List<String> getChannels() {
         return discordService.getChannels(guildId);
+    }
+
+    @Override
+    public boolean isStreaming() {
+        return discordService.isStreaming(guildId);
     }
 
     @Override

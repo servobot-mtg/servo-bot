@@ -19,12 +19,14 @@ import java.util.Set;
 
 public class TwitchEventGenerator {
     private static Logger LOGGER = LoggerFactory.getLogger(TwitchEventGenerator.class);
+    private TwitchClient client;
     private EventListener eventListener;
     private Map<Long, Integer> homeIdMap;
     private UserSerializer userSerializer;
 
     public TwitchEventGenerator(final TwitchClient client, final EventListener eventListener,
                                 final Map<Long, Integer> homeIdMap, final UserSerializer userSerializer) {
+        this.client = client;
         this.eventListener = eventListener;
         this.homeIdMap = homeIdMap;
         this.userSerializer = userSerializer;
@@ -37,7 +39,7 @@ public class TwitchEventGenerator {
             int botHomeId = resolveBotHomeId(event.getChannel().getId());
             TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHomeId,
                     event.getChannel().getName());
-            eventListener.onMessage(new TwitchMessageSentEvent(event, botHomeId, sender));
+            eventListener.onMessage(new TwitchMessageSentEvent(client, event, botHomeId, sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {

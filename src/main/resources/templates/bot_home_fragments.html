@@ -137,13 +137,21 @@
                         <span th:id="${label} + '-secured'" th:if="${privledged}" class="pseudo-link"
                               th:onclick="'secureCommand(' + ${botHome.id} + ', ' + ${command.id} + ')'"
                               th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
-                        <span th:id="${label} + '-secure-response'"></span>
+                        <span th:id="${label} + '-secure-response'"/>
+
+                        <span th:id="${label} + '-while-streaming'" th:if="${privledged}" class="pseudo-link"
+                              th:onclick="'setOnlyWhileStreaming(' + ${botHome.id} + ', ' + ${command.id} + ')'"
+                              th:title="${command.onlyWhileStreaming ? 'Allow only while streaming' : 'Allow anytime'}"
+                              th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"/>
+                        <span th:id="${label} + '-while-streaming-response'"/>
+                        <span th:if="${!privledged}" class="icon"
+                              th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"/>
 
                         <span th:id="${label} + '-twitch'" th:if="${privledged}" class="pseudo-link"
                               th:onclick="'toggleCommandTwitch(' + ${botHome.id} + ', ' + ${command.id} + ')'">
                             <img th:id="${label} + '-twitch-img'" class="icon" title="Toggle Twitch use"
                                  th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
-                            <span th:id="${label} + '-twitch-response'"></span>
+                            <span th:id="${label} + '-twitch-response'"/>
                         </span>
                         <img th:if="${!privledged}" class="icon"
                              th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">

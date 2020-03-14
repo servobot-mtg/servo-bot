@@ -19,6 +19,7 @@ import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,14 +168,14 @@ public class ApiController {
         return homeEditor.setCommandService(request.getCommandId(), request.getServiceType(), request.getValue());
     }
 
-    public static class SetCommandServiceRequest extends BotHomeRequest {
+    public static abstract class CommandRequest extends BotHomeRequest {
+        @Getter
         private int commandId;
+    }
+
+    public static class SetCommandServiceRequest extends CommandRequest {
         private int serviceType;
         private boolean value;
-
-        public int getCommandId() {
-            return commandId;
-        }
 
         public int getServiceType() {
             return serviceType;
@@ -186,22 +187,28 @@ public class ApiController {
     }
 
     @PostMapping(value = "/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Permission secureReaction(@RequestBody final SetPermissionRequest request) {
+    public Permission setCommandPermission(@RequestBody final SetPermissionRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.setCommandPermission(request.getCommandId(), request.getPermission());
     }
 
-    public static class SetPermissionRequest extends BotHomeRequest {
-        private int commandId;
+    public static class SetPermissionRequest extends CommandRequest {
         private Permission permission;
-
-        public int getCommandId() {
-            return commandId;
-        }
 
         public Permission getPermission() {
             return permission;
         }
+    }
+
+    @PostMapping(value = "/set_command_only_while_streaming", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean setIsOnlyWhileStreaming(@RequestBody final SetCommandOnlyWhileStreamingRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.setCommandOnlyWhileStreaming(request.getCommandId(), request.isOnlyWhileStreaming());
+    }
+
+    public static class SetCommandOnlyWhileStreamingRequest extends CommandRequest {
+        @Getter
+        private boolean onlyWhileStreaming;
     }
 
     @PostMapping(value = "/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -270,14 +277,9 @@ public class ApiController {
         return new AddTriggerResponse(a.get(0), a.size() > 1 ? a.get(1): null);
     }
 
-    public static class AddTriggerRequest extends BotHomeRequest {
-        private int commandId;
+    public static class AddTriggerRequest extends CommandRequest {
         private int triggerType;
         private String text;
-
-        public int getCommandId() {
-            return commandId;
-        }
 
         public int getTriggerType() {
             return triggerType;

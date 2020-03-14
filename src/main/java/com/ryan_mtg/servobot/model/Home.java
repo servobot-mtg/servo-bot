@@ -9,6 +9,7 @@ public interface Home {
     String getName();
     Channel getChannel(String channelName, int serviceType);
     boolean isStreamer(User user);
+    boolean isStreaming();
 
     String getRole(User user, int serviceType);
     void setRole(User user, String role) throws BotErrorException;

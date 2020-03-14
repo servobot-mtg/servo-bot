@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.twitch.model;
 
+import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
+import com.github.twitch4j.helix.domain.StreamList;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
@@ -9,15 +11,18 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class TwitchChannel implements Channel, Home {
+    private TwitchClient twitchClient;
     private TwitchChat twitchChat;
     private String channelName;
     private HomeEditor homeEditor;
 
-    public TwitchChannel(final TwitchChat twitchChat, final String channelName, final HomeEditor homeEditor) {
-        this.twitchChat = twitchChat;
+    public TwitchChannel(final TwitchClient twitchClient, final String channelName, final HomeEditor homeEditor) {
+        this.twitchClient = twitchClient;
+        this.twitchChat = twitchClient.getChat();
         this.channelName = channelName;
         this.homeEditor = homeEditor;
     }
@@ -53,6 +58,13 @@ public class TwitchChannel implements Channel, Home {
     @Override
     public boolean isStreamer(final User user) {
         return user.getName().toLowerCase().equals(getName());
+    }
+
+    @Override
+    public boolean isStreaming() {
+        StreamList streamList = twitchClient.getHelix().getStreams(null, "", null, null,null, null, null,
+                null, Arrays.asList(channelName)).execute();
+        return !streamList.getStreams().isEmpty();
     }
 
     @Override

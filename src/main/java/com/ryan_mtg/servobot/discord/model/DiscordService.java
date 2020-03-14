@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
+import com.ryan_mtg.servobot.discord.event.StreamStartRegulator;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -35,7 +36,9 @@ public class DiscordService implements Service {
     private JDA jda;
     private UserSerializer userSerializer;
 
+    // guildId -> homeId
     private Map<Long, Integer> homeIdMap = new HashMap<>();
+    private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
 
     public DiscordService(final String token, final UserSerializer userSerializer) throws BotErrorException {
         this.token = token;
@@ -58,7 +61,10 @@ public class DiscordService implements Service {
     public void register(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {
-            homeIdMap.put(((DiscordServiceHome) serviceHome).getGuildId(), botHome.getId());
+            DiscordServiceHome discordServiceHome = (DiscordServiceHome) serviceHome;
+            long guildId = discordServiceHome.getGuildId();
+            streamStartRegulator.addHome(botHome, computeIsStreaming(guildId));
+            homeIdMap.put(guildId, botHome.getId());
         }
     }
 
@@ -66,7 +72,9 @@ public class DiscordService implements Service {
     public void unregister(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {
-            homeIdMap.remove(((DiscordServiceHome) serviceHome).getGuildId());
+            DiscordServiceHome discordServiceHome = (DiscordServiceHome) serviceHome;
+            streamStartRegulator.removeHome(botHome);
+            homeIdMap.remove(discordServiceHome.getGuildId());
         }
     }
 
@@ -75,9 +83,11 @@ public class DiscordService implements Service {
         JDABuilder builder = new JDABuilder(token);
         builder.setActivity(Activity.playing("Beta: " + now()));
 
-        builder.addEventListeners(new DiscordEventAdapter(eventListener, homeIdMap, userSerializer));
+        builder.addEventListeners(
+                new DiscordEventAdapter(eventListener, homeIdMap, userSerializer, streamStartRegulator));
         jda = builder.build();
         jda.awaitReady();
+        homeIdMap.forEach((guildId, homeId) -> streamStartRegulator.setIsStreaming(homeId, computeIsStreaming(guildId)));
     }
 
     @Override
@@ -116,8 +126,26 @@ public class DiscordService implements Service {
                 .map(Role::getName).collect(Collectors.toList());
     }
 
-    public List<String> getChannels(long guildId) {
+    public List<String> getChannels(final long guildId) {
         Guild guild = jda.getGuildById(guildId);
         return guild.getTextChannels().stream().map(GuildChannel::getName).collect(Collectors.toList());
+    }
+
+    public boolean isStreaming(final long guildId) {
+        return streamStartRegulator.isStreaming(homeIdMap.get(guildId));
+    }
+
+    private boolean computeIsStreaming(final long guildId) {
+        if (jda == null) {
+            return false;
+        }
+        Guild guild = jda.getGuildById(guildId);
+        Member owner = guild.getOwner();
+        for(Activity activity : owner.getActivities()) {
+            if (activity.getType() == Activity.ActivityType.STREAMING) {
+                return true;
+            }
+        }
+        return false;
     }
 }

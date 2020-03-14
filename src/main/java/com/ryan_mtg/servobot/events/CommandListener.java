@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.commands.HomeCommand;
 import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.UserCommand;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class CommandListener implements EventListener {
             MessageCommand messageCommand = (MessageCommand) command;
             LOGGER.info("Performing " + commandString + " for " + sender.getName() + " with arguments " + arguments);
 
-            if (messageCommand.getService(messageSentEvent.getServiceType())) {
+            if (shouldPerform(messageCommand, messageSentEvent)) {
                 if (messageCommand.hasPermissions(sender)) {
                     messageCommand.perform(messageSentEvent, arguments);
                 } else {
@@ -60,7 +61,7 @@ public class CommandListener implements EventListener {
                             String.format("%s is not allowed to %s.", sender.getName(), commandString));
                 }
             }
-        } else if (command == null){
+        } else if (command == null) {
             messageSentEvent.getHomeEditor().addSuggestion(commandString);
             LOGGER.warn("Unknown command " + commandString + " for " + messageSentEvent.getSender().getName()
                     + " with arguments " + arguments);
@@ -81,7 +82,9 @@ public class CommandListener implements EventListener {
     @Override
     public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
         for (UserCommand command : commandTable.getCommands(CommandEvent.Type.NEW_USER, UserCommand.class)) {
-            command.perform(newUserEvent.getHome(), newUserEvent.getUser());
+            if (shouldPerform(command, newUserEvent)) {
+                command.perform(newUserEvent.getHome(), newUserEvent.getUser());
+            }
         }
     }
 
@@ -91,11 +94,18 @@ public class CommandListener implements EventListener {
         for (HomeCommand command :
                 commandTable.getCommandsFromAlertToken(alertEvent.getAlertToken(), HomeCommand.class)) {
             try {
-                LOGGER.info("Performing command " + command.getId());
-                command.perform(alertEvent);
+                if (shouldPerform(command, alertEvent)) {
+                    LOGGER.info("Performing command " + command.getId());
+                    command.perform(alertEvent);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean shouldPerform(final Command command, final HomeEvent homeEvent) {
+        return (!command.isOnlyWhileStreaming() || homeEvent.getHome().isStreaming()) &&
+            (homeEvent.getServiceType() == Service.NO_SERVICE_TYPE || command.getService(homeEvent.getServiceType()));
     }
 }

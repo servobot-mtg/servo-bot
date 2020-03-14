@@ -8,7 +8,6 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -51,6 +50,13 @@ public class DiscordHome implements Home {
     @Override
     public boolean isStreamer(final User user) {
         return guild.getOwner().getIdLong() == getDiscordId(user);
+    }
+
+    @Override
+    public boolean isStreaming() {
+        Member owner = guild.getOwner();
+        return owner.getActivities().stream()
+                .anyMatch(activity -> activity.getType() == Activity.ActivityType.STREAMING);
     }
 
     @Override

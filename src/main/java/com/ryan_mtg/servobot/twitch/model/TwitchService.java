@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.twitch.model;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import com.github.twitch4j.helix.domain.StreamList;
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
@@ -14,13 +15,17 @@ import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Validation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TwitchService implements Service {
     public static final int TYPE = 1;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchService.class);
 
     private String clientId;
     private String secret;
@@ -88,6 +93,8 @@ public class TwitchService implements Service {
         client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
 
         generator = new TwitchEventGenerator(client, eventListener, homeIdMap, userSerializer);
+
+        homeIdMap.forEach((channelId, homeId) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
     }
 
     @Override
@@ -96,7 +103,13 @@ public class TwitchService implements Service {
     }
 
     public Home getHome(final long channelId, final HomeEditor homeEditor) {
-        return new TwitchChannel(client.getChat(), getChannelName(channelId), homeEditor);
+        return new TwitchChannel(client, getChannelName(channelId), homeEditor);
+    }
+
+    public boolean isStreaming(final long channelId) {
+        StreamList streamList = client.getHelix().getStreams(null, "", null, null,null, null, null,
+                Arrays.asList(Long.toString(channelId)), null).execute();
+        return !streamList.getStreams().isEmpty();
     }
 
     public String getChannelImageUrl(final long channelId) {

@@ -36,6 +36,11 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
+    public boolean isStreaming() {
+        return serviceHomes.values().stream().anyMatch(serviceHome -> serviceHome.isStreaming());
+    }
+
+    @Override
     public String getRole(final User user, final int serviceType) {
         return null;
     }

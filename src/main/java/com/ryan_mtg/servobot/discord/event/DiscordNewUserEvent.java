@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.discord.event;
 
 import com.ryan_mtg.servobot.discord.model.DiscordHome;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.AbstractHomedEvent;
 import com.ryan_mtg.servobot.events.NewUserEvent;
 import com.ryan_mtg.servobot.model.Home;
@@ -25,5 +26,10 @@ public class DiscordNewUserEvent extends AbstractHomedEvent implements NewUserEv
     @Override
     public Home getHome() {
         return home;
+    }
+
+    @Override
+    public int getServiceType() {
+        return DiscordService.TYPE;
     }
 }

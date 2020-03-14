@@ -281,6 +281,14 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
+    public boolean setCommandOnlyWhileStreaming(final int commandId, final boolean isOnlyWhileStreaming) {
+        Command command = botHome.getCommandTable().getCommand(commandId);
+        command.setOnlyWhileStreaming(isOnlyWhileStreaming);
+        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
+        return command.isOnlyWhileStreaming();
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
     public void addSuggestion(final String command) {
         String alias = command.toLowerCase();
         if (alias.length() > Validation.MAX_TRIGGER_LENGTH) {

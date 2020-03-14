@@ -30,6 +30,16 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public int getServiceType() {
+        return TwitchService.TYPE;
+    }
+
+    @Override
+    public String getDescription() {
+        return String.format("Channel %s ", getChannelName());
+    }
+
+    @Override
     public List<String> getEmotes() {
         return Lists.newArrayList();
     }
@@ -42,6 +52,11 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public List<String> getChannels() {
         return Lists.newArrayList(getChannelName());
+    }
+
+    @Override
+    public boolean isStreaming() {
+        return twitchService.isStreaming(channelId);
     }
 
     @Override
@@ -61,16 +76,6 @@ public class TwitchServiceHome implements ServiceHome {
 
     @Override
     public void setName(final String botName) {}
-
-    @Override
-    public int getServiceType() {
-        return TwitchService.TYPE;
-    }
-
-    @Override
-    public String getDescription() {
-        return String.format("Channel %s ", getChannelName());
-    }
 
     @Override
     public String getLink() {

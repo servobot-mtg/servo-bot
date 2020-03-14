@@ -23,6 +23,7 @@ public abstract class Command {
     public static final int TWITCH_FLAG = 1<<TwitchService.TYPE;
     public static final int DISCORD_FLAG = 1<<DiscordService.TYPE;
     public static final int DEFAULT_FLAGS = TWITCH_FLAG | DISCORD_FLAG;
+    public static final int ONLY_WHILE_STREAMING_FLAG = 1<<5;
     public static final int TEMPORARY_FLAG = 1<<10;
 
     private int id;
@@ -59,8 +60,8 @@ public abstract class Command {
         return Flags.hasFlag(flags, DISCORD_FLAG);
     }
 
-    public void setSecure(final boolean secure) {
-        setFlag(SECURE_FLAG, secure);
+    public void setSecure(final boolean isSecure) {
+        setFlag(SECURE_FLAG, isSecure);
     }
 
     public boolean getService(final int serviceType) {
@@ -77,6 +78,14 @@ public abstract class Command {
 
     public void setTemporary() {
         setFlag(TEMPORARY_FLAG, true);
+    }
+
+    public boolean isOnlyWhileStreaming() {
+        return Flags.hasFlag(flags, ONLY_WHILE_STREAMING_FLAG);
+    }
+
+    public void setOnlyWhileStreaming(final boolean isOnlyWhileStreaming) {
+        setFlag(ONLY_WHILE_STREAMING_FLAG, isOnlyWhileStreaming);
     }
 
     public Permission getPermission() {
