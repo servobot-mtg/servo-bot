@@ -46,10 +46,11 @@ public class CommandTableSerializer {
 
     public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap)
             throws BotErrorException  {
+        LOGGER.info(">>>>>>>>> Starting CommandTable creation: {} ", botHomeId);
         Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
         CommandTable commandTable = new CommandTable(false);
-        Set<String> alertTokens = new HashSet<>();
 
+        LOGGER.info("--------- got command rows: {} ", botHomeId);
         for (CommandRow commandRow : commandRows) {
             Command command = commandSerializer.createCommand(commandRow, bookMap);
 
@@ -59,16 +60,19 @@ public class CommandTableSerializer {
             for (TriggerRow triggerRow : triggerRows) {
                 commandTable.registerCommand(command, commandSerializer.createTrigger(triggerRow));
             }
+            LOGGER.info("--------- registered command: home {}, command {}", botHomeId, command.getId());
         }
 
         Iterable<AlertGeneratorRow> alertGeneratorRows = alertGeneratorRepository.findByBotHomeId(botHomeId);
 
+        LOGGER.info("--------- Creating generators: {} ", botHomeId);
         List<AlertGenerator> alertGenerators = new ArrayList<>();
         for (AlertGeneratorRow alertGeneratorRow : alertGeneratorRows) {
             alertGenerators.add(alertGeneratorSerializer.createAlertGenerator(alertGeneratorRow));
         }
         commandTable.addAlertGenerators(alertGenerators);
 
+        LOGGER.info(">>>>>>>>> Ending CommandTable creation: {} ", botHomeId);
         return commandTable;
     }
 
