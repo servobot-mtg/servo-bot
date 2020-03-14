@@ -68,40 +68,12 @@ bootRun {
     main = 'com.ryan_mtg.servobot.Application'
 }
 
-task validateApplicationProperties {
-    doLast {
-        File f = file('src/main/resources/config/application.properties')
-        f.readLines().each {
-            if (it.startsWith('spring.profiles.active') && !it.contains('prod')) {
-                throw new GradleException(String.format('\'%s\' line: 1 Invalid spring.profiles.active setting, should be "prod"', f.toString()))
-            }
-        }
-    }
-}
-
-check.dependsOn validateApplicationProperties
-
 def deployDir = "${buildDir}/generated/deploy"
-
-// Make sure config files have production values
-task fixConfigFiles (type: Copy) {
-    from ('src/main/resources') {
-        include '**/application.properties'
-        include '**/log4j2-spring.xml'
-    }
-
-    into deployDir + '/src/main/resources'
-
-    filter {
-        String line ->  line.replaceAll("spring.profiles.active = .*", "spring.profiles.active = prod")
-                            .replaceAll("level=\"\\w+\"", "level=\"warn\"")
-    }
-}
 
 task deploy (type: Zip) {
     group = 'build'
     description = 'Creates a source zip file for AWS deployment.'
-    dependsOn(fixConfigFiles, check)
+    dependsOn(check)
 
     doFirst {
         // Create Buildfile and Procfile for AWS deployment
