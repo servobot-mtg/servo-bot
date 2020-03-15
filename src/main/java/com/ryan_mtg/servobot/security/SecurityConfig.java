@@ -30,6 +30,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -93,7 +94,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home").permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager())
-            .and().oauth2Login().loginPage("/oauth2/authorization/twitch").defaultSuccessUrl("/home")
+            .and().oauth2Login().loginPage("/oauth2/authorization/twitch").successHandler(new RefererSuccessHandler())
             .and().logout().logoutSuccessUrl("/").permitAll()
             .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userSerializer));
     }
@@ -151,6 +152,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         public boolean isPriviledged(final String botHomeName) {
             BotHome botHome = botRegistrar.getBotHome(botHomeName);
             return websiteUser.isPrivledged(botHome);
+        }
+    }
+
+    private static class RefererSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+        public RefererSuccessHandler() {
+            super();
+            setUseReferer(true);
         }
     }
 }
