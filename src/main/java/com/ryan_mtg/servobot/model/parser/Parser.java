@@ -149,13 +149,14 @@ public class Parser {
         throw new ParseException(String.format("Invalid Operation '%s'", operation));
     }
 
+    @SuppressWarnings("unchecked")
     private Object applyFunction(final Token functionToken, final Object function, final Object argument)
             throws ParseException {
         if (!(function instanceof Function)) {
             throw new ParseException(String.format("Expected '%s' to be a function", functionToken.getLexeme()));
         }
         try {
-            return ((Function)function).apply(argument);
+            return ((Function<Object, Object>)function).apply(argument);
         } catch (Exception e) {
             e.printStackTrace();
 
