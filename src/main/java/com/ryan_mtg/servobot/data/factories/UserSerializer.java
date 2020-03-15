@@ -167,22 +167,14 @@ public class UserSerializer {
         return getHomedUsersWithFilter(botHomeId, userHomeRow -> new UserStatus(userHomeRow.getState()).isModerator());
     }
 
-    private List<HomedUser> getHomedUsersWithFilter(final int botHomeId,
-            final Predicate<UserHomeRow> filterFunction) throws BotErrorException {
+    @Transactional(rollbackOn = BotErrorException.class)
+    public List<HomedUser> getHomedUsers(final Iterable<Integer> userIds) throws BotErrorException {
+        Iterable<UserHomeRow> userHomeRows = userHomeRepository.findByUserIdIn(userIds);
 
-        List<HomedUser> users = new ArrayList<>();
-        List<UserHomeRow> userHomeRows = userHomeRepository.findByBotHomeId(botHomeId);
         Map<Integer, UserHomeRow> homeRowById = new HashMap<>();
-        List<Integer> userIds = userHomeRows.stream().filter(filterFunction).map(userHomeRow -> {
-            homeRowById.put(userHomeRow.getUserId(), userHomeRow);
-            return userHomeRow.getUserId();
-        }).collect(Collectors.toList());
+        userHomeRows.forEach(userHomeRow -> homeRowById.put(userHomeRow.getUserId(), userHomeRow));
 
-        for (UserRow userRow : userRepository.findAllById(userIds)) {
-            UserHomeRow userHomeRow = homeRowById.get(userRow.getId());
-            users.add(createHomedUser(userRow, new UserStatus(userHomeRow.getState())));
-        }
-        return users;
+        return createHomedUsers(userIds, homeRowById);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -202,7 +194,6 @@ public class UserSerializer {
 
         return userRow;
     }
-
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void inviteUser(final int userId) {
@@ -294,5 +285,27 @@ public class UserSerializer {
     private HomedUser createHomedUser(final UserRow userRow, final UserStatus userStatus) throws BotErrorException {
         return new HomedUser(userRow.getId(), userRow.getFlags(), userRow.getTwitchId(), userRow.getTwitchUsername(),
                 userRow.getDiscordId(), userRow.getDiscordUsername(), userRow.getArenaUsername(), userStatus);
+    }
+
+    private List<HomedUser> getHomedUsersWithFilter(final int botHomeId,
+            final Predicate<UserHomeRow> filterFunction) throws BotErrorException {
+        List<UserHomeRow> userHomeRows = userHomeRepository.findByBotHomeId(botHomeId);
+        Map<Integer, UserHomeRow> homeRowById = new HashMap<>();
+        List<Integer> userIds = userHomeRows.stream().filter(filterFunction).map(userHomeRow -> {
+            homeRowById.put(userHomeRow.getUserId(), userHomeRow);
+            return userHomeRow.getUserId();
+        }).collect(Collectors.toList());
+
+        return createHomedUsers(userIds, homeRowById);
+    }
+
+    private List<HomedUser> createHomedUsers(final Iterable<Integer> userIds,
+            final Map<Integer, UserHomeRow> homeRowById) throws BotErrorException {
+        List<HomedUser> users = new ArrayList<>();
+        for (UserRow userRow : userRepository.findAllById(userIds)) {
+            UserHomeRow userHomeRow = homeRowById.get(userRow.getId());
+            users.add(createHomedUser(userRow, new UserStatus(userHomeRow.getState())));
+        }
+        return users;
     }
 }

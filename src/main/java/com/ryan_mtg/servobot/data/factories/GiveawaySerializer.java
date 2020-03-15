@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.giveaway.RaffleSettings;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,8 +23,11 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class GiveawaySerializer {
@@ -119,22 +123,59 @@ public class GiveawaySerializer {
         Map<Integer, List<PrizeRow>> prizeRowMap = SerializationSupport.getIdMapping(
             prizeRepository.findAllByGiveawayIdIn(giveawayIds), giveawayIds, prizeRow -> prizeRow.getGiveawayId());
 
+        Set<Integer> userIds = new HashSet<>();
+        prizeRowMap.forEach((giveawayId, prizeRows) -> prizeRows.forEach(prizeRow -> {
+            if (prizeRow.getWinnerId() != User.UNREGISTERED_ID) {
+                userIds.add(prizeRow.getWinnerId());
+            }
+        }));
+
+        Map<Integer, HomedUser> homedUserMap = new HashMap<>();
+        userSerializer.getHomedUsers(userIds).forEach(homedUser -> homedUserMap.put(homedUser.getId(), homedUser));
+
+        Map<Integer, List<Prize>> prizeMap = createPrizes(botHomeId, prizeRowMap, homedUserMap);
+
         List<Giveaway> giveaways = new ArrayList<>();
         for (GiveawayRow giveawayRow : giveawayRows) {
-            giveaways.add(createGiveaway(botHomeId, giveawayRow, commandTable, prizeRowMap));
+            giveaways.add(createGiveaway(giveawayRow, commandTable, prizeMap));
         }
         return giveaways;
     }
 
-    private Giveaway createGiveaway(final int botHomeId, final GiveawayRow giveawayRow, final CommandTable commandTable,
-            final Map<Integer, List<PrizeRow>> prizeRowMap) throws BotErrorException {
+    private Map<Integer, List<Prize>> createPrizes(final int botHomeId, final Map<Integer, List<PrizeRow>> prizeRowMap,
+            final Map<Integer, HomedUser> homedUserMap) throws BotErrorException {
+        Map<Integer, List<Prize>> prizeMap = new HashMap<>();
+        for(Map.Entry<Integer, List<PrizeRow>> entry : prizeRowMap.entrySet()) {
+            List<Prize> prizes = new ArrayList<>();
+            for (PrizeRow prizeRow : entry.getValue()) {
+                prizes.add(createPrize(botHomeId, prizeRow, homedUserMap));
+            }
+            prizeMap.put(entry.getKey(), prizes);
+        }
+        prizeRowMap.forEach((giveawayId, prizeRows) -> {
+        });
+        return prizeMap;
+    }
+
+    private Prize createPrize(final int botHomeId, final PrizeRow prizeRow, final Map<Integer, HomedUser> homedUserMap)
+            throws BotErrorException {
+        Prize prize = new Prize(prizeRow.getId(), prizeRow.getReward(), prizeRow.getDescription());
+        prize.setStatus(prizeRow.getStatus());
+        if (prizeRow.getWinnerId() != HomedUser.UNREGISTERED_ID) {
+            prize.setWinner(homedUserMap.get(prizeRow.getWinnerId()));
+        }
+        return prize;
+    }
+
+    private Giveaway createGiveaway(final GiveawayRow giveawayRow, final CommandTable commandTable,
+            final Map<Integer, List<Prize>> prizeMap) throws BotErrorException {
         int flags = giveawayRow.getFlags();
         Giveaway giveaway = new Giveaway(giveawayRow.getId(), giveawayRow.getName(),
                 Flags.hasFlag(flags, SELF_SERVICE_FLAG), Flags.hasFlag(flags, RAFFLE_FLAG));
         giveaway.setState(giveawayRow.getState());
 
-        for (PrizeRow prizeRow : prizeRowMap.get(giveawayRow.getId())) {
-            giveaway.addPrize(createPrize(botHomeId, prizeRow));
+        for (Prize prize : prizeMap.get(giveawayRow.getId())) {
+            giveaway.addPrize(prize);
         }
 
         if (giveaway.isSelfService()) {
@@ -176,15 +217,6 @@ public class GiveawaySerializer {
         }
 
         return giveaway;
-    }
-
-    private Prize createPrize(final int botHomeId, final PrizeRow prizeRow) throws BotErrorException {
-        Prize prize = new Prize(prizeRow.getId(), prizeRow.getReward(), prizeRow.getDescription());
-        prize.setStatus(prizeRow.getStatus());
-        if (prizeRow.getWinnerId() != HomedUser.UNREGISTERED_ID) {
-            prize.setWinner(userSerializer.getHomedUser(botHomeId, prizeRow.getWinnerId()));
-        }
-        return prize;
     }
 
     private int getFlags(final Giveaway giveaway) {
