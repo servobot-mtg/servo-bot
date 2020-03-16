@@ -55,7 +55,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.ryan_mtg.servobot.model.GameQueue.EMPTY_QUEUE;
 
@@ -428,7 +427,7 @@ public class HomeEditor {
         }
 
         serializers.getGameQueueSerializer().removeEntry(gameQueue, nextPlayer);
-        return serializers.getUserSerializer().lookupById(gameQueue.getCurrentPlayerId());
+        return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
     }
 
     public User peekGameQueue(final int gameQueueId) throws BotErrorException {
@@ -442,7 +441,7 @@ public class HomeEditor {
             throw new BotErrorException("No players in the queue.");
         }
 
-        return serializers.getUserSerializer().lookupById(gameQueue.getCurrentPlayerId());
+        return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -832,7 +831,7 @@ public class HomeEditor {
     }
 
     public List<User> getArenaUsers() throws BotErrorException {
-        return serializers.getUserSerializer().getArenaUsers();
+        return serializers.getUserSerializer().getArenaUsers(botHome.getId());
     }
 
     private GameQueue getGameQueue(final int gameQueueId) throws BotErrorException {
@@ -868,7 +867,7 @@ public class HomeEditor {
     }
 
     private String describePlayer(final int userId) throws BotErrorException {
-        User user = serializers.getUserSerializer().lookupById(userId);
+        User user = serializers.getUserTable().getById(userId);
         if (user.getTwitchUsername() != null) {
             return user.getTwitchUsername();
         }

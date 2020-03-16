@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.controllers;
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,9 +19,12 @@ public class AdministrationApiController {
     @Autowired
     private UserSerializer userSerializer;
 
+    @Autowired
+    private UserTable userTable;
+
     @PostMapping(value = "/give_invite", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean giveInvite(@RequestBody final UserRequest request) {
-        userSerializer.inviteUser(request.getUserId());
+    public boolean giveInvite(@RequestBody final UserRequest request) throws BotErrorException {
+        userTable.modifyUser(request.getUserId(), User::invite);
         return true;
     }
 
@@ -48,8 +52,8 @@ public class AdministrationApiController {
 
     @PostMapping(value = "/delete_arena_username", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteArenaUsername(@RequestBody final DeleteArenaUsernameRequest request) {
-        userSerializer.deleteArenaUsername(request.getUserId());
+    public boolean deleteArenaUsername(@RequestBody final DeleteArenaUsernameRequest request) throws BotErrorException {
+        userTable.modifyUser(request.getUserId(), user -> user.setArenaUsername(null));
         return true;
     }
 

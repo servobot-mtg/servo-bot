@@ -25,7 +25,7 @@
         <th:block th:each="queue : ${botHome.gameQueues}">
             <div th:if="${queue.state != T(com.ryan_mtg.servobot.model.GameQueue.State).IDLE}">
                 <h3 th:text="${queue.name} + ': ' + ${queue.state}"/>
-                <div th:text="'Current Player: ' + ${userSerializer.lookupById(queue.currentPlayerId).twitchUsername}"/>
+                <div th:text="'Current Player: ' + ${userTable.getById(queue.currentPlayerId).twitchUsername}"/>
                 <br>
                 <div th:if="${queue.fullQueue.empty}">The queue is empty.</div>
 
@@ -38,7 +38,7 @@
                     <th:block th:each="entry : ${queue.fullQueue}">
                         <tr>
                             <td th:text="${entry.position}"/>
-                            <td th:text="${userSerializer.lookupById(entry.userId).twitchUsername}"/>
+                            <td th:text="${userTable.getById(entry.userId).twitchUsername}"/>
                             <td th:text="${entry.spot}"/>
                         </tr>
                     </th:block>

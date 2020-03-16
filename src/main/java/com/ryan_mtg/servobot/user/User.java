@@ -1,7 +1,10 @@
 package com.ryan_mtg.servobot.user;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 public class User {
     public static final int UNREGISTERED_ID = 0;
@@ -13,8 +16,10 @@ public class User {
     private int flags;
     private int twitchId;
     private long discordId;
+    @Getter @Setter
     private String twitchUsername;
     private String discordUsername;
+    @Getter @Setter
     private String arenaUsername;
 
     public User(final int id, final int flags, final int twitchId, final String twitchUsername,
@@ -42,7 +47,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return isFlagSet(ADMIN_FLAG);
+        return Flags.hasFlag(flags, ADMIN_FLAG);
     }
 
     public int getTwitchId() {
@@ -53,16 +58,8 @@ public class User {
         return discordId;
     }
 
-    public String getTwitchUsername() {
-        return twitchUsername;
-    }
-
     public String getDiscordUsername() {
         return discordUsername;
-    }
-
-    public String getArenaUsername() {
-        return arenaUsername;
     }
 
     public String getName() {
@@ -73,22 +70,19 @@ public class User {
     }
 
     public boolean hasInvite() {
-        return isFlagSet(INVITE_FLAG);
+        return Flags.hasFlag(flags, INVITE_FLAG);
+    }
+
+    public void invite() {
+        setFlag(INVITE_FLAG, true);
+
     }
 
     public void removeInvite() {
         setFlag(INVITE_FLAG, false);
     }
 
-    private boolean isFlagSet(final int flag) {
-        return (flags & flag) != 0;
-    }
-
     private void setFlag(final int flag, final boolean value) {
-        if (value) {
-            flags = flags | flag;
-        } else {
-            flags = flags & ~flag;
-        }
+        flags = Flags.setFlag(flags, flag, value);
     }
 }

@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.security;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -12,6 +13,9 @@ public class WebsiteUserFactory {
     @Autowired
     private UserSerializer userSerializer;
 
+    @Autowired
+    private UserTable userTable;
+
     public WebsiteUser createWebsiteUser(final Authentication authentication) {
         User user = null;
         OAuth2AuthenticationToken oAuth2AuthenticationToken = null;
@@ -21,7 +25,7 @@ public class WebsiteUserFactory {
             int userId = (int) oAuth2AuthenticationToken.getPrincipal().getAttributes()
                     .get(TwitchUserService.USER_ID_PROPERTY);
             try {
-                user = userSerializer.lookupById(userId);
+                user = userTable.getById(userId);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -12,7 +12,6 @@ import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.controllers.ApiController.CreateBotHomeRequest;
 import com.ryan_mtg.servobot.controllers.ApiController.TextCommandRequest;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -21,6 +20,8 @@ import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserTable;
+import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,9 @@ public class BotEditor {
         this.serializers = bot.getSerializers();
     }
 
-    public void setArenaUsername(final int userId, final String username)  {
-        serializers.getUserSerializer().setArenaUsername(userId, username);
+    public void setArenaUsername(final int userId, final String username) throws BotErrorException {
+        Validation.validateStringLength(username, Validation.MAX_USERNAME_LENGTH, "Arena username");
+        serializers.getUserTable().modifyUser(userId, user -> user.setArenaUsername(username));
     }
 
     private void validateNewCommandName(final Set<String> commandNames, final String commandName)
@@ -61,13 +63,14 @@ public class BotEditor {
     @Transactional(rollbackOn = BotErrorException.class)
     public BotHome createBotHome(final int userId, final CreateBotHomeRequest request) throws BotErrorException {
         try {
-            UserSerializer userSerializer = serializers.getUserSerializer();
-            User user = userSerializer.lookupById(userId);
+            UserTable userTable = serializers.getUserTable();
+            User user = userTable.getById(userId);
+
             if (!user.hasInvite()) {
                 throw new BotErrorException(String.format("%s can't create home without an invite.", user.getName()));
             }
 
-            if (!userSerializer.getHomesStreamed(userId).isEmpty()) {
+            if (!userTable.getHomesStreamed(userId).isEmpty()) {
                 throw new BotErrorException(String.format("%s already has a home.", user.getName()));
             }
 
@@ -135,13 +138,13 @@ public class BotEditor {
             serializers.getCommandTableSerializer().commit(botHomeId, commandTableEdit);
 
             user.removeInvite();
-            userSerializer.saveUser(user);
-            userSerializer.setStreamerStatus(user.getId(), botHomeId);
+            serializers.getUserSerializer().setStreamerStatus(user.getId(), botHomeId);
+            userTable.save(user);
 
             List<GameQueue> gameQueues = new ArrayList<>();
             List<Giveaway> giveaways = new ArrayList<>();
-            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable, storageTable,
-                    serviceHomes, books, gameQueues, giveaways);
+            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable,
+                    storageTable, serviceHomes, books, gameQueues, giveaways);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
             return botHome;

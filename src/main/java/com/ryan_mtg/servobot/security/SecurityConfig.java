@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -44,13 +45,13 @@ import java.util.List;
 @ControllerAdvice
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private UserSerializer userSerializer;
+    private BotRegistrar botRegistrar;
+
+    @Autowired
+    private UserTable userTable;
 
     @Autowired
     private WebsiteUserFactory websiteUserFactory;
-
-    @Autowired
-    private BotRegistrar botRegistrar;
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {
@@ -96,7 +97,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .accessDecisionManager(accessDecisionManager())
             .and().oauth2Login().loginPage("/oauth2/authorization/twitch").successHandler(new RefererSuccessHandler())
             .and().logout().logoutSuccessUrl("/").permitAll()
-            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userSerializer));
+            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userTable));
     }
 
     @ModelAttribute

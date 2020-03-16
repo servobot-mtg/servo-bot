@@ -176,7 +176,7 @@ public class BotController {
         model.addAttribute("botHome", botHome);
         model.addAttribute("commandDescriptors",
                 getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
-        model.addAttribute("userSerializer", serializers.getUserSerializer());
+        model.addAttribute("userTable", serializers.getUserTable());
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
 

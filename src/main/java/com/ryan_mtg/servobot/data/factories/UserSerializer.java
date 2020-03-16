@@ -13,19 +13,17 @@ import com.ryan_mtg.servobot.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static com.ryan_mtg.servobot.user.User.INVITE_FLAG;
 
 @Component
 public class UserSerializer {
@@ -36,9 +34,13 @@ public class UserSerializer {
     @Autowired
     private UserHomeRepository userHomeRepository;
 
-    public List<User> getAllUsers() throws BotErrorException {
-        List<User> users = new ArrayList<>();
-        for (UserRow userRow : userRepository.findAll(Sort.by("twitchUsername"))) {
+    public Iterable<Integer> getAllUserIds() {
+        return userRepository.getAllIds();
+    }
+
+    public Collection<User> getUsers(final Iterable<Integer> userIds) throws BotErrorException {
+        Collection<User> users = new ArrayList<>();
+        for (UserRow userRow : userRepository.findAllById(userIds)) {
             users.add(createUser(userRow));
         }
         return users;
@@ -48,15 +50,34 @@ public class UserSerializer {
         return createUser(userRepository.findById(id));
     }
 
+    public void saveUser(final User user) {
+        UserRow userRow = new UserRow();
+        userRow.setId(user.getId());
+        userRow.setTwitchId(user.getTwitchId());
+        userRow.setTwitchUsername(user.getTwitchUsername());
+        userRow.setDiscordId(user.getDiscordId());
+        userRow.setDiscordUsername(user.getDiscordUsername());
+        userRow.setArenaUsername(user.getArenaUsername());
+        userRow.setFlags(user.getFlags());
+        userRepository.save(userRow);
+    }
+
     @Transactional(rollbackOn = BotErrorException.class)
-    public User lookupByTwitchId(final int twitchId, final String twitchUsername) {
-        try {
-            UserRow userRow = lookupUserRowByTwitchId(twitchId, twitchUsername);
-            return createUser(userRow);
-        } catch (BotErrorException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public User lookupByTwitchId(final int twitchId, final String twitchUsername) throws BotErrorException {
+        UserRow userRow = lookupUserRowByTwitchId(twitchId, twitchUsername);
+        return createUser(userRow);
+    }
+
+    public List<Integer> getHomesModerated(final int userId) {
+        List<UserHomeRow> userHomeRows = userHomeRepository.findByUserId(userId);
+        return userHomeRows.stream().filter(userHomeRow -> new UserStatus(userHomeRow.getState()).isModerator())
+                .map(UserHomeRow::getBotHomeId).collect(Collectors.toList());
+    }
+
+    public List<Integer> getHomesStreamed(final int userId) {
+        List<UserHomeRow> userHomeRows = userHomeRepository.findByUserId(userId);
+        return userHomeRows.stream().filter(userHomeRow -> new UserStatus(userHomeRow.getState()).isStreamer())
+                .map(UserHomeRow::getBotHomeId).collect(Collectors.toList());
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -85,30 +106,6 @@ public class UserSerializer {
 
         UserStatus userStatus = updateStatus(userRow.getId(), botHomeId, discordUserStatus);
         return createHomedUser(userRow, userStatus);
-    }
-
-    public List<Integer> getHomesModerated(final int userId) {
-        List<UserHomeRow> userHomeRows = userHomeRepository.findByUserId(userId);
-        return userHomeRows.stream().filter(userHomeRow -> new UserStatus(userHomeRow.getState()).isModerator())
-                .map(UserHomeRow::getBotHomeId).collect(Collectors.toList());
-    }
-
-    public List<Integer> getHomesStreamed(final int userId) {
-        List<UserHomeRow> userHomeRows = userHomeRepository.findByUserId(userId);
-        return userHomeRows.stream().filter(userHomeRow -> new UserStatus(userHomeRow.getState()).isStreamer())
-                .map(UserHomeRow::getBotHomeId).collect(Collectors.toList());
-    }
-
-    public void saveUser(final User user) {
-        UserRow userRow = new UserRow();
-        userRow.setId(user.getId());
-        userRow.setTwitchId(user.getTwitchId());
-        userRow.setTwitchUsername(user.getTwitchUsername());
-        userRow.setDiscordId(user.getDiscordId());
-        userRow.setDiscordUsername(user.getDiscordUsername());
-        userRow.setArenaUsername(user.getArenaUsername());
-        userRow.setFlags(user.getFlags());
-        userRepository.save(userRow);
     }
 
     private UserStatus updateStatus(final int userId, final int botHomeId, final Consumer<UserStatus> mergeFunction) {
@@ -196,14 +193,6 @@ public class UserSerializer {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void inviteUser(final int userId) {
-        UserRow userRow = userRepository.findById(userId);
-        int newFlags = userRow.getFlags() | INVITE_FLAG;
-        userRow.setFlags(newFlags);
-        userRepository.save(userRow);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
     public User mergeUsers(final List<Integer> userIds) throws BotErrorException {
         Iterable<UserRow> userRows = userRepository.findAllById(userIds);
 
@@ -255,21 +244,7 @@ public class UserSerializer {
         return createUser(mergedUser);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void setArenaUsername(final int id, final String arenaUsername) {
-        UserRow userRow = userRepository.findById(id);
-        userRow.setArenaUsername(arenaUsername);
-        userRepository.save(userRow);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteArenaUsername(final int id) {
-        UserRow userRow = userRepository.findById(id);
-        userRow.setArenaUsername(null);
-        userRepository.save(userRow);
-    }
-
-    public List<User> getArenaUsers() throws BotErrorException {
+    public List<User> getArenaUsers(final int botHomeId) throws BotErrorException {
         List<User> users = new ArrayList<>();
         for (UserRow userRow : userRepository.findByArenaUsernameIsNotNull()) {
             users.add(createUser(userRow));

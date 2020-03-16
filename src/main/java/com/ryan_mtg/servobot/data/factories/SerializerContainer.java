@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
+import com.ryan_mtg.servobot.user.UserTable;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -63,6 +65,10 @@ public class SerializerContainer {
 
     @Autowired
     private UserSerializer userSerializer;
+
+    @Autowired
+    @Getter
+    private UserTable userTable;
 
     public BookSerializer getBookSerializer() {
         return bookSerializer;

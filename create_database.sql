@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS session (primary_id CHAR(36) NOT NULL, session_id CHA
         expiry_time BIGINT NOT NULL, principal_name VARCHAR(100),
         CONSTRAINT session_pk PRIMARY KEY (primary_id));
 
-CREATE TABLE session_attributes (session_primary_id CHAR(36) NOT NULL, attribute_name VARCHAR(200) NOT NULL,
+CREATE TABLE session_ATTRIBUTES (session_primary_id CHAR(36) NOT NULL, attribute_name VARCHAR(200) NOT NULL,
                                  attribute_bytes BLOB NOT NULL, CONSTRAINT session_attributes_pk
                                      PRIMARY KEY (session_primary_id, attribute_name), CONSTRAINT session_attributes_fk
                                      FOREIGN KEY (session_primary_id) REFERENCES session(primary_id) ON DELETE CASCADE);
