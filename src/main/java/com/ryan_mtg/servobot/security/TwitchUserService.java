@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-    public static final String USER_PROPERTY = "ServoBot:user";
+    public static final String USER_ID_PROPERTY = "servobot:userId";
     private DefaultOAuth2UserService userService;
     private UserSerializer userSerializer;
 
@@ -52,7 +52,7 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
             authorityList.add(new SimpleGrantedAuthority(String.format("ROLE_STREAMER:%d", homeId)));
         }
 
-        attributes.put(USER_PROPERTY, user);
+        attributes.put(USER_ID_PROPERTY, user.getId());
         attributes.put("oauth_token", userRequest.getAccessToken().getTokenValue());
 
         return new DefaultOAuth2User(authorityList, attributes, "display_name");

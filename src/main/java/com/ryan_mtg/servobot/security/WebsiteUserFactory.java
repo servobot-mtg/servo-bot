@@ -18,7 +18,13 @@ public class WebsiteUserFactory {
         if (authentication != null && authentication.isAuthenticated()
                 && authentication instanceof OAuth2AuthenticationToken) {
             oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
-            user = (User) oAuth2AuthenticationToken.getPrincipal().getAttributes().get(TwitchUserService.USER_PROPERTY);
+            int userId = (int) oAuth2AuthenticationToken.getPrincipal().getAttributes()
+                    .get(TwitchUserService.USER_ID_PROPERTY);
+            try {
+                user = userSerializer.lookupById(userId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return new WebsiteUser(userSerializer, oAuth2AuthenticationToken, user);
     }

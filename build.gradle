@@ -38,10 +38,10 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-security:2.2.4.RELEASE'
-
     compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.2.4.RELEASE'
     compile 'org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE'
     compile 'org.springframework.security:spring-security-oauth2-client'
+    compile 'org.springframework.session:spring-session-jdbc'
 
     compile 'org.springframework.data:spring-data-jpa:2.1.8.RELEASE'
 

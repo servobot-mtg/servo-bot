@@ -52,15 +52,29 @@ CREATE TABLE IF NOT EXISTS storage_value (id INTEGER AUTO_INCREMENT PRIMARY KEY,
                                           user_id INTEGER, name VARCHAR(30), number INTEGER, string VARCHAR(200));
 
 CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, name VARCHAR(30),
-         flags INTEGER, state INTEGER, request_prize_command_name VARCHAR(30), prize_request_limit INTEGER,
-         prize_request_user_limit INTEGER, request_prize_command_id INTEGER, prize_requests INTEGER,
-         start_raffle_command_name VARCHAR(30), start_raffle_flags INTEGER, start_raffle_permission INTEGER,
-         start_raffle_message VARCHAR(200), start_raffle_command_id INTEGER, enter_raffle_command_name VARCHAR(30),
-         enter_raffle_permission INTEGER, enter_raffle_flags INTEGER, enter_raffle_message VARCHAR(200),
-         raffle_status_command_name VARCHAR(30), raffle_status_permission INTEGER, raffle_status_flags INTEGER,
-         raffle_status_message VARCHAR(200), raffle_duration INTEGER, raffle_winner_count INTEGER,
-         raffle_winner_response VARCHAR(200), discord_channel VARCHAR(200));
+        flags INTEGER, state INTEGER, request_prize_command_name VARCHAR(30), prize_request_limit INTEGER,
+        prize_request_user_limit INTEGER, request_prize_command_id INTEGER, prize_requests INTEGER,
+        start_raffle_command_name VARCHAR(30), start_raffle_flags INTEGER, start_raffle_permission INTEGER,
+        start_raffle_message VARCHAR(200), start_raffle_command_id INTEGER, enter_raffle_command_name VARCHAR(30),
+        enter_raffle_permission INTEGER, enter_raffle_flags INTEGER, enter_raffle_message VARCHAR(200),
+        raffle_status_command_name VARCHAR(30), raffle_status_permission INTEGER, raffle_status_flags INTEGER,
+        raffle_status_message VARCHAR(200), raffle_duration INTEGER, raffle_winner_count INTEGER,
+        raffle_winner_response VARCHAR(200), discord_channel VARCHAR(200));
 
 
 CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
-         description VARCHAR(200), status INTEGER, winner_id INTEGER);
+        description VARCHAR(200), status INTEGER, winner_id INTEGER);
+
+CREATE TABLE IF NOT EXISTS session (primary_id CHAR(36) NOT NULL, session_id CHAR(36) NOT NULL,
+        creation_time BIGINT NOT NULL, last_access_time BIGINT NOT NULL, max_inactive_interval INT NOT NULL,
+        expiry_time BIGINT NOT NULL, principal_name VARCHAR(100),
+        CONSTRAINT session_pk PRIMARY KEY (primary_id));
+
+CREATE TABLE session_attributes (session_primary_id CHAR(36) NOT NULL, attribute_name VARCHAR(200) NOT NULL,
+                                 attribute_bytes BLOB NOT NULL, CONSTRAINT session_attributes_pk
+                                     PRIMARY KEY (session_primary_id, attribute_name), CONSTRAINT session_attributes_fk
+                                     FOREIGN KEY (session_primary_id) REFERENCES session(primary_id) ON DELETE CASCADE);
+
+CREATE UNIQUE INDEX spring_session_ix1 ON session (session_id);
+CREATE INDEX spring_session_ix2 ON session (expiry_time);
+CREATE INDEX spring_session_ix3 ON session (principal_name);

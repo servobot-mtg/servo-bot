@@ -1,10 +1,13 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.Application;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.session.SessionProperties;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.jdbc.config.annotation.web.http.JdbcHttpSessionConfiguration;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -13,6 +16,7 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
@@ -54,6 +58,18 @@ public class MvcConfig implements WebMvcConfigurer {
         public void customize(final ConfigurableWebServerFactory factory) {
             //AWS Elastic Beanstalk port
             factory.setPort(5000);
+        }
+    }
+
+    @Configuration
+    static class HttpSessionConfiguration extends JdbcHttpSessionConfiguration {
+        @Autowired
+        void customize(final SessionProperties sessionProperties) {
+            Duration timeout = sessionProperties.getTimeout();
+            if (timeout != null) {
+                setMaxInactiveIntervalInSeconds((int) timeout.getSeconds());
+            }
+            setTableName("session");
         }
     }
 }
