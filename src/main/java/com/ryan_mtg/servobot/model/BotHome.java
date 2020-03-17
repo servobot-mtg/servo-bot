@@ -16,7 +16,9 @@ import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -31,6 +33,8 @@ public class BotHome {
     private String botName;
     private String timeZone;
     private Scope botHomeScope;
+    @Getter
+    private HomedUserTable homedUserTable;
     private CommandTable commandTable;
     private ReactionTable reactionTable;
     private StorageTable storageTable;
@@ -42,13 +46,15 @@ public class BotHome {
     private MultiDelegatingListener eventListener;
 
     public BotHome(final int id, final String name, final String botName, final String timeZone,
-                   final CommandTable commandTable, final ReactionTable reactionTable, final StorageTable storageTable,
+                   final HomedUserTable homedUserTable, final CommandTable commandTable,
+                   final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
                    final List<GameQueue> gameQueues, final List<Giveaway> giveaways) throws BotErrorException {
         this.id = id;
         this.name = name;
         this.botName = botName;
         this.timeZone = timeZone;
+        this.homedUserTable = homedUserTable;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
         this.storageTable = storageTable;

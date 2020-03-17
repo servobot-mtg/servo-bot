@@ -34,15 +34,20 @@ public class UserTable {
         return store(userSerializer.lookupById(id));
     }
 
-    public void modifyUser(final int userId, final Consumer<User> modifier) throws BotErrorException {
-        User user = getById(userId);
+    public void modifyUser(final User user, final Consumer<User> modifier) throws BotErrorException {
         modifier.accept(user);
         save(user);
     }
 
-    public Iterable<User> getAllUsers() throws BotErrorException {
-        Iterable<Integer> userIds = userSerializer.getAllUserIds();
+    public void modifyUser(final int userId, final Consumer<User> modifier) throws BotErrorException {
+        modifyUser(getById(userId), modifier);
+    }
 
+    public Iterable<User> getAllUsers() throws BotErrorException {
+        return getUsers(userSerializer.getAllUserIds());
+    }
+
+    public Iterable<User> getUsers(final Iterable<Integer> userIds) throws BotErrorException {
         List<User> users = new ArrayList<>();
         List<Integer> usersToLoad = new ArrayList<>();
         for (int userId : userIds) {
@@ -67,16 +72,29 @@ public class UserTable {
     }
 
     public User getByTwitchId(final int twitchId, final String twitchUserName) throws BotErrorException {
-        User user = findUser(u -> twitchUserName.equals(u.getTwitchUsername()));
+        User user = findUser(u -> twitchId == u.getTwitchId());
         if (user != null) {
             if (!twitchUserName.equals(user.getTwitchUsername())) {
                 user.setTwitchUsername(twitchUserName);
-                userSerializer.saveUser(user);
+                save(user);
             }
             return user;
         }
 
         return store(userSerializer.lookupByTwitchId(twitchId, twitchUserName));
+    }
+
+    public User getByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
+        User user = findUser(u -> discordId == u.getDiscordId());
+        if (user != null) {
+            if (!discordUsername.equals(user.getDiscordUsername())) {
+                user.setDiscordUsername(discordUsername);
+                save(user);
+            }
+            return user;
+        }
+
+        return store(userSerializer.lookupByDiscordId(discordId, discordUsername));
     }
 
     private User getUser(final int userId) {

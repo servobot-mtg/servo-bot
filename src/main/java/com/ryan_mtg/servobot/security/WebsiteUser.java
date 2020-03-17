@@ -1,9 +1,9 @@
 package com.ryan_mtg.servobot.security;
 
 import com.google.common.collect.Lists;
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
@@ -12,12 +12,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WebsiteUser implements Principal {
-    private UserSerializer userSerializer;
+    private UserTable userTable;
     private OAuth2AuthenticationToken oAuth2AuthenticationToken;
     private User user;
 
-    public WebsiteUser(final UserSerializer userSerializer, final OAuth2AuthenticationToken oAuth2AuthenticationToken, final User user) {
-        this.userSerializer = userSerializer;
+    public WebsiteUser(final UserTable userTable, final OAuth2AuthenticationToken oAuth2AuthenticationToken,
+            final User user) {
+        this.userTable = userTable;
         this.oAuth2AuthenticationToken = oAuth2AuthenticationToken;
         this.user = user;
     }
@@ -83,7 +84,7 @@ public class WebsiteUser implements Principal {
             return true;
         }
 
-        if (!userSerializer.getHomesModerated(getUserId()).isEmpty()) {
+        if (!userTable.getHomesModerated(getUserId()).isEmpty()) {
             return true;
         }
 
@@ -103,7 +104,7 @@ public class WebsiteUser implements Principal {
             return true;
         }
 
-        if (userSerializer.getHomesModerated(getUserId()).contains(botHome.getId())) {
+        if (userTable.getHomesModerated(getUserId()).contains(botHome.getId())) {
             return true;
         }
 

@@ -50,7 +50,7 @@ public class SelectWinnerCommand extends HomeCommand {
             message = "The raffle has no winner, because there were no entrants.";
         } else {
             String winnerString = Strings.join(
-                    winners.stream().map(User::getName).collect(Collectors.toList()));
+                    winners.stream().map(homedUser -> homedUser.getName()).collect(Collectors.toList()));
             FunctorSymbolTable symbolTable = new FunctorSymbolTable();
             scope = new Scope(scope, symbolTable);
             symbolTable.addValue("winner", winnerString);

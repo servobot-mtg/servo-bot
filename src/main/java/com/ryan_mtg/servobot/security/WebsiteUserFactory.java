@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebsiteUserFactory {
     @Autowired
-    private UserSerializer userSerializer;
-
-    @Autowired
     private UserTable userTable;
 
     public WebsiteUser createWebsiteUser(final Authentication authentication) {
@@ -30,6 +27,6 @@ public class WebsiteUserFactory {
                 e.printStackTrace();
             }
         }
-        return new WebsiteUser(userSerializer, oAuth2AuthenticationToken, user);
+        return new WebsiteUser(userTable, oAuth2AuthenticationToken, user);
     }
 }

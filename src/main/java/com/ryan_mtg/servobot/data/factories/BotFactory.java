@@ -19,6 +19,7 @@ import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,10 +115,12 @@ public class BotFactory {
         }
 
         LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
-        List<Giveaway> giveaways = serializers.getGiveawaySerializer().createGiveaways(botHomeId, commandTable);
+        HomedUserTable homedUserTable = new HomedUserTable(serializers.getUserSerializer(), serializers.getUserTable(),
+                botHomeId);
+        List<Giveaway> giveaways = serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
-        BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable, storageTable,
-                serviceHomes, books, gameQueues, giveaways);
+        BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, commandTable,
+                reactionTable, storageTable, serviceHomes, books, gameQueues, giveaways);
 
         LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
         return botHome;

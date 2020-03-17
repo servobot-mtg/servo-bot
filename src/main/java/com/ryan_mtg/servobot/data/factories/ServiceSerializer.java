@@ -52,11 +52,11 @@ public class ServiceSerializer {
         Service service;
         switch (serviceType) {
             case DiscordService.TYPE:
-                service = new DiscordService(serviceRow.getToken(), userSerializer);
+                service = new DiscordService(serviceRow.getToken());
                 break;
             case TwitchService.TYPE:
                 service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
-                        serviceRow.getToken(), userSerializer);
+                        serviceRow.getToken());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());

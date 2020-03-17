@@ -92,7 +92,7 @@ public class BotController {
         }
 
         addBotHome(model, botHome);
-        model.addAttribute("users", serializers.getUserSerializer().getModerators(botHome.getId()));
+        model.addAttribute("users", botHome.getHomedUserTable().getModerators());
         return "bot_home";
     }
 
@@ -128,7 +128,7 @@ public class BotController {
         model.addAttribute("page", "users");
 
         addBotHome(model, botHome);
-        model.addAttribute("users", serializers.getUserSerializer().getHomedUsers(botHome.getId()));
+        model.addAttribute("users", botHome.getHomedUserTable().getHomedUsers());
         return "users";
     }
 

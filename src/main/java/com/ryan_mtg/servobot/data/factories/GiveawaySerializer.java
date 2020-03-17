@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.giveaway.RaffleSettings;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +40,6 @@ public class GiveawaySerializer {
 
     @Autowired
     private PrizeRepository prizeRepository;
-
-    @Autowired
-    private UserSerializer userSerializer;
 
     @Autowired
     private CommandTableSerializer commandTableSerializer;
@@ -115,8 +113,8 @@ public class GiveawaySerializer {
         prize.setId(prizeRow.getId());
     }
 
-    public List<Giveaway> createGiveaways(final int botHomeId, final CommandTable commandTable)
-            throws BotErrorException {
+    public List<Giveaway> createGiveaways(final int botHomeId, final HomedUserTable homedUserTable,
+            final CommandTable commandTable) throws BotErrorException {
         Iterable<GiveawayRow> giveawayRows = giveawayRepository.findAllByBotHomeId(botHomeId);
         Iterable<Integer> giveawayIds = SerializationSupport.getIds(giveawayRows, giveawayRow -> giveawayRow.getId());
 
@@ -131,7 +129,7 @@ public class GiveawaySerializer {
         }));
 
         Map<Integer, HomedUser> homedUserMap = new HashMap<>();
-        userSerializer.getHomedUsers(userIds).forEach(homedUser -> homedUserMap.put(homedUser.getId(), homedUser));
+        homedUserTable.getHomedUsers(userIds).forEach(homedUser -> homedUserMap.put(homedUser.getId(), homedUser));
 
         Map<Integer, List<Prize>> prizeMap = createPrizes(botHomeId, prizeRowMap, homedUserMap);
 
@@ -161,7 +159,7 @@ public class GiveawaySerializer {
             throws BotErrorException {
         Prize prize = new Prize(prizeRow.getId(), prizeRow.getReward(), prizeRow.getDescription());
         prize.setStatus(prizeRow.getStatus());
-        if (prizeRow.getWinnerId() != HomedUser.UNREGISTERED_ID) {
+        if (prizeRow.getWinnerId() != User.UNREGISTERED_ID) {
             prize.setWinner(homedUserMap.get(prizeRow.getWinnerId()));
         }
         return prize;

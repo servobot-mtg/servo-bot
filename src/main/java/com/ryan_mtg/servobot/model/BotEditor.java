@@ -19,6 +19,9 @@ import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
+import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -138,13 +141,15 @@ public class BotEditor {
             serializers.getCommandTableSerializer().commit(botHomeId, commandTableEdit);
 
             user.removeInvite();
-            serializers.getUserSerializer().setStreamerStatus(user.getId(), botHomeId);
-            userTable.save(user);
+            HomedUserTable homedUserTable = new HomedUserTable(serializers.getUserSerializer(), userTable, botHomeId);
+            HomedUser homedUser = homedUserTable.getByUser(user);
+            homedUser.getUserStatus().merge(new TwitchUserStatus(true, false, false, true));
+            homedUserTable.save(homedUser);
 
             List<GameQueue> gameQueues = new ArrayList<>();
             List<Giveaway> giveaways = new ArrayList<>();
-            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable,
-                    storageTable, serviceHomes, books, gameQueues, giveaways);
+            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, commandTable,
+                    reactionTable, storageTable, serviceHomes, books, gameQueues, giveaways);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
             return botHome;

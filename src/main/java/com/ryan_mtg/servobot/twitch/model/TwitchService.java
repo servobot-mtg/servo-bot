@@ -31,18 +31,15 @@ public class TwitchService implements Service {
     private String secret;
     private String oauthToken;
     private TwitchEventGenerator generator;
-    private Map<Long, Integer> homeIdMap = new HashMap<>();
+    private Map<Long, BotHome> homeMap = new HashMap<>();
     private Map<Long, String> channelNameMap = new HashMap<>();
     private Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
-    private UserSerializer userSerializer;
 
-    public TwitchService(final String clientId, final String secret, final String oauthToken,
-                         final UserSerializer userSerializer) throws BotErrorException {
+    public TwitchService(final String clientId, final String secret, final String oauthToken) throws BotErrorException {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
-        this.userSerializer = userSerializer;
 
         Validation.validateStringLength(clientId, Validation.MAX_CLIENT_ID_LENGTH, "Client id");
         Validation.validateStringLength(secret, Validation.MAX_CLIENT_SECRET_LENGTH, "Client secret");
@@ -71,7 +68,7 @@ public class TwitchService implements Service {
     public void register(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);
         if (serviceHome != null) {
-            homeIdMap.put(((TwitchServiceHome) serviceHome).getChannelId(), botHome.getId());
+            homeMap.put(((TwitchServiceHome) serviceHome).getChannelId(), botHome);
         }
     }
 
@@ -79,7 +76,7 @@ public class TwitchService implements Service {
     public void unregister(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);
         if (serviceHome != null) {
-            homeIdMap.remove(((TwitchServiceHome) serviceHome).getChannelId());
+            homeMap.remove(((TwitchServiceHome) serviceHome).getChannelId());
         }
     }
 
@@ -91,10 +88,8 @@ public class TwitchService implements Service {
                 .withClientId(clientId).withClientSecret(secret).withChatAccount(credential).build();
 
         client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
-
-        generator = new TwitchEventGenerator(client, eventListener, homeIdMap, userSerializer);
-
-        homeIdMap.forEach((channelId, homeId) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
+        generator = new TwitchEventGenerator(client, eventListener, homeMap);
+        homeMap.forEach((channelId, home) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
     }
 
     @Override

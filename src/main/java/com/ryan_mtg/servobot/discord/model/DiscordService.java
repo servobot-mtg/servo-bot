@@ -34,15 +34,13 @@ public class DiscordService implements Service {
 
     private String token;
     private JDA jda;
-    private UserSerializer userSerializer;
 
-    // guildId -> homeId
-    private Map<Long, Integer> homeIdMap = new HashMap<>();
+    // guildId -> home
+    private Map<Long, BotHome> homeMap = new HashMap<>();
     private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
 
-    public DiscordService(final String token, final UserSerializer userSerializer) throws BotErrorException {
+    public DiscordService(final String token) throws BotErrorException {
         this.token = token;
-        this.userSerializer = userSerializer;
 
         Validation.validateStringLength(token, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "Token");
     }
@@ -64,7 +62,7 @@ public class DiscordService implements Service {
             DiscordServiceHome discordServiceHome = (DiscordServiceHome) serviceHome;
             long guildId = discordServiceHome.getGuildId();
             streamStartRegulator.addHome(botHome, computeIsStreaming(guildId));
-            homeIdMap.put(guildId, botHome.getId());
+            homeMap.put(guildId, botHome);
         }
     }
 
@@ -74,7 +72,7 @@ public class DiscordService implements Service {
         if (serviceHome != null) {
             DiscordServiceHome discordServiceHome = (DiscordServiceHome) serviceHome;
             streamStartRegulator.removeHome(botHome);
-            homeIdMap.remove(discordServiceHome.getGuildId());
+            homeMap.remove(discordServiceHome.getGuildId());
         }
     }
 
@@ -84,10 +82,11 @@ public class DiscordService implements Service {
         builder.setActivity(Activity.playing("Beta: " + now()));
 
         builder.addEventListeners(
-                new DiscordEventAdapter(eventListener, homeIdMap, userSerializer, streamStartRegulator));
+                new DiscordEventAdapter(eventListener, homeMap, streamStartRegulator));
         jda = builder.build();
         jda.awaitReady();
-        homeIdMap.forEach((guildId, homeId) -> streamStartRegulator.setIsStreaming(homeId, computeIsStreaming(guildId)));
+        homeMap.forEach(
+                (guildId, home) -> streamStartRegulator.setIsStreaming(home.getId(), computeIsStreaming(guildId)));
     }
 
     @Override
@@ -132,7 +131,7 @@ public class DiscordService implements Service {
     }
 
     public boolean isStreaming(final long guildId) {
-        return streamStartRegulator.isStreaming(homeIdMap.get(guildId));
+        return streamStartRegulator.isStreaming(homeMap.get(guildId).getId());
     }
 
     private boolean computeIsStreaming(final long guildId) {
