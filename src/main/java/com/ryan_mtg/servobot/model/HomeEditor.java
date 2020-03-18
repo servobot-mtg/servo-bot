@@ -31,8 +31,11 @@ import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
 import com.ryan_mtg.servobot.model.giveaway.RaffleSettings;
+import com.ryan_mtg.servobot.model.reaction.AlwaysReact;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionFilter;
+import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
@@ -52,6 +55,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,8 +113,12 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public Reaction addReaction(final String emote, final boolean secure) throws BotErrorException {
-        //return new Reaction(Reaction.UNREGISTERED_ID, emote, secure);
-        throw new BotErrorException("Not supported");
+        Reaction  reaction = new Reaction(Reaction.UNREGISTERED_ID, emote, secure, new AlwaysReact(), new ArrayList<>(),
+                new ArrayList<>());
+        ReactionTable reactionTable = botHome.getReactionTable();
+        ReactionTableEdit reactionTableEdit = reactionTable.addReaction(reaction);
+        serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
+        return reaction;
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

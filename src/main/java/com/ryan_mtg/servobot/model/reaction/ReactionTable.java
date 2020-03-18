@@ -30,6 +30,13 @@ public class ReactionTable implements Iterable<Reaction> {
         reactions.forEach(reaction -> reaction.getFilter().setTimeZone(timeZone));
     }
 
+    public ReactionTableEdit addReaction(final Reaction reaction) {
+        ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
+        registerReaction(reaction);
+        reactionTableEdit.save(reaction);
+        return reactionTableEdit;
+    }
+
     public Reaction secureReaction(final int reactionId, final boolean secure) {
         Reaction reaction =
                 reactions.stream().filter(testReaction -> testReaction.getId() == reactionId).findFirst().get();

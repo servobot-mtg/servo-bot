@@ -50,6 +50,8 @@ public class MvcConfig implements WebMvcConfigurer {
         } else {
             registration.addResourceLocations("classpath:/static/");
         }
+
+        resourceHandlerRegistry.addResourceHandler("/fav");
     }
 
     @Component
