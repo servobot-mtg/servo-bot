@@ -25,7 +25,7 @@ input[type=number] {
 
 .info-banner-frame {
     margin-bottom: 10px;
-    position: absolute;
+    position: fixed;
     left: 10%;
     top: 10px;
     text-align: center;
@@ -41,7 +41,7 @@ input[type=number] {
     vertical-align: middle;
     line-height: 1;
     font-size: 20px;
-    border-radius: 5px 5px 5px 5px;
+    border-radius: 7px;
 }
 
 #warning-banner {
