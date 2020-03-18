@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -229,11 +231,20 @@ public class BotController {
             descriptor.addTrigger(entry.getKey());
         }
 
+        Collections.sort(commands, new CommandDescriptorIdComparer());
+
         return commands;
     }
 
     private boolean isPrivledged(final Model model, final BotHome botHome) {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
         return websiteUser.isPrivledged(botHome);
+    }
+
+    private class CommandDescriptorIdComparer implements Comparator<CommandDescriptor> {
+        @Override
+        public int compare(final CommandDescriptor first, final CommandDescriptor second) {
+            return first.getCommand().getId() - second.getCommand().getId();
+        }
     }
 }
