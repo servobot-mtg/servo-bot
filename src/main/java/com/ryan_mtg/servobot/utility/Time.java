@@ -3,6 +3,10 @@ package com.ryan_mtg.servobot.utility;
 import lombok.Getter;
 
 import java.time.Duration;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.function.Function;
 
 public class Time {
@@ -14,6 +18,7 @@ public class Time {
         new UnitDescriptor("second", duration -> duration.getSeconds(), 1, "a"),
         new UnitDescriptor("", duration -> 0L, 1, ""),
     };
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 
     public static String toReadableString(final Duration duration) {
         for (int i = 0; i + 1 < unitDescriptors.length; i++) {
@@ -23,6 +28,14 @@ public class Time {
             }
         }
         return "no time";
+    }
+
+    public static String toReadableString(final LocalTime localTime) {
+        return FORMATTER.format(localTime);
+    }
+
+    public static String toReadableString(final ZonedDateTime goal) {
+        return FORMATTER.format(goal);
     }
 
     private static class UnitDescriptor {
