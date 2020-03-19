@@ -185,6 +185,12 @@ public class BotHome {
         eventListener.setActive(active);
     }
 
+    public void registerAlertGenerator(final AlertGenerator alertGenerator) {
+        if (active) {
+            bot.getAlertQueue().add(this, alertGenerator);
+        }
+    }
+
     public void stop(final AlertQueue alertQueue) {
         if (active) {
             active = false;

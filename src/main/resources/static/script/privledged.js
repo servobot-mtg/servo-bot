@@ -16,8 +16,9 @@ const yellowCircleIcon = '&#x1F7E1;';
 const trashcanIcon = '&#x1F5D1;&#xFE0F;';
 const penIcon = '&#x270F;&#xFE0F;';
 const bookIcon = '&#x1F4BE;';
-const defaultCommandFlags = 2+4;
 const emptySetIcon = '&#x2205';
+const bellIcon = '&#x1F6CE;&#xFE0F;';
+const defaultCommandFlags = 2+4;
 
 function editBotName() {
     hideElementById('bot-name-display');
@@ -907,3 +908,64 @@ function addReactionRow(reaction, botHomeId) {
         deleteReaction(botHomeId, reaction.id);
     };
 }
+
+function showAddAlertForm() {
+    const label = 'add-alert';
+    hideElementById(label + '-button');
+    showElementInlineById(label + '-form');
+}
+
+function addAlert(botHomeId) {
+    const type = document.getElementById('add-alert-type-input').value;
+    const time = document.getElementById('add-alert-time-input').value;
+    const keyword = document.getElementById('add-alert-keyword-input').value;
+    postAddAlert(botHomeId, type, keyword, time);
+}
+
+async function postAddAlert(botHomeId, type, keyword, time) {
+    const label = 'add-alert';
+    const parameters = {botHomeId: botHomeId, type: type, keyword: keyword, time: time};
+    let response = await makePost('/api/add_alert', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let alert = await response.json();
+        addAlertRow(alert, botHomeId);
+    }
+}
+
+function addAlertRow(alert, botHomeId) {
+    let alertTable = document.getElementById('alert-table');
+    let newRow = alertTable.insertRow();
+
+    const label = 'alert-' + alert.id;
+    newRow.id = label + '-row';
+    let keywordCell = newRow.insertCell();
+    keywordCell.innerHTML = alert.alertToken;
+
+    let descriptionCell = newRow.insertCell();
+    descriptionCell.innerHTML = alert.description;
+
+    let triggerCell = newRow.insertCell();
+    triggerCell.classList.add('pseudo-link');
+    triggerCell.setAttribute('data-alert-token', alert.alertToken);
+    triggerCell.onclick = function () {
+        triggerAlert(botHomeId, alert.id);
+    };
+    triggerCell.innerHTML = bellIcon;
+
+    let deleteCell = newRow.insertCell();
+    deleteCell.classList.add('pseudo-link');
+    deleteCell.innerHTML = trashcanIcon;
+    deleteCell.onclick = function () {
+        deleteAlert(botHomeId, alert.id);
+    };
+}
+
+function deleteAlert(botHomeId, alertId) {
+    const parameters = {botHomeId: botHomeId, objectId: alertId};
+    postDelete('/api/delete_alert', parameters, 'alert-' + alertId + '-row');
+}
+

@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -9,15 +12,27 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class CommandTableEdit {
+    @Getter
     private List<Command> deletedCommands = new ArrayList<>();
+
+    @Getter
     private List<Command> savedCommands = new ArrayList<>();
 
+    @Getter
     private List<Trigger> deletedTriggers = new ArrayList<>();
 
+    @Getter
     private Map<Trigger, Integer> savedTriggers = new IdentityHashMap<>();
     private Map<Command, Trigger> savedCommandToTriggerMap = new HashMap<>();
     private Map<Command, Consumer<Command>> commandSaveCallbackMap = new HashMap<>();
     private Map<Trigger, BiConsumer<Integer, Trigger>> triggerSaveCallbackMap = new IdentityHashMap<>();
+
+    @Getter
+    private List<AlertGenerator> savedAlertGenerators = new ArrayList<>();
+
+    @Getter
+    private List<AlertGenerator> deletedAlertGenerators = new ArrayList<>();
+
 
     public void delete(final Command command) {
         deletedCommands.add(command);
@@ -43,14 +58,6 @@ public class CommandTableEdit {
         triggerSaveCallbackMap.put(trigger, triggerSaveCallback);
     }
 
-    public List<Command> getDeletedCommands() {
-        return deletedCommands;
-    }
-
-    public List<Command> getSavedCommands() {
-        return savedCommands;
-    }
-
     public void commandSaved(final Command command) {
         if (savedCommandToTriggerMap.containsKey(command)) {
             savedTriggers.put(savedCommandToTriggerMap.get(command), command.getId());
@@ -62,16 +69,16 @@ public class CommandTableEdit {
         triggerSaveCallbackMap.get(trigger).accept(savedTriggers.get(trigger), trigger);
     }
 
-    public Map<Trigger, Integer> getSavedTriggers() {
-        return savedTriggers;
-    }
-
-    public List<Trigger> getDeletedTriggers() {
-        return deletedTriggers;
-    }
-
     public void delete(final Trigger trigger) {
         deletedTriggers.add(trigger);
+    }
+
+    public void save(final AlertGenerator alertGenerator) {
+        savedAlertGenerators.add(alertGenerator);
+    }
+
+    public void delete(final AlertGenerator alertGenerator) {
+        deletedAlertGenerators.add(alertGenerator);
     }
 
     public void merge(final CommandTableEdit commandTableEdit) {

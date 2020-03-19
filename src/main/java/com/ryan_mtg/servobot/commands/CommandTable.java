@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -117,6 +118,26 @@ public class CommandTable {
     public CommandTableEdit deleteTrigger(final Trigger trigger) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
         deleteTrigger(trigger, commandTableEdit, false);
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit addAlertGenerator(final AlertGenerator alertGenerator) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        alertGenerators.add(alertGenerator);
+        commandTableEdit.save(alertGenerator);
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit deleteAlertGenerator(final int alertGeneratorId) {
+        Optional<AlertGenerator> alertGenerator = alertGenerators.stream()
+                .filter(ag -> ag.getId() == alertGeneratorId).findFirst();
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+
+        alertGenerator.ifPresent(ag -> {
+            commandTableEdit.delete(ag);
+            alertGenerators.remove(ag);
+        });
+
         return commandTableEdit;
     }
 

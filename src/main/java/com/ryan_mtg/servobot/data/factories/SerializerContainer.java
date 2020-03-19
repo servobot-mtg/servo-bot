@@ -16,6 +16,10 @@ public class SerializerContainer {
     private BotFactory botFactory;
 
     @Autowired
+    @Getter
+    private AlertGeneratorSerializer alertGeneratorSerializer;
+
+    @Autowired
     private BookSerializer bookSerializer;
 
     @Autowired

@@ -295,7 +295,7 @@
     <!-- reactions -->
     <div th:fragment="reactions">
         <h2>Reactions</h2>
-        <table class="data-table" id="reaction-table">
+        <table id="reaction-table" class="data-table">
             <thead><tr>
                 <th>Emoji</th>
                 <th>Reaction Trigger Words</th>
@@ -375,14 +375,15 @@
     <!-- alerts -->
     <div th:fragment="alerts">
         <h2>Alerts</h2>
-        <table class="data-table">
+        <table class="data-table" id="alert-table">
             <thead><tr>
                 <th>Keyword</th>
                 <th>Alert Description</th>
                 <th th:if="${privledged}">Trigger</th>
+                <th th:if="${privledged}">Delete</th>
             </tr></thead>
             <th:block th:each="alert : ${botHome.alertGenerators}">
-                <tr>
+                <tr th:id="'alert-' + ${alert.id} + '-row'">
                     <td>
                         <span th:text="${alert.alertToken}"/>
                     </td>
@@ -392,9 +393,36 @@
                         &#x1F6CE;&#xFE0F;
                         <span th:id="'trigger-' + ${alert.id} + '-alert-response'"></span>
                     </td>
+                    <td th:if="${privledged}" class="pseudo-link"
+                        th:onclick="'deleteAlert(' + ${botHome.id} + ',' + ${alert.id} + ')'">
+                        &#x1F5D1;&#xFE0F;
+                    </td>
                 </tr>
             </th:block>
         </table>
+        <div th:if="${privledged && !emotes.empty}" class="add-alert">
+            <div id="add-alert-button" class="pseudo-link add-button" onclick="showAddAlertForm()"
+                 title="Add an alert">+</div>
+            <form id="add-alert-form" class="add-form hidden"
+                  th:onsubmit="'addAlert(' + ${botHome.id} + '); return false;'">
+                <div>
+                    <label>Alert Type</label><br>
+                    <select id='add-alert-type-input'>
+                        <option th:value="1" selected>Continual</option>
+                        <option th:value="2">Daily</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Time</label><br>
+                    <input type="number" id="add-alert-time-input"><br>
+                </div><br>
+                <div>
+                    <label>Keyword</label><br>
+                    <input type="text" id="add-alert-keyword-input"><br>
+                </div><br>
+                <input type="submit" value="Create Alert">
+            </form>
+        </div>
     </div>
 
     <!-- storage values -->

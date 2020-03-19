@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.Statement;
@@ -19,7 +20,6 @@ import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -471,6 +471,33 @@ public class ApiController {
         public int getPatternId() {
             return patternId;
         }
+    }
+
+    @PostMapping(value = "/add_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public AlertGenerator addAlert(@RequestBody final AddAlertRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addAlert(request.getType(), request.getKeyword(), request.getTime());
+    }
+
+    public static class AddAlertRequest extends BotHomeRequest {
+        @Getter
+        private int type;
+
+        @Getter
+        private String keyword;
+
+        @Getter
+        private int time;
+    }
+
+    @PostMapping(value = "/delete_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteAlert(@RequestBody final DeleteObjectRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deleteAlert(request.getObjectId());
+        });
     }
 
     @PostMapping(value = "/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)

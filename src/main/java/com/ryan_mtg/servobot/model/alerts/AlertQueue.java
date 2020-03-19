@@ -50,6 +50,15 @@ public class AlertQueue {
         }
     }
 
+    public void add(final BotHome home, final AlertGenerator alertGenerator) {
+        RepeatingAlertable alertable = alertableMap.computeIfAbsent(alertGenerator,
+                ag -> new RepeatingAlertable(home, alertGenerator));
+        alertables.add(alertable);
+        if (active) {
+            alertable.update(Instant.now());
+        }
+    }
+
     public void remove(final BotHome home) {
         List<AlertGenerator> alertGeneratorsToRemove = new ArrayList<>();
         for (Map.Entry<AlertGenerator, RepeatingAlertable> entry : alertableMap.entrySet()) {

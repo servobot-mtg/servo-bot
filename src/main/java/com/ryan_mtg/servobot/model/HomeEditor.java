@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
+import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
@@ -25,6 +26,7 @@ import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.model.alerts.Alert;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.giveaway.CommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
@@ -34,7 +36,6 @@ import com.ryan_mtg.servobot.model.giveaway.RaffleSettings;
 import com.ryan_mtg.servobot.model.reaction.AlwaysReact;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
-import com.ryan_mtg.servobot.model.reaction.ReactionFilter;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
@@ -55,7 +56,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -269,6 +269,31 @@ public class HomeEditor {
         Home home = new MultiServiceHome(botHome.getServiceHomes(), this);
         AlertEvent alertEvent = new BotHomeAlertEvent(botHome.getId(), alertToken, home);
         botHome.getListener().onAlert(alertEvent);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public AlertGenerator addAlert(final int type, final String keyword, final int time) throws BotErrorException {
+        Validation.validateStringLength(keyword, Validation.MAX_TRIGGER_LENGTH, "Alert token");
+
+        AlertGeneratorRow alertGeneratorRow = new AlertGeneratorRow();
+        alertGeneratorRow.setId(AlertGenerator.UNREGISTERED_ID);
+        alertGeneratorRow.setBotHomeId(botHome.getId());
+        alertGeneratorRow.setType(type);
+        alertGeneratorRow.setAlertToken(keyword);
+        alertGeneratorRow.setTime(time);
+        AlertGenerator alertGenerator =
+                serializers.getAlertGeneratorSerializer().createAlertGenerator(alertGeneratorRow);
+
+        CommandTableEdit commandTableEdit = botHome.getCommandTable().addAlertGenerator(alertGenerator);
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        botHome.registerAlertGenerator(alertGenerator);
+        return alertGenerator;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void deleteAlert(final int alertGeneratorId) {
+        CommandTableEdit commandTableEdit = botHome.getCommandTable().deleteAlertGenerator(alertGeneratorId);
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
