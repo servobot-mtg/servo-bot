@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.security;
 
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;

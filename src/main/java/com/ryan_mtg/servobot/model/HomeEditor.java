@@ -275,7 +275,7 @@ public class HomeEditor {
     public void alert(final String alertToken) {
         Home home = new MultiServiceHome(botHome.getServiceHomes(), this);
         AlertEvent alertEvent = new BotHomeAlertEvent(botHome.getId(), alertToken, home);
-        botHome.getListener().onAlert(alertEvent);
+        botHome.getEventListener().onAlert(alertEvent);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

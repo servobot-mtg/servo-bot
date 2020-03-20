@@ -6,12 +6,17 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 import java.util.List;
 
 public class JailBreakCommand extends MessageCommand {
     public static final int TYPE = 26;
+
+    @Getter
     private String prisonRole;
+
+    @Getter
     private String variableName;
 
     public JailBreakCommand(final int id, final int flags, final Permission permission, final String prisonRole,
@@ -23,14 +28,6 @@ public class JailBreakCommand extends MessageCommand {
 
         Validation.validateStringLength(prisonRole, Validation.MAX_ROLE_LENGTH, "Prison role");
         Validation.validateStringLength(variableName, Validation.MAX_STORAGE_NAME_LENGTH, "Threshold variable name");
-    }
-
-    public String getPrisonRole() {
-        return prisonRole;
-    }
-
-    public String getVariableName() {
-        return variableName;
     }
 
     @Override

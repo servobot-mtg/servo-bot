@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -10,6 +11,7 @@ public class CommandAlias extends Trigger {
     public static final int TYPE = 1;
     private static final Pattern ALIAS_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
+    @Getter
     private String alias;
 
     public CommandAlias(final int id, final String alias) throws BotErrorException {
@@ -21,10 +23,6 @@ public class CommandAlias extends Trigger {
 
     public static void validateAlias(final String alias) throws BotErrorException {
         Validation.validateStringValue(alias, Validation.MAX_TRIGGER_LENGTH, "Command alias", ALIAS_PATTERN);
-    }
-
-    public String getAlias() {
-        return alias;
     }
 
     @Override

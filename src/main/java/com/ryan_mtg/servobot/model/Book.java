@@ -3,6 +3,8 @@ package com.ryan_mtg.servobot.model;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Random;
@@ -13,8 +15,13 @@ public class Book implements Evaluatable, Function<Integer, String> {
 
     private static final Random RANDOM = new Random();
 
+    @Getter @Setter
     private int id;
+
+    @Getter
     private String name;
+
+    @Getter
     private List<Statement> statements;
 
     public Book(final int id, final String name, final List<Statement> statements) throws BotErrorException {
@@ -23,22 +30,6 @@ public class Book implements Evaluatable, Function<Integer, String> {
         this.statements = statements;
 
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<Statement> getStatements() {
-        return statements;
     }
 
     public String getRandomLine() {

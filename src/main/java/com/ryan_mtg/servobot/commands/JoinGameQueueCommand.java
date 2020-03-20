@@ -3,9 +3,12 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.User;
+import lombok.Getter;
 
 public class JoinGameQueueCommand extends MessageCommand {
     public static final int TYPE = 8;
+
+    @Getter
     private int gameQueueId;
 
     public JoinGameQueueCommand(final int id, final int flags, final Permission permission,
@@ -24,10 +27,6 @@ public class JoinGameQueueCommand extends MessageCommand {
     @Override
     public int getType() {
         return TYPE;
-    }
-
-    public int getGameQueueId() {
-        return gameQueueId;
     }
 
     @Override

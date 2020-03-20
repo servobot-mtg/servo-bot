@@ -9,7 +9,6 @@ import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
-import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.Getter;

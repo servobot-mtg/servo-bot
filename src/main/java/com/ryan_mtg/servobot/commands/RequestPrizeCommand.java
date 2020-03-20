@@ -8,18 +8,17 @@ import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.user.HomedUser;
+import lombok.Getter;
 
 public class RequestPrizeCommand extends MessageCommand {
     public static final int TYPE = 28;
+
+    @Getter
     private int giveawayId;
 
     public RequestPrizeCommand(final int id, final int flags, final Permission permission, final int giveawayId) {
         super(id, flags, permission);
         this.giveawayId = giveawayId;
-    }
-
-    public int getGiveawayId() {
-        return giveawayId;
     }
 
     @Override

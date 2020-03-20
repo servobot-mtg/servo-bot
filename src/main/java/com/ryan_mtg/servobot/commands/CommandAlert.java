@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -10,6 +11,7 @@ public class CommandAlert extends Trigger {
     public static final int TYPE = 3;
     private static final Pattern ALERT_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
+    @Getter
     private String alertToken;
 
     public CommandAlert(final int id, final String alertToken) throws BotErrorException {
@@ -21,10 +23,6 @@ public class CommandAlert extends Trigger {
         }
 
         Validation.validateStringValue(alertToken, Validation.MAX_TRIGGER_LENGTH, "Alert token", ALERT_PATTERN);
-    }
-
-    public String getAlertToken() {
-        return alertToken;
     }
 
     @Override

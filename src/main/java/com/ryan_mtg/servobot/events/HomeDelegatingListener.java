@@ -22,7 +22,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     public void register(final BotHome botHome) {
-        botHomeMap.put(botHome.getId(), botHome.getListener());
+        botHomeMap.put(botHome.getId(), botHome.getEventListener());
     }
 
     public void unregister(BotHome botHome) {

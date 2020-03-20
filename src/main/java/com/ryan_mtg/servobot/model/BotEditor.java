@@ -112,7 +112,7 @@ public class BotEditor {
             ServiceHomeRow serviceHomeRow = new ServiceHomeRow();
             serviceHomeRow.setBotHomeId(botHomeId);
             serviceHomeRow.setServiceType(TwitchService.TYPE);
-            serviceHomeRow.setLong(user.getTwitchId());
+            serviceHomeRow.setLongValue(user.getTwitchId());
             serializers.getServiceHomeRepository().save(serviceHomeRow);
             ServiceHome twitchServiceHome = serializers.getServiceSerializer().createServiceHome(serviceHomeRow, twitchService);
             serviceHomes.put(TwitchService.TYPE, twitchServiceHome);

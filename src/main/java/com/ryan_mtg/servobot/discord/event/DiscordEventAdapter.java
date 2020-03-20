@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.discord.event;
 
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.model.DiscordUser;
 import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
 import com.ryan_mtg.servobot.events.BotErrorException;

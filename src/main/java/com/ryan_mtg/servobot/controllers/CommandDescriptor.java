@@ -36,10 +36,12 @@ import com.ryan_mtg.servobot.commands.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.commands.Trigger;
 import com.ryan_mtg.servobot.commands.TriggerVisitor;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class CommandDescriptor {
     private Command command;
     private String type;
@@ -58,32 +60,8 @@ public class CommandDescriptor {
         this.edit = descriptorVisitor.getEdit();
     }
 
-    public Command getCommand() {
-        return command;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
     public String getEdit() {
         return edit;
-    }
-
-    public List<CommandAlias> getAliases() {
-        return aliases;
-    }
-
-    public List<CommandEvent> getEvents() {
-        return events;
-    }
-
-    public List<CommandAlert> getAlerts() {
-        return alerts;
     }
 
     public void addTrigger(final Trigger trigger) {

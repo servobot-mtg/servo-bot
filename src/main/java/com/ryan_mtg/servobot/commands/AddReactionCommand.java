@@ -5,10 +5,12 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 public class AddReactionCommand extends MessageCommand {
     public static final int TYPE = 24;
 
+    @Getter
     private String emoteName;
 
     public AddReactionCommand(final int id, final int flags, final Permission permission, final String emoteName)
@@ -17,10 +19,6 @@ public class AddReactionCommand extends MessageCommand {
         this.emoteName = emoteName;
 
         Validation.validateStringLength(emoteName, Validation.MAX_EMOTE_LENGTH, "Emote name");
-    }
-
-    public String getEmoteName() {
-        return emoteName;
     }
 
     @Override

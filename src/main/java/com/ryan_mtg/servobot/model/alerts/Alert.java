@@ -1,21 +1,15 @@
 package com.ryan_mtg.servobot.model.alerts;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.time.Duration;
 
+@AllArgsConstructor
 public class Alert {
+    @Getter
     private Duration delay;
+
+    @Getter
     private String token;
-
-    public Alert(final Duration delay, final String token) {
-        this.delay = delay;
-        this.token = token;
-    }
-
-    public Duration getDelay() {
-        return delay;
-    }
-
-    public String getToken() {
-        return token;
-    }
 }

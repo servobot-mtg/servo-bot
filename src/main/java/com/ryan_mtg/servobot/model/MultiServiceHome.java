@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
+import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.Map;
 
 public class MultiServiceHome implements Home {
     private Map<Integer, ServiceHome> serviceHomes;
+
+    @Getter
     private HomeEditor homeEditor;
 
     public MultiServiceHome(final Map<Integer, ServiceHome> serviceHomes, final HomeEditor homeEditor) {
@@ -83,11 +86,6 @@ public class MultiServiceHome implements Home {
     @Override
     public User getUser(final HomedUser homedUser) {
         return null;
-    }
-
-    @Override
-    public HomeEditor getHomeEditor() {
-        return homeEditor;
     }
 
     @Override

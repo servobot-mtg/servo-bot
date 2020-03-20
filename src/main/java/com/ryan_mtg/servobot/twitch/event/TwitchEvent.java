@@ -6,41 +6,23 @@ import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 public abstract class TwitchEvent implements Event {
     @Getter(value = AccessLevel.PROTECTED)
     private TwitchClient client;
+
+    @Getter @Setter
     private BotEditor botEditor;
-    private int botHomeId;
+
+    @Getter
+    private int homeId;
+
+    @Getter @Setter
     private HomeEditor homeEditor;
 
-    public TwitchEvent(final TwitchClient client, final int botHomeId) {
+    public TwitchEvent(final TwitchClient client, final int homeId) {
         this.client = client;
-        this.botHomeId = botHomeId;
-    }
-
-    @Override
-    public BotEditor getBotEditor() {
-        return botEditor;
-    }
-
-    @Override
-    public void setBotEditor(final BotEditor botEditor) {
-        this.botEditor = botEditor;
-    }
-
-    @Override
-    public int getHomeId() {
-        return 0;
-    }
-
-    @Override
-    public HomeEditor getHomeEditor() {
-        return homeEditor;
-    }
-
-    @Override
-    public void setHomeEditor(final HomeEditor homeEditor) {
-        this.homeEditor = homeEditor;
+        this.homeId = homeId;
     }
 }

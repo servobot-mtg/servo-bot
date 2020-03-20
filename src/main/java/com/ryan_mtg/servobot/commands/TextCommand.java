@@ -4,10 +4,12 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 public class TextCommand extends MessageCommand {
     public static final int TYPE = 1;
 
+    @Getter
     private final String text;
 
     public TextCommand(final int id, final int flags, final Permission permission, final String text)
@@ -33,9 +35,5 @@ public class TextCommand extends MessageCommand {
     @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitTextCommand(this);
-    }
-
-    public String getText() {
-        return text;
     }
 }

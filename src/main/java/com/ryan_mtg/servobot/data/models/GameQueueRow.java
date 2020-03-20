@@ -2,6 +2,9 @@ package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.model.GameQueue;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,9 +16,11 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "game_queue")
+@Getter @Setter
 public class GameQueueRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     private int id;
 
     @Column(name = "bot_home_id")
@@ -29,40 +34,4 @@ public class GameQueueRow {
 
     @Column(name = "current_player_id")
     private int currentPlayerId;
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public GameQueue.State getState() {
-        return state;
-    }
-
-    public void setState(final GameQueue.State state) {
-        this.state = state;
-    }
-
-    public int getNext() {
-        return next;
-    }
-
-    public void setNext(final int next) {
-        this.next = next;
-    }
-
-    public int getCurrentPlayerId() {
-        return currentPlayerId;
-    }
-
-    public void setCurrentPlayerId(final int currentPlayerId) {
-        this.currentPlayerId = currentPlayerId;
-    }
 }

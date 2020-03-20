@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.model.parser;
 
+import lombok.Getter;
+
 public class Token {
     public enum Type {
         IDENTIFIER,
@@ -12,19 +14,14 @@ public class Token {
         MULTIPLY,
     }
 
+    @Getter
     private Type type;
+
+    @Getter
     private String lexeme;
 
     public Token(final Type type, final String lexeme) {
         this.type = type;
         this.lexeme = lexeme;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public String getLexeme() {
-        return lexeme;
     }
 }

@@ -1,6 +1,9 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,9 +15,11 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "home")
+@Getter @Setter
 public class BotHomeRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     private int id;
 
     @Column(name = "name")
@@ -28,32 +33,4 @@ public class BotHomeRow {
     @Column(name = "time_zone")
     @Size(max = Validation.MAX_TIME_ZONE_LENGTH)
     private String timeZone;
-
-    public int getId() {
-        return id;
-    }
-
-    public String getHomeName() {
-        return homeName;
-    }
-
-    public void setHomeName(final String homeName) {
-        this.homeName = homeName;
-    }
-
-    public String getBotName() {
-        return botName;
-    }
-
-    public void setBotName(final String botName) {
-        this.botName = botName;
-    }
-
-    public String getTimeZone() {
-        return timeZone;
-    }
-
-    public void setTimeZone(final String timeZone) {
-        this.timeZone = timeZone;
-    }
 }

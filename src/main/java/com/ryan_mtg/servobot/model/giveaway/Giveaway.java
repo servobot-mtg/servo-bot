@@ -172,21 +172,6 @@ public class Giveaway {
         throw new BotErrorException("There is no raffle currently in progress.");
     }
 
-
-    /*
-    public List<Reward> getRewards() {
-        return rewards;
-    }
-
-    public Reward getCurrentReward() {
-        return currentReward;
-    }
-
-    public void addReward(final Reward reward) {
-        rewards.add(reward);
-    }
-    */
-
     public GiveawayEdit start(final CommandTable commandTable) throws BotErrorException {
         GiveawayEdit giveawayEdit = new GiveawayEdit();
         switch (state) {

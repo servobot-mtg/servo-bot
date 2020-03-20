@@ -6,26 +6,20 @@ import com.ryan_mtg.servobot.events.AbstractHomedEvent;
 import com.ryan_mtg.servobot.events.UserEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
+import lombok.Getter;
 import net.dv8tion.jda.api.events.guild.member.GenericGuildMemberEvent;
 
 public class DiscordNewUserEvent extends AbstractHomedEvent implements UserEvent {
+    @Getter
     private Home home;
+
+    @Getter
     private User user;
 
     public DiscordNewUserEvent(final GenericGuildMemberEvent event, final int botHomeId, final User user) {
         super(botHomeId);
         this.home = new DiscordHome(event.getGuild(), getHomeEditor());
         this.user = user;
-    }
-
-    @Override
-    public User getUser() {
-        return user;
-    }
-
-    @Override
-    public Home getHome() {
-        return home;
     }
 
     @Override

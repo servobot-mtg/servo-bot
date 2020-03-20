@@ -15,29 +15,23 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "prize")
+@Getter @Setter
 public class PrizeRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter @Setter
     private int id;
 
     @Column(name = "giveaway_id")
-    @Getter @Setter
     private int giveawayId;
 
-    @Getter @Setter
     private Prize.Status status;
 
     @Size(max = Validation.MAX_TEXT_LENGTH)
-    @Getter @Setter
     private String reward;
 
     @Size(max = Validation.MAX_TEXT_LENGTH)
-    @Getter @Setter
     private String description;
 
     @Column(name = "winner_id")
-    @Getter @Setter
     private int winnerId;
 }
-

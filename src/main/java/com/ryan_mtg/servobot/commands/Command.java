@@ -10,6 +10,8 @@ import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.utility.Flags;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,26 +28,19 @@ public abstract class Command {
     public static final int ONLY_WHILE_STREAMING_FLAG = 1<<5;
     public static final int TEMPORARY_FLAG = 1<<10;
 
+    @Getter @Setter
     private int id;
+
+    @Getter
     private int flags;
+
+    @Getter @Setter
     private Permission permission;
 
     public Command(final int id, final int flags, final Permission permission) {
         this.id = id;
         this.flags = flags;
         this.permission = permission;
-    }
-
-    public final int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
-    }
-
-    public int getFlags() {
-        return flags;
     }
 
     public boolean isSecure() {
@@ -86,14 +81,6 @@ public abstract class Command {
 
     public void setOnlyWhileStreaming(final boolean isOnlyWhileStreaming) {
         setFlag(ONLY_WHILE_STREAMING_FLAG, isOnlyWhileStreaming);
-    }
-
-    public Permission getPermission() {
-        return permission;
-    }
-
-    public void setPermission(final Permission permission) {
-        this.permission = permission;
     }
 
     public abstract int getType();

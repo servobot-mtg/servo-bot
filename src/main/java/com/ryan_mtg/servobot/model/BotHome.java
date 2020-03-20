@@ -4,7 +4,6 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandListener;
-import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
@@ -19,6 +18,7 @@ import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -27,22 +27,52 @@ import java.util.Map;
 
 
 public class BotHome {
+    @Getter
     private int id;
+
+    @Getter
     private Bot bot;
+
+    @Getter
     private String name;
+
+    @Getter
     private String botName;
+
+    @Getter @Setter
     private String timeZone;
+
+    @Getter
     private Scope botHomeScope;
+
     @Getter
     private HomedUserTable homedUserTable;
+
+    @Getter
     private CommandTable commandTable;
+
+    @Getter
     private ReactionTable reactionTable;
+
+    @Getter
     private StorageTable storageTable;
+
+    @Getter
     private Map<Integer, ServiceHome> serviceHomes;
+
+    @Getter
     private List<Book> books;
+
+    @Getter
     private List<GameQueue> gameQueues;
+
+    @Getter
     private List<Giveaway> giveaways;
+
+    @Getter
     private boolean active = false;
+
+    @Getter
     private MultiDelegatingListener eventListener;
 
     public BotHome(final int id, final String name, final String botName, final String timeZone,
@@ -73,14 +103,6 @@ public class BotHome {
                 new MultiDelegatingListener(new CommandListener(commandTable), new ReactionListener(reactionTable));
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public Bot getBot() {
-        return bot;
-    }
-
     public void setBot(final Bot bot) {
         this.bot = bot;
         if (bot == null) {
@@ -90,77 +112,21 @@ public class BotHome {
         }
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getBotName() {
-        return botName;
+    public void setBotName(final String botName) {
+        this.botName = botName;
+        getServiceHome(DiscordService.TYPE).setName(botName);
     }
 
     public String getImageUrl() {
         return getServiceHome(TwitchService.TYPE).getImageUrl();
     }
 
-    public void setBotName(final String botName) {
-        this.botName = botName;
-        getServiceHome(DiscordService.TYPE).setName(botName);
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public String getTimeZone() {
-        return timeZone;
-    }
-
-    public void setTimeZone(final String timeZone) {
-        this.timeZone = timeZone;
-    }
-
-    public Scope getBotHomeScope() {
-        return botHomeScope;
-    }
-
-    public CommandTable getCommandTable() {
-        return commandTable;
-    }
-
-    public ReactionTable getReactionTable() {
-        return reactionTable;
-    }
-
-    public StorageTable getStorageTable() {
-        return storageTable;
-    }
-
-    public EventListener getListener() {
-        return eventListener;
-    }
-
-    public Map<Integer, ServiceHome> getServiceHomes() {
-        return serviceHomes;
-    }
-
     public ServiceHome getServiceHome(final int serviceType) {
         return serviceHomes.get(serviceType);
     }
 
-    public List<Book> getBooks() {
-        return books;
-    }
-
     public List<AlertGenerator> getAlertGenerators() {
         return commandTable.getAlertGenerators();
-    }
-
-    public List<GameQueue> getGameQueues() {
-        return gameQueues;
-    }
-
-    public List<Giveaway> getGiveaways() {
-        return giveaways;
     }
 
     public Giveaway getGiveaway(final int giveawayId) {

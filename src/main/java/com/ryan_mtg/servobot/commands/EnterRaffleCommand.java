@@ -10,6 +10,7 @@ public class EnterRaffleCommand extends MessageCommand {
 
     @Getter
     private int giveawayId;
+
     @Getter
     private String response;
 

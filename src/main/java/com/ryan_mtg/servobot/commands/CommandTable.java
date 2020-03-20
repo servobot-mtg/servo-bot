@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,8 @@ public class CommandTable {
 
     private Map<Trigger, Command> triggerCommandMap = new IdentityHashMap<>();
     private Map<Command, List<Trigger>> reverseTriggerMap = new HashMap<>();
+
+    @Getter
     private List<Trigger> triggers = new ArrayList<>();
 
     private Map<String, Command> commandMap = new HashMap<>();
@@ -38,10 +41,6 @@ public class CommandTable {
 
     public Set<Command> getCommands() {
         return reverseTriggerMap.keySet();
-    }
-
-    public List<Trigger> getTriggers() {
-        return triggers;
     }
 
     public Command getCommand(final Trigger trigger) {

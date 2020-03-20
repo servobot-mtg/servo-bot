@@ -6,11 +6,18 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 public class JailCommand extends MessageCommand {
     public static final int TYPE = 25;
+
+    @Getter
     private String prisonRole;
+
+    @Getter
     private int threshold;
+
+    @Getter
     private String variableName;
 
     public JailCommand(final int id, final int flags, final Permission permission, final String prisonRole,
@@ -22,18 +29,6 @@ public class JailCommand extends MessageCommand {
 
         Validation.validateStringLength(prisonRole, Validation.MAX_ROLE_LENGTH, "Prison role");
         Validation.validateStringLength(variableName, Validation.MAX_STORAGE_NAME_LENGTH, "Threshold variable name");
-    }
-
-    public String getPrisonRole() {
-        return prisonRole;
-    }
-
-    public int getThreshold() {
-        return threshold;
-    }
-
-    public String getVariableName() {
-        return variableName;
     }
 
     @Override

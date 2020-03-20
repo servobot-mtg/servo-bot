@@ -6,10 +6,15 @@ import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 public class SetUsersRoleCommand extends MessageCommand {
     public static final int TYPE = 27;
+
+    @Getter
     private String role;
+
+    @Getter
     private String message;
 
     public SetUsersRoleCommand(final  int id, final int flags, final Permission permission, final String role,
@@ -20,14 +25,6 @@ public class SetUsersRoleCommand extends MessageCommand {
         this.message = message;
 
         Validation.validateStringLength(role, Validation.MAX_ROLE_LENGTH, "Role");
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     @Override

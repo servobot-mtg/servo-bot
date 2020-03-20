@@ -2,9 +2,12 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
+import lombok.Getter;
 
 public class ShowGameQueueCommand extends MessageCommand {
     public static final int TYPE = 9;
+
+    @Getter
     private int gameQueueId;
 
     public ShowGameQueueCommand(final int id, final int flags, final Permission permission,
@@ -22,10 +25,6 @@ public class ShowGameQueueCommand extends MessageCommand {
     @Override
     public int getType() {
         return TYPE;
-    }
-
-    public int getGameQueueId() {
-        return gameQueueId;
     }
 
     @Override

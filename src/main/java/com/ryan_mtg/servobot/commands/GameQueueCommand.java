@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.user.User;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,7 @@ public class GameQueueCommand extends MessageCommand {
 
     private static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
 
+    @Getter
     private int gameQueueId;
 
     public GameQueueCommand(final int id, final int flags, final Permission permission, final int gameQueueId) {
@@ -22,10 +24,6 @@ public class GameQueueCommand extends MessageCommand {
     @Override
     public int getType() {
         return TYPE;
-    }
-
-    public int getGameQueueId() {
-        return gameQueueId;
     }
 
     @Override

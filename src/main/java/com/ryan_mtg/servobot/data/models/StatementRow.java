@@ -1,6 +1,10 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,6 +15,9 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "statement")
+@Getter @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class StatementRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,24 +27,4 @@ public class StatementRow {
 
     @Size(max = Validation.MAX_STATEMENT_LENGTH)
     private String text;
-
-    public StatementRow() {}
-
-    public StatementRow(final int id, final int bookId, final String text) {
-        this.id = id;
-        this.bookId = bookId;
-        this.text = text;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getBookId() {
-        return bookId;
-    }
-
-    public String getText() {
-        return text;
-    }
 }

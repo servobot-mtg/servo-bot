@@ -3,9 +3,12 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.User;
+import lombok.Getter;
 
 public class RemoveFromGameQueueCommand extends MessageCommand {
     public static final int TYPE = 10;
+
+    @Getter
     private int gameQueueId;
 
     public RemoveFromGameQueueCommand(final int id, final int flags, final Permission permission,
@@ -24,10 +27,6 @@ public class RemoveFromGameQueueCommand extends MessageCommand {
     @Override
     public int getType() {
         return TYPE;
-    }
-
-    public int getGameQueueId() {
-        return gameQueueId;
     }
 
     @Override

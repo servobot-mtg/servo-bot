@@ -1,11 +1,14 @@
 package com.ryan_mtg.servobot.twitch.model;
 
+import lombok.Getter;
+
 public class TwitchUserStatus {
     private static final int MOD_BIT = 1;
     private static final int SUB_BIT = 2;
     private static final int VIP_BIT = 4;
     private static final int STREAMER_BIT = 8;
 
+    @Getter
     private int state;
 
     public TwitchUserStatus(final int state) {
@@ -45,9 +48,5 @@ public class TwitchUserStatus {
 
     public boolean isStreamer() {
         return (state & STREAMER_BIT) != 0;
-    }
-
-    public int getState() {
-        return state;
     }
 }

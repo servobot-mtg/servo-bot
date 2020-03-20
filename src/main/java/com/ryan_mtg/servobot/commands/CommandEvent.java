@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
 public class CommandEvent extends Trigger{
@@ -12,6 +14,7 @@ public class CommandEvent extends Trigger{
         SUBSCRIBE,
     }
 
+    @Getter
     private Type eventType;
 
     public CommandEvent(final int id, final Type eventType) {
@@ -27,10 +30,6 @@ public class CommandEvent extends Trigger{
     @Override
     public void acceptVisitor(final TriggerVisitor triggerVisitor) {
         triggerVisitor.visitCommandEvent(this);
-    }
-
-    public Type getEventType() {
-        return eventType;
     }
 
     @Override

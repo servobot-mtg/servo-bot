@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,11 +30,8 @@ public class AdministrationApiController {
     }
 
     public static class UserRequest {
+        @Getter
         private int userId;
-
-        public int  getUserId() {
-            return userId;
-        }
     }
 
     @PostMapping(value = "/merge_users", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -43,11 +41,8 @@ public class AdministrationApiController {
     }
 
     public static class MergeUsersRequest {
+        @Getter
         private List<Integer> userIds;
-
-        public List<Integer> getUserIds() {
-            return userIds;
-        }
     }
 
     @PostMapping(value = "/delete_arena_username", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -58,10 +53,7 @@ public class AdministrationApiController {
     }
 
     public static class DeleteArenaUsernameRequest {
+        @Getter
         private int userId;
-
-        public int getUserId() {
-            return userId;
-        }
     }
 }

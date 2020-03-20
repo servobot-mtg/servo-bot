@@ -6,11 +6,18 @@ import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 public class MessageChannelCommand extends HomeCommand {
     public static final int TYPE = 4;
+
+    @Getter
     private final int serviceType;
+
+    @Getter
     private final String channelName;
+
+    @Getter
     private final String message;
 
     public MessageChannelCommand(final int id, final int flags, final Permission permission,
@@ -41,17 +48,5 @@ public class MessageChannelCommand extends HomeCommand {
     @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
         commandVisitor.visitMessageChannelCommand(this);
-    }
-
-    public int getServiceType() {
-        return serviceType;
-    }
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }

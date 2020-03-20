@@ -68,9 +68,9 @@ public class ServiceSerializer {
     public ServiceHome createServiceHome(final ServiceHomeRow serviceHomeRow, final Service service) {
         switch (serviceHomeRow.getServiceType()) {
             case DiscordService.TYPE:
-                return new DiscordServiceHome((DiscordService) service, serviceHomeRow.getLong());
+                return new DiscordServiceHome((DiscordService) service, serviceHomeRow.getLongValue());
             case TwitchService.TYPE:
-                return new TwitchServiceHome((TwitchService) service, serviceHomeRow.getLong());
+                return new TwitchServiceHome((TwitchService) service, serviceHomeRow.getLongValue());
         }
         throw new IllegalArgumentException("Unknown ServiceHome type: " + serviceHomeRow.getServiceType());
     }

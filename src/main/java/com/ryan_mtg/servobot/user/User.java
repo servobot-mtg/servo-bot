@@ -12,14 +12,24 @@ public class User {
     private static final int ADMIN_FLAG = 1;
     private static final int INVITE_FLAG = 1<<1;
 
+    @Getter
     private int id;
+
+    @Getter
     private int flags;
+
+    @Getter
     private int twitchId;
+
+    @Getter
     private long discordId;
+
     @Getter @Setter
     private String twitchUsername;
+
     @Getter @Setter
     private String discordUsername;
+
     @Getter @Setter
     private String arenaUsername;
 
@@ -38,24 +48,8 @@ public class User {
         Validation.validateStringLength(arenaUsername, Validation.MAX_USERNAME_LENGTH, "Arena username");
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getFlags() {
-        return flags;
-    }
-
     public boolean isAdmin() {
         return Flags.hasFlag(flags, ADMIN_FLAG);
-    }
-
-    public int getTwitchId() {
-        return twitchId;
-    }
-
-    public long getDiscordId() {
-        return discordId;
     }
 
     public String getName() {
