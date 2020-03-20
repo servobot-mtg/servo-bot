@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.security;
 
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -88,10 +87,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
             .antMatchers("/admin**", "/admin/**", "/script/admin.js").access("hasRole('ADMIN')")
-            .antMatchers("/script/privledged.js").access("isPriviledged()")
+            .antMatchers("/script/privileged.js").access("isPrivileged()")
             .antMatchers("/script/invite.js").access("isInvited()")
             .antMatchers("/home/{home}").permitAll()
-            .antMatchers("/home/{home}/**").access("isPriviledged(#home)")
+            .antMatchers("/home/{home}/**").access("isPrivileged(#home)")
             .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home").permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager())
@@ -142,17 +141,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             this.websiteUser = websiteUser;
         }
 
-        public boolean isPriviledged() {
-            return websiteUser.isPrivledged();
+        public boolean isPrivileged() {
+            return websiteUser.isPrivileged();
         }
 
         public boolean isInvited() {
             return websiteUser.hasInvite();
         }
 
-        public boolean isPriviledged(final String botHomeName) {
+        public boolean isPrivileged(final String botHomeName) {
             BotHome botHome = botRegistrar.getBotHome(botHomeName);
-            return websiteUser.isPrivledged(botHome);
+            return websiteUser.isPrivileged(botHome);
         }
     }
 

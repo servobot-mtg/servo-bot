@@ -71,7 +71,7 @@ public class WebsiteUser implements Principal {
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
 
-    public boolean isPrivledged() {
+    public boolean isPrivileged() {
         if (oAuth2AuthenticationToken == null || !oAuth2AuthenticationToken.isAuthenticated()) {
             return false;
         }
@@ -91,7 +91,7 @@ public class WebsiteUser implements Principal {
         return false;
     }
 
-    public boolean isPrivledged(final BotHome botHome) {
+    public boolean isPrivileged(final BotHome botHome) {
         if (oAuth2AuthenticationToken == null || !oAuth2AuthenticationToken.isAuthenticated()) {
             return false;
         }

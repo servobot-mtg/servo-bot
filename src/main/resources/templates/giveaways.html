@@ -4,15 +4,15 @@
     <title>Giveaways</title>
     <div th:include="fragments :: includes" />
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
-            type="text/javascript" src="/script/privledged.js"></script>
+            type="text/javascript" src="/script/privileged.js"></script>
     <script type="text/javascript" src="/script/giveaway.js"></script>
 </head>
-<body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
+<body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
       streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
       exalted=${user.admin || streamer}">
 <div th:include="fragments :: header" />
 <div class="content">
-    <div th:if="${privledged}">
+    <div th:if="${privileged}">
         <h2>Giveaways</h2>
         <th:block th:each="giveaway : ${botHome.giveaways}" th:with="label=${'giveaway-' + giveaway.id},
                     CONF=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).CONFIGURING},

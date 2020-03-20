@@ -57,26 +57,26 @@
         <h2>Commands</h2>
         <table id="command-table" class="data-table">
             <thead><tr>
-                <th th:if="${privledged}">Id</th>
+                <th th:if="${privileged}">Id</th>
                 <th>Type</th>
                 <th>Description</th>
                 <th>Triggers</th>
                 <th>Options</th>
                 <th>Permissions</th>
-                <th th:if="${privledged}">Delete</th>
+                <th th:if="${privileged}">Delete</th>
             </tr></thead>
             <th:block th:each="descriptor : ${commandDescriptors}" th:with="command=${descriptor.command}">
-                <tr th:if="${!command.secure || privledged}" th:with="label=${'command-' + command.id}"
+                <tr th:if="${!command.secure || privileged}" th:with="label=${'command-' + command.id}"
                     th:id="${label + '-row'}" th:classappend="${command.secure ? 'secure ' : ''}">
 
-                    <td th:if="${privledged}" th:text="${command.id}"/>
+                    <td th:if="${privileged}" th:text="${command.id}"/>
                     <td th:text="${descriptor.type}"/>
                     <td th:text="${descriptor.description}"/>
                     <td>
                         <span th:id="'alias-triggers-' + ${command.id}">
                             <th:block th:each="alias : ${descriptor.aliases}">
-                                <span th:if="${!privledged}" class="alias-label label" th:text="${alias.alias}"/>
-                                <table th:if="${privledged}" class="alias-label label label-table"
+                                <span th:if="${!privileged}" class="alias-label label" th:text="${alias.alias}"/>
+                                <table th:if="${privileged}" class="alias-label label label-table"
                                        th:id="${'trigger-' + alias.id}">
                                     <tr>
                                         <td th:text="${alias.alias}"/>
@@ -89,8 +89,8 @@
 
                         <span th:id="'event-triggers-' + ${command.id}">
                             <th:block th:each="event : ${descriptor.events}">
-                                <span th:if="${!privledged}" class="event-label label" th:text="${event.eventType}"/>
-                                <table th:if="${privledged}" class="event-label label label-table"
+                                <span th:if="${!privileged}" class="event-label label" th:text="${event.eventType}"/>
+                                <table th:if="${privileged}" class="event-label label label-table"
                                        th:id="${'trigger-' + event.id}">
                                     <tr>
                                         <td th:text="${event.eventType}"/>
@@ -103,8 +103,8 @@
 
                         <span th:id="'alert-triggers-' + ${command.id}">
                             <th:block th:each="alert : ${descriptor.alerts}">
-                                <span th:if="${!privledged}" class="alert-label label" th:text="${alert.alertToken}"/>
-                                <table th:if="${privledged}" class="alert-label label label-table"
+                                <span th:if="${!privileged}" class="alert-label label" th:text="${alert.alertToken}"/>
+                                <table th:if="${privileged}" class="alert-label label label-table"
                                        th:id="${'trigger-' + alert.id}">
                                     <tr>
                                         <td th:text="${alert.alertToken}"/>
@@ -116,7 +116,7 @@
                         </span>
 
                         <span class="add-trigger" th:with="label=${'add-trigger-' + command.id}">
-                            <div th:if="${privledged}" th:id="${label} + '-button'" class="pseudo-link add-button"
+                            <div th:if="${privileged}" th:id="${label} + '-button'" class="pseudo-link add-button"
                                  th:onclick="'showAddTriggerForm(' + ${command.id} + ')'" title="Add a trigger">
                                 +
                             </div>
@@ -141,40 +141,40 @@
                     </td>
 
                     <td class="icon-cell">
-                        <span th:id="${label} + '-secured'" th:if="${privledged}" class="pseudo-link"
+                        <span th:id="${label} + '-secured'" th:if="${privileged}" class="pseudo-link"
                               th:onclick="'secureCommand(' + ${botHome.id} + ', ' + ${command.id} + ')'"
                               th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
                         <span th:id="${label} + '-secure-response'"/>
 
-                        <span th:id="${label} + '-while-streaming'" th:if="${privledged}" class="pseudo-link"
+                        <span th:id="${label} + '-while-streaming'" th:if="${privileged}" class="pseudo-link"
                               th:onclick="'setOnlyWhileStreaming(' + ${botHome.id} + ', ' + ${command.id} + ')'"
                               th:title="${command.onlyWhileStreaming ? 'Allow only while streaming' : 'Allow anytime'}"
                               th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"/>
                         <span th:id="${label} + '-while-streaming-response'"/>
-                        <span th:if="${!privledged}" class="icon"
+                        <span th:if="${!privileged}" class="icon"
                               th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"/>
 
-                        <span th:id="${label} + '-twitch'" th:if="${privledged}" class="pseudo-link"
+                        <span th:id="${label} + '-twitch'" th:if="${privileged}" class="pseudo-link"
                               th:onclick="'toggleCommandTwitch(' + ${botHome.id} + ', ' + ${command.id} + ')'">
                             <img th:id="${label} + '-twitch-img'" class="icon" title="Toggle Twitch use"
                                  th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
                             <span th:id="${label} + '-twitch-response'"/>
                         </span>
-                        <img th:if="${!privledged}" class="icon"
+                        <img th:if="${!privileged}" class="icon"
                              th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
 
-                        <span th:id="${label} + '-discord'" th:if="${privledged}" class="pseudo-link"
+                        <span th:id="${label} + '-discord'" th:if="${privileged}" class="pseudo-link"
                               th:onclick="'toggleCommandDiscord(' + ${botHome.id} + ', ' + ${command.id} + ')'">
                             <img th:id="${label} + '-discord-img'" class="icon" title="Toggle Discord use"
                                  th:src="${command.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
                             <span th:id="${label} + '-discord-response'"></span>
                         </span>
-                        <img th:if="${!privledged}" class="icon"
+                        <img th:if="${!privileged}" class="icon"
                              th:src="${command.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
                     </td>
 
-                    <td th:if="${!privledged}" th:text="${command.permission}"></td>
-                    <td th:if="${privledged}">
+                    <td th:if="${!privileged}" th:text="${command.permission}"></td>
+                    <td th:if="${privileged}">
                         <select th:onchange="'updateCommandPermission(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
                             <th:block th:each="permission : ${permissions}">
                                 <option th:value="${permission}" th:text="${permission}"
@@ -184,7 +184,7 @@
                         <span th:id="${label}+ '-permission-updated'"/>
                     </td>
 
-                    <td th:if="${privledged}" class="pseudo-link"
+                    <td th:if="${privileged}" class="pseudo-link"
                         th:onclick="'deleteCommand(' + ${botHome.id} + ',' + ${command.id} + ')'">
                         &#x1F5D1;&#xFE0F;
                     </td>
@@ -192,7 +192,7 @@
             </th:block>
         </table>
 
-        <div th:if="${privledged}" class="add-command">
+        <div th:if="${privileged}" class="add-command">
             <div id="add-command-button" class="pseudo-link add-button" onclick="showAddCommandForm()"
                  title="Add a command">+</div>
             <form id="add-command-form" class="add-form hidden"
@@ -307,18 +307,18 @@
             <thead><tr>
                 <th>Emoji</th>
                 <th>Reaction Trigger Words</th>
-                <th th:if="${privledged}">Secure</th>
-                <th th:if="${privledged}">Delete</th>
+                <th th:if="${privileged}">Secure</th>
+                <th th:if="${privileged}">Delete</th>
             </tr></thead>
             <th:block th:each="reaction : ${botHome.reactionTable.reactions}">
-                <tr th:if="${!reaction.secure || privledged}" th:with="label=${'reaction-' + reaction.id}"
+                <tr th:if="${!reaction.secure || privileged}" th:with="label=${'reaction-' + reaction.id}"
                     th:classappend="${reaction.secure ? 'secure ' : ' '}" th:id="${label + '-row'}">
                     <td th:text="${reaction.emoteName}"/>
                     <td>
                         <span th:id="'patterns-' + ${reaction.id}">
                             <th:block th:each="pattern : ${reaction.patterns}">
-                                <span th:if="${!privledged}" class="pattern-label label" th:text="${pattern.patternString}"/>
-                                <table th:if="${privledged}" class="pattern-label label label-table"
+                                <span th:if="${!privileged}" class="pattern-label label" th:text="${pattern.patternString}"/>
+                                <table th:if="${privileged}" class="pattern-label label label-table"
                                        th:id="${'pattern-' + pattern.id}">
                                     <tr>
                                         <td th:text="${pattern.patternString}"/>
@@ -331,7 +331,7 @@
                         </span>
 
                         <span class="add-pattern" th:with="label=${'add-pattern-' + reaction.id}">
-                            <div th:if="${privledged}" th:id="${label} + '-button'" class="pseudo-link add-button"
+                            <div th:if="${privileged}" th:id="${label} + '-button'" class="pseudo-link add-button"
                                  th:onclick="'showAddPatternForm(' + ${reaction.id} + ')'" title="Add a pattern">
                                 +
                             </div>
@@ -343,14 +343,14 @@
                         </span>
                     </td>
 
-                    <td th:if="${privledged}" th:attr="data-label=${label}" class="pseudo-link"
+                    <td th:if="${privileged}" th:attr="data-label=${label}" class="pseudo-link"
                         th:onclick="'secureReaction(' + ${botHome.id} + ', ' + ${reaction.id} + ')'">
                             <span th:class="${label} + '-secured'"
                                   th:text="${reaction.secure ? '&#x1F512;' : '&#x1F511;'}"/>
                         <span th:class="${label} + '-secure-response'"/>
                     </td>
 
-                    <td th:if="${privledged}" class="pseudo-link"
+                    <td th:if="${privileged}" class="pseudo-link"
                         th:onclick="'deleteReaction(' + ${botHome.id} + ',' + ${reaction.id} + ')'">
                         &#x1F5D1;&#xFE0F;
                     </td>
@@ -358,7 +358,7 @@
             </th:block>
         </table>
 
-        <div th:if="${privledged && !emotes.empty}" class="add-reaction">
+        <div th:if="${privileged && !emotes.empty}" class="add-reaction">
             <div id="add-reaction-button" class="pseudo-link add-button" onclick="showAddReactionForm()"
                  title="Add a reaction">+</div>
             <form id="add-reaction-form" class="add-form hidden"
@@ -387,8 +387,8 @@
             <thead><tr>
                 <th>Keyword</th>
                 <th>Alert Description</th>
-                <th th:if="${privledged}">Trigger</th>
-                <th th:if="${privledged}">Delete</th>
+                <th th:if="${privileged}">Trigger</th>
+                <th th:if="${privileged}">Delete</th>
             </tr></thead>
             <th:block th:each="alert : ${botHome.alertGenerators}">
                 <tr th:id="'alert-' + ${alert.id} + '-row'">
@@ -396,19 +396,19 @@
                         <span th:text="${alert.alertToken}"/>
                     </td>
                     <td th:text="${alert.description}"/>
-                    <td th:if="${privledged}" class="pseudo-link" th:attr="data-alert-token=${alert.alertToken}"
+                    <td th:if="${privileged}" class="pseudo-link" th:attr="data-alert-token=${alert.alertToken}"
                         th:onclick="'triggerAlert(event, ' + ${botHome.id} + ',' + ${alert.id} + ')'">
                         &#x1F6CE;&#xFE0F;
                         <span th:id="'trigger-' + ${alert.id} + '-alert-response'"></span>
                     </td>
-                    <td th:if="${privledged}" class="pseudo-link"
+                    <td th:if="${privileged}" class="pseudo-link"
                         th:onclick="'deleteAlert(' + ${botHome.id} + ',' + ${alert.id} + ')'">
                         &#x1F5D1;&#xFE0F;
                     </td>
                 </tr>
             </th:block>
         </table>
-        <div th:if="${privledged && !emotes.empty}" class="add-alert">
+        <div th:if="${privileged && !emotes.empty}" class="add-alert">
             <div id="add-alert-button" class="pseudo-link add-button" onclick="showAddAlertForm()"
                  title="Add an alert">+</div>
             <form id="add-alert-form" class="add-form hidden"

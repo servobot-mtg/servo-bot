@@ -4,13 +4,13 @@
     <title>Bot home</title>
     <div th:include="fragments :: includes" />
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
-            type="text/javascript" src="/script/privledged.js"></script>
+            type="text/javascript" src="/script/privileged.js"></script>
 </head>
-<body th:with="privledged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}">
+<body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}">
     <div th:include="fragments :: header" />
     <div class="content">
         <h1 th:text="'Channel ' + ${botHome.name}" />
-        <div th:if="${privledged}">
+        <div th:if="${privileged}">
             <h2>Links</h2>
             <ul>
                 <li><a th:href="'/home/' + ${botHome.name} + '/hub'">Moderation Hub</a></li>

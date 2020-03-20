@@ -242,7 +242,7 @@ public class BotController {
 
     private boolean isPrivledged(final Model model, final BotHome botHome) {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
-        return websiteUser.isPrivledged(botHome);
+        return websiteUser.isPrivileged(botHome);
     }
 
     private class CommandDescriptorIdComparer implements Comparator<CommandDescriptor> {
