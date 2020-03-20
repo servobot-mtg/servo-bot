@@ -12,10 +12,14 @@ public interface Home {
     boolean isStreaming();
 
     String getRole(User user, int serviceType);
+    boolean hasRole(User user, String role);
+    void clearRole(User user, String role) throws BotErrorException;
     void setRole(User user, String role) throws BotErrorException;
-    void setRole(String username, String role) throws BotErrorException;
+
     List<String> clearRole(String role) throws BotErrorException;
-    boolean isHigherRanked(String userName, User sender) throws BotErrorException;
+    boolean isHigherRanked(User user, User otherUser) throws BotErrorException;
+
+    User getUser(String userName) throws BotErrorException;
 
     Emote getEmote(String emoteName);
 

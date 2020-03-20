@@ -104,6 +104,14 @@ public class HomeEditor {
         botHomeRepository.save(botHomeRow);
     }
 
+    public HomedUser getUserByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
+        return botHome.getHomedUserTable().getByDiscordId(discordId, discordUsername);
+    }
+
+    public HomedUser getUserByTwitchId(final int twitchId, final String twitchUsername) throws BotErrorException {
+        return botHome.getHomedUserTable().getByTwitchId(twitchId, twitchUsername);
+    }
+
     @Transactional(rollbackOn = BotErrorException.class)
     public boolean secureCommand(final int commandId, final boolean secure) {
         Command command = botHome.getCommandTable().secureCommand(commandId, secure);

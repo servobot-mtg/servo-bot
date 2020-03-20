@@ -495,7 +495,6 @@ function addCommand(botHomeId) {
 }
 
 async function postAddCommand(parameters) {
-    console.log(parameters);
     let response = await makePost('/api/add_command', parameters, [], false);
 
     if (response.ok) {
@@ -542,6 +541,8 @@ const commandData = [
             {id: 'text-2', name: 'Variable Name'}]}, //26
     {name: 'Set User Role Command', parameters: [{id: 'role', name: 'Role Name'},
             {id: 'text-2', name: 'Response message'}]}, //27
+    {}, //28, Prize Request Command
+    {name: 'Jail Release Command', parameters: [{id: 'role', name: 'Role Name'}]}, //29
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

@@ -73,37 +73,25 @@ public class DiscordHome implements Home {
     }
 
     @Override
-    public void setRole(final User user, final String roleName) throws BotErrorException {
-        long discordId = user.getHomedUser().getDiscordId();
-        if (discordId == 0) {
-            throw new BotErrorException("User is not registered on Discord.");
-        }
-        Member member = guild.getMemberById(discordId);
-        List<Role> roles = guild.getRolesByName(roleName, false);
-        if (roles.isEmpty()) {
-            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
-        }
-        guild.addRoleToMember(member, roles.get(0)).queue();
+    public boolean hasRole(final User user, final String roleName) {
+        Member member = getMember(user);
+        return member.getRoles().stream().anyMatch(role -> role.getName().equals(roleName));
     }
 
     @Override
-    public void setRole(final String username, final String roleName) throws BotErrorException {
-        Member member = getMember(username);
-        List<Role> roles = guild.getRolesByName(roleName, false);
-        if (roles.isEmpty()) {
-            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
-        }
-        guild.addRoleToMember(member, roles.get(0)).queue();
+    public void clearRole(final User user, final String roleName) throws BotErrorException {
+        Member member = getMember(user);
+        guild.removeRoleFromMember(member, getRole(roleName)).queue();
+    }
+
+    @Override
+    public void setRole(final User user, final String roleName) throws BotErrorException {
+        guild.addRoleToMember(getMember(user), getRole(roleName)).queue();
     }
 
     @Override
     public List<String> clearRole(final String roleName) throws BotErrorException {
-        List<Role> roles = guild.getRolesByName(roleName, false);
-        if (roles.isEmpty()) {
-            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
-        }
-
-        Role role = roles.get(0);
+        Role role = getRole(roleName);
         List<Member> members = guild.getMembersWithRoles(role);
         List<String> names = new ArrayList<>();
         for (Member member : members) {
@@ -114,10 +102,17 @@ public class DiscordHome implements Home {
     }
 
     @Override
-    public boolean isHigherRanked(final String firstUserName, final User secondUser) throws BotErrorException {
-        Member firstMember = getMember(firstUserName);
-        Member secondMember = ((DiscordUser)secondUser).getMember();
+    public boolean isHigherRanked(final User firstUser, final User secondUser) {
+        Member firstMember = getMember(firstUser);
+        Member secondMember = getMember(secondUser);
         return getPosition(firstMember) > getPosition(secondMember);
+    }
+
+    @Override
+    public User getUser(final String userName) throws BotErrorException {
+        Member member = getMember(userName);
+        HomedUser homedUser = getHomeEditor().getUserByDiscordId(member.getIdLong(), member.getEffectiveName());
+        return new DiscordUser(homedUser , member);
     }
 
     @Override
@@ -175,6 +170,14 @@ public class DiscordHome implements Home {
     }
 
     private Member getMember(final String username) throws BotErrorException {
+        if (username == null) {
+            throw new BotErrorException("No one specified.");
+        }
+
+        if (username.startsWith("@")) {
+            return getMember(username.substring(1));
+        }
+
         List<Member> members = guild.getMembersByEffectiveName(username, true);
         if (members.isEmpty()) {
             throw new BotErrorException(String.format("No user named '%s'.", username));
@@ -190,5 +193,17 @@ public class DiscordHome implements Home {
             }
         }
         return position;
+    }
+
+    private Role getRole(final String roleName) throws BotErrorException {
+        List<Role> roles = guild.getRolesByName(roleName, false);
+        if (roles.isEmpty()) {
+            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
+        }
+        return roles.get(0);
+    }
+
+    private Member getMember(final User user) {
+        return ((DiscordUser)user).getMember();
     }
 }

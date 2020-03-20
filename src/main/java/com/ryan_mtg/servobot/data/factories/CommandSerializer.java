@@ -11,11 +11,12 @@ import com.ryan_mtg.servobot.commands.DeleteCommand;
 import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
-import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.JailBreakCommand;
 import com.ryan_mtg.servobot.commands.JailCommand;
+import com.ryan_mtg.servobot.commands.JailReleaseCommand;
 import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.RequestPrizeCommand;
 import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
@@ -98,13 +99,15 @@ public class CommandSerializer {
             case GameQueueCommand.TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new GameQueueCommand(id, flags, permission, gameQueueId);
-            case JailCommand.TYPE:
-                int jailThreshold = (int) (long) commandRow.getLongParameter();
-                return new JailCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()), jailThreshold,
-                        commandRow.getStringParameter2().trim());
             case JailBreakCommand.TYPE:
                 return new JailBreakCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()),
                         Strings.trim(commandRow.getStringParameter2()));
+            case JailCommand.TYPE:
+                int jailThreshold = (int) (long) commandRow.getLongParameter();
+                return new JailCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()),
+                        jailThreshold, commandRow.getStringParameter2().trim());
+            case JailReleaseCommand.TYPE:
+                return new JailReleaseCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()));
             case JoinGameQueueCommand.TYPE:
                 gameQueueId = (int) (long) commandRow.getLongParameter();
                 return new JoinGameQueueCommand(id, flags, permission, gameQueueId);
@@ -311,6 +314,13 @@ public class CommandSerializer {
             saveCommand(jailBreakCommand, commandRow -> {
                 commandRow.setStringParameter(jailBreakCommand.getPrisonRole());
                 commandRow.setStringParameter2(jailBreakCommand.getVariableName());
+            });
+        }
+
+        @Override
+        public void visitJailReleaseCommand(final JailReleaseCommand jailReleaseCommand) {
+            saveCommand(jailReleaseCommand, commandRow -> {
+                commandRow.setStringParameter(jailReleaseCommand.getPrisonRole());
             });
         }
 

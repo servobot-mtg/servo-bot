@@ -86,7 +86,13 @@ public class HomedUserTable {
     }
 
     public HomedUser getByDiscordId(final long discordId, final String discordUsername,
-            final DiscordUserStatus discordUserStatus) throws BotErrorException {
+                                    final DiscordUserStatus discordUserStatus) throws BotErrorException {
+        HomedUser homedUser = getByDiscordId(discordId, discordUsername);
+        updateStatus(homedUser, userStatus -> userStatus.merge(discordUserStatus));
+        return homedUser;
+    }
+
+    public HomedUser getByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
         HomedUser homedUser = findUser(user -> user.getDiscordId() == discordId);
         if (homedUser != null) {
             if (!discordUsername.equals(homedUser.getDiscordUsername())) {
@@ -96,7 +102,6 @@ public class HomedUserTable {
             User user = userTable.getByDiscordId(discordId, discordUsername);
             homedUser = store(userSerializer.lookup(botHomeId, user));
         }
-        updateStatus(homedUser, userStatus -> userStatus.merge(discordUserStatus));
         return homedUser;
     }
 

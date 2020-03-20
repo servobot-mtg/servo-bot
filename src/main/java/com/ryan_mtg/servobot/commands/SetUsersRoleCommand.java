@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 
@@ -32,26 +33,18 @@ public class SetUsersRoleCommand extends MessageCommand {
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
         Home home = event.getHome();
+        User user = home.getUser(arguments);
 
-        String userName = arguments;
-        if (userName == null) {
-            throw new BotErrorException("No one specified.");
-        }
-
-        if (userName.startsWith("@")) {
-            userName = userName.substring(1);
-        }
-
-        if (home.isHigherRanked(userName, event.getSender())) {
+        if (home.isHigherRanked(user, event.getSender())) {
             home.setRole(event.getSender(), role);
 
             MessageCommand.say(event, "I see through your tricks! I'm checking %sender% into the greybar hotel.");
         } else {
-            home.setRole(userName, role);
+            home.setRole(user, role);
 
             FunctorSymbolTable symbolTable = new FunctorSymbolTable();
             symbolTable.addValue("input", arguments);
-            symbolTable.addValue("user", userName);
+            symbolTable.addValue("user", user.getName());
             symbolTable.addValue("role", role);
 
             MessageCommand.say(event, symbolTable, message);

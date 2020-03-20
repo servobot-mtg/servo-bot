@@ -14,6 +14,7 @@ import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.FactsCommand;
 import com.ryan_mtg.servobot.commands.GameQueueCommand;
+import com.ryan_mtg.servobot.commands.JailReleaseCommand;
 import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.JailBreakCommand;
 import com.ryan_mtg.servobot.commands.JailCommand;
@@ -199,6 +200,13 @@ public class CommandDescriptor {
             type = "Jail Break Command";
             description = String.format("Breaks all of the users out of '%s'",
                     jailBreakCommand.getPrisonRole());
+        }
+
+        @Override
+        public void visitJailReleaseCommand(final JailReleaseCommand jailReleaseCommand) {
+            type = "Jail Release Command";
+            description =String.format("Releases the users passed in as input out of '%s'",
+                    jailReleaseCommand.getPrisonRole());
         }
 
         @Override
