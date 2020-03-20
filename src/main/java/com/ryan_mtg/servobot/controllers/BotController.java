@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.controllers;
 
 import com.google.common.collect.Lists;
 import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.Trigger;
@@ -181,6 +182,9 @@ public class BotController {
         model.addAttribute("userTable", serializers.getUserTable());
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
+        model.addAttribute("events", Lists.newArrayList(
+                CommandEvent.Type.STREAM_START, CommandEvent.Type.SUBSCRIBE, CommandEvent.Type.RAID,
+                CommandEvent.Type.NEW_USER));
 
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {

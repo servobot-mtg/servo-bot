@@ -115,8 +115,9 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit deleteTrigger(final Trigger trigger) {
+    public CommandTableEdit deleteTrigger(final int triggerId) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
+        Trigger trigger = triggers.stream().filter(t -> t.getId() == triggerId).findFirst().get();
         deleteTrigger(trigger, commandTableEdit, false);
         return commandTableEdit;
     }

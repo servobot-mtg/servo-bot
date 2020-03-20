@@ -263,10 +263,25 @@ function showAddTriggerForm(commandId) {
     showElementInlineById(label + '-form');
     textInputElement.focus();
 }
+function updateAddTriggerType(commandId) {
+    const label = 'add-trigger-' + commandId;
+    let type = document.getElementById(label + '-type-input').value;
+    if (type == 2) {
+        showElementInlineById(label + '-event-input');
+        hideElementById(label + '-text-input');
+    } else {
+        showElementInlineById(label + '-text-input');
+        hideElementById(label + '-event-input');
+    }
+}
 
 function addTrigger(botHomeId, commandId) {
-    const text = document.getElementById('add-trigger-' + commandId + '-text-input').value;
-    const triggerType = parseInt(document.getElementById('add-trigger-' + commandId + '-type-input').value);
+    const label = 'add-trigger-' + commandId;
+    let text = document.getElementById(label + '-text-input').value;
+    const triggerType = parseInt(document.getElementById(label + '-type-input').value);
+    if (triggerType == 2) {
+        text = document.getElementById(label + '-event-input').value;
+    }
     postAddTrigger(botHomeId, commandId, text, triggerType);
 }
 

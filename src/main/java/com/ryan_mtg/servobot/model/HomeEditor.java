@@ -224,12 +224,11 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void deleteTrigger(final int triggerId) throws BotErrorException {
-        Trigger trigger = serializers.getCommandSerializer().getTrigger(triggerId);
         CommandTable commandTable = botHome.getCommandTable();
-        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(trigger);
+        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(triggerId);
 
         if (commandTableEdit.getDeletedTriggers().isEmpty()) {
-            throw new BotErrorException(String.format("Trigger '%d' not found.", trigger.getId()));
+            throw new BotErrorException(String.format("Trigger '%d' not found.", triggerId));
         }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }

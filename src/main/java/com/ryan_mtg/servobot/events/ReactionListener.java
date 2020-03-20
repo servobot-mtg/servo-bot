@@ -56,7 +56,13 @@ public class ReactionListener implements EventListener {
     public void onStreamStart(final StreamStartEvent streamStartEvent) {}
 
     @Override
-    public void onNewUser(final NewUserEvent newUserEvent) {}
+    public void onNewUser(final UserEvent newUserEvent) {}
+
+    @Override
+    public void onRaid(final UserEvent raidEvent) {}
+
+    @Override
+    public void onSubscribe(UserEvent subscribeEvent) {}
 
     @Override
     public void onAlert(final AlertEvent alertEvent) {}

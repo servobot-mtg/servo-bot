@@ -37,9 +37,23 @@ public class MultiDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
+    public void onNewUser(final UserEvent newUserEvent) throws BotErrorException {
         for (EventListener listener : getListeners()) {
             listener.onNewUser(newUserEvent);
+        }
+    }
+
+    @Override
+    public void onRaid(final UserEvent raidEvent) throws BotErrorException {
+        for (EventListener listener : getListeners()) {
+            listener.onRaid(raidEvent);
+        }
+    }
+
+    @Override
+    public void onSubscribe(final UserEvent subscribeEvent) throws BotErrorException {
+        for (EventListener listener : getListeners()) {
+            listener.onSubscribe(subscribeEvent);
         }
     }
 

@@ -123,7 +123,14 @@
                             <form th:id="${label} + '-form'" class="add-trigger-form hidden"
                                   th:onsubmit="'addTrigger(' + ${botHome.id} + ', ' + ${command.id} + '); return false;'">
                                 <input th:id="${label} + '-text-input'" type="text" name="trigger" size="9">
-                                <select th:id="${label} + '-type-input'">
+                                <select th:id="${label} + '-event-input'" hidden>
+                                    <th:block th:each="event : ${events}">
+                                        <option th:value="${event}" th:text="${event}"
+                                                th:selected="${event == 'STREAM_START'}"/>
+                                    </th:block>
+                                </select>
+                                <select th:id="${label} + '-type-input'"
+                                        th:onchange="'updateAddTriggerType(' + ${command.id} + ')'">
                                     <option value="1" selected>Message</option>
                                     <option value="2">Event</option>
                                     <option value="3">Alert</option>

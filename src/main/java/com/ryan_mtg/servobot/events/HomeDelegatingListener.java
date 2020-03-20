@@ -46,10 +46,26 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
+    public void onNewUser(final UserEvent newUserEvent) throws BotErrorException {
         EventListener listener = getListener(newUserEvent);
         if (listener != null) {
             listener.onNewUser(newUserEvent);
+        }
+    }
+
+    @Override
+    public void onRaid(final UserEvent raidEvent) throws BotErrorException {
+        EventListener listener = getListener(raidEvent);
+        if (listener != null) {
+            listener.onRaid(raidEvent);
+        }
+    }
+
+    @Override
+    public void onSubscribe(final UserEvent subscribeEvent) throws BotErrorException {
+        EventListener listener = getListener(subscribeEvent);
+        if (listener != null) {
+            listener.onRaid(subscribeEvent);
         }
     }
 

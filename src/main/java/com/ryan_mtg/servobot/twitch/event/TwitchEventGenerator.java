@@ -3,6 +3,9 @@ package com.ryan_mtg.servobot.twitch.event;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.chat.events.channel.HostOnEvent;
+import com.github.twitch4j.chat.events.channel.RaidEvent;
+import com.github.twitch4j.chat.events.channel.SubscriptionEvent;
 import com.github.twitch4j.common.enums.CommandPermission;
 import com.github.twitch4j.common.events.domain.EventUser;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -30,16 +33,53 @@ public class TwitchEventGenerator {
         this.homeMap = homeMap;
 
         client.getEventManager().onEvent(ChannelMessageEvent.class).subscribe(this::handleMessageEvent);
+        client.getEventManager().onEvent(SubscriptionEvent.class).subscribe(this::handleSubscriptionEvent);
+        client.getEventManager().onEvent(RaidEvent.class).subscribe(this::handleRaidEvent);
+        client.getEventManager().onEvent(HostOnEvent.class).subscribe(this::handleHostEvent);
     }
 
     private void handleMessageEvent(final ChannelMessageEvent event) {
         try {
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
-            TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHome,
-                    event.getChannel().getName());
+            TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHome);
             eventListener.onMessage(new TwitchMessageSentEvent(client, event, botHome.getId(), sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        } catch (Exception e) {
+            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleSubscriptionEvent(final SubscriptionEvent event) {
+        try {
+            BotHome botHome = resolveBotHomeId(event.getChannel().getId());
+            TwitchUser subscriber = getUser(event.getTwitchChat(), event.getUser(), botHome);
+            eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome.getId(), subscriber));
+        } catch (BotErrorException e) {
+            LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        } catch (Exception e) {
+            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleRaidEvent(final RaidEvent event) {
+        try {
+            BotHome botHome = resolveBotHomeId(event.getChannel().getId());
+            TwitchUser subscriber = getUser(event.getTwitchChat(), event.getRaider(), botHome);
+            eventListener.onRaid(new TwitchRaidEvent(client, event, botHome.getId(), subscriber));
+        } catch (BotErrorException e) {
+            LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        } catch (Exception e) {
+            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleHostEvent(final HostOnEvent event) {
+        try {
+            LOGGER.info("Host event: " + event.getChannel() + " is targeting " + event.getTargetChannel());
         } catch (Exception e) {
             LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
             e.printStackTrace();
@@ -51,16 +91,22 @@ public class TwitchEventGenerator {
     }
 
     private TwitchUser getUser(final TwitchChat chat, final EventUser eventUser,
-                               final Set<CommandPermission> permissions, final BotHome botHome,
-                               final String channelName) throws BotErrorException {
+            final Set<CommandPermission> permissions, final BotHome botHome) throws BotErrorException {
         boolean isModerator = permissions.contains(CommandPermission.MODERATOR);
         boolean isSubscriber = permissions.contains(CommandPermission.SUBSCRIBER);
         boolean isVip = permissions.contains(CommandPermission.VIP);
-        boolean isStreamer = channelName.equalsIgnoreCase(eventUser.getName());
+        boolean isStreamer = permissions.contains(CommandPermission.BROADCASTER);
         TwitchUserStatus status = new TwitchUserStatus(isModerator, isSubscriber, isVip, isStreamer);
 
         HomedUser user = botHome.getHomedUserTable().getByTwitchId(Integer.parseInt(eventUser.getId()),
                 eventUser.getName(), status);
+        return new TwitchUser(chat, user);
+    }
+
+    private TwitchUser getUser(final TwitchChat chat, final EventUser eventUser, final BotHome botHome)
+            throws BotErrorException {
+        HomedUser user = botHome.getHomedUserTable().getByTwitchId(
+                Integer.parseInt(eventUser.getId()), eventUser.getName());
         return new TwitchUser(chat, user);
     }
 }

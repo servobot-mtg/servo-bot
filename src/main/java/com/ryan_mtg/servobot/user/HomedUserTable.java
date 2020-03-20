@@ -67,6 +67,12 @@ public class HomedUserTable {
 
     public HomedUser getByTwitchId(final int twitchId, final String twitchUsername,
                                     final TwitchUserStatus twitchUserStatus) throws BotErrorException {
+        HomedUser homedUser = getByTwitchId(twitchId, twitchUsername);
+        updateStatus(homedUser, userStatus -> userStatus.merge(twitchUserStatus));
+        return homedUser;
+    }
+
+    public HomedUser getByTwitchId(final int twitchId, final String twitchUsername) throws BotErrorException {
         HomedUser homedUser = findUser(user -> user.getTwitchId() == twitchId);
         if (homedUser != null) {
             if (!twitchUsername.equals(homedUser.getTwitchUsername())) {
@@ -76,7 +82,6 @@ public class HomedUserTable {
             User user = userTable.getByDiscordId(twitchId, twitchUsername);
             homedUser = store(userSerializer.lookup(botHomeId, user));
         }
-        updateStatus(homedUser, userStatus -> userStatus.merge(twitchUserStatus));
         return homedUser;
     }
 

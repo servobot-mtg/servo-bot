@@ -23,8 +23,11 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -727,23 +730,17 @@ public class ApiController {
     }
 
 
-        /*
     @ExceptionHandler(BotErrorException.class)
-    public BotError botErrorExceptionHandler(final BotErrorException exception) {
+    public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
         exception.printStackTrace();
-        return new BotError(exception.getErrorMessage());
-        // TODO: make this return an error code
+        return new ResponseEntity<>(new BotError(exception.getErrorMessage()), HttpStatus.BAD_REQUEST);
     }
-         */
 
-        /*
     @ExceptionHandler(Exception.class)
-    public BotError botErrorHandler(final Exception exception) {
+    public ResponseEntity<BotError> botErrorHandler(final Exception exception) {
         exception.printStackTrace();
-        return new BotError(exception.getMessage());
-        // TODO: make this return an error code
+        return new ResponseEntity<>(new BotError(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-         */
 
     public class BotError {
         private String message;

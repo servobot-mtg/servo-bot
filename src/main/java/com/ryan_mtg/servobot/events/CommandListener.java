@@ -80,10 +80,28 @@ public class CommandListener implements EventListener {
     }
 
     @Override
-    public void onNewUser(final NewUserEvent newUserEvent) throws BotErrorException {
+    public void onNewUser(final UserEvent newUserEvent) throws BotErrorException {
         for (UserCommand command : commandTable.getCommands(CommandEvent.Type.NEW_USER, UserCommand.class)) {
             if (shouldPerform(command, newUserEvent)) {
                 command.perform(newUserEvent.getHome(), newUserEvent.getUser());
+            }
+        }
+    }
+
+    @Override
+    public void onRaid(final UserEvent raidEvent) throws BotErrorException {
+        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.RAID, UserCommand.class)) {
+            if (shouldPerform(command, raidEvent)) {
+                command.perform(raidEvent.getHome(), raidEvent.getUser());
+            }
+        }
+    }
+
+    @Override
+    public void onSubscribe(final UserEvent subscribeEvent) throws BotErrorException {
+        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.SUBSCRIBE, UserCommand.class)) {
+            if (shouldPerform(command, subscribeEvent)) {
+                command.perform(subscribeEvent.getHome(), subscribeEvent.getUser());
             }
         }
     }

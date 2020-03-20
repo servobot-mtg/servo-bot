@@ -8,6 +8,8 @@ public class CommandEvent extends Trigger{
     public enum Type {
         STREAM_START,
         NEW_USER,
+        RAID,
+        SUBSCRIBE,
     }
 
     private Type eventType;
