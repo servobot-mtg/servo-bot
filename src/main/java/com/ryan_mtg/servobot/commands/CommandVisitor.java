@@ -1,5 +1,24 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.chat.AddCommand;
+import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
+import com.ryan_mtg.servobot.commands.chat.DeleteCommand;
+import com.ryan_mtg.servobot.commands.chat.FactsCommand;
+import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
+import com.ryan_mtg.servobot.commands.chat.TextCommand;
+import com.ryan_mtg.servobot.commands.game_queue.GameQueueCommand;
+import com.ryan_mtg.servobot.commands.game_queue.JoinGameQueueCommand;
+import com.ryan_mtg.servobot.commands.game_queue.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.game_queue.ShowGameQueueCommand;
+import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
+import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
+import com.ryan_mtg.servobot.commands.giveaway.RequestPrizeCommand;
+import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
+import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
+import com.ryan_mtg.servobot.commands.jail.JailBreakCommand;
+import com.ryan_mtg.servobot.commands.jail.JailCommand;
+import com.ryan_mtg.servobot.commands.jail.JailReleaseCommand;
+
 public interface CommandVisitor {
     void visitAddCommand(AddCommand addCommand);
     void visitAddReactionCommand(AddReactionCommand addReactionCommand);

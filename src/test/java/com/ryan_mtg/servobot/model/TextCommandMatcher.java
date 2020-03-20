@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.commands.MessageCommand;
-import com.ryan_mtg.servobot.commands.TextCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 

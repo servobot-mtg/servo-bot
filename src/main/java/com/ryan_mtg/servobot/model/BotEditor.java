@@ -1,14 +1,14 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.commands.AddCommand;
-import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandAlias;
+import com.ryan_mtg.servobot.commands.chat.AddCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
-import com.ryan_mtg.servobot.commands.DeleteCommand;
-import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.commands.chat.DeleteCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.TextCommand;
+import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import com.ryan_mtg.servobot.controllers.ApiController.CreateBotHomeRequest;
 import com.ryan_mtg.servobot.controllers.ApiController.TextCommandRequest;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;

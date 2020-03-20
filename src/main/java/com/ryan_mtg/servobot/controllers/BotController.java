@@ -1,11 +1,11 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.google.common.collect.Lists;
-import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandEvent;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;

@@ -1,5 +1,12 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
+import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
+import com.ryan_mtg.servobot.commands.trigger.TriggerVisitor;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import lombok.Getter;

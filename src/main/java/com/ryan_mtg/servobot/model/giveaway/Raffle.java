@@ -1,10 +1,10 @@
 package com.ryan_mtg.servobot.model.giveaway;
 
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
-import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
-import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
+import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
+import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
+import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Entrant;
 import com.ryan_mtg.servobot.user.HomedUser;

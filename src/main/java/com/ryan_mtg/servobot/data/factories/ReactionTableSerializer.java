@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.data.factories;
 
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.data.models.ReactionCommandRow;
 import com.ryan_mtg.servobot.data.models.ReactionPatternRow;

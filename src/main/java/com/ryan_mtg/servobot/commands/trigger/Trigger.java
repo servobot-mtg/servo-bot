@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.commands;
+package com.ryan_mtg.servobot.commands.trigger;
 
 import lombok.Getter;
 import lombok.Setter;

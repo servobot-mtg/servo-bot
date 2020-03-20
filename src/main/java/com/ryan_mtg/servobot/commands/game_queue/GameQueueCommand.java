@@ -1,5 +1,8 @@
-package com.ryan_mtg.servobot.commands;
+package com.ryan_mtg.servobot.commands.game_queue;
 
+import com.ryan_mtg.servobot.commands.CommandVisitor;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;

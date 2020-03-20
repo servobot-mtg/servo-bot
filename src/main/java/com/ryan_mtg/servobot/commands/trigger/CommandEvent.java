@@ -1,10 +1,10 @@
-package com.ryan_mtg.servobot.commands;
+package com.ryan_mtg.servobot.commands.trigger;
 
 import lombok.Getter;
 
 import java.util.Objects;
 
-public class CommandEvent extends Trigger{
+public class CommandEvent extends Trigger {
     public static final int TYPE = 2;
 
     public enum Type {

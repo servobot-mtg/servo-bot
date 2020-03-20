@@ -1,17 +1,17 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandAlert;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
-import com.ryan_mtg.servobot.commands.EnterRaffleCommand;
-import com.ryan_mtg.servobot.commands.MessageChannelCommand;
-import com.ryan_mtg.servobot.commands.RaffleStatusCommand;
-import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
+import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
+import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
-import com.ryan_mtg.servobot.commands.StartRaffleCommand;
-import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
+import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;

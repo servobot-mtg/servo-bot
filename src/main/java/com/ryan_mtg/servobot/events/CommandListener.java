@@ -1,11 +1,11 @@
 package com.ryan_mtg.servobot.events;
 
-import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandEvent;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.commands.HomeCommand;
-import com.ryan_mtg.servobot.commands.MessageCommand;
-import com.ryan_mtg.servobot.commands.UserCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.UserCommand;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.User;

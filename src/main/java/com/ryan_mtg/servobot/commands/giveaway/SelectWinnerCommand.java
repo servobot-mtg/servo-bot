@@ -1,5 +1,9 @@
-package com.ryan_mtg.servobot.commands;
+package com.ryan_mtg.servobot.commands.giveaway;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.CommandVisitor;
+import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
+import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.HomeEvent;

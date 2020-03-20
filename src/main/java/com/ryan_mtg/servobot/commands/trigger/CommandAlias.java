@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.commands;
+package com.ryan_mtg.servobot.commands.trigger;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.utility.Validation;

@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.reaction;
 
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Validation;

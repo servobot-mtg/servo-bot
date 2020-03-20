@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import lombok.Getter;
 

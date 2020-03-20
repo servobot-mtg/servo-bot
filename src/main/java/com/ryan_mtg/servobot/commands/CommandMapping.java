@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import lombok.Getter;
 
 import java.util.Map;

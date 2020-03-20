@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.controllers;
 
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.BotEditor;

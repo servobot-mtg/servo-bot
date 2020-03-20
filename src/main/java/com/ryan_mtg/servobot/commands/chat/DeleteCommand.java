@@ -1,10 +1,13 @@
-package com.ryan_mtg.servobot.commands;
+package com.ryan_mtg.servobot.commands.chat;
 
+import com.ryan_mtg.servobot.commands.CommandVisitor;
+import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 
-public class DeleteCommand extends MessageCommand{
+public class DeleteCommand extends MessageCommand {
     public static final int TYPE = 6;
 
     public DeleteCommand(final int id, final int flags, final Permission permission) {
