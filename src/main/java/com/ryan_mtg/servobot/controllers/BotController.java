@@ -6,7 +6,7 @@ import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
-import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
+import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;

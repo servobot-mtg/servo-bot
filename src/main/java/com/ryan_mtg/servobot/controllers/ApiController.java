@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.controllers;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
+import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.BotEditor;
@@ -540,11 +541,5 @@ public class ApiController {
     public ResponseEntity<BotError> botErrorHandler(final Exception exception) {
         exception.printStackTrace();
         return new ResponseEntity<>(new BotError(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @AllArgsConstructor
-    public class BotError {
-        @Getter
-        private String message;
     }
 }

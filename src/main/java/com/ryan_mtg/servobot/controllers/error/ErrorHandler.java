@@ -1,7 +1,7 @@
-package com.ryan_mtg.servobot.controllers;
+package com.ryan_mtg.servobot.controllers.error;
 
-import com.ryan_mtg.servobot.controllers.exceptions.AccessDeniedException;
-import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
+import com.ryan_mtg.servobot.controllers.error.AccessDeniedException;
+import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import org.springframework.beans.factory.annotation.Autowired;
