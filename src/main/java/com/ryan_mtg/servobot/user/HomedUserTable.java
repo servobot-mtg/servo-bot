@@ -4,6 +4,8 @@ import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class HomedUserTable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HomedUserTable.class);
+
     private UserSerializer userSerializer;
     private UserTable userTable;
     private int botHomeId;
@@ -79,7 +83,7 @@ public class HomedUserTable {
                 userTable.modifyUser(homedUser.getUser(), user -> user.setTwitchUsername(twitchUsername));
             }
         } else {
-            User user = userTable.getByDiscordId(twitchId, twitchUsername);
+            User user = userTable.getByTwitchId(twitchId, twitchUsername);
             homedUser = store(userSerializer.lookup(botHomeId, user));
         }
         return homedUser;

@@ -93,7 +93,8 @@ public class UserSerializer {
     @Transactional(rollbackOn = BotErrorException.class)
     public HomedUser lookup(final int botHomeId, final User user) throws BotErrorException {
         UserHomeRow userHomeRow = userHomeRepository.findByUserIdAndBotHomeId(user.getId(), botHomeId);
-        return createHomedUser(user, new UserStatus(userHomeRow.getState()));
+        UserStatus userStatus = userHomeRow != null ? new UserStatus(userHomeRow.getState()) : new UserStatus();
+        return createHomedUser(user, userStatus);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
