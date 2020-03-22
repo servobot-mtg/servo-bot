@@ -51,7 +51,8 @@ public class MvcConfig implements WebMvcConfigurer {
             registration.addResourceLocations("classpath:/static/");
         }
 
-        resourceHandlerRegistry.addResourceHandler("/fav");
+        resourceHandlerRegistry.addResourceHandler("/favicon.ico")
+                .addResourceLocations("classpath:/static/images/");
     }
 
     @Component
