@@ -985,3 +985,39 @@ function deleteAlert(botHomeId, alertId) {
     postDelete('/api/delete_alert', parameters, 'alert-' + alertId + '-row');
 }
 
+function showAddBookForm() {
+    const label = 'add-book';
+    hideElementById(label + '-button');
+    showElementInlineById(label + '-form');
+}
+
+function addBook(botHomeId) {
+    const name = document.getElementById('add-book-name-input').value;
+    const statement = document.getElementById('add-book-statement-input').value;
+    postAddBook(botHomeId, name, statement);
+}
+
+async function postAddBook(botHomeId, name, statement) {
+    const label = 'add-book';
+    const parameters = {botHomeId: botHomeId, name: name, statement: statement};
+    let response = await makePost('/api/add_book', parameters, [], false);
+
+    //if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        //let book = await response.json();
+        let book = {name: name};
+        addBookItem(book, botHomeId);
+    //}
+}
+
+function addBookItem(book, botHomeId) {
+    let bookList = document.getElementById('book-list');
+    let listItem = document.createElement('li');
+    let link = document.createElement('a');
+    link.href = 'book/' + book.name;
+    link.innerHTML = book.name;
+    listItem.appendChild(link);
+    bookList.appendChild(listItem);
+}

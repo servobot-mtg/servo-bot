@@ -27,6 +27,10 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.books.Book;
+import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.books.BookTableEdit;
+import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.giveaway.CommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
@@ -51,6 +55,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
@@ -59,6 +64,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.ryan_mtg.servobot.model.GameQueue.EMPTY_QUEUE;
 
@@ -157,10 +163,7 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public CommandDescriptor addCommand(final CommandRow commandRow) throws BotErrorException {
-        Map<Integer, Book> bookMap = new HashMap<>();
-        for (Book book : botHome.getBooks()) {
-            bookMap.put(book.getId(), book);
-        }
+        Map<Integer, Book> bookMap = botHome.getBookTable().getBookMap();
 
         Command command = serializers.getCommandSerializer().createCommand(commandRow, bookMap);
 
@@ -241,31 +244,45 @@ public class HomeEditor {
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Book addBook(final String name, final String text) throws BotErrorException {
+        Book book = new Book(Book.UNREGISTERED_ID, name);
+        BookTable bookTable = botHome.getBookTable();
+        BookTableEdit bookTableEdit = bookTable.addBook(book);
+        if (!Strings.isBlank(text)) {
+            Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
+            bookTableEdit.merge(bookTable.addStatement(book, statement));
+        }
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
+        return book;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
     public Statement addStatement(final int bookId, final String text) throws BotErrorException {
-        return addStatement(getBook(bookId), text);
+        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
+        BookTableEdit bookTableEdit = botHome.getBookTable().addStatement(bookId, statement);
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
+        return statement;
     }
 
-    public void addStatement(final String bookName, final String text) throws BotErrorException {
-        addStatement(getBook(bookName), text);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteStatement(final int bookId, final int statementId) {
-        botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
-            book.deleteStatement(statementId);
-            serializers.getStatementRepository().deleteById(statementId);
-        });
+    public Optional<Book> getBook(final String bookName) {
+        return botHome.getBookTable().getBook(bookName);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void modifyStatement(final int bookId, final int statementId, final String text) {
-        BookSerializer bookSerializer = serializers.getBookSerializer();
-        botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
-            book.getStatements().stream().filter(statement -> statement.getId() ==statementId).forEach(statement -> {
-                statement.setText(text);
-                bookSerializer.saveStatement(bookId, statement);
-            });
-        });
+    public void deleteStatement(final int bookId, final int statementId) throws BotErrorException {
+        BookTableEdit bookTableEdit = botHome.getBookTable().deleteStatement(bookId, statementId);
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void modifyStatement(final int bookId, final int statementId, final String text) throws BotErrorException {
+        BookTableEdit bookTableEdit = new BookTableEdit();
+        Book book = botHome.getBookTable().getBook(bookId);
+        Statement statement = book.getStatement(statementId);
+        statement.setText(text);
+        bookTableEdit.save(bookId, statement);
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
     }
 
     public void scheduleAlert(final Alert alert) {
@@ -880,30 +897,6 @@ public class HomeEditor {
             throw new BotErrorException("No Game Queue");
         }
         return gameQueue;
-    }
-
-    private Book getBook(final String bookName) throws BotErrorException {
-        Book book = botHome.getBooks().stream()
-                .filter(b -> b.getName().equalsIgnoreCase(bookName)).findFirst().orElse(null);
-
-        if (book == null) {
-            throw new BotErrorException(String.format("No book with name %s.", bookName));
-        }
-
-        return book;
-    }
-
-    private Book getBook(final int bookId) {
-        return botHome.getBooks().stream().filter(b -> b.getId() == bookId).findFirst().orElse(null);
-    }
-
-    private Statement addStatement(final Book book, final String text) throws BotErrorException {
-        BookSerializer bookSerializer = serializers.getBookSerializer();
-
-        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
-        bookSerializer.saveStatement(book.getId(), statement);
-        book.addStatement(statement);
-        return statement;
     }
 
     private String describePlayer(final int userId) throws BotErrorException {

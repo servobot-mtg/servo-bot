@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot;
 
 import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.data.factories.BotFactory;
 import com.ryan_mtg.servobot.model.BotRegistrar;

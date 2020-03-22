@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
+import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.scope.BookScope;
@@ -52,6 +53,9 @@ public class BotHome {
     private CommandTable commandTable;
 
     @Getter
+    private BookTable bookTable;
+
+    @Getter
     private ReactionTable reactionTable;
 
     @Getter
@@ -59,9 +63,6 @@ public class BotHome {
 
     @Getter
     private Map<Integer, ServiceHome> serviceHomes;
-
-    @Getter
-    private List<Book> books;
 
     @Getter
     private List<GameQueue> gameQueues;
@@ -76,20 +77,20 @@ public class BotHome {
     private MultiDelegatingListener eventListener;
 
     public BotHome(final int id, final String name, final String botName, final String timeZone,
-                   final HomedUserTable homedUserTable, final CommandTable commandTable,
+                   final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
                    final ReactionTable reactionTable, final StorageTable storageTable,
-                   final Map<Integer, ServiceHome> serviceHomes, final List<Book> books,
-                   final List<GameQueue> gameQueues, final List<Giveaway> giveaways) throws BotErrorException {
+                   final Map<Integer, ServiceHome> serviceHomes, final List<GameQueue> gameQueues,
+                   final List<Giveaway> giveaways) throws BotErrorException {
         this.id = id;
         this.name = name;
         this.botName = botName;
         this.timeZone = timeZone;
         this.homedUserTable = homedUserTable;
+        this.bookTable = bookTable;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
         this.storageTable = storageTable;
         this.serviceHomes = serviceHomes;
-        this.books = books;
         this.gameQueues = gameQueues;
         this.giveaways = giveaways;
 
@@ -175,7 +176,7 @@ public class BotHome {
         timeSymbolTable.addFunctor("dayOfWeek", () -> now().getDayOfWeek());
 
         Scope timeScope = new Scope(botScope, timeSymbolTable);
-        Scope bookScope = new Scope(timeScope, new BookScope(books));
+        Scope bookScope = new Scope(timeScope, bookTable);
         return new Scope(bookScope, storageTable);
     }
 

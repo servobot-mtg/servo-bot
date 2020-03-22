@@ -7,17 +7,11 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class ReactionTableEdit {
-    @Getter
     private List<Reaction> deletedReactions = new ArrayList<>();
-
-    @Getter
     private List<Reaction> savedReactions = new ArrayList<>();
-
-    @Getter
     private List<Pattern> deletedPatterns = new ArrayList<>();
-
-    @Getter
     private Map<Pattern, Integer> savedPatterns = new IdentityHashMap<>();
 
     public void delete(final Reaction reaction) {

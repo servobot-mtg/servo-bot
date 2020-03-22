@@ -89,7 +89,11 @@ public abstract class Command {
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
 
     public boolean hasPermissions(final User user) {
-        switch (getPermission()) {
+        return hasPermissions(user, getPermission());
+    }
+
+    public static boolean hasPermissions(final User user, final Permission permission) {
+        switch (permission) {
             case ANYONE:
                 return true;
             case SUB:
@@ -110,18 +114,18 @@ public abstract class Command {
                 }
                 break;
             default:
-                throw new IllegalStateException("Unhandled permission: " + getPermission());
+                throw new IllegalStateException("Unhandled permission: " + permission);
         }
         return false;
-    }
-
-    private void setFlag(final int flag, final boolean value) {
-        flags = Flags.setFlag(flags, flag, value);
     }
 
     protected static void say(final Channel channel, final Event event, final Scope scope, final String text)
             throws BotErrorException {
         channel.say(evaluate(event, scope, text));
+    }
+
+    private void setFlag(final int flag, final boolean value) {
+        flags = Flags.setFlag(flags, flag, value);
     }
 
     private static String evaluate(final Event event, final Scope scope, final String text) throws BotErrorException {

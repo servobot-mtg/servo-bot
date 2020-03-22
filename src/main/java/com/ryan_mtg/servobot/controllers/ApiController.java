@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
@@ -13,7 +14,7 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
-import com.ryan_mtg.servobot.model.Statement;
+import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.security.WebsiteUser;
@@ -164,6 +165,19 @@ public class ApiController {
         private boolean onlyWhileStreaming;
     }
 
+    @PostMapping(value = "/add_book", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Book addBook(@RequestBody final AddBookRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addBook(request.getName(), request.getStatement());
+    }
+
+    @Getter
+    public static class AddBookRequest extends BotHomeRequest {
+        private String name;
+        private String statement;
+    }
+
     @PostMapping(value = "/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Statement addStatement(@RequestBody final AddStatementRequest request) throws BotErrorException {
@@ -182,7 +196,7 @@ public class ApiController {
     }
 
     @PostMapping(value = "/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) {
+    public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.deleteStatement(request.getBookId(), request.getStatementId());
         return true;
@@ -194,7 +208,7 @@ public class ApiController {
     }
 
     @PostMapping(value = "/modify_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) {
+    public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
         return true;

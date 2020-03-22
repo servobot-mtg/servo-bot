@@ -55,7 +55,7 @@
     <!-- commands -->
     <div th:fragment="commands">
         <h2>Commands</h2>
-        <table id="command-table" class="data-table">
+        <table id="command-table" class="command data-table">
             <thead><tr>
                 <th th:if="${privileged}">Id</th>
                 <th>Type</th>
@@ -201,14 +201,14 @@
                     <label>Command Type</label><br>
                     <select id='add-command-type-input' onchange="changeAddCommandType(this)">
                         <option value="1" selected>Respond Command</option>
-                        <option value="2" th:if="${!botHome.books.empty}">Random Statement Command</option>
+                        <option value="2" th:if="${!botHome.bookTable.empty}">Random Statement Command</option>
                         <option value="4">Message Channel Command</option>
                         <option value="5">Add Command</option>
                         <option value="6">Delete Command</option>
-                        <option value="15" th:if="${!botHome.books.empty}">Add Statement Command</option>
+                        <option value="15" th:if="${!botHome.bookTable.empty}">Add Statement Command</option>
                         <option value="19">Math Command</option>
-                        <option value="17" th:if="${!botHome.storageTable.values.empty}">Show Value Command</option>
-                        <option value="18" th:if="${!botHome.storageTable.values.empty}">Set Value Command</option>
+                        <option value="17" th:if="${!botHome.storageTable.empty}">Show Value Command</option>
+                        <option value="18" th:if="${!botHome.storageTable.empty}">Set Value Command</option>
                         <option value="16">Delayed Alert Command</option>
                         <option value="20">Start Giveaway Command</option>
                         <option value="21">Enter Giveaway Command</option>
@@ -258,7 +258,7 @@
                 <div id="add-command-book-div" class="hidden">
                     <label id="add-command-book-label">Book</label><br>
                     <select id="add-command-book-input">
-                        <th:block th:each="book : ${botHome.books}">
+                        <th:block th:each="book : ${botHome.bookTable}">
                             <option th:value="${book.id}" th:text="${book.name}"/>
                         </th:block>
                     </select><br>
@@ -303,7 +303,7 @@
     <!-- reactions -->
     <div th:fragment="reactions">
         <h2>Reactions</h2>
-        <table id="reaction-table" class="data-table">
+        <table id="reaction-table" class="reaction data-table">
             <thead><tr>
                 <th>Emoji</th>
                 <th>Reaction Trigger Words</th>
@@ -383,7 +383,7 @@
     <!-- alerts -->
     <div th:fragment="alerts">
         <h2>Alerts</h2>
-        <table class="data-table" id="alert-table">
+        <table id="alert-table" class="alert data-table">
             <thead><tr>
                 <th>Keyword</th>
                 <th>Alert Description</th>
@@ -408,7 +408,7 @@
                 </tr>
             </th:block>
         </table>
-        <div th:if="${privileged && !emotes.empty}" class="add-alert">
+        <div th:if="${privileged}" class="add-alert">
             <div id="add-alert-button" class="pseudo-link add-button" onclick="showAddAlertForm()"
                  title="Add an alert">+</div>
             <form id="add-alert-form" class="add-form hidden"
@@ -426,7 +426,7 @@
                 </div><br>
                 <div>
                     <label>Keyword</label><br>
-                    <input type="text" id="add-alert-keyword-input"><br>
+                    <input type="text" id="add-alert-keyword-input" class="name"><br>
                 </div><br>
                 <input type="submit" value="Create Alert">
             </form>
@@ -455,11 +455,27 @@
     <!-- books -->
     <div th:fragment="books">
         <h2>Books</h2>
-        <ul>
-            <th:block th:each="book : ${botHome.books}">
-                <li><a th:href="'book/' + ${book.name}" th:text="${book.name}"/><br></li>
+        <ul id="book-list">
+            <th:block th:each="book : ${botHome.bookTable}">
+                <li><a th:href="'book/' + ${book.name}" th:text="${book.name}"/></li>
             </th:block>
         </ul>
+        <div th:if="${privileged}" class="add-book">
+            <div id="add-book-button" class="pseudo-link add-button" onclick="showAddBookForm()"
+                 title="Add a book">+</div>
+            <form id="add-book-form" class="add-form hidden"
+                  th:onsubmit="'addBook(' + ${botHome.id} + '); return false;'">
+                <div>
+                    <label>Name</label><br>
+                    <input type="text" id="add-book-name-input" class="name"><br>
+                </div><br>
+                <div>
+                    <label>First Statement</label><br>
+                    <input type="text" id="add-book-statement-input"><br>
+                </div><br>
+                <input type="submit" value="Create Book">
+            </form>
+        </div>
     </div>
 
     <!-- time zone -->

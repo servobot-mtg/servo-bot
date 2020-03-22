@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
@@ -100,8 +101,6 @@ public class BotEditor {
             serializers.getBotHomeRepository().save(botHomeRow);
             int botHomeId = botHomeRow.getId();
 
-            List<Book> books = new ArrayList<>();
-
             CommandTable commandTable = new CommandTable(false);
             ReactionTable reactionTable = new ReactionTable();
             StorageTable storageTable = new StorageTable();
@@ -148,8 +147,9 @@ public class BotEditor {
 
             List<GameQueue> gameQueues = new ArrayList<>();
             List<Giveaway> giveaways = new ArrayList<>();
-            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, commandTable,
-                    reactionTable, storageTable, serviceHomes, books, gameQueues, giveaways);
+            BookTable bookTable = new BookTable();
+            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, bookTable,
+                    commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
             return botHome;

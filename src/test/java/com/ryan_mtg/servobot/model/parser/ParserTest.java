@@ -1,9 +1,9 @@
 package com.ryan_mtg.servobot.model.parser;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Statement;
+import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;

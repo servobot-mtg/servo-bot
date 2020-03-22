@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import lombok.Getter;
 import lombok.Setter;
 

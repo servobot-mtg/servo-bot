@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.books;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
@@ -6,7 +6,9 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -24,6 +26,10 @@ public class Book implements Evaluatable, Function<Integer, String> {
     @Getter
     private List<Statement> statements;
 
+    public Book(final int id, final String name) throws BotErrorException {
+        this(id, name, new ArrayList<>());
+    }
+
     public Book(final int id, final String name, final List<Statement> statements) throws BotErrorException {
         this.id = id;
         this.name = name;
@@ -32,7 +38,18 @@ public class Book implements Evaluatable, Function<Integer, String> {
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
     }
 
+    public Statement getStatement(final int statementId) throws BotErrorException {
+        Optional<Statement> statement = statements.stream().filter(s -> s.getId() == statementId).findFirst();
+        if (statement.isPresent()) {
+            return statement.get();
+        }
+        throw new BotErrorException(String.format("No statement with id %d", statementId));
+    }
+
     public String getRandomLine() {
+        if (statements.isEmpty()) {
+            return "";
+        }
         return statements.get(RANDOM.nextInt(statements.size())).getText();
     }
 
@@ -40,8 +57,10 @@ public class Book implements Evaluatable, Function<Integer, String> {
         statements.add(statement);
     }
 
-    public void deleteStatement(final int statementId) {
-        statements.removeIf(statement -> statement.getId() == statementId);
+    public Statement deleteStatement(final int statementId) throws BotErrorException {
+        Statement statement = getStatement(statementId);
+        statements.remove(statement);
+        return statement;
     }
 
     @Override

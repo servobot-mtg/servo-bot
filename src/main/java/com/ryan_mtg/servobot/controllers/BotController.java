@@ -10,7 +10,7 @@ import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.ServiceHome;
@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Controller
@@ -161,11 +162,11 @@ public class BotController {
         }
         model.addAttribute("botHome", botHome);
 
-        Book book = botHome.getBooks().stream().filter(b -> b.getName().equals(bookName)).findFirst().orElse(null);
-        if (book == null) {
+        Optional<Book> book = botHome.getBookTable().getBook(bookName);
+        if (!book.isPresent()) {
             throw new ResourceNotFoundException(String.format("No book home with name %s", bookName));
         }
-        model.addAttribute("book", book);
+        model.addAttribute("book", book.get());
 
         return "book";
     }

@@ -1,9 +1,18 @@
+:root {
+    --giveaway-color: goldenrod;
+    --command-color: navy;
+    --reaction-color: darkgreen;
+    --alert-color: maroon;
+    --book-color: maroon;
+}
+
 body {
     margin: 0;
 }
 
 h2 {
     clear: both;
+    margin-bottom: 5px;
 }
 
 h3 {
@@ -308,23 +317,43 @@ table {
     margin: 12px;
 }
 
+.command {
+    border: 3px solid var(--command-color);
+}
+
 .add-command {
     --add-button-size: 24px;
+    --add-color: var(--command-color);
     margin: 12px;
+}
+
+.reaction {
+    border: 3px solid var(--reaction-color);
 }
 
 .add-reaction {
     --add-button-size: 24px;
+    --add-color: var(--reaction-color);
     margin: 12px;
+}
+
+.alert {
+    border: 3px solid var(--alert-color);
 }
 
 .add-alert {
     --add-button-size: 24px;
+    --add-color: var(--alert-color);
     margin: 12px;
 }
 
-.add-reward {
+.book {
+    border: 3px solid var(--book-color);
+}
+
+.add-book {
     --add-button-size: 24px;
+    --add-color: var(--book-color);
     margin: 12px;
 }
 
@@ -374,19 +403,19 @@ table {
 
 input[type=text].name {
     box-sizing: border-box;
-    min-width: 19em;
+    min-width: 17em;
 }
 
 .add-giveaway {
     --add-button-size: 24px;
-    --add-color: goldenrod;
+    --add-color: var(--giveaway-color);
     margin: 12px;
 }
 
 .giveaway {
     margin: 12px;
     padding: 12px;
-    border: solid 3px goldenrod;
+    border: solid 3px var(--giveaway-color);
 }
 
 .giveaway label {

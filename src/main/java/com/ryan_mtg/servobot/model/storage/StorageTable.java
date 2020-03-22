@@ -14,6 +14,10 @@ import java.util.Set;
 public class StorageTable implements Iterable<StorageValue>, SymbolTable {
     private Map<StorageKey, StorageValue> storageMap = new HashMap<>();
 
+    public boolean isEmpty() {
+        return storageMap.isEmpty();
+    }
+
     public StorageValue getStorage(final int userId, final String name) {
         return storageMap.get(new StorageKey(userId, name));
     }

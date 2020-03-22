@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.events.HomeEvent;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import lombok.Getter;
 
 public class SetStatusCommand extends HomeCommand {

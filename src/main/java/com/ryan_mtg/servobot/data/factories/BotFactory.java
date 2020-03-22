@@ -8,11 +8,12 @@ import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.model.GameQueue;
+import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.Service;
@@ -76,11 +77,8 @@ public class BotFactory {
         int botHomeId = botHomeRow.getId();
 
         LOGGER.info("------ Creating Books: {} ", botHomeRow.getHomeName());
-        List<Book> books = serializers.getBookSerializer().createBooks(botHomeId);
-        Map<Integer, Book> bookMap = new HashMap<>();
-        for (Book book : books) {
-            bookMap.put(book.getId(), book);
-        }
+        BookTable bookTable = serializers.getBookSerializer().createBookTable(botHomeId);
+        Map<Integer, Book> bookMap = bookTable.getBookMap();
 
         LOGGER.info("------ Creating CommandTable: {} ", botHomeRow.getHomeName());
         CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
@@ -119,8 +117,8 @@ public class BotFactory {
                 botHomeId);
         List<Giveaway> giveaways = serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
-        BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, commandTable,
-                reactionTable, storageTable, serviceHomes, books, gameQueues, giveaways);
+        BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, bookTable, commandTable,
+                reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
 
         LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
         return botHome;

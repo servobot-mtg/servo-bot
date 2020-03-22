@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.scope;
 
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 
 import java.util.List;
 

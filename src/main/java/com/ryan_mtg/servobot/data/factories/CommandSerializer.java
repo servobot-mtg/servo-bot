@@ -43,7 +43,7 @@ import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;

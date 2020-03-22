@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.books;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.utility.Validation;
