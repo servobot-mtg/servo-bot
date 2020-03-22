@@ -46,8 +46,8 @@ public class TwitchEventGenerator {
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {
-            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
             e.printStackTrace();
+            LOGGER.warn("Unhandled ErrorException handling message: {}", e.getMessage());
         }
     }
 
@@ -59,8 +59,8 @@ public class TwitchEventGenerator {
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {
-            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
             e.printStackTrace();
+            LOGGER.warn("Unhandled ErrorException handling subscription: {}", e.getMessage());
         }
     }
 
@@ -72,8 +72,8 @@ public class TwitchEventGenerator {
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {
-            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
             e.printStackTrace();
+            LOGGER.warn("Unhandled ErrorException handling raid: {}", e.getMessage());
         }
     }
 
@@ -81,8 +81,8 @@ public class TwitchEventGenerator {
         try {
             LOGGER.info("Host event: " + event.getChannel() + " is targeting " + event.getTargetChannel());
         } catch (Exception e) {
-            LOGGER.warn("Unhandled ErrorException: {}", e.getMessage());
             e.printStackTrace();
+            LOGGER.warn("Unhandled ErrorException handling host: {}", e.getMessage());
         }
     }
 
