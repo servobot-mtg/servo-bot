@@ -37,17 +37,28 @@ async function makeGet(endpoint, parameters) {
     return await fetch(url, settings);
 }
 
+function hideElement(element) {
+    element.style.display = 'none';
+}
 
 function hideElementById(elementId) {
-    document.getElementById(elementId).style.display = 'none';
+    hideElement(document.getElementById(elementId));
+}
+
+function showElement(element) {
+    element.style.display = 'block';
 }
 
 function showElementById(elementId) {
-    document.getElementById(elementId).style.display = 'block';
+    showElement(document.getElementById(elementId));
+}
+
+function showElementInline(element) {
+    element.style.display = 'inline-block';
 }
 
 function showElementInlineById(elementId) {
-    document.getElementById(elementId).style.display = 'inline-block';
+    showElementInline(document.getElementById(elementId));
 }
 
 function dismissErrorMessage() {

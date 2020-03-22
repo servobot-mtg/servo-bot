@@ -20,6 +20,63 @@ const emptySetIcon = '&#x2205';
 const bellIcon = '&#x1F6CE;&#xFE0F;';
 const defaultCommandFlags = 2+4;
 
+const addTriggerFormData = {
+    focus: 'text',
+    inputs: [{name: 'text', type: 'value', value: '', hide: false},
+        {name: 'type', type: 'value', value: '1', hide: false},
+        {name: 'event', type: 'value', value: 'STREAM_START', hide: true},
+    ],
+};
+
+const addStatementFormData = {
+    focus: 'text',
+    inputs: [{name: 'text', type: 'text', value: '', hide: false}],
+};
+
+const addCommandFormData = {
+    focus: 'text',
+    inputs: [{name: 'type', type: 'select', value: 0, hide: false},
+             {name: 'permissions', type: 'select', value: 4, hide: false},
+             {name: 'secure', type: 'checkbox', value: false, hide: false},
+             {name: 'text', type: 'value', value: '', hide: false},
+             {name: 'text-2', type: 'value', value: '', hide: true},
+             {name: 'integer', type: 'value', value: 0, hide: true},
+             {name: 'book', type: 'select', value: 0, hide: true},
+             {name: 'emote', type: 'select', value: 0, hide: true},
+             {name: 'role', type: 'select', value: 0, hide: true},
+             {name: 'game-queue', type: 'select', value: 0, hide: true},
+             {name: 'service', type: 'select', value: 0, hide: true},
+    ],
+};
+
+const addPatternFormData = {
+    focus: 'text',
+    inputs: [{name: 'text', type: 'value', value: '', hide: false}],
+};
+
+const addReactionFormData = {
+    focus: 'emote',
+    inputs: [{name: 'emote', type: 'select', value: 0, hide: false},
+             {name: 'secure', type: 'checkbox', value: false, hide: false},
+    ],
+};
+
+const addAlertFormData = {
+    focus: 'type',
+    inputs: [{name: 'type', type: 'select', value: 0, hide: false},
+             {name: 'time', type: 'value', value: 60, hide: false},
+             {name: 'keyword', type: 'value', value: '', hide: true},
+    ],
+};
+
+const addBookFormData = {
+    focus: 'name',
+    inputs: [{name: 'name', type: 'value', value: '', hide: false},
+             {name: 'statement', type: 'value', value: '', hide: false},
+    ],
+};
+
+
 function editBotName() {
     hideElementById('bot-name-display');
     showElementById('bot-name-edit');
@@ -254,15 +311,43 @@ async function postStopHome(botHomeId) {
     }
 }
 
-function showAddTriggerForm(commandId) {
-    const label = 'add-trigger-' + commandId;
+function getInputId(label, inputName) {
+    return label + '-' + inputName + '-input';
+}
+
+function showForm(label, data) {
     hideElementById(label + '-button');
 
-    let textInputElement = document.getElementById(label + '-text-input');
-    textInputElement.value = '';
+    for (let i = 0; i < data.inputs.length; i++) {
+        let input = data.inputs[i];
+        let inputElement = document.getElementById(getInputId(label, input.name));
+        if (input.hide)  {
+            hideElement(inputElement);
+        } else {
+            showElementInline(inputElement);
+        }
+        switch (input.type) {
+            case 'value':
+                inputElement.value = input.value;
+                break;
+            case 'select':
+                inputElement.selectedIndex = input.value;
+                break;
+            case 'checkbox':
+                inputElement.checked = input.value;
+                break;
+        }
+    }
     showElementInlineById(label + '-form');
-    textInputElement.focus();
+    document.getElementById(getInputId(label, data.focus)).focus();
+    document.getElementById(label + '-form').scrollIntoView(false);
 }
+
+function showAddTriggerForm(commandId) {
+    const label = 'add-trigger-' + commandId;
+    showForm(label, addTriggerFormData);
+}
+
 function updateAddTriggerType(commandId) {
     const label = 'add-trigger-' + commandId;
     let type = document.getElementById(label + '-type-input').value;
@@ -344,12 +429,7 @@ async function postTriggerAlert(botHomeId, alertToken, triggerId) {
 }
 
 function showAddStatementForm() {
-    hideElementById('add-statement-button');
-
-    let textInputElement = document.getElementById('add-statement-text-input');
-    textInputElement.value = '';
-    showElementInlineById('add-statement-form');
-    textInputElement.focus();
+    showForm('add-statement', addStatementFormData);
 }
 
 function addStatement(botHomeId, bookId) {
@@ -424,22 +504,8 @@ function addStatementRow(statement, botHomeId, bookId) {
 }
 
 function showAddCommandForm() {
-    hideElementById('add-command-button');
-
-    let typeSelect = document.getElementById('add-command-type-input');
-    typeSelect.selectedIndex = 0;
-    changeAddCommandType(typeSelect);
-    document.getElementById('add-command-permissions-input').selectedIndex = 4;
-    document.getElementById('add-command-secure-input').checked = false;
-    document.getElementById('add-command-text-input').value = '';
-    document.getElementById('add-command-text-2-input').value = '';
-    document.getElementById('add-command-integer-input').value = 0;
-    document.getElementById('add-command-book-input').selectedIndex = 0;
-    document.getElementById('add-command-emote-input').selectedIndex = 0;
-    document.getElementById('add-command-role-input').selectedIndex = 0;
-    document.getElementById('add-command-game-queue-input').selectedIndex = 0;
-    document.getElementById('add-command-service-input').selectedIndex = 0;
-    showElementInlineById('add-command-form');
+    showForm('add-command', addCommandFormData);
+    changeAddCommandType(document.getElementById('add-command-type-input'));
 }
 
 function addAddCommandParameter(parameters, inputId, parameterName) {
@@ -773,13 +839,7 @@ function addCommandRow(commandDescriptor, botHomeId) {
 }
 
 function showAddPatternForm(reactionId) {
-    const label = 'add-pattern-' + reactionId;
-    hideElementById(label + '-button');
-
-    let textInputElement = document.getElementById(label + '-text-input');
-    textInputElement.value = '';
-    showElementInlineById(label + '-form');
-    textInputElement.focus();
+    showForm('add-pattern-' + reactionId, addPatternFormData);
 }
 
 function addPattern(botHomeId, reactionId) {
@@ -824,13 +884,7 @@ function addPatternTable(pattern, botHomeId, reactionId) {
 }
 
 function showAddReactionForm() {
-    const label = 'add-reaction';
-    hideElementById(label + '-button');
-
-    let emoteInputElement = document.getElementById(label + '-emote-input');
-    emoteInputElement.selectedIndex = 0;
-    showElementInlineById(label + '-form');
-    emoteInputElement.focus();
+    showForm('add-reaction', addReactionFormData);
 }
 
 function addReaction(botHomeId) {
@@ -926,9 +980,7 @@ function addReactionRow(reaction, botHomeId) {
 }
 
 function showAddAlertForm() {
-    const label = 'add-alert';
-    hideElementById(label + '-button');
-    showElementInlineById(label + '-form');
+    showForm('add-alert', addAlertFormData);
 }
 
 function addAlert(botHomeId) {
@@ -986,9 +1038,7 @@ function deleteAlert(botHomeId, alertId) {
 }
 
 function showAddBookForm() {
-    const label = 'add-book';
-    hideElementById(label + '-button');
-    showElementInlineById(label + '-form');
+    showForm('add-book', addBookFormData);
 }
 
 function addBook(botHomeId) {
