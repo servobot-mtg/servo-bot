@@ -76,6 +76,117 @@ const addBookFormData = {
     ],
 };
 
+function createElement(type, {id = null, classType = null, classList = null, title = null, value = null,
+        clickFunction = null}) {
+    let element = document.createElement(type);
+    if (id) {
+        element.id = id;
+    }
+    if (classType) {
+        element.classList.add(classType);
+    } else if(classList) {
+        element.classList.add(...classList);
+    }
+    if (title != null) {
+        element.title = title;
+    }
+    if (value != null) {
+        element.innerHTML = value;
+    }
+    if (clickFunction) {
+        element.onclick = clickFunction;
+    }
+    return element;
+}
+
+function createSpan(parameters) {
+    return createElement('span', parameters);
+}
+
+function createDiv(parameters) {
+    return createElement('div', parameters);
+}
+
+function createImg(parameters) {
+    let img = createElement('img', parameters);
+    if (parameters.hasOwnProperty('src')) {
+        img.src = parameters.src;
+    }
+    return img;
+}
+
+function createInput({id = null, type, name = null, value = null, size = null}) {
+    let input = document.createElement('input');
+    if (id) {
+        input.id = id;
+    }
+    input.type = type;
+    if (name != null) {
+        input.name = name;
+    }
+    if (value != null) {
+        input.value = value;
+    }
+    if (size != null) {
+        input.size = size;
+    }
+    return input;
+}
+
+function createOption(text, value, selected) {
+    let option = document.createElement('option');
+    option.text = text;
+    option.value = value;
+    if (selected) {
+        option.selected = true;
+    }
+    return option;
+}
+
+function createLabelTable(tableId, tableClass, text, deleteFunction) {
+    let table = document.createElement('table');
+    table.classList.add(tableClass + '-label', 'label', 'label-table');
+    table.id = tableId;
+
+    let row = table.insertRow();
+    addTextCell(row, text);
+
+    let deleteCell = addDeleteCell(row, 'x', deleteFunction);
+    deleteCell.classList.add(tableClass + '-delete');
+    return table;
+}
+
+function addEditableDiv(parentElement, label, value, editFunction, modifyFunction) {
+    let displayDiv = createDiv({id: label + '-display'});
+
+    let valueSpan = createSpan({id: label + '-value', value: value});
+    displayDiv.appendChild(valueSpan);
+
+    displayDiv.appendChild(createSpan({classType: 'pseudo-link', value: penIcon, clickFunction: editFunction}));
+
+    let editDiv = createDiv({id: label + '-edit', classType: 'hidden'});
+
+    let textInput = createInput({id: label + '-input', type: 'text', value: value, size: value.length});
+    editDiv.appendChild(textInput);
+
+    editDiv.appendChild(createSpan({classType: 'pseudo-link', value: bookIcon, clickFunction: modifyFunction}));
+
+    parentElement.appendChild(displayDiv);
+    parentElement.appendChild(editDiv);
+}
+
+function addTextCell(row, text) {
+    let textCell = row.insertCell();
+    textCell.innerHTML = text;
+}
+
+function addDeleteCell(row, text, deleteFunction) {
+    let deleteCell = row.insertCell();
+    deleteCell.classList.add('pseudo-link');
+    deleteCell.innerHTML = text;
+    deleteCell.onclick = deleteFunction;
+    return deleteCell;
+}
 
 function editBotName() {
     hideElementById('bot-name-display');
@@ -116,12 +227,12 @@ async function postSecureCommand(botHomeId, commandId, label) {
     return postSecureObject('/api/secure_command', botHomeId, commandId, label);
 }
 
-function secureReaction(event, botHomeId, reactionId) {
-    postSecureReaction(botHomeId, reactionId, event.currentTarget.dataset.label);
+function secureReaction(botHomeId, reactionId) {
+    postSecureReaction(botHomeId, reactionId);
 }
 
-async function postSecureReaction(botHomeId, reactionId, label) {
-    return postSecureObject('/api/secure_reaction', botHomeId, reactionId, label);
+async function postSecureReaction(botHomeId, reactionId) {
+    return postSecureObject('/api/secure_reaction', botHomeId, reactionId, 'reaction-' + reactionId);
 }
 
 async function postSecureObject(endPoint, botHomeId, objectId, label) {
@@ -385,35 +496,13 @@ async function postAddTrigger(botHomeId, commandId, text, triggerType) {
 }
 
 function addTriggerTable(trigger, botHomeId, commandId, text) {
-    let triggerType;
-    switch (trigger.type) {
-        case 1:
-            triggerType = 'alias';
-            break;
-        case 2:
-            triggerType = 'event';
-            break;
-        case 3:
-            triggerType = 'alert';
-            break;
-    }
-    const label = triggerType + '-triggers-' + commandId;
-    let triggersSpan = document.getElementById(label);
+    const triggerTypeArray = ['', 'alias', 'event', 'alert'];
+    let triggerType = triggerTypeArray[trigger.type];
 
-    let triggerTable = document.createElement('table');
-    triggerTable.classList.add(triggerType + '-label', 'label', 'label-table');
-    triggerTable.id = 'trigger-' + trigger.id;
-    let row = triggerTable.insertRow();
-    let triggerCell = row.insertCell();
-    triggerCell.innerHTML = text;
-
-    let deleteCell = row.insertCell();
-    deleteCell.classList.add('pseudo-link', triggerType + '-delete');
-    deleteCell.innerHTML = 'x';
-    deleteCell.onclick = function () {
+    let triggersSpan = document.getElementById(triggerType + '-triggers-' + commandId);
+    let triggerTable = createLabelTable('trigger-' + trigger.id, triggerType, text, function () {
         deleteTrigger(botHomeId, trigger.id);
-    };
-
+    });
     triggersSpan.appendChild(triggerTable);
 }
 
@@ -453,54 +542,20 @@ async function postAddStatement(botHomeId, bookId, text) {
 
 function addStatementRow(statement, botHomeId, bookId) {
     let statementTable = document.getElementById('book-' + bookId + '-table');
-    let newRow = statementTable.insertRow();
+    let row = statementTable.insertRow();
 
     const label = 'statement-' + statement.id;
-    newRow.id = label + '-row';
+    row.id = label + '-row';
 
-    let displayDiv = document.createElement('div');
-    displayDiv.id = label + '-display';
-    let textSpan = document.createElement('span');
-    textSpan.id = label + '-value';
-    textSpan.innerHTML = statement.text;
-    displayDiv.appendChild(textSpan);
-    let editButtonSpan = document.createElement('span');
-    editButtonSpan.classList.add('pseudo-link');
-    editButtonSpan.onclick = function() {
+    addEditableDiv(row.insertCell(), label, statement.text, function() {
         editStatement(statement.id);
-    };
-    editButtonSpan.innerHTML = penIcon;
-    displayDiv.appendChild(editButtonSpan);
-
-    let editDiv = document.createElement('div');
-    editDiv.id = label + '-edit';
-    editDiv.classList.add('hidden');
-
-    let textInput = document.createElement('input');
-    textInput.type = 'text';
-    textInput.value = statement.text;
-    textInput.size = statement.text.length;
-    textInput.id = label + '-input';
-    editDiv.appendChild(textInput);
-
-    let modifyButtonSpan = document.createElement('span');
-    modifyButtonSpan.classList.add('pseudo-link');
-    modifyButtonSpan.onclick = function() {
+    }, function() {
         modifyStatement(botHomeId, bookId, statement.id);
-    };
-    modifyButtonSpan.innerHTML = bookIcon;
-    editDiv.appendChild(modifyButtonSpan);
+    });
 
-    let textCell = newRow.insertCell();
-    textCell.appendChild(displayDiv);
-    textCell.appendChild(editDiv);
-
-    let deleteCell = newRow.insertCell();
-    deleteCell.classList.add('pseudo-link');
-    deleteCell.innerHTML = trashcanIcon;
-    deleteCell.onclick = function () {
+    addDeleteCell(row, trashcanIcon, function () {
         deleteStatement(botHomeId, bookId, statement.id);
-    };
+    });
 }
 
 function showAddCommandForm() {
@@ -663,48 +718,30 @@ function showOrHideElement(show, elementId) {
 
 function addCommandRow(commandDescriptor, botHomeId) {
     let commandTable = document.getElementById('command-table');
-    let newRow = commandTable.insertRow();
+    let row = commandTable.insertRow();
 
     const label = 'command-' + commandDescriptor.command.id;
-    newRow.id = label + '-row';
+    row.id = label + '-row';
     if (commandDescriptor.command.secure) {
-        newRow.classList.add('secure');
+        row.classList.add('secure');
     }
 
-    let idCell = newRow.insertCell();
-    idCell.innerHTML = commandDescriptor.command.id;
+    addTextCell(row, commandDescriptor.command.id);
+    addTextCell(row, commandDescriptor.type);
+    addTextCell(row, commandDescriptor.description);
 
-    let typeCell = newRow.insertCell();
-    typeCell.innerHTML = commandDescriptor.type;
-
-    let descriptionCell = newRow.insertCell();
-    descriptionCell.innerHTML = commandDescriptor.description;
-
-    let triggersCell = newRow.insertCell();
-    let aliasTriggersSpan = document.createElement('span');
-    aliasTriggersSpan.id = 'alias-triggers-' + commandDescriptor.command.id;
-    triggersCell.appendChild(aliasTriggersSpan);
-
-    let eventTriggersSpan = document.createElement('span');
-    eventTriggersSpan.id = 'event-triggers-' + commandDescriptor.command.id;
-    triggersCell.appendChild(eventTriggersSpan);
-
-    let alertTriggersSpan = document.createElement('span');
-    alertTriggersSpan.id = 'alert-triggers-' + commandDescriptor.command.id;
-    triggersCell.appendChild(alertTriggersSpan);
+    let triggersCell = row.insertCell();
+    triggersCell.appendChild(createSpan({id: 'alias-triggers-' + commandDescriptor.command.id}));
+    triggersCell.appendChild(createSpan({id: 'event-triggers-' + commandDescriptor.command.id}));
+    triggersCell.appendChild(createSpan({id: 'alert-triggers-' + commandDescriptor.command.id}));
 
     let addTriggerLabel = 'add-trigger-' + commandDescriptor.command.id;
-    let addTriggerSpan = document.createElement('span');
-    addTriggerSpan.classList.add('add-trigger');
+    let addTriggerSpan = createSpan({classType: 'add-trigger'});
 
-    let addTriggerButtonDiv = document.createElement('div');
-    addTriggerButtonDiv.id = addTriggerLabel + '-button';
-    addTriggerButtonDiv.classList.add('pseudo-link', 'add-button');
-    addTriggerButtonDiv.title = 'Add a trigger';
-    addTriggerButtonDiv.onclick = function () {
-        showAddTriggerForm(commandDescriptor.command.id);
-    };
-    addTriggerButtonDiv.innerHTML = '+';
+    let addTriggerButtonDiv = createDiv({id: addTriggerLabel + '-button',
+        classList: ['pseudo-link', 'add-button'], title: 'Add a trigger', value: '+', clickFunction: function () {
+            showAddTriggerForm(commandDescriptor.command.id);
+        }});
     addTriggerSpan.appendChild(addTriggerButtonDiv);
 
     let addTriggerForm = document.createElement('form');
@@ -715,127 +752,75 @@ function addCommandRow(commandDescriptor, botHomeId) {
         return false;
     };
 
-    let addTriggerTextInput = document.createElement('input');
-    addTriggerTextInput.id = addTriggerLabel + '-text-input';
-    addTriggerTextInput.type = 'text';
-    addTriggerTextInput.name = 'trigger';
-    addTriggerTextInput.size = 9;
-    addTriggerForm.appendChild(addTriggerTextInput);
+    addTriggerForm.appendChild(
+        createInput({id: addTriggerLabel + '-text-input', type: 'text', name: 'trigger', size: 9}));
 
     let addTriggerTypeSelect = document.createElement('select');
     addTriggerTypeSelect.id = addTriggerLabel + '-type-input';
 
-    let messageOption = document.createElement('option');
-    messageOption.text = 'Message';
-    messageOption.value = 1;
-    messageOption.selected = true;
-    addTriggerTypeSelect.add(messageOption);
-
-    let eventOption = document.createElement('option');
-    eventOption.text = 'Event';
-    eventOption.value = 2;
-    addTriggerTypeSelect.add(eventOption);
-
-    let alertOption = document.createElement('option');
-    alertOption.text = 'Alert';
-    alertOption.value = 3;
-    addTriggerTypeSelect.add(alertOption);
-
+    addTriggerTypeSelect.add(createOption('Message', 1, true));
+    addTriggerTypeSelect.add(createOption('Event', 2, false));
+    addTriggerTypeSelect.add(createOption('Alert', 3, false));
     addTriggerForm.appendChild(addTriggerTypeSelect);
 
-    let addTriggerSubmitInput = document.createElement('input');
-    addTriggerSubmitInput.type = 'submit';
-    addTriggerSubmitInput.value = '+';
-    addTriggerForm.appendChild(addTriggerSubmitInput);
+    addTriggerForm.appendChild(createInput({type: 'submit', value: '+'}));
     addTriggerSpan.appendChild(addTriggerForm);
     triggersCell.appendChild(addTriggerSpan);
 
-    let iconCell = newRow.insertCell();
+    let iconCell = row.insertCell();
 
-    let secureIconSpan = document.createElement('span');
-    secureIconSpan.id = label + '-secured';
-    secureIconSpan.classList.add('pseudo-link');
-    secureIconSpan.onclick = function () {
-        secureCommand(botHomeId, commandDescriptor.command.id);
-    };
-    secureIconSpan.innerHTML = commandDescriptor.command.secure ? lockedIcon : unlockedIcon;
+    let secureIcon = commandDescriptor.command.secure ? lockedIcon : unlockedIcon;
+    let secureIconSpan = createSpan({id: label + '-secured', classType: 'pseudo-link', value: secureIcon,
+        clickFunction: function () {
+            secureCommand(botHomeId, commandDescriptor.command.id);
+        }});
     iconCell.appendChild(secureIconSpan);
+    iconCell.appendChild(createSpan({id: label + '-secure-response'}));
 
-    let secureResponseSpan = document.createElement('span');
-    secureResponseSpan.id = label + '-secure-response';
-    iconCell.appendChild(secureResponseSpan);
-
-    let onlyWhileStreamingIconSpan = document.createElement('span');
-    onlyWhileStreamingIconSpan.id = label + '-while-streaming';
-    onlyWhileStreamingIconSpan.classList.add('pseudo-link');
-    onlyWhileStreamingIconSpan.onclick = function () {
-        setOnlyWhileStreaming(botHomeId, commandDescriptor.command.id);
-    };
-    onlyWhileStreamingIconSpan.innerHTML = commandDescriptor.command.onlyWhileStreaming ? tvIcon : clockIcon;
+    let onlyWhileStreamingIcon = commandDescriptor.command.onlyWhileStreaming ? tvIcon : clockIcon;
+    let onlyWhileStreamingIconSpan = createSpan({id: label + '-while-streaming', classType: 'pseudo-link',
+        value: onlyWhileStreamingIcon, clickFunction: function () {
+            setOnlyWhileStreaming(botHomeId, commandDescriptor.command.id);
+        }});
     iconCell.appendChild(onlyWhileStreamingIconSpan);
 
-    let twitchIconSpan = document.createElement('span');
-    twitchIconSpan.id = label + '-twitch';
-    twitchIconSpan.classList.add('pseudo-link');
-    twitchIconSpan.onclick = function () {
-        toggleCommandTwitch(botHomeId, commandDescriptor.command.id);
-    };
-    let twitchImg = document.createElement('img');
-    twitchImg.id = label + '-twitch-img';
-    twitchImg.classList.add('icon');
-    twitchImg.title = 'Toggle Twitch use';
-    twitchImg.src = commandDescriptor.command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico';
+    let twitchIconSpan = createSpan({id: label + '-twitch', classType: 'pseudo-link',
+        clickFunction: function () {
+            toggleCommandTwitch(botHomeId, commandDescriptor.command.id);
+        }});
+    let twitchImgSrc = commandDescriptor.command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico';
+    let twitchImg = createImg({id: label + '-twitch-img', classType: 'icon', title: 'Toggle Twitch use',
+        src: twitchImgSrc});
     twitchIconSpan.appendChild(twitchImg);
     iconCell.appendChild(twitchIconSpan);
+    iconCell.appendChild(createSpan({id: label + '-twitch-response'}));
 
-    let twitchResponseSpan = document.createElement('span');
-    twitchResponseSpan.id = label + '-twitch-response';
-    iconCell.appendChild(twitchResponseSpan);
-
-    let discordIconSpan = document.createElement('span');
-    discordIconSpan.id = label + '-discord';
-    discordIconSpan.classList.add('pseudo-link');
-    discordIconSpan.onclick = function () {
-        toggleCommandDiscord(botHomeId, commandDescriptor.command.id);
-    };
-    let discordImg = document.createElement('img');
-    discordImg.id = label + '-discord-img';
-    discordImg.classList.add('icon');
-    discordImg.title = 'Toggle Discord use';
-    discordImg.src = commandDescriptor.command.discord ? '/images/discord.ico' : '/images/no-discord.ico';
+    let discordIconSpan = createSpan({id: label + '-discord', classType: 'pseudo-link',
+        clickFunction: function () {
+            toggleCommandDiscord(botHomeId, commandDescriptor.command.id);
+        }});
+    let discordImgSrc = commandDescriptor.command.discord ? '/images/discord.ico' : '/images/no-discord.ico';
+    let discordImg = createImg({id: label + '-discord-img', classType: 'icon', title: 'Toggle Discord use',
+        src: discordImgSrc});
     discordIconSpan.appendChild(discordImg);
     iconCell.appendChild(discordIconSpan);
+    iconCell.appendChild(createSpan({id: label + '-discord-response'}));
 
-    let discordResponseSpan = document.createElement('span');
-    discordResponseSpan.id = label + '-discord-response';
-    iconCell.appendChild(discordResponseSpan);
-
-    let permissionsCell = newRow.insertCell();
+    let permissionsCell = row.insertCell();
     let permissionsSelect = document.createElement('select');
     permissionsSelect.onchange = function (event) {
         updateCommandPermission(event, botHomeId, commandDescriptor.command.id);
     };
     for (let i = 0; i < permissions.length; i++) {
-        let option = document.createElement('option');
-        option.text = permissions[i];
-        option.value = permissions[i];
-        if (commandDescriptor.command.permission == permissions[i]) {
-            option.selected = true;
-        }
-        permissionsSelect.add(option);
+        permissionsSelect.add(
+            createOption(permissions[i], permissions[i], permissions[i] == commandDescriptor.command.permission));
     }
     permissionsCell.appendChild(permissionsSelect);
+    permissionsCell.appendChild(createSpan({id: label + '-permission-updated'}));
 
-    let permissionsResponseSpan = document.createElement('span');
-    permissionsResponseSpan.id = label + '-permission-updated';
-    permissionsCell.appendChild(permissionsResponseSpan);
-
-    let deletionCell = newRow.insertCell();
-    deletionCell.classList.add('pseudo-link');
-    deletionCell.onclick = function () {
+    addDeleteCell(row, trashcanIcon, function () {
         deleteCommand(botHomeId, commandDescriptor.command.id);
-    };
-    deletionCell.innerHTML = trashcanIcon;
+    });
 }
 
 function showAddPatternForm(reactionId) {
@@ -863,23 +848,11 @@ async function postAddPattern(botHomeId, reactionId, text) {
 }
 
 function addPatternTable(pattern, botHomeId, reactionId) {
-    const label = 'patterns-' + reactionId;
-    let patternsSpan = document.getElementById(label);
-
-    let patternTable = document.createElement('table');
-    patternTable.classList.add('pattern-label', 'label', 'label-table');
-    patternTable.id = 'pattern-' + pattern.id;
-    let row = patternTable.insertRow();
-    let aliasCell = row.insertCell();
-    aliasCell.innerHTML = pattern.patternString;
-
-    let deleteCell = row.insertCell();
-    deleteCell.classList.add('pseudo-link', 'pattern-delete');
-    deleteCell.innerHTML = 'x';
-    deleteCell.onclick = function () {
-        deletePattern(botHomeId, reactionId, pattern.id);
-    };
-
+    let patternsSpan = document.getElementById('patterns-' + reactionId);
+    let patternTable = createLabelTable('pattern-' + pattern.id, 'pattern', pattern.patternString,
+        function () {
+            deletePattern(botHomeId, reactionId, pattern.id);
+        });
     patternsSpan.appendChild(patternTable);
 }
 
@@ -909,30 +882,23 @@ async function postAddReaction(botHomeId, emote, secure) {
 
 function addReactionRow(reaction, botHomeId) {
     let reactionTable = document.getElementById('reaction-table');
-    let newRow = reactionTable.insertRow();
+    let row = reactionTable.insertRow();
 
     const label = 'reaction-' + reaction.id;
-    newRow.id = label + '-row';
-    let keywordCell = newRow.insertCell();
-    keywordCell.innerHTML = reaction.emoteName;
+    row.id = label + '-row';
 
-    let patternsCell = newRow.insertCell();
-    let patternsSpan = document.createElement('span');
-    patternsSpan.id = 'patterns-' + reaction.id;
-    patternsCell.appendChild(patternsSpan);
+    addTextCell(row, reaction.emoteName);
+
+    let patternsCell = row.insertCell();
+    patternsCell.appendChild(createSpan({id: 'patterns-' + reaction.id}));
 
     let addPatternLabel = 'add-pattern-' + reaction.id;
-    let addPatternSpan = document.createElement('span');
-    addPatternSpan.classList.add('add-pattern');
+    let addPatternSpan = createSpan({classType: 'add-pattern'});
 
-    let addPatternButtonDiv = document.createElement('div');
-    addPatternButtonDiv.id = addPatternLabel + '-button';
-    addPatternButtonDiv.classList.add('pseudo-link', 'add-button');
-    addPatternButtonDiv.title = 'Add a pattern';
-    addPatternButtonDiv.onclick = function () {
-        showAddPatternForm(reaction.id);
-    };
-    addPatternButtonDiv.innerHTML = '+';
+    let addPatternButtonDiv = createDiv({id: addPatternLabel + '-button', title: 'Add a pattern',
+        classList: ['pseudo-link', 'add-button'], value: '+', clickFunction: function () {
+            showAddPatternForm(reaction.id);
+        }});
     addPatternSpan.appendChild(addPatternButtonDiv);
 
     let addPatternForm = document.createElement('form');
@@ -943,40 +909,24 @@ function addReactionRow(reaction, botHomeId) {
         return false;
     };
 
-    let addPatternTextInput = document.createElement('input');
-    addPatternTextInput.id = addPatternLabel + '-text-input';
-    addPatternTextInput.type = 'text';
-    addPatternTextInput.name = 'pattern';
-    addPatternForm.appendChild(addPatternTextInput);
+    addPatternForm.appendChild(createInput({id: addPatternLabel + '-text-input', type: 'text', name: 'pattern'}));
+    addPatternForm.appendChild(createInput({type: 'submit', value: '+'}));
 
-    let addPatternSubmitInput = document.createElement('input');
-    addPatternSubmitInput.type = 'submit';
-    addPatternSubmitInput.value = '+';
-    addPatternForm.appendChild(addPatternSubmitInput);
     addPatternSpan.appendChild(addPatternForm);
     patternsCell.appendChild(addPatternSpan);
 
-    let secureCell = newRow.insertCell();
-    secureCell.classList.add('pseudo-link');
-    secureCell.onclick = function (event) {
-        secureReaction(event, botHomeId, reaction.id);
-    };
+    let secureIconCell = row.insertCell();
+    let secureIcon = reaction.secure ? lockedIcon : unlockedIcon;
+    let secureIconSpan = createSpan({id: label + '-secured', classType: 'pseudo-link', value: secureIcon,
+        clickFunction: function () {
+            secureReaction(botHomeId, reaction.id);
+        }});
+    secureIconCell.appendChild(secureIconSpan);
+    secureIconCell.appendChild(createSpan({id: label + '-secure-response'}));
 
-    let secureIconSpan = document.createElement('span');
-    secureIconSpan.id = label + '-secured';
-    secureIconSpan.innerHTML = reaction.secure ? lockedIcon : unlockedIcon;
-    secureCell.appendChild(secureIconSpan);
-
-    let secureResponseSpan = document.createElement('span');
-    secureResponseSpan.id = label + '-response';
-    secureCell.appendChild(secureResponseSpan);
-
-    let deleteCell = newRow.insertCell();
-    deleteCell.classList.add('pseudo-link');
-    deleteCell.innerHTML = trashcanIcon;
-    deleteCell.onclick = function () {
+    addDeleteCell(row, trashcanIcon, function () {
         deleteReaction(botHomeId, reaction.id);
-    };
+    });
 }
 
 function showAddAlertForm() {
@@ -1006,17 +956,15 @@ async function postAddAlert(botHomeId, type, keyword, time) {
 
 function addAlertRow(alert, botHomeId) {
     let alertTable = document.getElementById('alert-table');
-    let newRow = alertTable.insertRow();
+    let row = alertTable.insertRow();
 
     const label = 'alert-' + alert.id;
-    newRow.id = label + '-row';
-    let keywordCell = newRow.insertCell();
-    keywordCell.innerHTML = alert.alertToken;
+    row.id = label + '-row';
 
-    let descriptionCell = newRow.insertCell();
-    descriptionCell.innerHTML = alert.description;
+    addTextCell(row, alert.alertToken);
+    addTextCell(row, alert.description);
 
-    let triggerCell = newRow.insertCell();
+    let triggerCell = row.insertCell();
     triggerCell.classList.add('pseudo-link');
     triggerCell.setAttribute('data-alert-token', alert.alertToken);
     triggerCell.onclick = function () {
@@ -1024,12 +972,9 @@ function addAlertRow(alert, botHomeId) {
     };
     triggerCell.innerHTML = bellIcon;
 
-    let deleteCell = newRow.insertCell();
-    deleteCell.classList.add('pseudo-link');
-    deleteCell.innerHTML = trashcanIcon;
-    deleteCell.onclick = function () {
+    addDeleteCell(row, trashcanIcon, function () {
         deleteAlert(botHomeId, alert.id);
-    };
+    });
 }
 
 function deleteAlert(botHomeId, alertId) {
@@ -1052,14 +997,13 @@ async function postAddBook(botHomeId, name, statement) {
     const parameters = {botHomeId: botHomeId, name: name, statement: statement};
     let response = await makePost('/api/add_book', parameters, [], false);
 
-    //if (response.ok) {
+    if (response.ok) {
         hideElementById(label + '-form');
         showElementInlineById(label + '-button');
 
-        //let book = await response.json();
-        let book = {name: name};
+        let book = await response.json();
         addBookItem(book, botHomeId);
-    //}
+    }
 }
 
 function addBookItem(book, botHomeId) {

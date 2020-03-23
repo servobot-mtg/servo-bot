@@ -50,6 +50,7 @@ public class ReactionTable implements Iterable<Reaction> {
             reaction.getPatterns().forEach(reactionTableEdit::delete);
             reactionTableEdit.delete(reaction);
         });
+        reactionTableEdit.getDeletedReactions().forEach(reaction -> reactions.remove(reaction));
         return reactionTableEdit;
     }
 
