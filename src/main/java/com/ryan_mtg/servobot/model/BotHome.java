@@ -11,12 +11,12 @@ import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
-import com.ryan_mtg.servobot.model.scope.BookScope;
 import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUserTable;
+import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
@@ -173,7 +173,8 @@ public class BotHome {
         timeSymbolTable.addFunctor("month", () -> now().getMonthValue());
         timeSymbolTable.addFunctor("dayOfMonth", () -> now().getDayOfMonth());
         timeSymbolTable.addFunctor("dayOfYear", () -> now().getDayOfYear());
-        timeSymbolTable.addFunctor("dayOfWeek", () -> now().getDayOfWeek());
+        timeSymbolTable.addFunctor("dayOfWeek",
+                () -> Strings.capitalize(now().getDayOfWeek().toString().toLowerCase()));
 
         Scope timeScope = new Scope(botScope, timeSymbolTable);
         Scope bookScope = new Scope(timeScope, bookTable);

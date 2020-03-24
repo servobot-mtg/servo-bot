@@ -32,4 +32,11 @@ public class Strings {
         }
         return string.trim();
     }
+
+    public static Object capitalize(final String string) {
+        if (isBlank(string) || Character.isUpperCase(string.charAt(0))) {
+            return string;
+        }
+        return Character.toUpperCase(string.charAt(0)) + string.substring(1);
+    }
 }
