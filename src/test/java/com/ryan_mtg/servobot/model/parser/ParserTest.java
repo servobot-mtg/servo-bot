@@ -4,7 +4,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.books.Statement;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
@@ -27,13 +27,13 @@ public class ParserTest {
 
     private Parser parser;
     private Scope scope;
-    private FunctorSymbolTable functorSymbolTable;
+    private SimpleSymbolTable simpleSymbolTable;
     private HomeEditor homeEditor;
 
     @Before
     public void setUp() {
-        functorSymbolTable = new FunctorSymbolTable();
-        scope = new Scope(null, functorSymbolTable);
+        simpleSymbolTable = new SimpleSymbolTable();
+        scope = new Scope(null, simpleSymbolTable);
         homeEditor = mockHomeEditor();
         parser = new Parser(scope, homeEditor);
     }
@@ -65,13 +65,13 @@ public class ParserTest {
 
     @Test
     public void testEvaluateVariable() throws ParseException {
-        functorSymbolTable.addValue("variable", 5);
+        simpleSymbolTable.addValue("variable", 5);
         assertEquals("5", parser.parse("variable").evaluate());
     }
 
     @Test
     public void testEvaluateStorageVariable() throws ParseException, BotErrorException {
-        functorSymbolTable.addValue("variable", new IntegerStorageValue(
+        simpleSymbolTable.addValue("variable", new IntegerStorageValue(
                 StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5));
         assertEquals("5", parser.parse("variable").evaluate());
     }
@@ -80,7 +80,7 @@ public class ParserTest {
     public void testPreIncrementStorageVariable() throws ParseException, BotErrorException {
         IntegerStorageValue value =
                 new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5);
-        functorSymbolTable.addValue("variable", value);
+        simpleSymbolTable.addValue("variable", value);
 
         doAnswer((invocationOnMock) -> {
             value.setValue(6);
@@ -94,7 +94,7 @@ public class ParserTest {
     public void testPostIncrementStorageVariable() throws ParseException, BotErrorException {
         IntegerStorageValue value =
                 new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5);
-        functorSymbolTable.addValue("variable", value);
+        simpleSymbolTable.addValue("variable", value);
 
         doAnswer((invocationOnMock) -> {
             value.setValue(6);
@@ -113,27 +113,27 @@ public class ParserTest {
     public void testBookExpression() throws ParseException, BotErrorException {
         List<Statement> statements = Collections.singletonList(new Statement(Statement.UNREGISTERED_ID, TEXT));
         Book book = new Book(Book.UNREGISTERED_ID, "name", statements);
-        functorSymbolTable.addFunctor("variable", () -> book);
+        simpleSymbolTable.addFunctor("variable", () -> book);
         assertEquals(TEXT, parser.parse("variable").evaluate());
     }
 
     @Test
     public void testFunctionExpression() throws ParseException {
         Function<Integer, Integer> f = (a) -> a + 1;
-        functorSymbolTable.addValue("function", f);
+        simpleSymbolTable.addValue("function", f);
         assertEquals("3", parser.parse("function(2)").evaluate());
     }
 
     @Test(expected = ParseException.class)
     public void testFunctionExpressionWithBadParameterType() throws ParseException {
         Function<String, Integer> f = String::length;
-        functorSymbolTable.addValue("function", f);
+        simpleSymbolTable.addValue("function", f);
         assertEquals("5", parser.parse("function(2)").evaluate());
     }
 
     @Test
     public void testDurationExpression() throws ParseException {
-        functorSymbolTable.addValue("duration", Duration.ofSeconds(2));
+        simpleSymbolTable.addValue("duration", Duration.ofSeconds(2));
         assertEquals("2 seconds", parser.parse("duration").evaluate());
     }
 
@@ -146,7 +146,7 @@ public class ParserTest {
     public void testMemberAccess() throws ParseException {
         Container container = new Container();
         container.setField(5);
-        functorSymbolTable.addValue("container", container);
+        simpleSymbolTable.addValue("container", container);
         assertEquals("5", parser.parse("container.field").evaluate());
     }
 }

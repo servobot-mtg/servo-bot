@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
@@ -54,7 +54,7 @@ public class TextCommandTest {
         HomeEditor homeEditor = mockHomeEditor();
         MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
 
-        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         Scope botHomeScope = new Scope(null, symbolTable);
         symbolTable.addValue("value", new IntegerStorageValue(
                 StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "value", 1));

@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
@@ -25,7 +25,7 @@ public class TextCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("input", arguments);
         MessageCommand.say(event, symbolTable, text);
     }

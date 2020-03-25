@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
@@ -40,7 +40,7 @@ public class SetUsersRoleCommand extends MessageCommand {
         } else {
             home.setRole(user, role);
 
-            FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+            SimpleSymbolTable symbolTable = new SimpleSymbolTable();
             symbolTable.addValue("input", arguments);
             symbolTable.addValue("user", user.getName());
             symbolTable.addValue("role", role);

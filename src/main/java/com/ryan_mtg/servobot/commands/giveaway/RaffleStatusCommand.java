@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
@@ -39,7 +39,7 @@ public class RaffleStatusCommand extends MessageCommand {
         if (raffle == null) {
             MessageCommand.say(event, "There is no raffle currently running.");
         } else {
-            FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+            SimpleSymbolTable symbolTable = new SimpleSymbolTable();
             symbolTable.addValue("raffle", raffle);
             MessageCommand.say(event, symbolTable, response);
         }

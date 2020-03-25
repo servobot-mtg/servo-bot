@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -43,7 +43,7 @@ public class MessageChannelCommand extends HomeCommand {
     @Override
     public void perform(final HomeEvent homeEvent) throws BotErrorException {
         Channel channel = homeEvent.getHome().getChannel(channelName, serviceType);
-        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("commandCount", "");
         Scope commandScope = new Scope(homeEvent.getScope(), symbolTable);
         Command.say(channel, homeEvent, commandScope, message);

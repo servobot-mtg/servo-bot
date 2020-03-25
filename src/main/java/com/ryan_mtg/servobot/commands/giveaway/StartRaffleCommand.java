@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
@@ -34,7 +34,7 @@ public class StartRaffleCommand extends MessageCommand {
         HomeEditor homeEditor = event.getHomeEditor();
         Raffle raffle = homeEditor.startRaffle(giveawayId);
 
-        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("raffle", raffle);
         MessageCommand.say(event, symbolTable, message);
     }

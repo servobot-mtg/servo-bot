@@ -6,7 +6,7 @@ import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.data.factories.BotFactory;
 import com.ryan_mtg.servobot.model.BotRegistrar;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class BotConfig {
 
     @Bean
     public Scope globalScope() {
-        FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         Function<Book, String> randomStatement = Book::randomStatement;
         symbolTable.addValue("randomStatement", randomStatement);
 

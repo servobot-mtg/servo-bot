@@ -11,7 +11,7 @@ import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -168,7 +168,7 @@ public class BotHome {
     }
 
     private Scope createScope(final Scope botScope) {
-        FunctorSymbolTable timeSymbolTable = new FunctorSymbolTable();
+        SimpleSymbolTable timeSymbolTable = new SimpleSymbolTable();
         timeSymbolTable.addFunctor("year", () -> now().getYear());
         timeSymbolTable.addFunctor("month", () -> now().getMonthValue());
         timeSymbolTable.addFunctor("dayOfMonth", () -> now().getDayOfMonth());

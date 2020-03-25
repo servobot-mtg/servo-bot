@@ -9,7 +9,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -54,7 +54,7 @@ public class SelectWinnerCommand extends HomeCommand {
         } else {
             String winnerString = Strings.join(
                     winners.stream().map(homedUser -> homedUser.getName()).collect(Collectors.toList()));
-            FunctorSymbolTable symbolTable = new FunctorSymbolTable();
+            SimpleSymbolTable symbolTable = new SimpleSymbolTable();
             scope = new Scope(scope, symbolTable);
             symbolTable.addValue("winner", winnerString);
             message = response;

@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.scope.FunctorSymbolTable;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.scope.SymbolTable;
 
@@ -19,7 +19,7 @@ public abstract class MessageCommand extends Command {
 
     protected static Scope getMessageScope(final MessageSentEvent event) {
         HomeEditor homeEditor = event.getHomeEditor();
-        FunctorSymbolTable messageSymbolTable = new FunctorSymbolTable();
+        SimpleSymbolTable messageSymbolTable = new SimpleSymbolTable();
         messageSymbolTable.addValue("sender", event.getSender().getName());
         messageSymbolTable.addValue("home", event.getHome().getName());
 
