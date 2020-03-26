@@ -1,15 +1,19 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.books.Book;
 
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class AddStatementCommand extends MessageCommand {
     public static final int TYPE = 15;
-    public static final Pattern bookPattern = Pattern.compile("\\w+");
+    private static final Pattern BOOK_PATTERN = Pattern.compile("\\w+");
 
     public AddStatementCommand(final int id, final CommandSettings commandSettings) {
         super(id, commandSettings);
@@ -33,15 +37,15 @@ public class AddStatementCommand extends MessageCommand {
 
         Scanner scanner = new Scanner(arguments);
 
-        String book = scanner.next();
-        if (book.length() <= 1) {
+        String bookName = scanner.next();
+        if (bookName.length() <= 1) {
             throw new BotErrorException("No statement to add.");
         }
 
         scanner.useDelimiter("\\z");
 
-        if (!bookPattern.matcher(book).matches()) {
-            throw new BotErrorException(String.format("%s isn't properly formatted.", book));
+        if (!BOOK_PATTERN.matcher(bookName).matches()) {
+            throw new BotErrorException(String.format("%s isn't properly formatted.", bookName));
         }
 
         if (!scanner.hasNext()) {
@@ -55,8 +59,16 @@ public class AddStatementCommand extends MessageCommand {
         }
 
         HomeEditor homeEditor = event.getHomeEditor();
-        homeEditor.addStatement(book, text);
+        Optional<Book> book = homeEditor.getBook(bookName);
 
-        MessageCommand.say(event, String.format("Statement added to %s.", book));
+        if (book.isPresent()) {
+            homeEditor.addStatement(book.get().getId(), text);
+            MessageCommand.say(event, String.format("Statement added to %s.", book));
+        } else if (Command.hasPermissions(event.getSender(), Permission.MOD)){
+            homeEditor.addBook(bookName, text);
+            MessageCommand.say(event, String.format("%s created with the statement.", bookName));
+        } else {
+            MessageCommand.say(event, String.format("No book with name %s.", bookName));
+        }
     }
 }

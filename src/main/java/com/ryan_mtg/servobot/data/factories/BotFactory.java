@@ -8,16 +8,19 @@ import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.model.GameQueue;
+import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,7 @@ public class BotFactory {
     }
 
     public Bot createBot(final BotRow botRow, final Scope globalScope) throws BotErrorException {
+        LOGGER.info(">>>>>>>>>>>>>>>> Starting bot creation ");
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
 
@@ -54,6 +58,7 @@ public class BotFactory {
             bot.addHome(createBotHome(botHomeRow));
         }
 
+        LOGGER.info("<<<<<<<<<<<<<<<< Ending bot creation ");
         return bot;
     }
 
@@ -63,6 +68,7 @@ public class BotFactory {
 
     @Transactional(rollbackOn = BotErrorException.class)
     protected BotHome createBotHome(final BotHomeRow botHomeRow) throws BotErrorException {
+        LOGGER.info(">>>>>> Starting bot home creation: {} ", botHomeRow.getHomeName());
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
         String homeName = botHomeRow.getHomeName();
@@ -70,17 +76,19 @@ public class BotFactory {
         String timeZone = botHomeRow.getTimeZone();
         int botHomeId = botHomeRow.getId();
 
-        List<Book> books = serializers.getBookSerializer().createBooks(botHomeId);
-        Map<Integer, Book> bookMap = new HashMap<>();
-        for (Book book : books) {
-            bookMap.put(book.getId(), book);
-        }
+        LOGGER.info("------ Creating Books: {} ", botHomeRow.getHomeName());
+        BookTable bookTable = serializers.getBookSerializer().createBookTable(botHomeId);
+        Map<Integer, Book> bookMap = bookTable.getBookMap();
 
+        LOGGER.info("------ Creating CommandTable: {} ", botHomeRow.getHomeName());
         CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
+        LOGGER.info("------ Creating ReactionTable: {} ", botHomeRow.getHomeName());
         ReactionTable reactionTable =
                 serializers.getReactionTableSerializer().createReactionTable(botHomeId, commandTable);
+        LOGGER.info("------ Creating StorageTable: {} ", botHomeRow.getHomeName());
         StorageTable storageTable = serializers.getStorageTableSerializer().createStorageTable(botHomeId);
 
+        LOGGER.info("------ Creating service homes: {} ", botHomeRow.getHomeName());
         Map<Integer, ServiceHome> serviceHomes = new HashMap<>();
         for (ServiceHomeRow serviceHomeRow : serviceHomeRepository.findAllByBotHomeId(botHomeId)) {
             int serviceType = serviceHomeRow.getServiceType();
@@ -89,6 +97,7 @@ public class BotFactory {
             serviceHomes.put(serviceType, serviceHome);
         }
 
+        LOGGER.info("------ Creating Game Queues: {} ", botHomeRow.getHomeName());
         List<GameQueue> gameQueues = new ArrayList<>();
         for (GameQueueRow gameQueueRow : serializers.getGameQueueRepository().findAllByBotHomeId(botHomeId)) {
             GameQueue gameQueue = new GameQueue(gameQueueRow.getId(), gameQueueRow.getName(),
@@ -103,7 +112,15 @@ public class BotFactory {
             gameQueues.add(gameQueue);
         }
 
-        return new BotHome(botHomeId, homeName, botName, timeZone, commandTable, reactionTable, storageTable, serviceHomes,
-                books, gameQueues);
+        LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
+        HomedUserTable homedUserTable = new HomedUserTable(serializers.getUserSerializer(), serializers.getUserTable(),
+                botHomeId);
+        List<Giveaway> giveaways = serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
+        LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
+        BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, bookTable, commandTable,
+                reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
+
+        LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
+        return botHome;
     }
 }

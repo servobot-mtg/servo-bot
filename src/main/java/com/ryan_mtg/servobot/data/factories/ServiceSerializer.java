@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceRow;
-import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceRepository;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
@@ -53,11 +52,11 @@ public class ServiceSerializer {
         Service service;
         switch (serviceType) {
             case DiscordService.TYPE:
-                service = new DiscordService(serviceRow.getToken(), userSerializer);
+                service = new DiscordService(serviceRow.getToken());
                 break;
             case TwitchService.TYPE:
                 service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
-                        serviceRow.getToken(), userSerializer);
+                        serviceRow.getToken());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());
@@ -69,9 +68,9 @@ public class ServiceSerializer {
     public ServiceHome createServiceHome(final ServiceHomeRow serviceHomeRow, final Service service) {
         switch (serviceHomeRow.getServiceType()) {
             case DiscordService.TYPE:
-                return new DiscordServiceHome((DiscordService) service, serviceHomeRow.getLong());
+                return new DiscordServiceHome((DiscordService) service, serviceHomeRow.getLongValue());
             case TwitchService.TYPE:
-                return new TwitchServiceHome((TwitchService) service, serviceHomeRow.getLong());
+                return new TwitchServiceHome((TwitchService) service, serviceHomeRow.getLongValue());
         }
         throw new IllegalArgumentException("Unknown ServiceHome type: " + serviceHomeRow.getServiceType());
     }

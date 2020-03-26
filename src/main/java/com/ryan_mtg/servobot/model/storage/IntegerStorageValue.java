@@ -30,4 +30,9 @@ public class IntegerStorageValue extends StorageValue {
     public void setValue(final int value) {
         this.value = value;
     }
+
+    @Override
+    public String evaluate() {
+        return Integer.toString(value);
+    }
 }

@@ -1,18 +1,23 @@
 package com.ryan_mtg.servobot.data.factories;
 
-import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
+import com.ryan_mtg.servobot.user.UserTable;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SerializerContainer {
     private BotFactory botFactory;
+
+    @Autowired
+    @Getter
+    private AlertGeneratorSerializer alertGeneratorSerializer;
 
     @Autowired
     private BookSerializer bookSerializer;
@@ -34,6 +39,9 @@ public class SerializerContainer {
 
     @Autowired
     private GameQueueEntryRepository gameQueueEntryRepository;
+
+    @Autowired
+    private GiveawaySerializer giveawaySerializer;
 
     @Autowired
     private ReactionSerializer reactionSerializer;
@@ -61,6 +69,10 @@ public class SerializerContainer {
 
     @Autowired
     private UserSerializer userSerializer;
+
+    @Autowired
+    @Getter
+    private UserTable userTable;
 
     public BookSerializer getBookSerializer() {
         return bookSerializer;
@@ -96,6 +108,10 @@ public class SerializerContainer {
 
     public GameQueueEntryRepository getGameQueueEntryRepository() {
         return gameQueueEntryRepository;
+    }
+
+    public GiveawaySerializer getGiveawaySerializer() {
+        return giveawaySerializer;
     }
 
     public ReactionTableSerializer getReactionTableSerializer() {

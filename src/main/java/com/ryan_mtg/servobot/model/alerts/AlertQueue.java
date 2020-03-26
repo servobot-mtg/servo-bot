@@ -18,10 +18,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class AlertQueue {
-    static Logger LOGGER = LoggerFactory.getLogger(AlertQueue.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AlertQueue.class);
 
     private Bot bot;
-    boolean active = false;
+    private boolean active = false;
     private Map<AlertGenerator, RepeatingAlertable> alertableMap = new HashMap<>();
     private Set<Alertable> alertables = new HashSet<>();
     private Timer timer = new Timer();
@@ -30,9 +30,9 @@ public class AlertQueue {
         this.bot = bot;
     }
 
-    public void scheduleAlert(final BotHome botHome, final Duration waitTime, final String alertToken) {
+    public void scheduleAlert(final BotHome botHome, final Alert alert) {
         if (active) {
-            Alertable alertable = new OneShotAlertable(botHome, waitTime, alertToken);
+            Alertable alertable = new OneShotAlertable(botHome, alert.getDelay(), alert.getToken());
             alertables.add(alertable);
             alertable.schedule(Instant.now());
         }
@@ -47,6 +47,15 @@ public class AlertQueue {
             if (active) {
                 alertable.update(now);
             }
+        }
+    }
+
+    public void add(final BotHome home, final AlertGenerator alertGenerator) {
+        RepeatingAlertable alertable = alertableMap.computeIfAbsent(alertGenerator,
+                ag -> new RepeatingAlertable(home, alertGenerator));
+        alertables.add(alertable);
+        if (active) {
+            alertable.update(Instant.now());
         }
     }
 
@@ -157,13 +166,16 @@ public class AlertQueue {
 
         @Override
         public void schedule(final Instant now) {
+            LOGGER.trace("Scheduling {} for {}", generator.getAlertToken(), now);
             Instant goal = generator.getNextAlertTime(now);
             Duration wait = Duration.between(now, goal);
+            LOGGER.trace("  - goal is {} with wait {}", goal, wait);
 
             if (wait.compareTo(Duration.ofSeconds(5)) < 0) {
                 Instant later = now.plus(5, ChronoUnit.SECONDS);
                 goal = generator.getNextAlertTime(later);
-                wait = Duration.between(later, goal);
+                wait = Duration.between(now, goal);
+                LOGGER.trace("  wait was too small, changed: goal is {} with wait {}", goal, wait);
             }
 
             alertTask = new AlertTask(this, goal);

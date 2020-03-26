@@ -1,7 +1,5 @@
 package com.ryan_mtg.servobot.model.parser;
 
-import java.util.regex.Pattern;
-
 public class Lexer {
     private String input;
     private int position;
@@ -27,6 +25,10 @@ public class Lexer {
         return result;
     }
 
+    public boolean isNextToken(final Token.Type tokenType) {
+        return nextToken != null && nextToken.getType() == tokenType;
+    }
+
     private void readToken() {
         nextToken = null;
         while (position < input.length() && Character.isWhitespace(input.charAt(position))) {
@@ -49,6 +51,10 @@ public class Lexer {
                 return;
             case '*':
                 nextToken = new Token(Token.Type.MULTIPLY, "*");
+                position++;
+                return;
+            case '.':
+                nextToken = new Token(Token.Type.MEMBER_ACCESSOR, ".");
                 position++;
                 return;
             case '+':
@@ -77,7 +83,6 @@ public class Lexer {
                 position++;
             }
             nextToken = new Token(Token.Type.IDENTIFIER, input.substring(start, position));
-            return;
         }
     }
 }

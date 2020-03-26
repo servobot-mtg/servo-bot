@@ -1,25 +1,40 @@
 package com.ryan_mtg.servobot.user;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 public class User {
     public static final int UNREGISTERED_ID = 0;
-    public static final int INVITE_FLAG = 1<<1;
 
     private static final int ADMIN_FLAG = 1;
+    private static final int INVITE_FLAG = 1<<1;
 
+    @Getter
     private int id;
+
+    @Getter
     private int flags;
+
+    @Getter
     private int twitchId;
+
+    @Getter
     private long discordId;
+
+    @Getter @Setter
     private String twitchUsername;
+
+    @Getter @Setter
     private String discordUsername;
+
+    @Getter @Setter
     private String arenaUsername;
 
-    public User(final int id, final int flags, final int twitchId, final String twitchUsername,
-                final long discordId, final String discordUsername, final String arenaUsername)
-            throws BotErrorException {
+    public User(final int id, final int flags, final int twitchId, final String twitchUsername, final long discordId,
+            final String discordUsername, final String arenaUsername) throws BotErrorException {
         this.id = id;
         this.flags = flags;
         this.twitchId = twitchId;
@@ -33,36 +48,8 @@ public class User {
         Validation.validateStringLength(arenaUsername, Validation.MAX_USERNAME_LENGTH, "Arena username");
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getFlags() {
-        return flags;
-    }
-
     public boolean isAdmin() {
-        return isFlagSet(ADMIN_FLAG);
-    }
-
-    public int getTwitchId() {
-        return twitchId;
-    }
-
-    public long getDiscordId() {
-        return discordId;
-    }
-
-    public String getTwitchUsername() {
-        return twitchUsername;
-    }
-
-    public String getDiscordUsername() {
-        return discordUsername;
-    }
-
-    public String getArenaUsername() {
-        return arenaUsername;
+        return Flags.hasFlag(flags, ADMIN_FLAG);
     }
 
     public String getName() {
@@ -73,22 +60,19 @@ public class User {
     }
 
     public boolean hasInvite() {
-        return isFlagSet(INVITE_FLAG);
+        return Flags.hasFlag(flags, INVITE_FLAG);
+    }
+
+    public void invite() {
+        setFlag(INVITE_FLAG, true);
+
     }
 
     public void removeInvite() {
         setFlag(INVITE_FLAG, false);
     }
 
-    private boolean isFlagSet(final int flag) {
-        return (flags & flag) != 0;
-    }
-
     private void setFlag(final int flag, final boolean value) {
-        if (value) {
-            flags = flags | flag;
-        } else {
-            flags = flags & ~flag;
-        }
+        flags = Flags.setFlag(flags, flag, value);
     }
 }

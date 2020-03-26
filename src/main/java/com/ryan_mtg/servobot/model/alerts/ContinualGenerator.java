@@ -1,7 +1,8 @@
 package com.ryan_mtg.servobot.model.alerts;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
-import org.apache.commons.lang.time.DurationFormatUtils;
+import com.ryan_mtg.servobot.utility.Time;
+import lombok.Getter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -9,7 +10,9 @@ import java.time.Instant;
 public class ContinualGenerator extends AlertGenerator {
     public static final int TYPE = 1;
 
+    @Getter
     private Duration duration;
+
     private Instant goal;
 
     public ContinualGenerator(final int id, final String alertToken, final Duration duration) throws BotErrorException {
@@ -25,7 +28,7 @@ public class ContinualGenerator extends AlertGenerator {
 
     @Override
     public String getDescription() {
-        return String.format("Alert every %s", DurationFormatUtils.formatDuration(duration.toMillis(), "H:mm:ss"));
+        return String.format("Alert every %s", Time.toReadableString(duration));
     }
 
     @Override

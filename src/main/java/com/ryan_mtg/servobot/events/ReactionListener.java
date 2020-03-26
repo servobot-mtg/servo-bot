@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.events;
 
-import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.MessageCommand;
 import com.ryan_mtg.servobot.commands.RateLimiter;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -62,7 +62,13 @@ public class ReactionListener implements EventListener {
     public void onStreamStart(final StreamStartEvent streamStartEvent) {}
 
     @Override
-    public void onNewUser(final NewUserEvent newUserEvent) {}
+    public void onNewUser(final UserEvent newUserEvent) {}
+
+    @Override
+    public void onRaid(final UserEvent raidEvent) {}
+
+    @Override
+    public void onSubscribe(UserEvent subscribeEvent) {}
 
     @Override
     public void onAlert(final AlertEvent alertEvent) {}

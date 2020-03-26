@@ -7,14 +7,13 @@ import com.ryan_mtg.servobot.security.SecurityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
 
@@ -23,8 +22,8 @@ import javax.annotation.PostConstruct;
 public class Application {
     private static Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-    @Value("${server.port}")
-    private int port;
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private BotRegistrar botRegistrar;
@@ -32,13 +31,14 @@ public class Application {
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(Application.class);
         application.setBannerMode(Banner.Mode.OFF);
-        application.setLogStartupInfo(false);
+        application.setLogStartupInfo(true);
         application.run(args);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void printAddress(final ApplicationReadyEvent event) {
         if (isTesting()) {
+            int port = Integer.parseInt(environment.getProperty("local.server.port"));
             String botSite = String.format("http://localhost:%d", port);
             LOGGER.info(String.format("Website link: %s", botSite));
             for(Bot bot : botRegistrar.getBots()) {
@@ -59,6 +59,6 @@ public class Application {
 
     public static boolean isTesting() {
         String osName = System.getProperty("os.name").toLowerCase();
-        return osName.indexOf("win") >= 0;
+        return osName.contains("win");
     }
 }

@@ -1,42 +1,47 @@
 package com.ryan_mtg.servobot.controllers;
 
-import com.ryan_mtg.servobot.commands.AddCommand;
-import com.ryan_mtg.servobot.commands.AddReactionCommand;
+import com.ryan_mtg.servobot.commands.chat.AddCommand;
+import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
-import com.ryan_mtg.servobot.commands.Command;
-import com.ryan_mtg.servobot.commands.CommandAlert;
-import com.ryan_mtg.servobot.commands.CommandAlias;
-import com.ryan_mtg.servobot.commands.CommandEvent;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
+import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.DelayedAlertCommand;
-import com.ryan_mtg.servobot.commands.DeleteCommand;
-import com.ryan_mtg.servobot.commands.EnterGiveawayCommand;
+import com.ryan_mtg.servobot.commands.chat.DeleteCommand;
+import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
-import com.ryan_mtg.servobot.commands.FactsCommand;
-import com.ryan_mtg.servobot.commands.GameQueueCommand;
-import com.ryan_mtg.servobot.commands.GiveawayStatusCommand;
-import com.ryan_mtg.servobot.commands.JailBreakCommand;
-import com.ryan_mtg.servobot.commands.JailCommand;
-import com.ryan_mtg.servobot.commands.JoinGameQueueCommand;
-import com.ryan_mtg.servobot.commands.MessageChannelCommand;
-import com.ryan_mtg.servobot.commands.RemoveFromGameQueueCommand;
-import com.ryan_mtg.servobot.commands.SelectWinnerCommand;
+import com.ryan_mtg.servobot.commands.chat.FactsCommand;
+import com.ryan_mtg.servobot.commands.game_queue.GameQueueCommand;
+import com.ryan_mtg.servobot.commands.jail.JailReleaseCommand;
+import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
+import com.ryan_mtg.servobot.commands.jail.JailBreakCommand;
+import com.ryan_mtg.servobot.commands.jail.JailCommand;
+import com.ryan_mtg.servobot.commands.game_queue.JoinGameQueueCommand;
+import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
+import com.ryan_mtg.servobot.commands.game_queue.RemoveFromGameQueueCommand;
+import com.ryan_mtg.servobot.commands.giveaway.RequestPrizeCommand;
+import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
 import com.ryan_mtg.servobot.commands.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
+import com.ryan_mtg.servobot.commands.SetUsersRoleCommand;
 import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
-import com.ryan_mtg.servobot.commands.ShowGameQueueCommand;
+import com.ryan_mtg.servobot.commands.game_queue.ShowGameQueueCommand;
 import com.ryan_mtg.servobot.commands.ShowValueCommand;
-import com.ryan_mtg.servobot.commands.StartGiveawayCommand;
-import com.ryan_mtg.servobot.commands.TextCommand;
+import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
+import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
-import com.ryan_mtg.servobot.commands.Trigger;
-import com.ryan_mtg.servobot.commands.TriggerVisitor;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
+import com.ryan_mtg.servobot.commands.trigger.TriggerVisitor;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class CommandDescriptor {
     private Command command;
     private String type;
@@ -55,32 +60,8 @@ public class CommandDescriptor {
         this.edit = descriptorVisitor.getEdit();
     }
 
-    public Command getCommand() {
-        return command;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
     public String getEdit() {
         return edit;
-    }
-
-    public List<CommandAlias> getAliases() {
-        return aliases;
-    }
-
-    public List<CommandEvent> getEvents() {
-        return events;
-    }
-
-    public List<CommandAlert> getAlerts() {
-        return alerts;
     }
 
     public void addTrigger(final Trigger trigger) {
@@ -155,7 +136,7 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitEnterGiveawayCommand(final EnterGiveawayCommand enterGiveawayCommand) {
+        public void visitEnterGiveawayCommand(final EnterRaffleCommand enterRaffleCommand) {
             type = "Enter Giveaway Command";
             description = "Enters the user into the current giveaway";
         }
@@ -180,7 +161,7 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitGiveawayStatusCommand(final GiveawayStatusCommand giveawayStatusCommand) {
+        public void visitGiveawayStatusCommand(final RaffleStatusCommand raffleStatusCommand) {
             type = "Giveaway Status Command";
             description = "Displays the status of the current giveaway";
         }
@@ -188,7 +169,7 @@ public class CommandDescriptor {
         @Override
         public void visitJailCommand(final JailCommand jailCommand) {
             type = "Jail Command";
-            description = String.format("Puts the user in into '%s' if triggered %d times",
+            description = String.format("Puts the user into '%s' if triggered %d times",
                     jailCommand.getPrisonRole(), jailCommand.getThreshold());
         }
 
@@ -197,6 +178,13 @@ public class CommandDescriptor {
             type = "Jail Break Command";
             description = String.format("Breaks all of the users out of '%s'",
                     jailBreakCommand.getPrisonRole());
+        }
+
+        @Override
+        public void visitJailReleaseCommand(final JailReleaseCommand jailReleaseCommand) {
+            type = "Jail Release Command";
+            description =String.format("Releases the users passed in as input out of '%s'",
+                    jailReleaseCommand.getPrisonRole());
         }
 
         @Override
@@ -217,6 +205,12 @@ public class CommandDescriptor {
         public void visitRemoveFromGameQueueCommand(final RemoveFromGameQueueCommand removeFromGameQueueCommand) {
             type = "Remove From Game Queue Command";
             description = "Removes the user from the game queue";
+        }
+
+        @Override
+        public void visitRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
+            type = "Request Prize Command";
+            description = "Requests a giveaway prize";
         }
 
         @Override
@@ -245,6 +239,15 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
+            type = "Set Users Role Command";
+            description = String.format("Sets the user passed as input to the role '%s' and says '%s'",
+                    setUsersRoleCommand.getRole(), setUsersRoleCommand.getMessage());
+            edit = setUsersRoleCommand.getRole();
+
+        }
+
+        @Override
         public void visitSetValueCommand(final SetValueCommand setValueCommand) {
             type = "Set Value Command";
             description = "Resets a storage value";
@@ -269,7 +272,7 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitStartGiveawayCommand(final StartGiveawayCommand startGiveawayCommand) {
+        public void visitStartGiveawayCommand(final StartRaffleCommand startRaffleCommand) {
             type = "Start Giveaway Command";
             description = "Starts a new giveaway";
         }

@@ -1,12 +1,16 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.UserCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 public class SetRoleCommand extends UserCommand {
     public static final int TYPE = 13;
+
+    @Getter
     private String role;
 
     public SetRoleCommand(final  int id, final CommandSettings commandSettings, final String role)
@@ -15,10 +19,6 @@ public class SetRoleCommand extends UserCommand {
         this.role = role;
 
         Validation.validateStringLength(role, Validation.MAX_ROLE_LENGTH, "Role");
-    }
-
-    public String getRole() {
-        return role;
     }
 
     @Override

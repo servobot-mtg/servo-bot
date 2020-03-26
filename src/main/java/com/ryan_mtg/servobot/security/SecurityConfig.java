@@ -1,12 +1,14 @@
 package com.ryan_mtg.servobot.security;
 
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
@@ -28,10 +30,12 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,17 +44,26 @@ import java.util.List;
 @ControllerAdvice
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private UserSerializer userSerializer;
+    private BotRegistrar botRegistrar;
+
+    @Autowired
+    private UserTable userTable;
 
     @Autowired
     private WebsiteUserFactory websiteUserFactory;
 
-    @Autowired
-    private BotRegistrar botRegistrar;
-
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {
         return new InMemoryClientRegistrationRepository(clientRegistration);
+    }
+
+    @Bean
+    FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
+        // For the redirectUriTemplate to use the proper URL, because the server is behind a proxy
+        final FilterRegistrationBean<ForwardedHeaderFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+        filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
+        filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return filterRegistrationBean;
     }
 
     @Bean
@@ -74,14 +87,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
             .antMatchers("/admin**", "/admin/**", "/script/admin.js").access("hasRole('ADMIN')")
-            .antMatchers("/script/privledged.js").access("isPrivledged()")
-                .antMatchers("/home/{home}/**").access("isPrivledged(#home)")
-            .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home", "/home/{home}").permitAll()
+            .antMatchers("/script/privileged.js").access("isPrivileged()")
+            .antMatchers("/script/invite.js").access("isInvited()")
+            .antMatchers("/home/{home}").permitAll()
+            .antMatchers("/home/{home}/**").access("isPrivileged(#home)")
+            .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home").permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager())
-            .and().oauth2Login().loginPage("/oauth2/authorization/twitch").defaultSuccessUrl("/home")
+            .and().oauth2Login().loginPage("/oauth2/authorization/twitch").successHandler(new RefererSuccessHandler())
             .and().logout().logoutSuccessUrl("/").permitAll()
-            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userSerializer));
+            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userTable));
     }
 
     @ModelAttribute
@@ -93,7 +108,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AccessDecisionManager accessDecisionManager() {
         WebExpressionVoter webExpressionVoter = new WebExpressionVoter();
         webExpressionVoter.setExpressionHandler(new WebSecurityExpressionHandler());
-        List<AccessDecisionVoter<? extends Object>> decisionVoters =
+        List<AccessDecisionVoter<?>> decisionVoters =
                 Arrays.asList(webExpressionVoter,new RoleVoter(), new AuthenticatedVoter());
         return new AffirmativeBased(decisionVoters);
     }
@@ -126,13 +141,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             this.websiteUser = websiteUser;
         }
 
-        public boolean isPrivledged() {
-            return websiteUser.isPrivledged();
+        public boolean isPrivileged() {
+            return websiteUser.isPrivileged();
         }
 
-        public boolean isPrivledged(final String botHomeName) {
+        public boolean isInvited() {
+            return websiteUser.hasInvite();
+        }
+
+        public boolean isPrivileged(final String botHomeName) {
             BotHome botHome = botRegistrar.getBotHome(botHomeName);
-            return websiteUser.isPrivledged(botHome);
+            return websiteUser.isPrivileged(botHome);
+        }
+    }
+
+    private static class RefererSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+        public RefererSuccessHandler() {
+            super();
+            setUseReferer(true);
         }
     }
 }

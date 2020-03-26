@@ -2,14 +2,18 @@ package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
+import lombok.Getter;
 import net.dv8tion.jda.api.entities.Member;
 
 public class DiscordUser implements User {
-    private HomedUser user;
+    @Getter
+    private HomedUser homedUser;
+
+    @Getter
     private Member member;
 
-    public DiscordUser(final HomedUser user, final Member member) {
-        this.user = user;
+    public DiscordUser(final HomedUser homedUser, final Member member) {
+        this.homedUser = homedUser;
         this.member = member;
     }
 
@@ -19,28 +23,23 @@ public class DiscordUser implements User {
     }
 
     @Override
-    public HomedUser getHomedUser() {
-        return user;
-    }
-
-    @Override
     public boolean isBot() {
         return member.getUser().isBot();
     }
 
     @Override
     public boolean isAdmin() {
-        return user.isAdmin();
+        return homedUser.isAdmin();
     }
 
     @Override
     public boolean isModerator() {
-        return user.isModerator();
+        return homedUser.isModerator();
     }
 
     @Override
     public boolean isSubscriber() {
-        return user.isSubscriber();
+        return homedUser.isSubscriber();
     }
 
     @Override

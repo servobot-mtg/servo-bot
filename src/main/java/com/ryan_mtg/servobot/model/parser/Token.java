@@ -1,29 +1,27 @@
 package com.ryan_mtg.servobot.model.parser;
 
+import lombok.Getter;
+
 public class Token {
-    public static enum Type {
+    public enum Type {
         IDENTIFIER,
         INTEGER,
         OPEN_PARENTHESIS,
         CLOSE_PARENTHESIS,
+        MEMBER_ACCESSOR,
         INCREMENT,
         ADD,
         MULTIPLY,
     }
 
+    @Getter
     private Type type;
+
+    @Getter
     private String lexeme;
 
     public Token(final Type type, final String lexeme) {
         this.type = type;
         this.lexeme = lexeme;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public String getLexeme() {
-        return lexeme;
     }
 }

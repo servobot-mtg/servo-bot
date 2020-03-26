@@ -41,8 +41,7 @@ public class DatabaseConfig {
     protected LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource());
-        factory.setPackagesToScan(
-                new String[] {DatabaseConfig.class.getPackage().getName()});
+        factory.setPackagesToScan(DatabaseConfig.class.getPackage().getName());
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         factory.setJpaVendorAdapter(vendorAdapter);

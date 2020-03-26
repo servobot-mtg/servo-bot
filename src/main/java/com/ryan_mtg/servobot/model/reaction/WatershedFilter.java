@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model.reaction;
 
 import com.ryan_mtg.servobot.model.User;
+import lombok.Setter;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -8,16 +9,12 @@ import java.time.ZonedDateTime;
 public class WatershedFilter implements ReactionFilter {
     public static final int TYPE = 2;
 
+    @Setter
     private String timeZone;
 
     @Override
     public int getType() {
         return TYPE;
-    }
-
-    @Override
-    public void setTimeZone(final String timeZone) {
-        this.timeZone = timeZone;
     }
 
     @Override

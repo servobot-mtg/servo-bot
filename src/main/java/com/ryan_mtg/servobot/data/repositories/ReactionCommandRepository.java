@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReactionCommandRepository extends CrudRepository<ReactionCommandRow, Integer> {
-    Iterable<ReactionCommandRow> findAllByReactionId(final int commandId);
+    Iterable<ReactionCommandRow> findAllByReactionIdIn(Iterable<Integer> reactionIds);
 }

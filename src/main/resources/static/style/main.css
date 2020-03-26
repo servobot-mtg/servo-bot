@@ -1,17 +1,78 @@
+:root {
+    --giveaway-color: goldenrod;
+    --command-color: navy;
+    --reaction-color: darkgreen;
+    --alert-color: maroon;
+    --book-color: maroon;
+}
+
 body {
     margin: 0;
 }
 
 h2 {
     clear: both;
+    margin-bottom: 5px;
+}
+
+h3 {
+    margin: 10px 0 0 0;
 }
 
 li {
     margin: 3px 0;
 }
 
+input[type=number] {
+    width: 5em;
+    text-align: right;
+}
+
 .pseudo-link {
     cursor: pointer;
+}
+
+.info-banner-frame {
+    margin-bottom: 10px;
+    position: fixed;
+    left: 10%;
+    top: 10px;
+    text-align: center;
+    width: 80%;
+}
+
+.banner {
+    display: none;
+    padding: 0.3em;
+    margin: 5px 0.8em;
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1;
+    font-size: 20px;
+    border-radius: 7px;
+}
+
+#warning-banner {
+    color: black;
+    background-color: goldenrod;
+}
+
+#error-banner {
+    color: white;
+    background-color: red;
+}
+
+.banner-icon {
+    color: black;
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+.save-button {
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 .user-image {
@@ -38,7 +99,7 @@ li {
 }
 
 .icon-cell {
-    width: 75px;
+    width: 6em;
 }
 
 .icon {
@@ -231,7 +292,24 @@ table {
     display: inline-block;
     float: left;
     margin: 7px;
+}
+
+.title-section {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.section {
+    clear: left;
+    display: inline-block;
+}
+
+.section-content {
+    display: inline-block;
+    position: relative;
+    border: black solid 1px;
     padding: 7px;
+    margin-bottom: 10px;
 }
 
 .add-statement {
@@ -239,32 +317,56 @@ table {
     margin: 12px;
 }
 
+.command {
+    border: 3px solid var(--command-color);
+}
+
 .add-command {
     --add-button-size: 24px;
+    --add-color: var(--command-color);
     margin: 12px;
+}
+
+.reaction {
+    border: 3px solid var(--reaction-color);
 }
 
 .add-reaction {
     --add-button-size: 24px;
+    --add-color: var(--reaction-color);
     margin: 12px;
 }
 
-.add-reward {
+.alert {
+    border: 3px solid var(--alert-color);
+}
+
+.add-alert {
     --add-button-size: 24px;
+    --add-color: var(--alert-color);
     margin: 12px;
 }
 
+.book {
+    border: 3px solid var(--book-color);
+}
+
+.add-book {
+    --add-button-size: 24px;
+    --add-color: var(--book-color);
+    margin: 12px;
+}
 
 .add-button {
     height: var(--add-button-size, 12px);
     width: var(--add-button-size, 12px);
     display: inline-block;
     background-color: white;
-    color: midnightblue;
+    color: var(--add-color, midnightblue);
     font-weight: bold;
     line-height: var(--add-button-size, 12px);
     text-align: center;
-    border: midnightblue solid 2px;
+    border: solid 2px var(--add-color, midnightblue);
     border-radius: 50%;
 }
 
@@ -274,7 +376,7 @@ table {
 .add-form {
     margin: 12px;
     padding: 12px;
-    border: midnightblue solid 2px;
+    border: solid 2px var(--add-color, midnightblue);
 }
 
 .add-form label {
@@ -296,6 +398,66 @@ table {
 
 .add-form input[type=text] {
     box-sizing: border-box;
+    min-width: 50em;
+}
+
+input[type=text].name {
+    box-sizing: border-box;
+    min-width: 17em;
+}
+
+.add-giveaway {
+    --add-button-size: 24px;
+    --add-color: var(--giveaway-color);
+    margin: 12px;
+}
+
+.giveaway {
+    margin: 12px;
+    padding: 12px;
+    border: solid 3px var(--giveaway-color);
+}
+
+.giveaway label {
+    display: inline-block;
+    font-weight: bold;
+}
+
+.prize-table {
+    border-color: darkred;
+}
+
+.add-prize {
+    --add-button-size: 18px;
+    --add-color: darkred;
+    margin: 6px;
+}
+
+.raffle-table {
+    border-color: darkblue;
+}
+
+.form-block {
+    display: inline-block;
+    margin-bottom: 7px;
+    margin-right: 3em;
+}
+
+.small-vertical-bottom-padding {
+    margin-bottom: 5px;
+}
+
+.command-settings {
+    padding: 0 10px;
+    border: black solid 1px;
+    border-radius: 5px;
+}
+
+.command-settings h3 {
+    margin: 0;
+}
+
+.message-input {
     min-width: 50em;
 }
 
@@ -332,4 +494,3 @@ table {
     box-sizing: border-box;
     min-width: 10em;
 }
-

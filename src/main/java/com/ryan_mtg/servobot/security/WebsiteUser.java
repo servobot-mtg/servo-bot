@@ -1,9 +1,9 @@
 package com.ryan_mtg.servobot.security;
 
 import com.google.common.collect.Lists;
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
@@ -12,12 +12,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WebsiteUser implements Principal {
-    private UserSerializer userSerializer;
+    private UserTable userTable;
     private OAuth2AuthenticationToken oAuth2AuthenticationToken;
     private User user;
 
-    public WebsiteUser(final UserSerializer userSerializer, final OAuth2AuthenticationToken oAuth2AuthenticationToken, final User user) {
-        this.userSerializer = userSerializer;
+    public WebsiteUser(final UserTable userTable, final OAuth2AuthenticationToken oAuth2AuthenticationToken,
+            final User user) {
+        this.userTable = userTable;
         this.oAuth2AuthenticationToken = oAuth2AuthenticationToken;
         this.user = user;
     }
@@ -35,11 +36,11 @@ public class WebsiteUser implements Principal {
     }
 
     public boolean isAdmin() {
-        return user != null ? user.isAdmin() : false;
+        return user != null && user.isAdmin();
     }
 
     public boolean hasInvite() {
-        return user != null ? user.hasInvite() : false;
+        return user != null && user.hasInvite();
     }
 
     public boolean isAStreamer() {
@@ -48,7 +49,7 @@ public class WebsiteUser implements Principal {
         }
 
         return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
-                .filter(authority -> authority.getAuthority().startsWith("ROLE_STREAMER")).findAny().isPresent();
+                .anyMatch(authority -> authority.getAuthority().startsWith("ROLE_STREAMER"));
     }
 
     public int getBotHomeId() {
@@ -67,10 +68,10 @@ public class WebsiteUser implements Principal {
         }
 
         return oAuth2AuthenticationToken.getPrincipal().getAuthorities().stream()
-                .map(authority -> authority.getAuthority()).collect(Collectors.toList());
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
 
-    public boolean isPrivledged() {
+    public boolean isPrivileged() {
         if (oAuth2AuthenticationToken == null || !oAuth2AuthenticationToken.isAuthenticated()) {
             return false;
         }
@@ -83,14 +84,14 @@ public class WebsiteUser implements Principal {
             return true;
         }
 
-        if (!userSerializer.getHomesModerated(getUserId()).isEmpty()) {
+        if (!userTable.getHomesModerated(getUserId()).isEmpty()) {
             return true;
         }
 
         return false;
     }
 
-    public boolean isPrivledged(final BotHome botHome) {
+    public boolean isPrivileged(final BotHome botHome) {
         if (oAuth2AuthenticationToken == null || !oAuth2AuthenticationToken.isAuthenticated()) {
             return false;
         }
@@ -103,7 +104,7 @@ public class WebsiteUser implements Principal {
             return true;
         }
 
-        if (userSerializer.getHomesModerated(getUserId()).contains(botHome.getId())) {
+        if (userTable.getHomesModerated(getUserId()).contains(botHome.getId())) {
             return true;
         }
 

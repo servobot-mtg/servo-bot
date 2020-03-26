@@ -14,6 +14,10 @@ import java.util.Set;
 public class StorageTable implements Iterable<StorageValue>, SymbolTable {
     private Map<StorageKey, StorageValue> storageMap = new HashMap<>();
 
+    public boolean isEmpty() {
+        return storageMap.isEmpty();
+    }
+
     public StorageValue getStorage(final int userId, final String name) {
         return storageMap.get(new StorageKey(userId, name));
     }
@@ -44,7 +48,7 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
     public void removeVariables(final String name) {
         Set<StorageKey> keysToRemove = new HashSet<>();
         storageMap.keySet().stream()
-                .filter(key -> key.getName().equalsIgnoreCase(name)).forEach(key -> keysToRemove.add(key));
+                .filter(key -> key.getName().equalsIgnoreCase(name)).forEach(keysToRemove::add);
         keysToRemove.forEach(key -> storageMap.remove(key));
     }
 

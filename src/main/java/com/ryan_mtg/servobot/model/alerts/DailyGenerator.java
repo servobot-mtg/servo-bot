@@ -1,9 +1,12 @@
 package com.ryan_mtg.servobot.model.alerts;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.utility.Time;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,6 +17,7 @@ public class DailyGenerator extends AlertGenerator {
     static Logger LOGGER = LoggerFactory.getLogger(DailyGenerator.class);
     public static final int TYPE = 2;
 
+    @Getter
     private LocalTime time;
     private String timeZone;
     private ZonedDateTime goal;
@@ -30,7 +34,8 @@ public class DailyGenerator extends AlertGenerator {
 
     @Override
     public String getDescription() {
-        return String.format("Daily alert at %s(%s), with next alert at %s", time, timeZone, goal);
+        return String.format("Daily alert at %s (%s), with in %s", Time.toReadableString(time), timeZone,
+                Time.toReadableString(Duration.between(Instant.now(), goal)));
     }
 
     @Override

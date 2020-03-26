@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
@@ -26,7 +28,7 @@ public class MessageChannelCommandTest {
         Channel channel = mockChannel();
         when(home.getChannel(CHANNEL_NAME, SERVICE_TYPE)).thenReturn(channel);
 
-        command.perform(home);
+        command.perform(mockHomeEvent(home));
 
         verify(channel).say(MESSAGE);
     }

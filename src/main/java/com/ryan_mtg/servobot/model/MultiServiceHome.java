@@ -1,9 +1,17 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.user.HomedUser;
+import lombok.Getter;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class MultiServiceHome implements Home {
     private Map<Integer, ServiceHome> serviceHomes;
+
+    @Getter
     private HomeEditor homeEditor;
 
     public MultiServiceHome(final Map<Integer, ServiceHome> serviceHomes, final HomeEditor homeEditor) {
@@ -23,7 +31,7 @@ public class MultiServiceHome implements Home {
         if (serviceHome != null) {
             return serviceHome.getHome().getChannel(channelName, serviceType);
         }
-        return  null;
+        return null;
     }
 
     @Override
@@ -32,8 +40,23 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
+    public boolean isStreaming() {
+        return serviceHomes.values().stream().anyMatch(serviceHome -> serviceHome.isStreaming());
+    }
+
+    @Override
     public String getRole(final User user, final int serviceType) {
         return null;
+    }
+
+    @Override
+    public boolean hasRole(final User user, final String role) {
+        return false;
+    }
+
+    @Override
+    public void clearRole(final User user, final String prisonRole) {
+
     }
 
     @Override
@@ -41,8 +64,18 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
-    public int clearRole(final String role) {
-        return 0;
+    public List<String> clearRole(final String role) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isHigherRanked(User user, User otherUser) {
+        return false;
+    }
+
+    @Override
+    public User getUser(String userName) throws BotErrorException {
+        return null;
     }
 
     @Override
@@ -51,8 +84,8 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
-    public HomeEditor getHomeEditor() {
-        return homeEditor;
+    public User getUser(final HomedUser homedUser) {
+        return null;
     }
 
     @Override

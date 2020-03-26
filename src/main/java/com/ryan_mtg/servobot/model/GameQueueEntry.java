@@ -1,25 +1,16 @@
 package com.ryan_mtg.servobot.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
 public class GameQueueEntry {
+    @Getter
     private int userId;
+
+    @Getter
     private int spot;
+
+    @Getter
     private int position;
-
-    public GameQueueEntry(final int userId, final int spot, final int position) {
-        this.userId = userId;
-        this.spot = spot;
-        this.position = position;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public int getSpot() {
-        return spot;
-    }
-
-    public int getPosition() {
-        return position;
-    }
 }

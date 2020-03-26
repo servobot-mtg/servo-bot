@@ -1,14 +1,21 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
-import com.ryan_mtg.servobot.commands.MessageCommand;
+import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
+import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
+import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
+import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.CommandDescriptor;
-import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
+import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
@@ -18,27 +25,45 @@ import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
+import com.ryan_mtg.servobot.model.alerts.Alert;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.books.Book;
+import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.books.BookTableEdit;
+import com.ryan_mtg.servobot.model.books.Statement;
+import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
+import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
+import com.ryan_mtg.servobot.model.giveaway.Prize;
+import com.ryan_mtg.servobot.model.giveaway.Raffle;
+import com.ryan_mtg.servobot.model.giveaway.RaffleSettings;
+import com.ryan_mtg.servobot.model.reaction.AlwaysReact;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.ryan_mtg.servobot.model.GameQueue.EMPTY_QUEUE;
 
@@ -47,6 +72,8 @@ public class HomeEditor {
     private Bot bot;
     private BotHome botHome;
     private SerializerContainer serializers;
+
+    private static final String REQUEST_PRIZE_DESCRIPTION = "Request prize command name";
 
     public HomeEditor(final Bot bot, final BotHome botHome) {
         this.bot = bot;
@@ -82,6 +109,14 @@ public class HomeEditor {
         botHomeRepository.save(botHomeRow);
     }
 
+    public HomedUser getUserByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
+        return botHome.getHomedUserTable().getByDiscordId(discordId, discordUsername);
+    }
+
+    public HomedUser getUserByTwitchId(final int twitchId, final String twitchUsername) throws BotErrorException {
+        return botHome.getHomedUserTable().getByTwitchId(twitchId, twitchUsername);
+    }
+
     @Transactional(rollbackOn = BotErrorException.class)
     public boolean secureCommand(final int commandId, final boolean secure) {
         Command command = botHome.getCommandTable().secureCommand(commandId, secure);
@@ -91,8 +126,12 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public Reaction addReaction(final String emote, final boolean secure) throws BotErrorException {
-        //return new Reaction(Reaction.UNREGISTERED_ID, emote, secure);
-        throw new BotErrorException("Not supported");
+        Reaction  reaction = new Reaction(Reaction.UNREGISTERED_ID, emote, secure, new AlwaysReact(), new ArrayList<>(),
+                new ArrayList<>());
+        ReactionTable reactionTable = botHome.getReactionTable();
+        ReactionTableEdit reactionTableEdit = reactionTable.addReaction(reaction);
+        serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
+        return reaction;
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -123,10 +162,7 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public CommandDescriptor addCommand(final CommandRow commandRow) throws BotErrorException {
-        Map<Integer, Book> bookMap = new HashMap<>();
-        for (Book book : botHome.getBooks()) {
-            bookMap.put(book.getId(), book);
-        }
+        Map<Integer, Book> bookMap = botHome.getBookTable().getBookMap();
 
         Command command = serializers.getCommandSerializer().createCommand(commandRow, bookMap);
 
@@ -198,51 +234,89 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void deleteTrigger(final int triggerId) throws BotErrorException {
-        Trigger trigger = serializers.getCommandSerializer().getTrigger(triggerId);
         CommandTable commandTable = botHome.getCommandTable();
-        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(trigger);
+        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(triggerId);
 
         if (commandTableEdit.getDeletedTriggers().isEmpty()) {
-            throw new BotErrorException(String.format("Trigger '%d' not found.", trigger.getId()));
+            throw new BotErrorException(String.format("Trigger '%d' not found.", triggerId));
         }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Book addBook(final String name, final String text) throws BotErrorException {
+        Book book = new Book(Book.UNREGISTERED_ID, name);
+        BookTable bookTable = botHome.getBookTable();
+        BookTableEdit bookTableEdit = bookTable.addBook(book);
+        if (!Strings.isBlank(text)) {
+            Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
+            bookTableEdit.merge(bookTable.addStatement(book, statement));
+        }
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
+        return book;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
     public Statement addStatement(final int bookId, final String text) throws BotErrorException {
-        return addStatement(getBook(bookId), text);
+        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
+        BookTableEdit bookTableEdit = botHome.getBookTable().addStatement(bookId, statement);
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
+        return statement;
     }
 
-    public void addStatement(final String bookName, final String text) throws BotErrorException {
-        addStatement(getBook(bookName), text);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteStatement(final int bookId, final int statementId) {
-        botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
-            book.deleteStatement(statementId);
-            serializers.getStatementRepository().deleteById(statementId);
-        });
+    public Optional<Book> getBook(final String bookName) {
+        return botHome.getBookTable().getBook(bookName);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void modifyStatement(final int bookId, final int statementId, final String text) {
-        BookSerializer bookSerializer = serializers.getBookSerializer();
-        botHome.getBooks().stream().filter(book -> book.getId() == bookId).forEach(book -> {
-            book.getStatements().stream().filter(statement -> statement.getId() ==statementId).forEach(statement -> {
-                statement.setText(text);
-                bookSerializer.saveStatement(bookId, statement);
-            });
-        });
+    public void deleteStatement(final int bookId, final int statementId) throws BotErrorException {
+        BookTableEdit bookTableEdit = botHome.getBookTable().deleteStatement(bookId, statementId);
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
     }
 
-    public void scheduleAlert(final Duration delay, final String alertToken) {
-        bot.getAlertQueue().scheduleAlert(botHome, delay, alertToken);
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void modifyStatement(final int bookId, final int statementId, final String text) throws BotErrorException {
+        BookTableEdit bookTableEdit = new BookTableEdit();
+        Book book = botHome.getBookTable().getBook(bookId);
+        Statement statement = book.getStatement(statementId);
+        statement.setText(text);
+        bookTableEdit.save(bookId, statement);
+        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
+    }
+
+    public void scheduleAlert(final Alert alert) {
+        bot.getAlertQueue().scheduleAlert(botHome, alert);
     }
 
     public void alert(final String alertToken) {
         Home home = new MultiServiceHome(botHome.getServiceHomes(), this);
         AlertEvent alertEvent = new BotHomeAlertEvent(botHome.getId(), alertToken, home);
-        botHome.getListener().onAlert(alertEvent);
+        botHome.getEventListener().onAlert(alertEvent);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public AlertGenerator addAlert(final int type, final String keyword, final int time) throws BotErrorException {
+        Validation.validateStringLength(keyword, Validation.MAX_TRIGGER_LENGTH, "Alert token");
+
+        AlertGeneratorRow alertGeneratorRow = new AlertGeneratorRow();
+        alertGeneratorRow.setId(AlertGenerator.UNREGISTERED_ID);
+        alertGeneratorRow.setBotHomeId(botHome.getId());
+        alertGeneratorRow.setType(type);
+        alertGeneratorRow.setAlertToken(keyword);
+        alertGeneratorRow.setTime(time);
+        AlertGenerator alertGenerator =
+                serializers.getAlertGeneratorSerializer().createAlertGenerator(alertGeneratorRow);
+
+        CommandTableEdit commandTableEdit = botHome.getCommandTable().addAlertGenerator(alertGenerator);
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        botHome.registerAlertGenerator(alertGenerator);
+        return alertGenerator;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void deleteAlert(final int alertGeneratorId) {
+        CommandTableEdit commandTableEdit = botHome.getCommandTable().deleteAlertGenerator(alertGeneratorId);
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -259,6 +333,14 @@ public class HomeEditor {
         command.setPermission(permission);
         serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
         return command.getPermission();
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean setCommandOnlyWhileStreaming(final int commandId, final boolean isOnlyWhileStreaming) {
+        Command command = botHome.getCommandTable().getCommand(commandId);
+        command.setOnlyWhileStreaming(isOnlyWhileStreaming);
+        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
+        return command.isOnlyWhileStreaming();
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -401,7 +483,7 @@ public class HomeEditor {
         }
 
         serializers.getGameQueueSerializer().removeEntry(gameQueue, nextPlayer);
-        return serializers.getUserSerializer().lookupById(gameQueue.getCurrentPlayerId());
+        return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
     }
 
     public User peekGameQueue(final int gameQueueId) throws BotErrorException {
@@ -415,7 +497,7 @@ public class HomeEditor {
             throw new BotErrorException("No players in the queue.");
         }
 
-        return serializers.getUserSerializer().lookupById(gameQueue.getCurrentPlayerId());
+        return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -530,75 +612,285 @@ public class HomeEditor {
         return response.toString();
     }
 
-    public Reward startGiveaway() throws BotErrorException {
-        Reward reward = botHome.getGiveaway().startGiveaway();
-        if (Giveaway.DURATION.toMinutes() > 5) {
-            scheduleAlert(Giveaway.DURATION.minus(5, ChronoUnit.MINUTES), "5min");
+    public Giveaway getGiveaway(final int giveawayId) {
+        return botHome.getGiveaway(giveawayId);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Giveaway addGiveaway(final String name, final boolean selfService, final boolean raffle)
+            throws BotErrorException {
+        Giveaway giveaway = new Giveaway(Giveaway.UNREGISTERED_ID, name, selfService, raffle);
+        serializers.getGiveawaySerializer().saveGiveaway(botHome.getId(), giveaway);
+        botHome.addGiveaway(giveaway);
+
+        return giveaway;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Giveaway saveGiveawaySelfService(final int giveawayId, final String requestPrizeCommandName,
+            final int prizeRequestLimit, final int prizeRequestUserLimit) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+        if (giveaway.getState() != Giveaway.State.CONFIGURING) {
+            throw new BotErrorException("Can only save configuration when giveaway in in configuring state");
         }
 
-        if (Giveaway.DURATION.toMinutes() > 1) {
-            scheduleAlert(Giveaway.DURATION.minus(1, ChronoUnit.MINUTES), "1min");
+        CommandTable commandTable = botHome.getCommandTable();
+        Validation.validateSetTemporaryCommandName(requestPrizeCommandName, giveaway.getRequestPrizeCommandName(),
+                commandTable, true, REQUEST_PRIZE_DESCRIPTION);
+
+        Validation.validateRange(prizeRequestLimit, "Prize request limit", 1, 1000);
+        Validation.validateRange(prizeRequestUserLimit, "Prize request limit per user", 1, 10);
+
+        giveaway.setRequestPrizeCommandName(requestPrizeCommandName);
+        giveaway.setPrizeRequestLimit(prizeRequestLimit);
+        giveaway.setPrizeRequestUserLimit(prizeRequestUserLimit);
+
+        serializers.getGiveawaySerializer().saveGiveaway(botHome.getId(), giveaway);
+
+        return giveaway;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
+                                               final int winnerCount, final GiveawayCommandSettings startRaffle, final GiveawayCommandSettings enterRaffle,
+                                               final GiveawayCommandSettings raffleStatus, final String winnerResponse, final String discordChannel)
+            throws BotErrorException {
+
+        Giveaway giveaway = getGiveaway(giveawayId);
+        if (giveaway.getState() != Giveaway.State.CONFIGURING) {
+            throw new BotErrorException("Can only save configuration when giveaway in in configuring state");
+        }
+        RaffleSettings previousSettings = giveaway.getRaffleSettings();
+
+        RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle, raffleStatus, raffleDuration,
+                winnerCount, winnerResponse, discordChannel);
+
+        CommandTable commandTable = botHome.getCommandTable();
+        raffleSettings.validateOnSave(previousSettings, commandTable);
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        giveawayEdit.addGiveaway(giveaway);
+
+        if (!startRaffle.equals(previousSettings.getStartRaffle())) {
+            Command oldCommand = giveaway.getStartRaffleCommand();
+            if (oldCommand != null) {
+                giveawayEdit.merge(commandTable.deleteCommand(oldCommand.getId()));
+            }
+
+            StartRaffleCommand startRaffleCommand = new StartRaffleCommand(Command.UNREGISTERED_ID,
+                new CommandSettings(startRaffle.getFlags(), Permission.STREAMER, null), giveawayId,
+                startRaffle.getMessage());
+            giveawayEdit.merge(commandTable.addCommand(startRaffle.getCommandName(), startRaffleCommand));
+            giveaway.setStartRaffleCommand(startRaffleCommand);
         }
 
-        scheduleAlert(Giveaway.DURATION, "winner");
-        LOGGER.info("scheduled: " + reward.getPrize());
-        return reward;
+        giveaway.setRaffleSettings(raffleSettings);
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+
+        return giveaway;
     }
 
-    public void enterGiveaway(final HomedUser homedUser) throws BotErrorException {
-        botHome.getGiveaway().enterGiveaway(homedUser);
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Giveaway startGiveaway(final int giveawayId) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+
+        CommandTable commandTable = botHome.getCommandTable();
+        GiveawayEdit giveawayEdit = giveaway.start(commandTable);
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+
+        return giveaway;
     }
 
-    public Reward getGiveaway() {
-        return botHome.getGiveaway().getCurrentReward();
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Prize addPrize(final int giveawayId, final String reward, final String description)
+            throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+
+        Prize prize = new Prize(Prize.UNREGISTERED_ID, Strings.trim(reward), Strings.trim(description));
+        giveaway.addPrize(prize);
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        giveawayEdit.addPrize(giveaway.getId(), prize);
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+
+        return prize;
     }
 
-    public Reward addReward(final String prize) {
-        Reward reward = new Reward(Giveaway.nextRewardId, prize);
-        Giveaway.nextRewardId++;
-        botHome.getGiveaway().addReward(reward);
-        return reward;
+    @Transactional(rollbackOn = BotErrorException.class)
+    public List<Prize> addPrizes(final int giveawayId, final String rewards, final String description)
+            throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+        List<Prize> prizes = new ArrayList<>();
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        for(String reward : rewards.split("\\r?\\n")) {
+            reward = Strings.trim(reward);
+            if (!reward.isEmpty()) {
+                Prize prize = new Prize(Prize.UNREGISTERED_ID, reward, Strings.trim(description));
+                prizes.add(prize);
+                giveawayEdit.addPrize(giveaway.getId(), prize);
+            }
+        }
+        prizes.forEach(giveaway::addPrize);
+
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        return prizes;
     }
 
-    public HomedUser awardReward(final int rewardId) throws BotErrorException {
-        Reward reward = getReward(rewardId);
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Prize requestPrize(final int giveawayId, final HomedUser requester) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
 
-        if (reward.getStatus() == Reward.Status.IN_PROGRESS && reward.getTimeLeft().isZero()) {
-            reward.setStatus(Reward.Status.CONCLUDED);
+        GiveawayEdit giveawayEdit = giveaway.requestPrize(requester);
+        Prize prize = giveawayEdit.getSavedPrizes().keySet().iterator().next();
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+
+        return prize;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Raffle startRaffle(final int giveawayId) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+
+        RaffleSettings raffleSettings = giveaway.getRaffleSettings();
+        CommandTable commandTable = botHome.getCommandTable();
+        raffleSettings.validateOnStart(commandTable);
+
+        GiveawayEdit giveawayEdit = giveaway.reservePrizes(raffleSettings.getWinnerCount());
+        List<Prize> prizes = new ArrayList<>(giveawayEdit.getSavedPrizes().keySet());
+
+        GiveawayCommandSettings enterCommandSettings = raffleSettings.getEnterRaffle();
+        EnterRaffleCommand enterRaffleCommand = new EnterRaffleCommand(Command.UNREGISTERED_ID,
+            new CommandSettings(enterCommandSettings.getFlags(), enterCommandSettings.getPermission(), null),
+            giveawayId, enterCommandSettings.getMessage());
+        giveawayEdit.merge(commandTable.addCommand(enterCommandSettings.getCommandName(), enterRaffleCommand));
+
+        Duration duration = raffleSettings.getDuration();
+
+        Map<String, Command> tokenMap = new HashMap<>();
+        List<Alert> alerts = new ArrayList<>();
+        List<Command> alertCommands = new ArrayList<>();
+        String winnerAlertToken = "winner";
+        alerts.add(new Alert(duration, winnerAlertToken));
+        int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
+        SelectWinnerCommand selectWinnerCommand = new SelectWinnerCommand(Command.UNREGISTERED_ID,
+            new CommandSettings(flags, Permission.STREAMER, null), giveawayId,
+            raffleSettings.getWinnerResponse(), raffleSettings.getDiscordChannel());
+        tokenMap.put(winnerAlertToken, selectWinnerCommand);
+        giveawayEdit.merge(commandTable.addCommand(selectWinnerCommand));
+
+        RaffleStatusCommand raffleStatusCommand = null;
+
+        if (raffleSettings.hasRaffleStatusCommand()) {
+            GiveawayCommandSettings raffleStatusSettings = raffleSettings.getRaffleStatus();
+            raffleStatusCommand = new RaffleStatusCommand(Command.UNREGISTERED_ID,
+                new CommandSettings(raffleStatusSettings.getFlags(), raffleStatusSettings.getPermission(), null),
+                giveawayId, raffleStatusSettings.getMessage());
+            giveawayEdit.merge(
+                    commandTable.addCommand(raffleSettings.getRaffleStatus().getCommandName(), raffleStatusCommand));
         }
 
-        reward.award();
+        int[] waitMinutes = { 5, 1 };
+        int[] thresholdMinutes = { 10, 3 };
+        for (int i = 0; i < waitMinutes.length; i++) {
+            if (duration.toMinutes() >= thresholdMinutes[i]) {
+                String waitAlertToken = String.format("min%d", waitMinutes[i]);
+                Duration waitDuration = Duration.of(duration.toMinutes() - waitMinutes[i], ChronoUnit.MINUTES);
+                alerts.add(new Alert(waitDuration, waitAlertToken));
+                String alertMessage = String.format("%d minutes left in the raffle.", waitMinutes[i]);
+                Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID,
+                        new CommandSettings(flags, Permission.ANYONE, null),
+                        TwitchService.TYPE, getTwitchChannelName(), alertMessage);
 
-        String message = String.format("The giveaway winner is " + reward.getWinner().getName());
-        sendMessage(DiscordService.TYPE, Giveaway.DISCORD_CHANNEL, message);
-        sendMessage(TwitchService.TYPE, Giveaway.TWITCH_CHANNEL, message);
-        return reward.getWinner();
+                tokenMap.put(waitAlertToken, alertCommand);
+                alertCommands.add(alertCommand);
+                giveawayEdit.merge(commandTable.addCommand(alertCommand));
+            }
+        }
+
+        Instant stopTime = Instant.now().plus(duration);
+        Raffle raffle = new Raffle(Raffle.UNREGISTERED_ID, enterCommandSettings.getCommandName(), enterRaffleCommand,
+                raffleStatusCommand, selectWinnerCommand, alertCommands, prizes, stopTime);
+        giveaway.addRaffle(raffle);
+
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        // TODO: make it so this can go with the previous commit
+        for (Map.Entry<String, Command> entry : tokenMap.entrySet()) {
+            CommandTableEdit commandTableEdit =
+                    commandTable.addTrigger(entry.getValue().getId(), CommandAlert.TYPE, entry.getKey());
+            serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        }
+
+        for (Alert alert : alerts) {
+            scheduleAlert(alert);
+        }
+
+        return raffle;
     }
 
-    public boolean bestowReward(final int rewardId) throws BotErrorException {
-        Reward reward = getReward(rewardId);
-        if (reward.getStatus() != Reward.Status.AWARDED) {
-            throw new BotErrorException("Invalid reward state");
-        }
-        String prize = reward.getPrize();
-        HomedUser winner = reward.getWinner();
-        botHome.getGiveaway().finishGiveaway();
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void enterRaffle(final HomedUser entrant, final int giveawayId) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
 
-        String announcement = "Congratulations, your code is: " + prize;
-        bot.getService(DiscordService.TYPE).whisper(winner, announcement);
+        Raffle raffle = giveaway.retrieveCurrentRaffle();
+        raffle.enter(entrant);
+    }
+
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public List<HomedUser> selectRaffleWinners(int giveawayId) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+        Raffle raffle = giveaway.retrieveCurrentRaffle();
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        CommandTable commandTable = botHome.getCommandTable();
+        List<HomedUser> winners = raffle.selectWinners(giveaway, commandTable, giveawayEdit);
+
+        for (Prize prize : raffle.getPrizes()) {
+            HomedUser winner = prize.getWinner();
+            if (winner != null && winner.getDiscordId() != 0) {
+                String prizeMessage = String.format("Congratulations %s, your code is: %s", winner.getDiscordUsername(),
+                        prize.getReward());
+                whisperMessage(DiscordService.TYPE, winner, prizeMessage);
+                prize.bestowTo(winner);
+            }
+        }
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+
+        return winners;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean bestowPrize(int giveawayId, int prizeId) throws BotErrorException {
+        Giveaway giveaway = getGiveaway(giveawayId);
+
+        GiveawayEdit giveawayEdit = giveaway.bestowPrize(prizeId);
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
         return true;
     }
 
-    private void sendMessage(final int serviceType, final String channelName, final String message) {
-        botHome.getServiceHome(serviceType).getHome().getChannel(channelName, serviceType).say(message);
+    public void deletePrize(final int giveawayId, final int prizeId) throws BotErrorException {
+        GiveawayEdit giveawayEdit = botHome.getGiveaway(giveawayId).deletePrize(prizeId);
+        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
     }
 
-    public void deleteReward(final int rewardId) {
-        botHome.getGiveaway().deleteReward(rewardId);
+    public String getTwitchChannelName() {
+        return ((TwitchServiceHome) botHome.getServiceHome(TwitchService.TYPE)).getChannelName();
+    }
+
+    private void sendMessage(final int serviceType, final String channelName, final String message) {
+        ServiceHome serviceHome = botHome.getServiceHome(serviceType);
+        if (serviceHome != null) {
+            serviceHome.getHome().getChannel(channelName, serviceType).say(message);
+        }
+    }
+
+    private void whisperMessage(final int serviceType, final HomedUser user, final String message) {
+        botHome.getServiceHome(serviceType).getHome().getUser(user).whisper(message);
     }
 
     public List<User> getArenaUsers() throws BotErrorException {
-        return serializers.getUserSerializer().getArenaUsers();
+        return serializers.getUserSerializer().getArenaUsers(botHome.getId());
     }
 
     private GameQueue getGameQueue(final int gameQueueId) throws BotErrorException {
@@ -609,44 +901,8 @@ public class HomeEditor {
         return gameQueue;
     }
 
-    private Book getBook(final String bookName) throws BotErrorException {
-        Book book = botHome.getBooks().stream()
-                .filter(b -> b.getName().equalsIgnoreCase(bookName)).findFirst().orElse(null);
-
-        if (book == null) {
-            throw new BotErrorException(String.format("No book with name %s.", bookName));
-        }
-
-        return book;
-    }
-
-    private Book getBook(final int bookId) {
-        return botHome.getBooks().stream().filter(b -> b.getId() == bookId).findFirst().orElse(null);
-    }
-
-    private Reward getReward(final int rewardId) throws BotErrorException {
-        for (Reward reward : botHome.getGiveaway().getRewards()) {
-            System.out.println(reward.getId());
-        }
-        Reward reward = botHome.getGiveaway().getRewards().stream().
-                filter(r -> r.getId() == rewardId).findFirst().get();
-        if (reward == null) {
-            throw new BotErrorException("No reward with id " + rewardId);
-        }
-        return reward;
-    }
-
-    private Statement addStatement(final Book book, final String text) throws BotErrorException {
-        BookSerializer bookSerializer = serializers.getBookSerializer();
-
-        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
-        bookSerializer.saveStatement(book.getId(), statement);
-        book.addStatement(statement);
-        return statement;
-    }
-
     private String describePlayer(final int userId) throws BotErrorException {
-        User user = serializers.getUserSerializer().lookupById(userId);
+        User user = serializers.getUserTable().getById(userId);
         if (user.getTwitchUsername() != null) {
             return user.getTwitchUsername();
         }

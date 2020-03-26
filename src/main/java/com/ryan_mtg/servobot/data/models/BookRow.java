@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +14,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "book")
+@Getter
 public class BookRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,17 +32,5 @@ public class BookRow {
         this.id = id;
         this.botHomeId = botHomeId;
         this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getBotHomeId() {
-        return botHomeId;
-    }
-
-    public String getName() {
-        return name;
     }
 }

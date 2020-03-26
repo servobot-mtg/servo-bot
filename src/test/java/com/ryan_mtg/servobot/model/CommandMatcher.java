@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.Permission;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;

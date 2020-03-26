@@ -38,16 +38,22 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-security:2.2.4.RELEASE'
-
     compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.2.4.RELEASE'
     compile 'org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE'
     compile 'org.springframework.security:spring-security-oauth2-client'
+    compile 'org.springframework.session:spring-session-jdbc'
 
     compile 'org.springframework.data:spring-data-jpa:2.1.8.RELEASE'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     testCompile 'junit:junit'
     testCompile 'org.mockito:mockito-core:2.+'
     testCompile 'org.hamcrest:hamcrest:2.+'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 bootJar {
@@ -62,40 +68,12 @@ bootRun {
     main = 'com.ryan_mtg.servobot.Application'
 }
 
-task validateApplicationProperties {
-    doLast {
-        File f = file('src/main/resources/config/application.properties')
-        f.readLines().each {
-            if (it.startsWith('spring.profiles.active') && !it.contains('prod')) {
-                throw new GradleException(String.format('\'%s\' line: 1 Invalid spring.profiles.active setting, should be "prod"', f.toString()))
-            }
-        }
-    }
-}
-
-check.dependsOn validateApplicationProperties
-
 def deployDir = "${buildDir}/generated/deploy"
-
-// Make sure config files have production values
-task fixConfigFiles (type: Copy) {
-    from ('src/main/resources') {
-        include '**/application.properties'
-        include '**/log4j2-spring.xml'
-    }
-
-    into deployDir + '/src/main/resources'
-
-    filter {
-        String line ->  line.replaceAll("spring.profiles.active = .*", "spring.profiles.active = prod")
-                            .replaceAll("level=\"\\w+\"", "level=\"warn\"")
-    }
-}
 
 task deploy (type: Zip) {
     group = 'build'
     description = 'Creates a source zip file for AWS deployment.'
-    dependsOn(fixConfigFiles, check)
+    dependsOn(check)
 
     doFirst {
         // Create Buildfile and Procfile for AWS deployment

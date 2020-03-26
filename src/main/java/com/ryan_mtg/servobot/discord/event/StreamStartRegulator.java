@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.discord.event;
 
+import com.ryan_mtg.servobot.model.BotHome;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
@@ -33,6 +34,22 @@ public class StreamStartRegulator {
         if (containsStreaming(event.getMember().getActivities())) {
             isStreamingMap.put(botHomeId, false);
         }
+    }
+
+    public void addHome(final BotHome botHome, final boolean isStreaming) {
+        isStreamingMap.put(botHome.getId(), isStreaming);
+    }
+
+    public void removeHome(final BotHome botHome) {
+        isStreamingMap.remove(botHome.getId());
+    }
+
+    public void setIsStreaming(final int botHomeId, final boolean isStreaming) {
+        isStreamingMap.put(botHomeId, isStreaming);
+    }
+
+    public boolean isStreaming(final int botHomeId) {
+        return isStreamingMap.get(botHomeId);
     }
 
     private static boolean isStreamer(final GenericUserPresenceEvent event) {

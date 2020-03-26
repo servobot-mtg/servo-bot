@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +14,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "reaction_pattern")
+@Getter @Setter
 public class ReactionPatternRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,28 +25,4 @@ public class ReactionPatternRow {
 
     @Column(name = "reaction_id")
     private int reactionId;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(final String pattern) {
-        this.pattern = pattern;
-    }
-
-    public int getReactionId() {
-        return reactionId;
-    }
-
-    public void setReactionId(int reactionId) {
-        this.reactionId = reactionId;
-    }
 }

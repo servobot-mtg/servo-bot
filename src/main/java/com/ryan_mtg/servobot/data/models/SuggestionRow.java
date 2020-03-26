@@ -1,6 +1,10 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,6 +15,8 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "suggestion")
+@Getter @Setter
+@NoArgsConstructor
 public class SuggestionRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,22 +27,8 @@ public class SuggestionRow {
 
     private int count;
 
-    public SuggestionRow() {}
-
     public SuggestionRow(final String alias, final int count) {
         this.alias = alias;
-        this.count = count;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(final int count) {
         this.count = count;
     }
 }

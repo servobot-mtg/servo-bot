@@ -1,15 +1,16 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.google.common.collect.Lists;
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.Trigger;
-import com.ryan_mtg.servobot.controllers.exceptions.ResourceNotFoundException;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
+import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.ServiceHome;
@@ -17,16 +18,22 @@ import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Controller
@@ -49,7 +56,7 @@ public class BotController {
     }
 
     @GetMapping("/")
-    public String index(final Model model) {
+    public String index(final Model model, HttpSession session, Authentication authentication, Principal principal) {
         model.addAttribute("page", "index");
         return "index";
     }
@@ -89,7 +96,7 @@ public class BotController {
         }
 
         addBotHome(model, botHome);
-        model.addAttribute("users", serializers.getUserSerializer().getModerators(botHome.getId()));
+        model.addAttribute("users", botHome.getHomedUserTable().getModerators());
         return "bot_home";
     }
 
@@ -108,14 +115,6 @@ public class BotController {
 
         addBotHome(model, botHome);
         model.addAttribute("timeZones", timeZones);
-        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
-        if (serviceHome != null) {
-            model.addAttribute("emotes", serviceHome.getEmotes());
-            model.addAttribute("roles", serviceHome.getRoles());
-        } else {
-            model.addAttribute("emotes", Lists.newArrayList());
-            model.addAttribute("roles", Lists.newArrayList());
-        }
         return "bot_home_hub";
     }
 
@@ -133,10 +132,24 @@ public class BotController {
         model.addAttribute("page", "users");
 
         addBotHome(model, botHome);
-        model.addAttribute("users", serializers.getUserSerializer().getHomedUsers(botHome.getId()));
+        model.addAttribute("users", botHome.getHomedUserTable().getHomedUsers());
         return "users";
     }
 
+    @GetMapping("/home/{home}/giveaways")
+    public String showGiveaways(final Model model, @PathVariable("home") final String homeName) {
+        BotHome botHome = botRegistrar.getBotHome(homeName);
+        if (botHome == null) {
+            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
+        }
+
+        if (!isPrivledged(model, botHome)) {
+            return String.format("redirect:/home/%s", homeName);
+        }
+
+        addBotHome(model, botHome);
+        return "giveaways";
+    }
 
     @GetMapping("/home/{home}/book/{book}")
     public String showBook(final Model model, @PathVariable("home") final String homeName,
@@ -149,11 +162,11 @@ public class BotController {
         }
         model.addAttribute("botHome", botHome);
 
-        Book book = botHome.getBooks().stream().filter(b -> b.getName().equals(bookName)).findFirst().orElse(null);
-        if (book == null) {
+        Optional<Book> book = botHome.getBookTable().getBook(bookName);
+        if (!book.isPresent()) {
             throw new ResourceNotFoundException(String.format("No book home with name %s", bookName));
         }
-        model.addAttribute("book", book);
+        model.addAttribute("book", book.get());
 
         return "book";
     }
@@ -167,9 +180,23 @@ public class BotController {
         model.addAttribute("botHome", botHome);
         model.addAttribute("commandDescriptors",
                 getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
-        model.addAttribute("userSerializer", serializers.getUserSerializer());
+        model.addAttribute("userTable", serializers.getUserTable());
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
+        model.addAttribute("events", Lists.newArrayList(
+                CommandEvent.Type.STREAM_START, CommandEvent.Type.SUBSCRIBE, CommandEvent.Type.RAID,
+                CommandEvent.Type.NEW_USER));
+
+        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
+        if (serviceHome != null) {
+            model.addAttribute("emotes", serviceHome.getEmotes());
+            model.addAttribute("roles", serviceHome.getRoles());
+            model.addAttribute("channels", serviceHome.getChannels());
+        } else {
+            model.addAttribute("emotes", Lists.newArrayList());
+            model.addAttribute("roles", Lists.newArrayList());
+            model.addAttribute("channels", Lists.newArrayList());
+        }
     }
 
     public static class TimeZoneDescriptor {
@@ -209,11 +236,20 @@ public class BotController {
             descriptor.addTrigger(entry.getKey());
         }
 
+        Collections.sort(commands, new CommandDescriptorIdComparer());
+
         return commands;
     }
 
     private boolean isPrivledged(final Model model, final BotHome botHome) {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
-        return websiteUser.isPrivledged(botHome);
+        return websiteUser.isPrivileged(botHome);
+    }
+
+    private class CommandDescriptorIdComparer implements Comparator<CommandDescriptor> {
+        @Override
+        public int compare(final CommandDescriptor first, final CommandDescriptor second) {
+            return first.getCommand().getId() - second.getCommand().getId();
+        }
     }
 }

@@ -1,7 +1,15 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
+import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
+import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
+import com.ryan_mtg.servobot.commands.trigger.TriggerVisitor;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +18,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +31,8 @@ public class CommandTable {
 
     private Map<Trigger, Command> triggerCommandMap = new IdentityHashMap<>();
     private Map<Command, List<Trigger>> reverseTriggerMap = new HashMap<>();
+
+    @Getter
     private List<Trigger> triggers = new ArrayList<>();
 
     private Map<String, Command> commandMap = new HashMap<>();
@@ -37,10 +48,6 @@ public class CommandTable {
 
     public Set<Command> getCommands() {
         return reverseTriggerMap.keySet();
-    }
-
-    public List<Trigger> getTriggers() {
-        return triggers;
     }
 
     public Command getCommand(final Trigger trigger) {
@@ -114,9 +121,30 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit deleteTrigger(final Trigger trigger) {
+    public CommandTableEdit deleteTrigger(final int triggerId) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
+        Trigger trigger = triggers.stream().filter(t -> t.getId() == triggerId).findFirst().get();
         deleteTrigger(trigger, commandTableEdit, false);
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit addAlertGenerator(final AlertGenerator alertGenerator) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        alertGenerators.add(alertGenerator);
+        commandTableEdit.save(alertGenerator);
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit deleteAlertGenerator(final int alertGeneratorId) {
+        Optional<AlertGenerator> alertGenerator = alertGenerators.stream()
+                .filter(ag -> ag.getId() == alertGeneratorId).findFirst();
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+
+        alertGenerator.ifPresent(ag -> {
+            commandTableEdit.delete(ag);
+            alertGenerators.remove(ag);
+        });
+
         return commandTableEdit;
     }
 
@@ -148,9 +176,8 @@ public class CommandTable {
                                                        final Class<CommandType> commandClass) {
         List<CommandEvent> events = eventMap.get(eventType);
         if (events != null) {
-            return events.stream().map(event -> triggerCommandMap.get(event))
-                    .filter(command -> commandClass.isInstance(command)).map(command -> commandClass.cast(command))
-                    .collect(Collectors.toList());
+            return events.stream().map(event -> triggerCommandMap.get(event)).filter(commandClass::isInstance)
+                    .map(commandClass::cast).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
@@ -159,9 +186,8 @@ public class CommandTable {
                                                        final Class<CommandType> commandClass) {
         List<CommandAlert> alerts = alertMap.get(alertToken);
         if (alerts != null) {
-            return alerts.stream().map(alert -> triggerCommandMap.get(alert))
-                    .filter(command -> commandClass.isInstance(command)).map(command -> commandClass.cast(command))
-                    .collect(Collectors.toList());
+            return alerts.stream().map(alert -> triggerCommandMap.get(alert)).filter(commandClass::isInstance)
+                    .map(commandClass::cast).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }

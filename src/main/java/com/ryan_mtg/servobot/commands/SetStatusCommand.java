@@ -1,10 +1,14 @@
 package com.ryan_mtg.servobot.commands;
 
-import com.ryan_mtg.servobot.model.Book;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
+import com.ryan_mtg.servobot.events.HomeEvent;
+import com.ryan_mtg.servobot.model.books.Book;
+import lombok.Getter;
 
 public class SetStatusCommand extends HomeCommand {
     public static final int TYPE = 14;
+
+    @Getter
     private Book book;
 
     public SetStatusCommand(final int id, final CommandSettings commandSettings, final Book book) {
@@ -12,13 +16,9 @@ public class SetStatusCommand extends HomeCommand {
         this.book = book;
     }
 
-    public Book getBook() {
-        return book;
-    }
-
     @Override
-    public void perform(final Home home) {
-        home.setStatus(book.getRandomLine());
+    public void perform(final HomeEvent homeEvent) {
+        homeEvent.getHome().setStatus(book.getRandomLine());
     }
 
     @Override

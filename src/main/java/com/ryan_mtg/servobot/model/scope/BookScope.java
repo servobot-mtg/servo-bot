@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.scope;
 
-import com.ryan_mtg.servobot.model.Book;
+import com.ryan_mtg.servobot.model.books.Book;
 
 import java.util.List;
 
@@ -12,10 +12,10 @@ public class BookScope implements SymbolTable {
     }
 
     @Override
-    public String lookup(final String name) {
+    public Book lookup(final String name) {
         for (Book book : books) {
             if (name.equals(book.getName())) {
-                return book.getRandomLine();
+                return book;
             }
         }
         return null;

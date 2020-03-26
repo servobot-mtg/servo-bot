@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.model;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
+import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.scope.NullSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
@@ -15,6 +16,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
@@ -63,12 +67,12 @@ public class Bot {
         home.setBot(this);
         homeEditorMap.put(home.getId(), new HomeEditor(this, home));
         listener.register(home);
-        services.values().stream().forEach(service -> service.register(home));
+        services.values().forEach(service -> service.register(home));
     }
 
     public void removeHome(final BotHome home) {
         home.stop(alertQueue);
-        services.values().stream().forEach(service -> service.unregister(home));
+        services.values().forEach(service -> service.unregister(home));
         listener.unregister(home);
         homeEditorMap.remove(home.getId());
         homes.remove(home);
@@ -109,13 +113,28 @@ public class Bot {
         return alertQueue;
     }
 
-    public void startBot() throws Exception {
+    public void startBot() throws InterruptedException {
+        startServices();
+
+        homes.forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
+        alertQueue.start();
+        homes.forEach(home -> alertQueue.scheduleAlert(home, new Alert(Duration.ofSeconds(30), "startup")));
+    }
+
+    private void startServices() throws InterruptedException {
+        ExecutorService executor = Executors.newFixedThreadPool(services.size());
+
         for (Service service : services.values()) {
-            service.start(listener);
+            executor.submit(() -> {
+                try {
+                    service.start(listener);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
-        homes.stream().forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
-        alertQueue.start();
-        homes.stream().forEach(home -> alertQueue.scheduleAlert(home, Duration.ofSeconds(30), "startup"));
+        executor.shutdown();
+        executor.awaitTermination(5, TimeUnit.MINUTES);
     }
 }

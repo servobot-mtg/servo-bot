@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
+import lombok.Getter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,6 +13,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "game_queue_entry")
 @IdClass(GameQueueEntryRow.GameQueueEntryRowId.class)
+@Getter
 public class GameQueueEntryRow {
     @Id
     @Column(name = "game_queue_id")
@@ -22,30 +25,19 @@ public class GameQueueEntryRow {
     @Column(name = "user_id")
     private int userId;
 
-    public int getGameQueueId() {
-        return gameQueueId;
-    }
-
     public void setGameQueueId(final int gameQueueId) {
         this.gameQueueId = gameQueueId;
-    }
-
-    public int getSpot() {
-        return spot;
     }
 
     public void setSpot(final int spot) {
         this.spot = spot;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
     public void setUserId(final int userId) {
         this.userId = userId;
     }
 
+    @Getter
     public static class GameQueueEntryRowId implements Serializable {
         private int gameQueueId;
         private int spot;
@@ -55,14 +47,6 @@ public class GameQueueEntryRow {
         public GameQueueEntryRowId(final int gameQueueId, final int spot) {
             this.gameQueueId = gameQueueId;
             this.spot = spot;
-        }
-
-        public int getGameQueueId() {
-            return gameQueueId;
-        }
-
-        public int getSpot() {
-            return spot;
         }
 
         @Override

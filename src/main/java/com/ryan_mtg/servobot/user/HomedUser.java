@@ -1,15 +1,21 @@
 package com.ryan_mtg.servobot.user;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import lombok.Getter;
 
-public class HomedUser extends User {
+public class HomedUser {
+    @Getter
+    private User user;
+    @Getter
     private UserStatus userStatus;
 
-    public HomedUser(final int id, final int flags, final int twitchId, final String twitchUsername,
-                     final long discordId, final String discordUsername, final String arenaUsername,
-                     final UserStatus userStatus) throws BotErrorException {
-        super(id, flags, twitchId, twitchUsername, discordId, discordUsername, arenaUsername);
+    public HomedUser(final User user, final UserStatus userStatus) throws BotErrorException {
+        this.user = user;
         this.userStatus = userStatus;
+    }
+
+    public boolean isStreamer() {
+        return userStatus.isStreamer();
     }
 
     public boolean isModerator() {
@@ -28,7 +34,35 @@ public class HomedUser extends User {
         return userStatus.isMember();
     }
 
-    public boolean isStreamer() {
-        return userStatus.isStreamer();
+    public int getId() {
+        return user.getId();
+    }
+
+    public String getName() {
+        return user.getName();
+    }
+
+    public boolean isAdmin() {
+        return user.isAdmin();
+    }
+
+    public int getTwitchId() {
+        return user.getTwitchId();
+    }
+
+    public String getTwitchUsername() {
+        return user.getTwitchUsername();
+    }
+
+    public long getDiscordId() {
+        return user.getDiscordId();
+    }
+
+    public String getDiscordUsername() {
+        return user.getDiscordUsername();
+    }
+
+    public String getArenaUsername() {
+        return user.getArenaUsername();
     }
 }

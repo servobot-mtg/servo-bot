@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
-import javax.swing.*;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class BotRegistrar {
@@ -13,7 +12,7 @@ public class BotRegistrar {
     }
 
     public List<Bot> getBots() {
-        return Arrays.asList(bot);
+        return Collections.singletonList(bot);
     }
 
     public BotEditor getBotEditor(final int botHomeId) {

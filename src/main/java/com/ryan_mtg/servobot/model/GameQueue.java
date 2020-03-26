@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,10 +15,18 @@ import java.util.Queue;
 public class GameQueue {
     public static final int EMPTY_QUEUE = 0;
 
+    @Getter
     private int id;
+
+    @Getter @Setter
     private String name;
+
+    @Getter
     private State state;
+
     private int nextSpot;
+
+    @Getter
     private int currentPlayerId;
 
     private Queue<Entry> queue = new LinkedList<>();
@@ -37,22 +47,6 @@ public class GameQueue {
         this.currentPlayerId = currentPlayerId;
 
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public State getState() {
-        return state;
     }
 
     public void setState(final State state) {
@@ -76,10 +70,6 @@ public class GameQueue {
         Entry entry = queue.remove();
         userMap.remove(entry.getUserId());
         return currentPlayerId = entry.getUserId();
-    }
-
-    public int getCurrentPlayerId() {
-        return currentPlayerId;
     }
 
     public List<GameQueueEntry> getFullQueue() {

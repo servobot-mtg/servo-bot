@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
@@ -7,9 +8,9 @@ import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
-import com.ryan_mtg.servobot.model.scope.MessageSentSymbolTable;
-import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -17,6 +18,7 @@ public class EvaluateExpressionCommand extends MessageCommand {
     public static final int TYPE = 19;
     public static final Pattern gabyEasterEggPattern = Pattern.compile("2\\s*\\+\\s*2");
 
+    private static Logger LOGGER = LoggerFactory.getLogger(EvaluateExpressionCommand.class);
     private boolean gabyEasterEgg;
 
     public EvaluateExpressionCommand(final int id, CommandSettings commandSettings, final boolean gabyEasterEgg) {
@@ -36,8 +38,10 @@ public class EvaluateExpressionCommand extends MessageCommand {
                 MessageCommand.say(event, "gabyMath");
                 return;
             } else if (serviceType == DiscordService.TYPE) {
+                LOGGER.info("Wants to gabyMath");
                 Emote emote = event.getHome().getEmote("gabyMath");
                 if (emote != null) {
+                    LOGGER.info("Got an emote!");
                     MessageCommand.say(event, emote.getMessageText());
                 }
                 return;
@@ -45,11 +49,10 @@ public class EvaluateExpressionCommand extends MessageCommand {
         }
 
         HomeEditor homeEditor = event.getHomeEditor();
-        Scope scope = new Scope(homeEditor.getScope(), new MessageSentSymbolTable(event, arguments));
-        Parser parser = new Parser(scope, homeEditor);
+        Parser parser = new Parser(getMessageScope(event), homeEditor);
 
         try {
-            MessageCommand.say(event, parser.parse(arguments).toString());
+            MessageCommand.sayRaw(event, parser.parse(arguments).evaluate());
         } catch (ParseException e) {
             throw new BotErrorException(String.format("Failed to parse %s: %s", arguments, e.getMessage()));
         }

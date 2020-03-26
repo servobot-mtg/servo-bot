@@ -1,9 +1,11 @@
 package com.ryan_mtg.servobot.model.reaction;
 
-import com.ryan_mtg.servobot.commands.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,10 +14,19 @@ public class Reaction {
     public static final int UNREGISTERED_ID = 0;
     private static final ReactionFilter ALWAYS_REACT = new AlwaysReact();
 
+    @Getter @Setter
     private int id;
+
+    @Getter
     private String emoteName;
+
+    @Getter @Setter
     private boolean secure;
+
+    @Getter
     private ReactionFilter filter;
+
+    @Getter
     private List<Pattern> patterns;
     private List<ReactionCommand> commands;
 
@@ -31,40 +42,12 @@ public class Reaction {
         Validation.validateStringLength(emoteName, Validation.MAX_EMOTE_LENGTH, "Emote");
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
-    }
-
-    public String getEmoteName() {
-        return emoteName;
-    }
-
-    public boolean isSecure() {
-        return secure;
-    }
-
-    public void setSecure(final boolean secure) {
-        this.secure = secure;
-    }
-
-    public ReactionFilter getFilter() {
-        return filter;
-    }
-
     public void addPattern(final Pattern pattern) {
         patterns.add(pattern);
     }
 
     public void remove(final Pattern pattern) {
         patterns.remove(pattern);
-    }
-
-    public List<Pattern> getPatterns() {
-        return patterns;
     }
 
     public boolean matches(final Message message) {
@@ -81,6 +64,6 @@ public class Reaction {
     }
 
     public List<Command> getCommands() {
-        return commands.stream().map(reactionCommand -> reactionCommand.getCommand()).collect(Collectors.toList());
+        return commands.stream().map(ReactionCommand::getCommand).collect(Collectors.toList());
     }
 }

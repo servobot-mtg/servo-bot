@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +14,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "storage_value")
+@Getter @Setter
 public class StorageValueRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,56 +35,4 @@ public class StorageValueRow {
 
     @Size(max = Validation.MAX_TEXT_LENGTH)
     private String string;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
-    }
-
-    public void setBotHomeId(final int botHomeId) {
-        this.botHomeId = botHomeId;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(final int type) {
-        this.type = type;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(final int userId) {
-        this.userId = userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(final int number) {
-        this.number = number;
-    }
-
-    public String getString() {
-        return string;
-    }
-
-    public void setString(final String string) {
-        this.string = string;
-    }
 }

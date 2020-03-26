@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.controllers;
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -22,13 +23,16 @@ public class AdministrationController {
     private SuggestionRepository suggestionRepository;
 
     @Autowired
+    private UserTable userTable;
+
+    @Autowired
     @Qualifier("adminTask")
     private Optional<Runnable> adminTask;
 
     @GetMapping("/admin")
     public String index(final Model model) throws BotErrorException {
         model.addAttribute("page", "admin");
-        model.addAttribute("users", userSerializer.getAllUsers());
+        model.addAttribute("users", userTable.getAllUsers());
         model.addAttribute("suggestions", suggestionRepository.findAllByOrderByCountDescAliasAsc());
         return "admin";
     }

@@ -3,8 +3,22 @@ package com.ryan_mtg.servobot.model.parser;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
-import com.ryan_mtg.servobot.model.storage.StorageValue;
+import com.ryan_mtg.servobot.model.storage.StringEvaluatable;
+import com.ryan_mtg.servobot.utility.Time;
+
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.time.Duration;
+import java.util.function.Function;
+
+import static com.ryan_mtg.servobot.model.parser.Token.Type.CLOSE_PARENTHESIS;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.IDENTIFIER;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.INCREMENT;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.MEMBER_ACCESSOR;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.OPEN_PARENTHESIS;
 
 public class Parser {
     private Lexer lexer;
@@ -16,7 +30,7 @@ public class Parser {
         this.homeEditor = homeEditor;
     }
 
-    public Object parse(final String expression) throws ParseException {
+    public Evaluatable parse(final String expression) throws ParseException {
         lexer = new Lexer(expression);
         Object result = parseExpression();
 
@@ -25,13 +39,10 @@ public class Parser {
                     String.format("Illegal end of expression '%s'", lexer.peekNextToken().getLexeme()));
         }
 
-        if (result instanceof StorageValue) {
-            return ((StorageValue) result).getValue();
-        }
-        return result;
+        return convertToEvaluatable(result);
     }
 
-    public Object parseExpression() throws ParseException {
+    private Object parseExpression() throws ParseException {
         Object result = parseTerm();
 
         while (lexer.hasNextToken() && isTermOperation(lexer.peekNextToken().getType())) {
@@ -70,13 +81,23 @@ public class Parser {
                 if (result == null) {
                     throw new ParseException(String.format("No value named %s.", identifierToken.getLexeme()));
                 }
+
+                while (lexer.isNextToken(MEMBER_ACCESSOR)) {
+                    lexer.getNextToken();
+                    Token field = expect(IDENTIFIER);
+                    result = accessMember(result, field.getLexeme());
+                }
+
+                if (lexer.isNextToken(OPEN_PARENTHESIS)) {
+                    Object argument = parseFactor();
+                    result = applyFunction(identifierToken, result, argument);
+                }
                 break;
             case INCREMENT:
                 lexer.getNextToken();
                 result = parseExpression();
                 if (!(result instanceof IntegerStorageValue)) {
-                    throw new ParseException(
-                            String.format("Invalid expression to increment"));
+                    throw new ParseException("Invalid expression to increment");
                 }
                 try {
                     result = homeEditor.incrementStorageValue(((IntegerStorageValue) result).getName());
@@ -87,22 +108,17 @@ public class Parser {
             case OPEN_PARENTHESIS:
                 lexer.getNextToken();
                 result = parseExpression();
-                if (!lexer.hasNextToken() || lexer.peekNextToken().getType() != Token.Type.CLOSE_PARENTHESIS) {
-                    throw new ParseException(
-                            String.format("Expected ')' instead of '%s'", lexer.peekNextToken().getLexeme()));
-                }
-                lexer.getNextToken();
+                expect(CLOSE_PARENTHESIS);
                 break;
             default:
                 throw new ParseException(String.format("Illegal term '%s'", token.getLexeme()));
         }
-        while (lexer.hasNextToken() && lexer.peekNextToken().getType() == Token.Type.INCREMENT) {
+        while (lexer.isNextToken(INCREMENT)) {
             lexer.getNextToken();
             if (!(result instanceof IntegerStorageValue)) {
-                throw new ParseException(
-                        String.format("Invalid expression to increment"));
+                throw new ParseException("Invalid expression to increment");
             }
-            IntegerStorageValue value = (IntegerStorageValue)  result;
+            IntegerStorageValue value = (IntegerStorageValue) result;
             result = value.getValue();
             try {
                 homeEditor.incrementStorageValue(value.getName());
@@ -122,15 +138,46 @@ public class Parser {
         return tokenType == Token.Type.MULTIPLY;
     }
 
-    private Object apply(final Token.Type operation, final Object leftHandOpeerand, final Object rightHandOperand)
+    private Object apply(final Token.Type operation, final Object leftHandOperand, final Object rightHandOperand)
             throws ParseException {
         switch (operation) {
             case ADD:
-                return getInteger(leftHandOpeerand) + getInteger(rightHandOperand);
+                return getInteger(leftHandOperand) + getInteger(rightHandOperand);
             case MULTIPLY:
-                return getInteger(leftHandOpeerand) * getInteger(rightHandOperand);
+                return getInteger(leftHandOperand) * getInteger(rightHandOperand);
         }
         throw new ParseException(String.format("Invalid Operation '%s'", operation));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object applyFunction(final Token functionToken, final Object function, final Object argument)
+            throws ParseException {
+        if (!(function instanceof Function)) {
+            throw new ParseException(String.format("Expected '%s' to be a function", functionToken.getLexeme()));
+        }
+        try {
+            return ((Function<Object, Object>)function).apply(argument);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            System.out.println("Function class: " + function.getClass());
+            System.out.println("Argument class: " + argument.getClass());
+            throw new ParseException(String.format("Could not apply function '%s'", functionToken.getLexeme()));
+        }
+    }
+
+    private Object accessMember(final Object object, final String field) throws ParseException {
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(object.getClass());
+            for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+                if (propertyDescriptor.getName().equals(field)) {
+                    return propertyDescriptor.getReadMethod().invoke(object);
+                }
+            }
+            throw new ParseException(String.format("No field %s", field));
+        } catch (Exception e) {
+            throw new ParseException(String.format("Unable to access field %s", field), e);
+        }
     }
 
     private int getInteger(final Object object) throws ParseException {
@@ -143,5 +190,36 @@ public class Parser {
         }
 
         throw new ParseException(String.format("%s is not an integer", object));
+    }
+
+    private Token expect(final Token.Type expectedType) throws ParseException {
+        if (!lexer.hasNextToken()) {
+            throw new ParseException(String.format("Expected '%s' instead of end of expression", expectedType));
+        }
+        if (lexer.peekNextToken().getType() != expectedType) {
+            throw new ParseException(String.format("Expected '%s' instead of '%s'", expectedType,
+                    lexer.peekNextToken().getLexeme()));
+        }
+        return lexer.getNextToken();
+    }
+
+    private Evaluatable convertToEvaluatable(final Object value) throws ParseException {
+        if (value instanceof Evaluatable) {
+            return (Evaluatable) value;
+        }
+
+        if (value instanceof String) {
+            return new StringEvaluatable((String) value);
+        }
+
+        if (value instanceof Integer) {
+            return new StringEvaluatable(Integer.toString((int) value));
+        }
+
+        if (value instanceof Duration) {
+            return new StringEvaluatable(Time.toReadableString((Duration) value));
+        }
+
+        throw new ParseException(String.format("Unknown type '%s' for value: %s", value.getClass(), value));
     }
 }

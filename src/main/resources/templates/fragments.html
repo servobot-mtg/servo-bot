@@ -7,6 +7,20 @@
     <!-- header -->
     <div th:fragment="header">
         <span id="security-token" th:attr="data-token=${_csrf.token}, data-header=${_csrf.headerName}"/>
+
+        <div class="info-banner-frame">
+            <div id="error-banner" class="banner">
+                <span class="banner-icon">&#x2622;&#xFE0F;</span>
+                <span id="error-message">Warning I'm an evil error message!</span>
+                <span class="banner-icon pseudo-link" onclick="dismissErrorMessage()">&#x2612;</span>
+            </div>
+            <div id="warning-banner" class="banner">
+                <span class="banner-icon">&#x26A0;&#xFE0F;</span>
+                <span id="warning-message">Warning I'm an evil warning message!</span>
+                <span class="banner-icon pseudo-link" onclick="dismissWarningMessage()">&#x2612;</span>
+            </div>
+        </div>
+
         <div class="navbar">
             <ul>
                 <li><div class="navitem index">
@@ -16,13 +30,12 @@
                 <li><div class="navitem navicon" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
                     <a href="#" th:href="@{/home/{id}(id=${botHome.name})}">
                         <span th:if="${botHome.imageUrl == null}" th:text="${botHome.name}"></span>
-                        <img th:if="${botHome.imageUrl != null}" class="user-image" th:src="${botHome.imageUrl}"></img>
+                        <img th:if="${botHome.imageUrl != null}" class="user-image" th:src="${botHome.imageUrl}"/>
                     </a>
                 </div></li>
 
                 <li th:if="${user.authenticated && user.admin}"><div class="navitem admin">
                     <a href="/admin">Admin</a>
-                    <form style="visibility: hidden" id="logout-form" method="post" action="#" th:action="@{/logout}"></form>
                 </div></li>
 
 
@@ -46,6 +59,51 @@
                 </li>
             </ul>
         </div>
+    </div>
+
+    <!-- command settings -->
+    <div th:fragment="command_settings (description, label, settingsId, commandSettings)">
+        <div class="command-settings form-block">
+            <h3 th:text="${description}"></h3>
+            <div class="form-block">
+                <label>Name</label><br>
+                <input type="text" th:id="${label} + '-command'" th:value="${commandSettings.commandName}"><br>
+            </div>
+            <div class="form-block">
+                <label>Options</label><br>
+
+                <span th:id="${label} + '-secured'" class="pseudo-link"
+                      th:onclick="'toggleSecureCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'"
+                      th:text="${commandSettings.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+
+                <span th:id="${label} + '-twitch'" class="pseudo-link"
+                      th:onclick="'toggleTwitchCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
+                    <img th:id="${label} + '-twitch-img'" class="icon" title="Toggle Twitch use"
+                         th:src="${commandSettings.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
+                </span>
+
+                <span th:id="${label} + '-discord'" class="pseudo-link"
+                      th:onclick="'toggleDiscordCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
+                    <img th:id="${label} + '-discord-img'" class="icon" title="Toggle Discord use"
+                         th:src="${commandSettings.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
+                </span>
+            </div>
+
+            <div class="form-block">
+                <label>Permissions</label><br>
+                <select th:id="${label} + '-permission'">
+                    <th:block th:each="permission : ${permissions}">
+                        <option th:value="${permission}" th:text="${permission}"
+                                th:selected="${permission == commandSettings.permission}"/>
+                    </th:block>
+                </select>
+            </div><br>
+            <div th:class="small-vertical-bottom-padding">
+                <label>Response</label><br>
+                <input type="text" th:id="${label} + '-message'" class="message-input"
+                       th:value="${commandSettings.message}"><br>
+            </div>
+        </div><br>
     </div>
 
     <!-- footer -->

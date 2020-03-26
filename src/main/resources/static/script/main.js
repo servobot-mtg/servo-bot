@@ -13,6 +13,11 @@ async function makePost(endpoint, parameters, responseElements, showOk) {
             set = true;
         }
     } else {
+        let json = await response.json();
+        if (json.hasOwnProperty('message')) {
+            showErrorMessage(json.message);
+        }
+
         Array.from(responseElements).forEach((responseElement) => responseElement.innerHTML = '&#x274C;');
         set = true;
     }
@@ -24,16 +29,54 @@ async function makePost(endpoint, parameters, responseElements, showOk) {
     return response;
 }
 
+async function makeGet(endpoint, parameters) {
+    let url = new URL(endpoint, location.origin);
+    url.search = new URLSearchParams(parameters).toString();
+    const settings = getGetSettings();
+
+    return await fetch(url, settings);
+}
+
+function hideElement(element) {
+    element.style.display = 'none';
+}
+
 function hideElementById(elementId) {
-    document.getElementById(elementId).style.display = 'none';
+    hideElement(document.getElementById(elementId));
+}
+
+function showElement(element) {
+    element.style.display = 'block';
 }
 
 function showElementById(elementId) {
-    document.getElementById(elementId).style.display = 'block';
+    showElement(document.getElementById(elementId));
+}
+
+function showElementInline(element) {
+    element.style.display = 'inline-block';
 }
 
 function showElementInlineById(elementId) {
-    document.getElementById(elementId).style.display = 'inline-block';
+    showElementInline(document.getElementById(elementId));
+}
+
+function dismissErrorMessage() {
+    hideElementById('error-banner');
+}
+
+function showErrorMessage(message) {
+    document.getElementById('error-message').innerText = message;
+    showElementInlineById('error-banner');
+}
+
+function dismissWarningMessage() {
+    hideElementById('warning-banner');
+}
+
+function showWarningMessage(message) {
+    document.getElementById('warning-message').innerText = message;
+    showElementInlineById('warning-banner');
 }
 
 function getPostSettings(parameters) {
@@ -50,5 +93,15 @@ function getPostSettings(parameters) {
     const security = securityElement.dataset;
 
     settings.headers[security.header] = security.token;
+    return settings;
+}
+
+function getGetSettings() {
+    let settings = {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    };
     return settings;
 }

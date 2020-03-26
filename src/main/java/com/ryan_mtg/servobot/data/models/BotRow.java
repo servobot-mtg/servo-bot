@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,6 +12,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "bot")
+@Getter
 public class BotRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,12 +20,4 @@ public class BotRow {
 
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String name;
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

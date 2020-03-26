@@ -1,30 +1,44 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.Trigger;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
+import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Reward;
-import com.ryan_mtg.servobot.model.Statement;
+import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.giveaway.Giveaway;
+import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
+import com.ryan_mtg.servobot.model.giveaway.Prize;
+import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Flags;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -46,19 +60,13 @@ public class ApiController {
         return botEditor.createBotHome(websiteUser.getUserId(), request);
     }
 
+    @Getter
     public static class TextCommandRequest {
         private String name;
         private String value;
-
-        public String getName() {
-            return name;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 
+    @Getter
     public static class CreateBotHomeRequest {
         private String botName;
         private String timeZone;
@@ -66,32 +74,7 @@ public class ApiController {
         private String deleteCommandName;
         private String showCommandsName;
         private List<TextCommandRequest> textCommands;
-
-        public String getBotName() {
-            return botName;
-        }
-
-        public String getTimeZone() {
-            return timeZone;
-        }
-
-        public String getAddCommandName() {
-            return addCommandName;
-        }
-
-        public String getDeleteCommandName() {
-            return deleteCommandName;
-        }
-
-        public String getShowCommandsName() {
-            return showCommandsName;
-        }
-
-        public List<TextCommandRequest> getTextCommands() {
-            return textCommands;
-        }
     }
-
 
     @PostMapping(value = "/modify_bot_name", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean modifyBotName(@RequestBody final ModifyBotNameRequest request) {
@@ -100,20 +83,14 @@ public class ApiController {
         return true;
     }
 
+    @Getter
     public static class BotHomeRequest {
         private int botHomeId;
-
-        public int getBotHomeId() {
-            return botHomeId;
-        }
     }
 
+    @Getter
     public static class ModifyBotNameRequest extends BotHomeRequest {
         private String text;
-
-        public String getText() {
-            return text;
-        }
     }
 
     @PostMapping(value = "/set_home_time_zone", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -122,37 +99,27 @@ public class ApiController {
         homeEditor.setTimeZone(request.getTimeZone());
     }
 
+    @Getter
     public static class SetBotHomeTimeZoneRequest extends BotHomeRequest {
         private String timeZone;
-
-        public String getTimeZone() {
-            return timeZone;
-        }
     }
 
     @PostMapping(value = "/secure_command", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean secureCommand(@RequestBody final SecureRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.secureCommand(request.getObjectId(), request.getSecure());
+        return homeEditor.secureCommand(request.getObjectId(), request.isSecure());
     }
 
     @PostMapping(value = "/secure_reaction", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean secureReaction(@RequestBody final SecureRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.secureReaction(request.getObjectId(), request.getSecure());
+        return homeEditor.secureReaction(request.getObjectId(), request.isSecure());
     }
 
+    @Getter
     public static class SecureRequest extends BotHomeRequest {
         private int objectId;
         private boolean secure;
-
-        public int getObjectId() {
-            return objectId;
-        }
-
-        public boolean getSecure() {
-            return secure;
-        }
     }
 
     @PostMapping(value = "/set_command_service", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -161,18 +128,16 @@ public class ApiController {
         return homeEditor.setCommandService(request.getCommandId(), request.getServiceType(), request.getValue());
     }
 
-    public static class SetCommandServiceRequest extends BotHomeRequest {
+    @Getter
+    public static abstract class CommandRequest extends BotHomeRequest {
         private int commandId;
+    }
+
+    public static class SetCommandServiceRequest extends CommandRequest {
+        @Getter
         private int serviceType;
+
         private boolean value;
-
-        public int getCommandId() {
-            return commandId;
-        }
-
-        public int getServiceType() {
-            return serviceType;
-        }
 
         public boolean getValue() {
             return value;
@@ -180,22 +145,38 @@ public class ApiController {
     }
 
     @PostMapping(value = "/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Permission secureReaction(@RequestBody final SetPermissionRequest request) {
+    public Permission setCommandPermission(@RequestBody final SetPermissionRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.setCommandPermission(request.getCommandId(), request.getPermission());
     }
 
-    public static class SetPermissionRequest extends BotHomeRequest {
-        private int commandId;
+    @Getter
+    public static class SetPermissionRequest extends CommandRequest {
         private Permission permission;
+    }
 
-        public int getCommandId() {
-            return commandId;
-        }
+    @PostMapping(value = "/set_command_only_while_streaming", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean setIsOnlyWhileStreaming(@RequestBody final SetCommandOnlyWhileStreamingRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.setCommandOnlyWhileStreaming(request.getCommandId(), request.isOnlyWhileStreaming());
+    }
 
-        public Permission getPermission() {
-            return permission;
-        }
+    @Getter
+    public static class SetCommandOnlyWhileStreamingRequest extends CommandRequest {
+        private boolean onlyWhileStreaming;
+    }
+
+    @PostMapping(value = "/add_book", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Book addBook(@RequestBody final AddBookRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addBook(request.getName(), request.getStatement());
+    }
+
+    @Getter
+    public static class AddBookRequest extends BotHomeRequest {
+        private String name;
+        private String statement;
     }
 
     @PostMapping(value = "/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -205,55 +186,39 @@ public class ApiController {
         return homeEditor.addStatement(request.getBookId(), request.getText());
     }
 
+    @Getter
     public static class BookRequest extends BotHomeRequest {
         private int bookId;
-
-        public int getBookId() {
-            return bookId;
-        }
     }
 
+    @Getter
     public static class AddStatementRequest extends BookRequest {
         private String text;
-
-        public String getText() {
-            return text;
-        }
     }
 
     @PostMapping(value = "/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) {
+    public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.deleteStatement(request.getBookId(), request.getStatementId());
         return true;
     }
 
+    @Getter
     public static class DeleteStatementRequest extends BookRequest {
         private int statementId;
-
-        public int getStatementId() {
-            return statementId;
-        }
     }
 
     @PostMapping(value = "/modify_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) {
+    public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
         return true;
     }
 
+    @Getter
     public static class ModifyStatementRequest extends BookRequest {
         private int statementId;
         private String text;
-
-        public int getStatementId() {
-            return statementId;
-        }
-
-        public String getText() {
-            return text;
-        }
     }
 
     @PostMapping(value = "/add_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -264,40 +229,17 @@ public class ApiController {
         return new AddTriggerResponse(a.get(0), a.size() > 1 ? a.get(1): null);
     }
 
-    public static class AddTriggerRequest extends BotHomeRequest {
-        private int commandId;
+    @Getter
+    public static class AddTriggerRequest extends CommandRequest {
         private int triggerType;
         private String text;
-
-        public int getCommandId() {
-            return commandId;
-        }
-
-        public int getTriggerType() {
-            return triggerType;
-        }
-
-        public String getText() {
-            return text;
-        }
     }
 
+    @AllArgsConstructor
+    @Getter
     public static class AddTriggerResponse {
         private Trigger addedTrigger;
         private Trigger deletedTrigger;
-
-        public AddTriggerResponse(final Trigger addedTrigger, final Trigger deletedTrigger) {
-            this.addedTrigger = addedTrigger;
-            this.deletedTrigger = deletedTrigger;
-        }
-
-        public Trigger getAddedTrigger() {
-            return addedTrigger;
-        }
-
-        public Trigger getDeletedTrigger() {
-            return deletedTrigger;
-        }
     }
 
     @PostMapping(value = "/trigger_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -309,12 +251,9 @@ public class ApiController {
         });
     }
 
+    @Getter
     public static class TriggerAlertRequest extends BotHomeRequest {
         private String alertToken;
-
-        public String getAlertToken() {
-            return alertToken;
-        }
     }
 
     @PostMapping(value = "/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -331,6 +270,7 @@ public class ApiController {
         return homeEditor.addCommand(commandRow);
     }
 
+    @Getter
     public static class AddCommandRequest extends BotHomeRequest {
         private int type;
         private Permission permission;
@@ -338,34 +278,6 @@ public class ApiController {
         private String stringParameter;
         private String stringParameter2;
         private Long longParameter;
-
-        public int getType() {
-            return type;
-        }
-
-        public Permission getPermission() {
-            return permission;
-        }
-
-        public int getFlags() {
-            return flags;
-        }
-
-        public void setPermission(Permission permission) {
-            this.permission = permission;
-        }
-
-        public String getStringParameter() {
-            return stringParameter;
-        }
-
-        public String getStringParameter2() {
-            return stringParameter2;
-        }
-
-        public Long getLongParameter() {
-            return longParameter;
-        }
     }
 
     @PostMapping(value = "/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -386,12 +298,9 @@ public class ApiController {
         });
     }
 
+    @Getter
     public static class DeleteObjectRequest extends BotHomeRequest {
         private int objectId;
-
-        public int getObjectId() {
-            return objectId;
-        }
     }
 
     @PostMapping(value = "/add_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -401,17 +310,10 @@ public class ApiController {
         return homeEditor.addReaction(request.getEmote(), request.isSecure());
     }
 
+    @Getter
     public static class AddReactionRequest extends BotHomeRequest {
         private String emote;
         private boolean secure;
-
-        public String getEmote() {
-            return emote;
-        }
-
-        public boolean isSecure() {
-            return secure;
-        }
     }
 
     @PostMapping(value = "/add_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -421,17 +323,10 @@ public class ApiController {
         return homeEditor.addPattern(request.getReactionId(), request.getPattern());
     }
 
+    @Getter
     public static class AddPatternRequest extends BotHomeRequest {
         private int reactionId;
         private String pattern;
-
-        public int getReactionId() {
-            return reactionId;
-        }
-
-        public String getPattern() {
-            return pattern;
-        }
     }
 
     @PostMapping(value = "/delete_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -452,17 +347,33 @@ public class ApiController {
         });
     }
 
+    @Getter
     public static class DeletePatternRequest extends BotHomeRequest {
         private int reactionId;
         private int patternId;
+    }
 
-        public int getReactionId() {
-            return reactionId;
-        }
+    @PostMapping(value = "/add_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public AlertGenerator addAlert(@RequestBody final AddAlertRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addAlert(request.getType(), request.getKeyword(), request.getTime());
+    }
 
-        public int getPatternId() {
-            return patternId;
-        }
+    @Getter
+    public static class AddAlertRequest extends BotHomeRequest {
+        private int type;
+        private String keyword;
+        private int time;
+    }
+
+    @PostMapping(value = "/delete_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteAlert(@RequestBody final DeleteObjectRequest request) {
+        return wrapCall(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            homeEditor.deleteAlert(request.getObjectId());
+        });
     }
 
     @PostMapping(value = "/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -475,50 +386,144 @@ public class ApiController {
         return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).restartHome(request.getBotHomeId()));
     }
 
-    @PostMapping(value = "/add_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/add_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Reward addReward(@RequestBody final AddRewardRequest request) throws BotErrorException {
+    public Giveaway addGiveaway(@RequestBody final AddGiveawayRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.addReward(request.getPrize());
+        return homeEditor.addGiveaway(request.getName(), request.isSelfService(), request.isRaffle());
     }
 
-    public static class AddRewardRequest extends BotHomeRequest {
-        private String prize;
+    @Getter
+    public static class AddGiveawayRequest extends BotHomeRequest {
+        private String name;
+        private boolean selfService;
+        private boolean raffle;
+    }
 
-        public String getPrize() {
-            return prize;
+    @PostMapping(value = "/save_giveaway_self_service", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway saveGiveawaySelfService(@RequestBody final SaveSelfServiceRequest request)
+            throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.saveGiveawaySelfService(request.getGiveawayId(), request.getRequestPrizeCommandName(),
+                request.getPrizeRequestLimit(), request.getPrizeRequestUserLimit());
+    }
+
+    @Getter
+    public static class GiveawayRequest extends BotHomeRequest {
+        private int giveawayId;
+    }
+
+    @Getter
+    public static class SaveSelfServiceRequest extends GiveawayRequest {
+        private String requestPrizeCommandName;
+        private int prizeRequestLimit;
+        private int prizeRequestUserLimit;
+    }
+
+    @PostMapping(value = "/save_giveaway_raffle_settings", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway saveGiveawaySelfService(@RequestBody final SaveRaffleSettingsRequest request)
+            throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
+                Duration.of(request.getDuration(), ChronoUnit.MINUTES), request.getWinnerCount(),
+                request.getStartRaffle().toSettings(), request.getEnterRaffle().toSettings(),
+                request.getRaffleStatus().toSettings(), request.getWinnerResponse(), request.getDiscordChannel());
+    }
+
+    @Getter
+    public static class CommandSettings {
+        private String name;
+        private Permission permission;
+        private String message;
+        private boolean twitch;
+        private boolean discord;
+        private boolean secure;
+
+        public GiveawayCommandSettings toSettings() {
+            int flags = Flags.value(Command.SECURE_FLAG, secure) | Flags.value(Command.TWITCH_FLAG, twitch)
+                    | Flags.value(Command.DISCORD_FLAG, discord) | Command.TEMPORARY_FLAG;
+            return new GiveawayCommandSettings(name, flags, permission, message);
         }
+    }
+
+    @Getter
+    public static class SaveRaffleSettingsRequest extends GiveawayRequest {
+        private int duration;
+        private int winnerCount;
+        private String winnerResponse;
+        private String discordChannel;
+        private CommandSettings startRaffle;
+        private CommandSettings enterRaffle;
+        private CommandSettings raffleStatus;
+    }
+
+    @PostMapping(value = "/start_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway startGiveaway(@RequestBody final GiveawayRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.startGiveaway(request.getGiveawayId());
+    }
+
+    @PostMapping(value = "/add_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Prize addPrize(@RequestBody final AddPrizeRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addPrize(request.getGiveawayId(), request.getReward(), request.getDescription());
+    }
+
+    @Getter
+    public static class AddPrizeRequest extends GiveawayRequest {
+        private String reward;
+        private String description;
+    }
+
+    @PostMapping(value = "/add_prizes", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Prize> addPrizes(@RequestBody final AddPrizesRequest request) throws BotErrorException {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addPrizes(request.getGiveawayId(), request.getRewards(), request.getDescription());
+    }
+
+    @Getter
+    public static class AddPrizesRequest extends GiveawayRequest {
+        private String rewards;
+        private String description;
     }
 
     @PostMapping(value = "/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public HomedUser awardReward(@RequestBody final RewardRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.awardReward(request.getObjectId());
+    public HomedUser awardReward(@RequestBody final PrizeRequest request) throws BotErrorException {
+        //HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        //return homeEditor.awardReward(request.getGiveawayId(), request.getRewardId());
+        return null;
     }
 
-    @PostMapping(value = "/bestow_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/bestow_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean bestowReward(@RequestBody final RewardRequest request) throws BotErrorException {
+    public boolean bestowPrize(@RequestBody final PrizeRequest request) throws BotErrorException {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.bestowReward(request.getObjectId());
+        return homeEditor.bestowPrize(request.getGiveawayId(), request.getPrizeId());
     }
 
-    @PostMapping(value = "/delete_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @Getter
+    public static class PrizeRequest extends GiveawayRequest {
+        private int prizeId;
+    }
+
+    @PostMapping(value = "/delete_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteReward(@RequestBody final DeleteObjectRequest request) {
+    public boolean deleteReward(@RequestBody final DeleteGiveawayObjectRequest request) {
         return wrapCall(() -> {
             HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteReward(request.getObjectId());
+            homeEditor.deletePrize(request.getGiveawayId(), request.getObjectId());
         });
     }
 
-    public static class RewardRequest extends BotHomeRequest {
-        private int objectId;
-
-        public int getObjectId() {
-            return objectId;
-        }
+    @Getter
+    public static class DeleteGiveawayObjectRequest extends DeleteObjectRequest {
+        private int giveawayId;
     }
 
     private interface ApiCall {
@@ -541,33 +546,15 @@ public class ApiController {
     }
 
 
-        /*
     @ExceptionHandler(BotErrorException.class)
-    public BotError botErrorExceptionHandler(final BotErrorException exception) {
+    public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
         exception.printStackTrace();
-        return new BotError(exception.getErrorMessage());
-        // TODO: make this return an error code
+        return new ResponseEntity<>(new BotError(exception.getErrorMessage()), HttpStatus.BAD_REQUEST);
     }
-         */
 
-        /*
     @ExceptionHandler(Exception.class)
-    public BotError botErrorHandler(final Exception exception) {
+    public ResponseEntity<BotError> botErrorHandler(final Exception exception) {
         exception.printStackTrace();
-        return new BotError(exception.getMessage());
-        // TODO: make this return an error code
-    }
-         */
-
-    public class BotError {
-        private String message;
-
-        public BotError(final String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
+        return new ResponseEntity<>(new BotError(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

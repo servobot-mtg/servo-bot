@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.when;
 public class TierCommandTest {
     private static final int ID = 1;
     private static final CommandSettings COMMAND_SETTINGS =
-            new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, null);
+        new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, null);
     private static final String USER_NAME = "username";
     private static final String ROLE = "role";
     private static final int SERVICE_TYPE = 5;
