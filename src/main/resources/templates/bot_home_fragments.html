@@ -205,15 +205,11 @@
                         <option value="4">Message Channel Command</option>
                         <option value="5">Add Command</option>
                         <option value="6">Delete Command</option>
-                        <option value="15" th:if="${!botHome.bookTable.empty}">Add Statement Command</option>
+                        <option value="15">Add Statement Command</option>
                         <option value="19">Math Command</option>
                         <option value="17" th:if="${!botHome.storageTable.empty}">Show Value Command</option>
                         <option value="18" th:if="${!botHome.storageTable.empty}">Set Value Command</option>
                         <option value="16">Delayed Alert Command</option>
-                        <option value="20">Start Giveaway Command</option>
-                        <option value="21">Enter Giveaway Command</option>
-                        <option value="22">Giveaway Status Command</option>
-                        <option value="23">Select Giveaway Winner Command</option>
                         <option value="7" th:if="${!botHome.gameQueues.empty}">Game Queue Command</option>
                         <option value="9" th:if="${!botHome.gameQueues.empty}">Show Game Queue Command</option>
                         <option value="8" th:if="${!botHome.gameQueues.empty}">Join Game Queue Command</option>

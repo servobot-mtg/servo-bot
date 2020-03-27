@@ -755,12 +755,26 @@ function addCommandRow(commandDescriptor, botHomeId) {
     addTriggerForm.appendChild(
         createInput({id: addTriggerLabel + '-text-input', type: 'text', name: 'trigger', size: 9}));
 
+    let addTriggerEventSelect = document.createElement('select');
+    addTriggerEventSelect.classList.add('hidden');
+    addTriggerEventSelect.id = addTriggerLabel + '-event-input';
+
+    addTriggerEventSelect.add(createOption('STREAM_START', 'STREAM_START', true));
+    addTriggerEventSelect.add(createOption('SUBSCRIBE', 'SUBSCRIBE', false));
+    addTriggerEventSelect.add(createOption('RAID', 'RAID', false));
+    addTriggerEventSelect.add(createOption('NEW_USER', 'NEW_USER', false));
+    addTriggerForm.appendChild(addTriggerEventSelect);
+
     let addTriggerTypeSelect = document.createElement('select');
     addTriggerTypeSelect.id = addTriggerLabel + '-type-input';
 
     addTriggerTypeSelect.add(createOption('Message', 1, true));
     addTriggerTypeSelect.add(createOption('Event', 2, false));
     addTriggerTypeSelect.add(createOption('Alert', 3, false));
+    addTriggerTypeSelect.onchange = function () {
+        updateAddTriggerType(commandDescriptor.command.id);
+    };
+
     addTriggerForm.appendChild(addTriggerTypeSelect);
 
     addTriggerForm.appendChild(createInput({type: 'submit', value: '+'}));

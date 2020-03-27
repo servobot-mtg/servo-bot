@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
@@ -23,9 +25,11 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,11 +56,14 @@ public class ApiController {
     private WebsiteUserFactory websiteUserFactory;
 
     @PostMapping(value = "/create_bot_home", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public BotHome createBotHome(final Authentication authentication, @RequestBody final CreateBotHomeRequest request)
+    public CreateBotHomeResponse createBotHome(final Authentication authentication, @RequestBody final CreateBotHomeRequest request)
             throws BotErrorException {
         WebsiteUser websiteUser = websiteUserFactory.createWebsiteUser(authentication);
         BotEditor botEditor = botRegistrar.getBotEditor(request.getBotName());
-        return botEditor.createBotHome(websiteUser.getUserId(), request);
+        BotHome botHome = botEditor.createBotHome(websiteUser.getUserId(), request);
+        CreateBotHomeResponse createBotHomeResponse = new CreateBotHomeResponse();
+        createBotHomeResponse.setName(botHome.getName());
+        return createBotHomeResponse;
     }
 
     @Getter
@@ -73,6 +80,11 @@ public class ApiController {
         private String deleteCommandName;
         private String showCommandsName;
         private List<TextCommandRequest> textCommands;
+    }
+
+    @Getter @Setter
+    public static class CreateBotHomeResponse {
+        private String name;
     }
 
     @PostMapping(value = "/modify_bot_name", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -555,5 +567,12 @@ public class ApiController {
     public ResponseEntity<BotError> botErrorHandler(final Exception exception) {
         exception.printStackTrace();
         return new ResponseEntity<>(new BotError(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        return mapper;
     }
 }
