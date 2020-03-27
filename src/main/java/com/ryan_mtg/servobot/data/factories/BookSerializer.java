@@ -63,6 +63,10 @@ public class BookSerializer {
     }
 
     public void commit(final int botHomeId, final BookTableEdit bookTableEdit) {
+        for (Book book : bookTableEdit.getSavedBooks()) {
+            saveBook(botHomeId, book);
+        }
+
         for (Statement statement : bookTableEdit.getDeletedStatements()) {
             statementRepository.deleteById(statement.getId());
         }
