@@ -66,7 +66,7 @@ public class BookTable implements SymbolTable, Iterable<Book>{
     public BookTableEdit addStatement(final Book book, final Statement statement) {
         BookTableEdit bookTableEdit = new BookTableEdit();
         book.addStatement(statement);
-        bookTableEdit.save(book.getId(), statement);
+        bookTableEdit.save(book, statement);
         return bookTableEdit;
     }
 
