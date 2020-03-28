@@ -121,14 +121,19 @@ public abstract class Command {
 
     protected static void say(final Channel channel, final Event event, final Scope scope, final String text)
             throws BotErrorException {
-        channel.say(evaluate(event, scope, text));
+        channel.say(evaluate(event, scope, text, 0));
     }
 
     private void setFlag(final int flag, final boolean value) {
         flags = Flags.setFlag(flags, flag, value);
     }
 
-    private static String evaluate(final Event event, final Scope scope, final String text) throws BotErrorException {
+    private static String evaluate(final Event event, final Scope scope, final String text, final int recursionLevel)
+            throws BotErrorException {
+        if (recursionLevel >= 10) {
+            throw new BotErrorException("Too much recursion!");
+        }
+
         StringBuilder result = new StringBuilder();
         Matcher matcher = REPLACEMENT_PATTERN.matcher(text);
         int currentIndex = 0;
@@ -140,7 +145,9 @@ public abstract class Command {
             String expression = matcher.group(1);
 
             try {
-                result.append(parser.parse(expression).evaluate());
+                String evaluation = parser.parse(expression).evaluate();
+                String recursiveEvaluation = evaluate(event, scope, evaluation, recursionLevel + 1);
+                result.append(recursiveEvaluation);
             } catch (ParseException e) {
                 throw new BotErrorException(String.format("Failed to parse %%%s%%: %s", expression, e.getMessage()));
             }

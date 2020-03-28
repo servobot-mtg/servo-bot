@@ -26,7 +26,8 @@ public class TextCommand extends MessageCommand {
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
-        symbolTable.addValue("input", arguments);
+        String input = arguments != null ? arguments : "";
+        symbolTable.addValue("input", input);
         MessageCommand.say(event, symbolTable, text);
     }
 
