@@ -5,7 +5,7 @@ plugins {
 
 apply plugin: 'io.spring.dependency-management'
 
-group 'com.ryan_mtg'
+group 'info.servobot'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8

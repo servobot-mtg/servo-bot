@@ -53,6 +53,7 @@ public class TwitchEventGenerator {
 
     private void handleSubscriptionEvent(final SubscriptionEvent event) {
         try {
+            LOGGER.info("Subscribe event: " + event.getChannel() + " is subbed by " + event.getUser());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getTwitchChat(), event.getUser(), botHome);
             eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome.getId(), subscriber));
@@ -66,6 +67,7 @@ public class TwitchEventGenerator {
 
     private void handleRaidEvent(final RaidEvent event) {
         try {
+            LOGGER.info("Raid event: " + event.getChannel() + " is raided by " + event.getRaider());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getTwitchChat(), event.getRaider(), botHome);
             eventListener.onRaid(new TwitchRaidEvent(client, event, botHome.getId(), subscriber));

@@ -5,12 +5,16 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.events.user.update.GenericUserPresenceEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class StreamStartRegulator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamStartRegulator.class);
+
     private final Map<Integer, Boolean> isStreamingMap = new HashMap<>();
 
     public boolean startActivity(final UserActivityStartEvent event, final int botHomeId) {
@@ -22,6 +26,7 @@ public class StreamStartRegulator {
             return false;
         }
 
+        LOGGER.info(" Setting streamMap({}) to true", botHomeId);
         isStreamingMap.put(botHomeId, true);
         return true;
     }
@@ -32,6 +37,7 @@ public class StreamStartRegulator {
         }
 
         if (containsStreaming(event.getMember().getActivities())) {
+            LOGGER.info(" Setting streamMap({}) to false", botHomeId);
             isStreamingMap.put(botHomeId, false);
         }
     }
@@ -45,6 +51,7 @@ public class StreamStartRegulator {
     }
 
     public void setIsStreaming(final int botHomeId, final boolean isStreaming) {
+        LOGGER.info(" Setting streamMap({}) to {} from outside", botHomeId, isStreaming);
         isStreamingMap.put(botHomeId, isStreaming);
     }
 

@@ -62,6 +62,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (botHome == null) {
             return;
         }
+        LOGGER.info("Activity end: {} stopped {} ", event.getMember(), event.getOldActivity());
         streamStartRegulator.endActivity(event, botHome.getId());
     }
 
@@ -71,7 +72,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (botHome == null) {
             return;
         }
+        LOGGER.info("Activity start: {} stopped {} ", event.getMember(), event.getNewActivity());
         if (streamStartRegulator.startActivity(event, botHome.getId())) {
+            LOGGER.info("Starting image");
             listener.onStreamStart(new DiscordStreamStartEvent(event, botHome.getId()));
         }
     }
