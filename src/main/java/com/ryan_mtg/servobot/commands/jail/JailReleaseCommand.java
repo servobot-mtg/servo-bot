@@ -40,13 +40,19 @@ public class JailReleaseCommand extends MessageCommand {
         User releaser = event.getSender();
         User jailee = home.getUser(arguments);
 
-        if (home.hasRole(releaser, prisonRole)) {
+        if (JailUtility.isInJail(home, releaser, prisonRole)) {
             MessageCommand.say(event, String.format("You can't release someone while in %s!", prisonRole));
             return;
         }
 
-        if (!home.hasRole(jailee, prisonRole)) {
+        if (!JailUtility.isInJail(home, jailee, prisonRole)) {
             MessageCommand.say(event, String.format("%s is not in %s!", jailee.getName(), prisonRole));
+            return;
+        }
+
+        if (home.isHigherRanked(jailee, releaser)) {
+            home.setRole(event.getSender(), prisonRole);
+            MessageCommand.say(event, "I see through your tricks! I'm checking %sender% into the greybar hotel.");
             return;
         }
 

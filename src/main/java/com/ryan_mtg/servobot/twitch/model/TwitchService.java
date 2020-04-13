@@ -4,7 +4,6 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.StreamList;
-import com.github.twitch4j.helix.domain.UserList;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -56,6 +55,12 @@ public class TwitchService implements Service {
         return "Twitch";
     }
 
+    @Override
+    public String getBotName() {
+        String authToken = oauthToken.substring(oauthToken.indexOf(':') + 1);
+        return client.getHelix().getUsers(authToken, null, null).execute().getUsers().get(0).getLogin();
+    }
+
     public String getClientId() {
         return clientId;
     }
@@ -90,9 +95,6 @@ public class TwitchService implements Service {
         client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
         generator = new TwitchEventGenerator(client, eventListener, homeMap);
         homeMap.forEach((channelId, home) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
-
-        UserList userList = client.getHelix().getUsers(null, null, Arrays.asList("jmendezrice")).execute();
-        System.out.println(String.format("user-id: %s", userList.getUsers().get(0).getId()));
     }
 
     @Override

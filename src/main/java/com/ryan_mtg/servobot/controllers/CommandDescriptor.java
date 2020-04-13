@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
@@ -119,6 +120,13 @@ public class CommandDescriptor {
         public void visitAddStatementCommand(final AddStatementCommand addStatementCommand) {
             type = "Add Statement Command";
             description = "Used to make new statements";
+        }
+
+        @Override
+        public void visitArrestCommand(final ArrestCommand arrestCommand) {
+            type = "Arrest Command";
+            description = String.format("Arrests the user passed as input, by giving them the role '%s' and says '%s'",
+                    arrestCommand.getPrisonRole(), arrestCommand.getMessage());
         }
 
         @Override

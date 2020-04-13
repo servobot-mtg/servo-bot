@@ -7,18 +7,21 @@ import java.util.List;
 
 public interface Home {
     String getName();
+    String getBotName();
     Channel getChannel(String channelName, int serviceType);
     boolean isStreamer(User user);
     boolean isStreaming();
 
     String getRole(User user, int serviceType);
     boolean hasRole(User user, String role);
+    boolean hasRole(String role);
     void clearRole(User user, String role) throws BotErrorException;
     void setRole(User user, String role) throws BotErrorException;
 
     List<String> clearRole(String role) throws BotErrorException;
     boolean isHigherRanked(User user, User otherUser) throws BotErrorException;
 
+    boolean hasUser(String userName);
     User getUser(String userName) throws BotErrorException;
 
     Emote getEmote(String emoteName);

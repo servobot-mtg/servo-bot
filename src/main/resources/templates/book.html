@@ -46,9 +46,11 @@
                 title="Add a statement">+</div>
             <form id="add-statement-form" class="hidden add-form"
                   th:onsubmit="'addStatement(' + ${botHome.id} + ', ' + ${book.id} + '); return false;'">
+                <div id="add-statement-text-div">
                     <label>Text</label><BR>
                     <input id="add-statement-text-input" type="text" name="statement"><BR>
-                    <input type="submit" value="Submit Statement">
+                </div>
+                <input type="submit" value="Submit Statement">
             </form>
         </div>
     </div>

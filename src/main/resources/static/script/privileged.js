@@ -20,8 +20,17 @@ const emptySetIcon = '&#x2205';
 const bellIcon = '&#x1F6CE;&#xFE0F;';
 const defaultCommandFlags = 2+4;
 
+function getInputId(label, inputName) {
+    return label + '-' + inputName + '-input';
+}
+
+function getInputDiv(label, inputName) {
+    return label + '-' + inputName + '-div';
+}
+
 const addTriggerFormData = {
     focus: 'text',
+    getInputBlock: getInputId,
     inputs: [{name: 'text', type: 'value', value: '', hide: false},
         {name: 'type', type: 'value', value: '1', hide: false},
         {name: 'event', type: 'value', value: 'STREAM_START', hide: true},
@@ -30,11 +39,13 @@ const addTriggerFormData = {
 
 const addStatementFormData = {
     focus: 'text',
+    getInputBlock: getInputDiv,
     inputs: [{name: 'text', type: 'text', value: '', hide: false}],
 };
 
 const addCommandFormData = {
     focus: 'text',
+    getInputBlock: getInputDiv,
     inputs: [{name: 'type', type: 'select', value: 0, hide: false},
              {name: 'permissions', type: 'select', value: 4, hide: false},
              {name: 'secure', type: 'checkbox', value: false, hide: false},
@@ -51,11 +62,13 @@ const addCommandFormData = {
 
 const addPatternFormData = {
     focus: 'text',
+    getInputBlock: getInputId,
     inputs: [{name: 'text', type: 'value', value: '', hide: false}],
 };
 
 const addReactionFormData = {
     focus: 'emote',
+    getInputBlock: getInputId,
     inputs: [{name: 'emote', type: 'select', value: 0, hide: false},
              {name: 'secure', type: 'checkbox', value: false, hide: false},
     ],
@@ -63,14 +76,16 @@ const addReactionFormData = {
 
 const addAlertFormData = {
     focus: 'type',
+    getInputBlock: getInputDiv,
     inputs: [{name: 'type', type: 'select', value: 0, hide: false},
              {name: 'time', type: 'value', value: 60, hide: false},
-             {name: 'keyword', type: 'value', value: '', hide: true},
+             {name: 'keyword', type: 'value', value: '', hide: false},
     ],
 };
 
 const addBookFormData = {
     focus: 'name',
+    getInputBlock: getInputDiv,
     inputs: [{name: 'name', type: 'value', value: '', hide: false},
              {name: 'statement', type: 'value', value: '', hide: false},
     ],
@@ -422,16 +437,12 @@ async function postStopHome(botHomeId) {
     }
 }
 
-function getInputId(label, inputName) {
-    return label + '-' + inputName + '-input';
-}
-
 function showForm(label, data) {
     hideElementById(label + '-button');
 
     for (let i = 0; i < data.inputs.length; i++) {
         let input = data.inputs[i];
-        let inputElement = document.getElementById(getInputId(label, input.name));
+        let inputElement = document.getElementById(data.getInputBlock(label, input.name));
         if (input.hide)  {
             hideElement(inputElement);
         } else {
@@ -658,12 +669,13 @@ const commandData = [
     {name: 'Add Reaction Command', parameters: [{id: 'emote', name: 'Emote'}]}, //24
     {name: 'Jail Command', parameters: [{id: 'role', name: 'Role Name'}, {id: 'text-2', name: 'Variable Name'},
             {id: 'integer', name: 'Strikes'}]}, //25
-    {name: 'Jail Break Command', parameters: [{id: 'role', name: 'Role Name'},
-            {id: 'text-2', name: 'Variable Name'}]}, //26
+    {name: 'Jail Break Command', parameters: [{id: 'role', name: 'Prison Role Name'}]}, //26
     {name: 'Set User Role Command', parameters: [{id: 'role', name: 'Role Name'},
             {id: 'text-2', name: 'Response message'}]}, //27
     {}, //28, Prize Request Command
-    {name: 'Jail Release Command', parameters: [{id: 'role', name: 'Role Name'}]}, //29
+    {name: 'Jail Release Command', parameters: [{id: 'role', name: 'Prison Role Name'}]}, //29
+    {name: 'Arrest Command', parameters: [{id: 'role', name: 'Prison Role Name'},
+            {id: 'text-2', name: 'Response message'}]}, //30
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

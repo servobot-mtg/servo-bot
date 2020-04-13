@@ -36,6 +36,11 @@ public class DiscordHome implements Home {
     }
 
     @Override
+    public String getBotName() {
+        return guild.getSelfMember().getEffectiveName();
+    }
+
+    @Override
     public Channel getChannel(final String channelName, final int serviceType) {
         if (serviceType != DiscordService.TYPE) {
             return null;
@@ -74,8 +79,14 @@ public class DiscordHome implements Home {
 
     @Override
     public boolean hasRole(final User user, final String roleName) {
+        String deampedRoleName = deamp(roleName);
         Member member = getMember(user);
-        return member.getRoles().stream().anyMatch(role -> role.getName().equals(roleName));
+        return member.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase(deampedRoleName));
+    }
+
+    @Override
+    public boolean hasRole(final String roleName) {
+        return !guild.getRolesByName(deamp(roleName), false).isEmpty();
     }
 
     @Override
@@ -106,6 +117,15 @@ public class DiscordHome implements Home {
         Member firstMember = getMember(firstUser);
         Member secondMember = getMember(secondUser);
         return getPosition(firstMember) > getPosition(secondMember);
+    }
+
+    @Override
+    public boolean hasUser(final String userName) {
+        if (userName == null) {
+            return false;
+        }
+
+        return !guild.getMembersByEffectiveName(deamp(userName), true).isEmpty();
     }
 
     @Override
@@ -174,13 +194,9 @@ public class DiscordHome implements Home {
             throw new BotErrorException("No one specified.");
         }
 
-        if (username.startsWith("@")) {
-            return getMember(username.substring(1));
-        }
-
-        List<Member> members = guild.getMembersByEffectiveName(username, true);
+        List<Member> members = guild.getMembersByEffectiveName(deamp(username), true);
         if (members.isEmpty()) {
-            throw new BotErrorException(String.format("No user named '%s'.", username));
+            throw new BotErrorException(String.format("No user named '%s'.", deamp(username)));
         }
         return members.get(0);
     }
@@ -196,7 +212,7 @@ public class DiscordHome implements Home {
     }
 
     private Role getRole(final String roleName) throws BotErrorException {
-        List<Role> roles = guild.getRolesByName(roleName, false);
+        List<Role> roles = guild.getRolesByName(deamp(roleName), false);
         if (roles.isEmpty()) {
             throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
         }
@@ -205,5 +221,12 @@ public class DiscordHome implements Home {
 
     private Member getMember(final User user) {
         return ((DiscordUser)user).getMember();
+    }
+
+    private String deamp(final String string) {
+        if (string.startsWith("@")) {
+            return string.substring(1);
+        }
+        return string;
     }
 }

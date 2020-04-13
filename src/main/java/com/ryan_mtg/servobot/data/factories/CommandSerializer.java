@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.data.factories;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
+import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
@@ -77,6 +78,9 @@ public class CommandSerializer {
                 return new AddReactionCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()));
             case AddStatementCommand.TYPE:
                 return new AddStatementCommand(id, flags, permission);
+            case ArrestCommand.TYPE:
+                return new ArrestCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()),
+                        Strings.trim(commandRow.getStringParameter2()));
             case DelayedAlertCommand.TYPE:
                 return new DelayedAlertCommand(id, flags, permission, Duration.ofSeconds(commandRow.getLongParameter()),
                         Strings.trim(commandRow.getStringParameter()));
@@ -250,6 +254,14 @@ public class CommandSerializer {
         @Override
         public void visitAddStatementCommand(final AddStatementCommand addStatementCommand) {
             saveCommand(addStatementCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitArrestCommand(final ArrestCommand arrestCommand) {
+            saveCommand(arrestCommand, commandRow -> {
+                commandRow.setStringParameter(arrestCommand.getPrisonRole());
+                commandRow.setStringParameter2(arrestCommand.getMessage());
+            });
         }
 
         @Override

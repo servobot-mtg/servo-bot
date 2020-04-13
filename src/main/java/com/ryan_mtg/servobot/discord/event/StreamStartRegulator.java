@@ -19,10 +19,17 @@ public class StreamStartRegulator {
 
     public boolean startActivity(final UserActivityStartEvent event, final int botHomeId) {
         if (!isStreamer(event) || !isStreaming(event.getNewActivity())) {
+            if (!isStreamer(event)) {
+                LOGGER.info(" Not starting because not streamer({})", botHomeId);
+            }
+            if (!isStreaming(event.getNewActivity())) {
+                LOGGER.info(" Not starting because not streaming activity ({})", event.getNewActivity().getType());
+            }
             return false;
         }
 
         if (isStreamingMap.containsKey(botHomeId) && isStreamingMap.get(botHomeId)) {
+            LOGGER.info(" Not starting because home is already streaming ({})", botHomeId);
             return false;
         }
 

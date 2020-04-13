@@ -5,6 +5,7 @@ import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.helix.domain.StreamList;
 import com.github.twitch4j.helix.domain.UserList;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
@@ -47,6 +48,11 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
+    public String getBotName() {
+        return homeEditor.getService(TwitchService.TYPE).getBotName();
+    }
+
+    @Override
     public Channel getChannel(final String channelName, final int serviceType) {
         if (serviceType != TwitchService.TYPE) {
             return null;
@@ -80,6 +86,11 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
+    public boolean hasRole(final String role) {
+        return false;
+    }
+
+    @Override
     public void clearRole(final User user, final String role) {}
 
     @Override
@@ -94,6 +105,11 @@ public class TwitchChannel implements Channel, Home {
 
     @Override
     public boolean isHigherRanked(final User user, final User otherUser) {
+        return false;
+    }
+
+    @Override
+    public boolean hasUser(String userName) {
         return false;
     }
 

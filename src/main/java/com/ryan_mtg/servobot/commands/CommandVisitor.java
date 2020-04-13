@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RequestPrizeCommand;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
+import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.jail.JailBreakCommand;
 import com.ryan_mtg.servobot.commands.jail.JailCommand;
 import com.ryan_mtg.servobot.commands.jail.JailReleaseCommand;
@@ -23,6 +24,7 @@ public interface CommandVisitor {
     void visitAddCommand(AddCommand addCommand);
     void visitAddReactionCommand(AddReactionCommand addReactionCommand);
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);
+    void visitArrestCommand(ArrestCommand arrestCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
     void visitEnterGiveawayCommand(EnterRaffleCommand enterRaffleCommand);

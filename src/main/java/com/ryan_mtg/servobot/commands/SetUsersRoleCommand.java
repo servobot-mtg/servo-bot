@@ -33,11 +33,7 @@ public class SetUsersRoleCommand extends MessageCommand {
         Home home = event.getHome();
         User user = home.getUser(arguments);
 
-        if (home.isHigherRanked(user, event.getSender())) {
-            home.setRole(event.getSender(), role);
-
-            MessageCommand.say(event, "I see through your tricks! I'm checking %sender% into the greybar hotel.");
-        } else {
+        if (!home.hasRole(user, role)) {
             home.setRole(user, role);
 
             SimpleSymbolTable symbolTable = new SimpleSymbolTable();

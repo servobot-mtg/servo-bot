@@ -197,7 +197,7 @@
                  title="Add a command">+</div>
             <form id="add-command-form" class="add-form hidden"
                   th:onsubmit="'addCommand(' + ${botHome.id} + '); return false;'">
-                <div>
+                <div id="add-command-type-div">
                     <label>Command Type</label><br>
                     <select id='add-command-type-input' onchange="changeAddCommandType(this)">
                         <option value="1" selected>Respond Command</option>
@@ -224,9 +224,10 @@
                         <option th:if="${user.admin}" value="25">Jail Command</option>
                         <option th:if="${user.admin}" value="26">Jail Break Command</option>
                         <option th:if="${user.admin}" value="29">Jail Release Command</option>
+                        <option th:if="${user.admin}" value="30">Arrest Command</option>
                     </select><br>
                 </div>
-                <div>
+                <div id="add-command-permissions-div">
                     <label>Permissions</label><br>
                     <select id="add-command-permissions-input">
                         <th:block th:each="permission : ${permissions}">
@@ -234,7 +235,7 @@
                         </th:block>
                     </select><br>
                 </div>
-                <div>
+                <div id="add-command-secure-div">
                     <label>Hide</label><br>
                     <input type="checkbox" id="add-command-secure-input"><br>
                 </div>
@@ -461,11 +462,11 @@
                  title="Add a book">+</div>
             <form id="add-book-form" class="add-form hidden"
                   th:onsubmit="'addBook(' + ${botHome.id} + '); return false;'">
-                <div>
+                <div id="add-book-name-div">
                     <label>Name</label><br>
                     <input type="text" id="add-book-name-input" class="name"><br>
                 </div><br>
-                <div>
+                <div id="add-book-statement-div">
                     <label>First Statement</label><br>
                     <input type="text" id="add-book-statement-input"><br>
                 </div><br>

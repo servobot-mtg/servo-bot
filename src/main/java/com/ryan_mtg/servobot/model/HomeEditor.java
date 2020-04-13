@@ -86,6 +86,10 @@ public class HomeEditor {
         return botHome.getBotHomeScope();
     }
 
+    public Service getService(final int serviceType) {
+        return bot.getService(serviceType);
+    }
+
     @Transactional(rollbackOn = BotErrorException.class)
     public void modifyBotName(final String botName) {
         botHome.setBotName(botName);

@@ -72,9 +72,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (botHome == null) {
             return;
         }
-        LOGGER.info("Activity start: {} stopped {} ", event.getMember(), event.getNewActivity());
+        LOGGER.info("Activity start: {} started {} ", event.getMember(), event.getNewActivity());
         if (streamStartRegulator.startActivity(event, botHome.getId())) {
-            LOGGER.info("Starting image");
+            LOGGER.info("Sending stream start event");
             listener.onStreamStart(new DiscordStreamStartEvent(event, botHome.getId()));
         }
     }
