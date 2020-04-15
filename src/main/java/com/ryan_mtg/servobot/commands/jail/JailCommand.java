@@ -58,7 +58,5 @@ public class JailCommand extends MessageCommand {
 
         event.getHome().setRole(sender, prisonRole);
         MessageCommand.say(event, symbolTable, "%criminal%, I'm throwing the book at you!");
-        //MessageCommand.say(event, sender.getName() + ", you have the right to remain silent!");
-        //MessageCommand.say(event, "You got to ask yourself one question, \"Do I feel lucky?\" Well, do you, punk?");
     }
 }

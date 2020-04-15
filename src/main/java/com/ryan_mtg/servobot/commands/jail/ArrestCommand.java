@@ -28,7 +28,7 @@ public class ArrestCommand extends MessageCommand {
         this.message = message;
 
         Validation.validateStringLength(prisonRole, Validation.MAX_ROLE_LENGTH, "Prison role");
-        Validation.validateStringLength(message, Validation.MAX_STORAGE_NAME_LENGTH, "Threshold message");
+        Validation.validateStringLength(message, Validation.MAX_TEXT_LENGTH, "Response message");
     }
 
     @Override
