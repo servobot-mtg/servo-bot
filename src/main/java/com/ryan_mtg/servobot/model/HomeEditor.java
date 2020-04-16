@@ -179,11 +179,13 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void addCommand(final String alias, final MessageCommand command) throws BotErrorException {
+    public boolean addCommand(final String alias, final MessageCommand command) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
 
         CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
+        boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        return added;
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

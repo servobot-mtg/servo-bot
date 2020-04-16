@@ -62,10 +62,13 @@ public class AddCommand extends MessageCommand {
         }
 
         HomeEditor homeEditor = event.getHomeEditor();
-        homeEditor.addCommand(command,
+        boolean added = homeEditor.addCommand(command,
                 new TextCommand(Command.UNREGISTERED_ID, DEFAULT_FLAGS, Permission.ANYONE, text));
 
-        String finalText = String.format("Command %s added.", command);
-        MessageCommand.say(event, finalText);
+        if (added) {
+            MessageCommand.say(event, String.format("Command %s added.", command));
+        } else {
+            MessageCommand.say(event, String.format("Command %s modified.", command));
+        }
     }
 }
