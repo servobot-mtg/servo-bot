@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
+import lombok.Getter;
+
+@Getter
 public enum CommandType {
     ADD_COMMAND_TYPE(5, "Add Command"),
     ADD_REACTION_COMMAND_TYPE(24, "Add Reaction Command"),

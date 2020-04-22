@@ -69,11 +69,9 @@ public class StreamStartRegulator implements Runnable {
                 channelIds, null).execute();
 
         Set<Long> streamingIds = new HashSet<>();
-        Map<Long, String> channelNameMap = new HashMap<>();
         streamList.getStreams().forEach(stream -> {
-            long id = Long.parseLong(stream.getId());
+            long id = Long.parseLong(stream.getUserId());
             streamingIds.add(id);
-            channelNameMap.put(id, stream.getUserId());
         });
 
         for (long id : allIds) {
@@ -88,9 +86,11 @@ public class StreamStartRegulator implements Runnable {
             }
 
             if (!wasStreaming && isStreaming) {
-                LOGGER.info("Stream is starting for {}", channelNameMap.get(id));
+                String channelName =
+                        ((TwitchServiceHome)homeMap.get(id).getServiceHome(TwitchService.TYPE)).getChannelName();
+                LOGGER.info("Stream is starting for {}", channelName);
                 eventListener.onStreamStart(
-                        new TwitchStreamStartEvent(client, homeMap.get(id).getId(), channelNameMap.get(id)));
+                        new TwitchStreamStartEvent(client, homeMap.get(id).getId(), channelName));
             }
         }
     }

@@ -62,7 +62,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (botHome == null) {
             return;
         }
-        LOGGER.info("Activity end: {} stopped {} ", event.getMember(), event.getOldActivity());
         streamStartRegulator.endActivity(event, botHome.getId());
     }
 

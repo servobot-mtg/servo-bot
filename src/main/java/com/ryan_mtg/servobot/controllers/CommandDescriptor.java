@@ -56,7 +56,7 @@ public class CommandDescriptor {
         this.command = command;
         DescriptorVisitor descriptorVisitor = new DescriptorVisitor();
         command.acceptVisitor(descriptorVisitor);
-        this.type = command.getType().name();
+        this.type = command.getType().getName();
         this.description = descriptorVisitor.getDescription();
         this.edit = descriptorVisitor.getEdit();
     }
