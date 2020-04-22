@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.giveaway;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
@@ -14,7 +15,7 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Getter;
 
 public class RequestPrizeCommand extends MessageCommand {
-    public static final int TYPE = 28;
+    public static final CommandType TYPE = CommandType.REQUEST_PRIZE_COMMAND_TYPE;
 
     @Getter
     private int giveawayId;
@@ -51,7 +52,7 @@ public class RequestPrizeCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

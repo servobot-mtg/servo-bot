@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.jail;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
@@ -11,7 +12,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class JailReleaseCommand extends MessageCommand {
-    public static final int TYPE = 29;
+    public static final CommandType TYPE = CommandType.JAIL_RELEASE_COMMAND_TYPE;
 
     @Getter
     private String prisonRole;
@@ -25,7 +26,7 @@ public class JailReleaseCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

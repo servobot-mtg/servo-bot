@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.data;
 
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -36,6 +38,12 @@ public class DatabaseConfig {
 
     @Value("${database.server}")
     private String server;
+
+    @Bean
+    public ScheduledExecutorService scheduledExecutorService() {
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(3);
+        return executorService;
+    }
 
     @Bean
     protected LocalContainerEntityManagerFactoryBean entityManagerFactory() {

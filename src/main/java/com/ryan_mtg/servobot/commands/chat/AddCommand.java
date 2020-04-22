@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.commands.chat;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -13,7 +13,8 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class AddCommand extends MessageCommand {
-    public static final int TYPE = 5;
+    public static final CommandType TYPE = CommandType.ADD_COMMAND_TYPE;
+
     private static final Pattern commandPattern = Pattern.compile("\\w+");
 
     public AddCommand(final int id, final int flags, final Permission permission) {
@@ -21,7 +22,7 @@ public class AddCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

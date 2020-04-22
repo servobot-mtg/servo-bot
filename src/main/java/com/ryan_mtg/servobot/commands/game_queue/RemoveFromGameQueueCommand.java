@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.game_queue;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
@@ -9,7 +10,7 @@ import com.ryan_mtg.servobot.model.User;
 import lombok.Getter;
 
 public class RemoveFromGameQueueCommand extends MessageCommand {
-    public static final int TYPE = 10;
+    public static final CommandType TYPE = CommandType.REMOVE_FROM_GAME_QUEUE_COMMAND_TYPE;
 
     @Getter
     private int gameQueueId;
@@ -28,7 +29,7 @@ public class RemoveFromGameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

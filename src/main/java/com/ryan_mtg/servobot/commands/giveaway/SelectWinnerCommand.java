@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.giveaway;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SelectWinnerCommand extends HomeCommand {
-    public static final int TYPE = 23;
+    public static final CommandType TYPE = CommandType.SELECT_WINNER_COMMAND_TYPE;
 
     @Getter
     private int giveawayId;
@@ -71,7 +72,7 @@ public class SelectWinnerCommand extends HomeCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

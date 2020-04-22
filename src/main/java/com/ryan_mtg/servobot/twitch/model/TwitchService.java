@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class TwitchService implements Service {
     public static final int TYPE = 1;
@@ -30,15 +32,20 @@ public class TwitchService implements Service {
     private String secret;
     private String oauthToken;
     private TwitchEventGenerator generator;
+    private StreamStartRegulator regulator;
     private Map<Long, BotHome> homeMap = new HashMap<>();
     private Map<Long, String> channelNameMap = new HashMap<>();
     private Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
+    private ScheduledExecutorService executorService;
 
-    public TwitchService(final String clientId, final String secret, final String oauthToken) throws BotErrorException {
+    public TwitchService(final String clientId, final String secret, final String oauthToken,
+            final ScheduledExecutorService executorService) throws BotErrorException {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
+        this.executorService = executorService;
+        this.regulator = new StreamStartRegulator(homeMap);
 
         Validation.validateStringLength(clientId, Validation.MAX_CLIENT_ID_LENGTH, "Client id");
         Validation.validateStringLength(secret, Validation.MAX_CLIENT_SECRET_LENGTH, "Client secret");
@@ -73,7 +80,9 @@ public class TwitchService implements Service {
     public void register(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);
         if (serviceHome != null) {
-            homeMap.put(((TwitchServiceHome) serviceHome).getChannelId(), botHome);
+            TwitchServiceHome twitchServiceHome = (TwitchServiceHome) serviceHome;
+            homeMap.put(twitchServiceHome.getChannelId(), botHome);
+            regulator.addHome(twitchServiceHome);
         }
     }
 
@@ -81,7 +90,9 @@ public class TwitchService implements Service {
     public void unregister(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);
         if (serviceHome != null) {
-            homeMap.remove(((TwitchServiceHome) serviceHome).getChannelId());
+            TwitchServiceHome twitchServiceHome = (TwitchServiceHome) serviceHome;
+            regulator.removeHome(twitchServiceHome);
+            homeMap.remove(twitchServiceHome.getChannelId());
         }
     }
 
@@ -94,6 +105,8 @@ public class TwitchService implements Service {
 
         client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
         generator = new TwitchEventGenerator(client, eventListener, homeMap);
+        regulator.start(client, eventListener);
+        executorService.scheduleAtFixedRate(regulator, 60, 30, TimeUnit.SECONDS);
         homeMap.forEach((channelId, home) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
     }
 

@@ -9,7 +9,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import java.time.Duration;
 
 public class DelayedAlertCommand extends HomeCommand {
-    public static final int TYPE = 16;
+    public static final CommandType TYPE = CommandType.DELAYED_ALERT_COMMAND_TYPE;
     private Alert alert;
 
     public DelayedAlertCommand(final int id, final int flags, final Permission permission,
@@ -34,7 +34,7 @@ public class DelayedAlertCommand extends HomeCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

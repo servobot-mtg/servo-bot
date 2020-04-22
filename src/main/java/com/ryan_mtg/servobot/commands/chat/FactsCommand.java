@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.chat;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
@@ -10,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class FactsCommand extends MessageCommand {
-    public static final int TYPE = 2;
+    public static final CommandType TYPE = CommandType.FACTS_COMMAND_TYPE;
 
     @Getter @Setter
     private Book book;
@@ -21,7 +22,7 @@ public class FactsCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

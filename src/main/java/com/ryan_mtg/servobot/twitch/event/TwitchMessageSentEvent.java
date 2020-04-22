@@ -16,7 +16,7 @@ public class TwitchMessageSentEvent extends TwitchHomeEvent implements MessageSe
 
     public TwitchMessageSentEvent(final TwitchClient client, final ChannelMessageEvent event, final int homeId,
                                   final TwitchUser sender) {
-        super(client, homeId, event);
+        super(client, homeId, event.getChannel().getName());
         this.event = event;
         this.sender = sender;
     }

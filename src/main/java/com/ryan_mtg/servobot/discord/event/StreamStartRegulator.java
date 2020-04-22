@@ -19,21 +19,13 @@ public class StreamStartRegulator {
 
     public boolean startActivity(final UserActivityStartEvent event, final int botHomeId) {
         if (!isStreamer(event) || !isStreaming(event.getNewActivity())) {
-            if (!isStreamer(event)) {
-                LOGGER.info(" Not starting because not streamer({})", botHomeId);
-            }
-            if (!isStreaming(event.getNewActivity())) {
-                LOGGER.info(" Not starting because not streaming activity ({})", event.getNewActivity().getType());
-            }
             return false;
         }
 
         if (isStreamingMap.containsKey(botHomeId) && isStreamingMap.get(botHomeId)) {
-            LOGGER.info(" Not starting because home is already streaming ({})", botHomeId);
             return false;
         }
 
-        LOGGER.info(" Setting streamMap({}) to true", botHomeId);
         isStreamingMap.put(botHomeId, true);
         return true;
     }
@@ -44,7 +36,6 @@ public class StreamStartRegulator {
         }
 
         if (containsStreaming(event.getMember().getActivities())) {
-            LOGGER.info(" Setting streamMap({}) to false", botHomeId);
             isStreamingMap.put(botHomeId, false);
         }
     }
@@ -58,7 +49,6 @@ public class StreamStartRegulator {
     }
 
     public void setIsStreaming(final int botHomeId, final boolean isStreaming) {
-        LOGGER.info(" Setting streamMap({}) to {} from outside", botHomeId, isStreaming);
         isStreamingMap.put(botHomeId, isStreaming);
     }
 

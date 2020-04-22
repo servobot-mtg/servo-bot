@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.chat;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
@@ -13,7 +14,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class MessageChannelCommand extends HomeCommand {
-    public static final int TYPE = 4;
+    public static final CommandType TYPE = CommandType.MESSAGE_CHANNEL_COMMAND_TYPE;
 
     @Getter
     private final int serviceType;
@@ -36,7 +37,7 @@ public class MessageChannelCommand extends HomeCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

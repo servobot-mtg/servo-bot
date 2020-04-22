@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.giveaway;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
@@ -12,7 +13,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class StartRaffleCommand extends MessageCommand {
-    public static final int TYPE = 20;
+    public static final CommandType TYPE = CommandType.START_RAFFLE_COMMAND_TYPE;
 
     @Getter
     private int giveawayId;
@@ -40,7 +41,7 @@ public class StartRaffleCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

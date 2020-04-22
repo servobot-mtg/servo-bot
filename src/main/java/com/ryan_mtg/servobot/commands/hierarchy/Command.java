@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.hierarchy;
 
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
@@ -85,7 +86,7 @@ public abstract class Command {
         setFlag(ONLY_WHILE_STREAMING_FLAG, isOnlyWhileStreaming);
     }
 
-    public abstract int getType();
+    public abstract CommandType getType();
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
 
     public boolean hasPermissions(final User user) {

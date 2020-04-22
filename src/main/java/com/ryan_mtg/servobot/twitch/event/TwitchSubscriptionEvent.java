@@ -11,7 +11,7 @@ public class TwitchSubscriptionEvent extends TwitchHomeEvent implements UserEven
 
     public TwitchSubscriptionEvent(final TwitchClient client, final SubscriptionEvent event, final int homeId,
                                    final TwitchUser subscriber) {
-        super(client, homeId, event);
+        super(client, homeId, event.getChannel().getName());
         this.subscriber = subscriber;
     }
 

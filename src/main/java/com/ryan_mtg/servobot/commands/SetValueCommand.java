@@ -9,7 +9,7 @@ import com.ryan_mtg.servobot.model.storage.StorageValue;
 import java.util.Scanner;
 
 public class SetValueCommand extends MessageCommand {
-    public static final int TYPE = 18;
+    public static final CommandType TYPE = CommandType.SET_VALUE_COMMAND_TYPE;
 
     public SetValueCommand(final int id, final int flags, final Permission permission) {
         super(id, flags, permission);
@@ -42,7 +42,7 @@ public class SetValueCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 
