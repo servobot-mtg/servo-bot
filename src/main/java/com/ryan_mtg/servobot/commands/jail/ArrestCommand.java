@@ -59,6 +59,7 @@ public class ArrestCommand extends MessageCommand {
                 return;
             }
             MessageCommand.say(event, String.format("No user with name %s.", arguments));
+            return;
         }
 
         User criminal = home.getUser(arguments);
