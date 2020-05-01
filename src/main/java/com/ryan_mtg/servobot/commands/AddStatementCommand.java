@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.books.Book;
+import com.ryan_mtg.servobot.utility.CommandParser;
+import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.Optional;
 import java.util.Scanner;
@@ -14,6 +16,7 @@ import java.util.regex.Pattern;
 public class AddStatementCommand extends MessageCommand {
     public static final CommandType TYPE = CommandType.ADD_STATEMENT_COMMAND_TYPE;
     private static final Pattern BOOK_PATTERN = Pattern.compile("\\w+");
+    private static final CommandParser COMMAND_PARSER = new CommandParser(BOOK_PATTERN);
 
     public AddStatementCommand(final int id, final int flags, final Permission permission) {
         super(id, flags, permission);
@@ -31,36 +34,23 @@ public class AddStatementCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        if (arguments == null) {
-            throw new BotErrorException("No statement to add.");
+        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(arguments);
+
+        String bookName = parseResult.getCommand();
+        switch (parseResult.getStatus()) {
+            case NO_COMMAND:
+                throw new BotErrorException("No statement to add.");
+            case COMMAND_MISMATCH:
+                throw new BotErrorException(String.format("%s isn't properly formatted.", bookName));
         }
 
-        Scanner scanner = new Scanner(arguments);
-
-        String bookName = scanner.next();
-        if (bookName.length() <= 1) {
-            throw new BotErrorException("No statement to add.");
-        }
-
-        scanner.useDelimiter("\\z");
-
-        if (!BOOK_PATTERN.matcher(bookName).matches()) {
-            throw new BotErrorException(String.format("%s isn't properly formatted.", bookName));
-        }
-
-        if (!scanner.hasNext()) {
-            throw new BotErrorException("No statement to add.");
-        }
-
-        String text = scanner.next().trim();
-
-        if (text.isEmpty()) {
+        String text = parseResult.getInput();
+        if (Strings.isBlank(text)) {
             throw new BotErrorException("No statement to add.");
         }
 
         HomeEditor homeEditor = event.getHomeEditor();
         Optional<Book> book = homeEditor.getBook(bookName);
-
         if (book.isPresent()) {
             homeEditor.addStatement(book.get().getId(), text);
             MessageCommand.say(event, String.format("Statement added to %s.", book));

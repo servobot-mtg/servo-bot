@@ -9,13 +9,17 @@ import com.ryan_mtg.servobot.commands.hierarchy.UserCommand;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.utility.CommandParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class CommandListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("\\w+"); //WORD OR NUMBER
+    private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
+
     private CommandTable commandTable;
 
     public CommandListener(final CommandTable commandTable) {
@@ -32,20 +36,15 @@ public class CommandListener implements EventListener {
 
         LOGGER.trace("seeing event for " + message.getContent());
 
-        Scanner scanner = new Scanner(message.getContent());
-        if (!scanner.hasNext()) {
-            return;
+        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(message.getContent());
+        switch (parseResult.getStatus()) {
+            case NO_COMMAND:
+            case COMMAND_MISMATCH:
+                return;
         }
 
-        String firstToken = scanner.next();
-        if (firstToken.charAt(0) != '!' || firstToken.length() <= 1) {
-            return;
-        }
-
-        String commandString = firstToken.substring(1);
-
-        scanner.useDelimiter("\\z");
-        String arguments = scanner.hasNext() ? scanner.next().trim() : null;
+        String commandString = parseResult.getCommand().substring(1);
+        String arguments = parseResult.getInput();
 
         Command command = commandTable.getCommand(commandString);
 

@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;

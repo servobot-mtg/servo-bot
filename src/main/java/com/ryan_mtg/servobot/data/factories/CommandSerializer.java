@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.CommandType;
+import com.ryan_mtg.servobot.commands.SetTitleCommand;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
