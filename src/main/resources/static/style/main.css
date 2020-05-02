@@ -63,6 +63,11 @@ input[type=number] {
     background-color: red;
 }
 
+.small-icon {
+    width: 1em;
+    height: 1em;
+}
+
 .banner-icon {
     color: black;
     font-weight: bold;
@@ -96,6 +101,10 @@ input[type=number] {
     border-radius: 4px;
     padding: 0 4px 0 4px;
     border: 0;
+}
+
+.help-paragraph {
+    margin: 16px 0 0 0;
 }
 
 .icon-cell {

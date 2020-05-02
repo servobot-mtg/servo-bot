@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Home;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
