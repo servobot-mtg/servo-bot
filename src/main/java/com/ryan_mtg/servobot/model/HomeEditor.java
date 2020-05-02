@@ -219,6 +219,17 @@ public class HomeEditor {
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
     }
 
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean aliasCommand(final String newAlias, final String existingAlias) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+
+        CommandTableEdit commandTableEdit = commandTable.addAlias(newAlias, existingAlias);
+        boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        return added;
+    }
+
     @Transactional(rollbackOn = BotErrorException.class)
     public List<Trigger> addTrigger(final int commandId, final int triggerType, final String text) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();

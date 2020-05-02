@@ -2,6 +2,9 @@ package com.ryan_mtg.servobot.utility;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -11,6 +14,7 @@ public class CommandParser {
         private ParseStatus status;
         private String command;
         private String input;
+        private List<String> flags;
 
         public ParseResult(final ParseStatus status) {
             this(status, null);
@@ -21,9 +25,15 @@ public class CommandParser {
         }
 
         public ParseResult(final ParseStatus status, final String command, final String input) {
+            this(status, command, input, Arrays.asList());
+        }
+
+        public ParseResult(final ParseStatus status, final String command, final String input,
+                           final List<String> flags) {
             this.status = status;
             this.command = command;
             this.input = input;
+            this.flags = flags;
         }
     }
 
@@ -34,9 +44,15 @@ public class CommandParser {
     }
 
     private Pattern commandPattern;
+    private Pattern flagPattern;
 
     public CommandParser(final Pattern commandPattern) {
+        this(commandPattern, null);
+    }
+
+    public CommandParser(final Pattern commandPattern, final Pattern flagPattern) {
         this.commandPattern = commandPattern;
+        this.flagPattern = flagPattern;
     }
 
     public ParseResult parse(final String input) {
@@ -47,10 +63,6 @@ public class CommandParser {
         }
 
         String command = scanner.next();
-        if (command.length() <= 1) {
-            return new ParseResult(ParseStatus.NO_COMMAND);
-        }
-
         if (!commandPattern.matcher(command).matches()) {
             return new ParseResult(ParseStatus.COMMAND_MISMATCH, command);
         }
@@ -61,6 +73,33 @@ public class CommandParser {
         }
 
         String commandInput = scanner.next().trim();
-        return new ParseResult(ParseStatus.SUCCESS, command, commandInput);
+
+        if (flagPattern == null) {
+            return new ParseResult(ParseStatus.SUCCESS, command, commandInput);
+        }
+
+        List<String> flags = new ArrayList<>();
+        while (true) {
+            Scanner flagScanner = new Scanner(commandInput);
+
+            if (!flagScanner.hasNext()) {
+                break;
+            }
+            String possibleFlag = flagScanner.next();
+
+            if (!flagPattern.matcher(possibleFlag).matches()) {
+                break;
+            }
+            flags.add(possibleFlag);
+
+            flagScanner.useDelimiter("\\z");
+            if (!flagScanner.hasNext()) {
+                return new ParseResult(ParseStatus.SUCCESS, command, null, flags);
+            }
+
+            commandInput = flagScanner.next().trim();
+        }
+
+        return new ParseResult(ParseStatus.SUCCESS, command, commandInput, flags);
     }
 }

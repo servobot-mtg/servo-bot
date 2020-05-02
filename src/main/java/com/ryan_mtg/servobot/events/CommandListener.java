@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class CommandListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
-    private static final Pattern COMMAND_PATTERN = Pattern.compile("\\w+"); //WORD OR NUMBER
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("!\\w+");
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
 
     private CommandTable commandTable;
