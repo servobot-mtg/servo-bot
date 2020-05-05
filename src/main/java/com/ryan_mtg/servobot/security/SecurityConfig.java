@@ -91,7 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/script/invite.js").access("isInvited()")
             .antMatchers("/home/{home}").permitAll()
             .antMatchers("/home/{home}/**").access("isPrivileged(#home)")
-            .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home").permitAll()
+            .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home", "/api/public/**").permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager())
             .and().oauth2Login().loginPage("/oauth2/authorization/twitch").successHandler(new RefererSuccessHandler())

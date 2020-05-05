@@ -11,6 +11,10 @@ public class BotRegistrar {
         this.bot = bot;
     }
 
+    public Bot getDefaultBot() {
+        return bot;
+    }
+
     public List<Bot> getBots() {
         return Collections.singletonList(bot);
     }
