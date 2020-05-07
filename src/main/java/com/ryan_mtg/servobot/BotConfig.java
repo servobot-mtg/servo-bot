@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot;
 
+import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
@@ -27,11 +28,18 @@ public class BotConfig {
     @Autowired
     private BotFactory botFactory;
 
+    @Autowired
+    private MfoInformer informer;
+
     @Bean
     public Scope globalScope() {
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         Function<Book, String> randomStatement = Book::randomStatement;
         symbolTable.addValue("randomStatement", randomStatement);
+
+        symbolTable.addFunctor("cfbTournaments", () -> informer.describeCurrentTournaments());
+        symbolTable.addFunctor("cfbPairings", () -> informer.getCurrentPairings());
+        symbolTable.addFunctor("cfbStandings", () -> informer.getCurrentStandings());
 
         return new Scope(null, symbolTable);
     }

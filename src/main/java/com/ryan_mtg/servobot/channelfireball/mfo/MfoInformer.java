@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.channelfireball.mfo;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -11,8 +12,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Slf4j
+@Component
 public class MfoInformer {
     private MfoClient mfoClient;
     private Clock clock;
@@ -43,27 +46,17 @@ public class MfoInformer {
     }
 
     public String describeCurrentTournaments() {
-        List<Tournament> tournaments = getCurrentTournaments();
-        if (tournaments.size() > 1) {
-            StringBuilder builder = new StringBuilder();
-            int seen = 0;
-            for (Tournament tournament : tournaments) {
-                seen++;
-                builder.append(tournament.getName());
-                if (seen + 1 == tournaments.size()) {
-                    builder.append(" and ");
-                } else if (seen == tournaments.size()) {
-                    builder.append('.');
-                } else {
-                    builder.append(", ");
-                }
-            }
-            return builder.toString();
-        } else if (tournaments.size() == 1) {
-            return tournaments.get(0).getName();
-        } else {
-            return "There are no active tournaments.";
-        }
+        return describeTournaments(tournament -> tournament.getName(), true);
+    }
+
+    public String getCurrentPairings() {
+        return describeTournaments(
+                tournament -> resolve(String.format("/pairings/%d", tournament.getId())), false);
+    }
+
+    public String getCurrentStandings() {
+        return describeTournaments(
+                tournament -> resolve(String.format("/standings/%d", tournament.getId())), false);
     }
 
     private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId) {
@@ -91,5 +84,38 @@ public class MfoInformer {
 
     public String resolve(final String path) {
         return MfoClient.getServerUrl() + path;
+    }
+
+    private String describeTournaments(final Function<Tournament, String> function, final boolean punctuation) {
+        List<Tournament> tournaments = getCurrentTournaments();
+        if (tournaments.size() > 1) {
+            StringBuilder builder = new StringBuilder();
+            int seen = 0;
+            for (Tournament tournament : tournaments) {
+                seen++;
+                if (!punctuation) {
+                    builder.append(tournament.getName()).append(": ");
+                }
+                builder.append(function.apply(tournament));
+                if (seen + 1 == tournaments.size()) {
+                    builder.append(" and ");
+                } else if (seen == tournaments.size()) {
+                    if (punctuation) {
+                        builder.append('.');
+                    }
+                } else {
+                    if (punctuation) {
+                        builder.append(", ");
+                    } else {
+                        builder.append(" ");
+                    }
+                }
+            }
+            return builder.toString();
+        } else if (tournaments.size() == 1) {
+            return function.apply(tournaments.get(0));
+        } else {
+            return "There are no active tournaments.";
+        }
     }
 }

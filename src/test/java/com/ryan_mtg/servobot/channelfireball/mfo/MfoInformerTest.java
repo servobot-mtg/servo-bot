@@ -56,36 +56,81 @@ public class MfoInformerTest {
 
     @Test
     public void testDescribeCurrentTournamentsWithSingletonTournamentList() {
-        tournamentList.add(createTournament("Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
                 "2020-01-11T00:03:00+00:00"));
         assertEquals("Daily Qualifier 1", informer.describeCurrentTournaments());
     }
 
     @Test
     public void testDescribeCurrentTournamentsWithMultipleActiveTournaments() {
-        tournamentList.add(createTournament("Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
                 "2020-01-11T00:03:00+00:00"));
-        tournamentList.add(createTournament("Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
+        tournamentList.add(createTournament(234,"Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
                 "2020-01-11T00:03:00+00:00"));
         assertEquals("Daily Qualifier 1 and Daily Qualifier 2.", informer.describeCurrentTournaments());
     }
 
     @Test
     public void testDescribeCurrentTournamentsWithTournamentThatHasNotStartedIsEmptyList() {
-        tournamentList.add(createTournament("Daily Qualifier 1", "2020-01-11T00:04:00+00:00",
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:04:00+00:00",
                 "2020-01-11T00:03:00+00:00"));
         assertEquals("There are no active tournaments.", informer.describeCurrentTournaments());
     }
 
     @Test
     public void testDescribeCurrentTournamentsWithTournamentNotUpdatedInTheLastTwoHours() {
-        tournamentList.add(createTournament("Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
                 "2020-01-10T21:03:00+00:00"));
         assertEquals("There are no active tournaments.", informer.describeCurrentTournaments());
     }
 
-    private Tournament createTournament(final String name, final String startsAt, final String lastUpdatedAt) {
+    @Test
+    public void testGetCurrentPairingsWithEmptyTournamentList() {
+        assertEquals("There are no active tournaments.", informer.getCurrentPairings());
+    }
+
+    @Test
+    public void testGetCurrentPairingsWithSingletonTournamentList() {
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+                "2020-01-11T00:03:00+00:00"));
+        assertEquals("https://my.cfbevents.com/pairings/123", informer.getCurrentPairings());
+    }
+
+    @Test
+    public void testGetCurrentPairingsWithMultipleActiveTournaments() {
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+                "2020-01-11T00:03:00+00:00"));
+        tournamentList.add(createTournament(234, "Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
+                "2020-01-11T00:03:00+00:00"));
+        assertEquals("Daily Qualifier 1: https://my.cfbevents.com/pairings/123 and "
+                        + "Daily Qualifier 2: https://my.cfbevents.com/pairings/234", informer.getCurrentPairings());
+    }
+
+    @Test
+    public void testGetCurrentStandingsWithEmptyTournamentList() {
+        assertEquals("There are no active tournaments.", informer.getCurrentStandings());
+    }
+
+    @Test
+    public void testGetCurrentStandingsWithSingletonTournamentList() {
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+                "2020-01-11T00:03:00+00:00"));
+        assertEquals("https://my.cfbevents.com/standings/123", informer.getCurrentStandings());
+    }
+
+    @Test
+    public void testGetCurrentStandingsWithMultipleActiveTournaments() {
+        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+                "2020-01-11T00:03:00+00:00"));
+        tournamentList.add(createTournament(234, "Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
+                "2020-01-11T00:03:00+00:00"));
+        assertEquals("Daily Qualifier 1: https://my.cfbevents.com/standings/123 and "
+                        + "Daily Qualifier 2: https://my.cfbevents.com/standings/234", informer.getCurrentStandings());
+    }
+
+    private Tournament createTournament(final int id, final String name, final String startsAt, final String lastUpdatedAt) {
         Tournament tournament = new Tournament();
+        tournament.setId(id);
         tournament.setName(name);
         tournament.setStartsAt(startsAt);
         tournament.setLastUpdated(convertToUtc(lastUpdatedAt, LOCAL_TIME_ZONE));

@@ -1,8 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
@@ -15,7 +13,6 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -56,19 +53,23 @@ public class PublicApiController {
     }
 
     @GetMapping("/cfb")
-    public String evaluateCfbExpression(@RequestParam final String query, @RequestParam final String arenaName)
+    public String evaluateCfbExpression(@RequestParam final String query,
+            @RequestParam(required = false) final String arenaName, final MfoInformer informer)
             throws BotErrorException {
-        Bot bot = botRegistrar.getDefaultBot();
-        Scope scope = bot.getBotScope();
+        //Bot bot = botRegistrar.getDefaultBot();
+        //Scope scope = bot.getBotScope();
 
-        try {
-            Parser parser = new Parser(scope, null);
-            return parser.parse(query).evaluate();
-        } catch (ParseException e) {
-            throw new BotErrorException(String.format("Failed to parse %s: %s", query, e.getMessage()));
+        switch (query) {
+            case "tournaments":
+                return informer.describeCurrentTournaments();
+            case "pairings":
+                return informer.getCurrentPairings();
+            case "standings":
+                return informer.getCurrentStandings();
+            default:
+                return String.format("Unknown query %s", query);
         }
     }
-
 
     @ExceptionHandler(BotErrorException.class)
     public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
