@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.twitch.event;
 
+import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
@@ -32,10 +33,13 @@ public class TwitchEventGenerator {
         this.eventListener = eventListener;
         this.homeMap = homeMap;
 
-        client.getEventManager().onEvent(ChannelMessageEvent.class).subscribe(this::handleMessageEvent);
+        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
+                .onEvent(ChannelMessageEvent.class, this::handleMessageEvent);
+        /*
         client.getEventManager().onEvent(SubscriptionEvent.class).subscribe(this::handleSubscriptionEvent);
         client.getEventManager().onEvent(RaidEvent.class).subscribe(this::handleRaidEvent);
         client.getEventManager().onEvent(HostOnEvent.class).subscribe(this::handleHostEvent);
+         */
     }
 
     private void handleMessageEvent(final ChannelMessageEvent event) {

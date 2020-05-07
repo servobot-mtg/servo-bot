@@ -55,6 +55,21 @@ public class PublicApiController {
         }
     }
 
+    @GetMapping("/cfb")
+    public String evaluateCfbExpression(@RequestParam final String query, @RequestParam final String arenaName)
+            throws BotErrorException {
+        Bot bot = botRegistrar.getDefaultBot();
+        Scope scope = bot.getBotScope();
+
+        try {
+            Parser parser = new Parser(scope, null);
+            return parser.parse(query).evaluate();
+        } catch (ParseException e) {
+            throw new BotErrorException(String.format("Failed to parse %s: %s", query, e.getMessage()));
+        }
+    }
+
+
     @ExceptionHandler(BotErrorException.class)
     public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
         exception.printStackTrace();

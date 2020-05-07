@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.twitch.model;
 
 import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.helix.domain.StreamList;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchStreamStartEvent;
@@ -10,21 +9,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class StreamStartRegulator implements Runnable {
     private static Logger LOGGER = LoggerFactory.getLogger(StreamStartRegulator.class);
 
+    private TwitchService twitchService;
     private TwitchClient client;
     private EventListener eventListener;
     private Map<Long, BotHome> homeMap;
     private Map<Long, Boolean> isStreamingMap = new HashMap<>();
 
-    public StreamStartRegulator(final Map<Long, BotHome> homeMap) {
+    public StreamStartRegulator(final TwitchService twitchService, final Map<Long, BotHome> homeMap) {
+        this.twitchService = twitchService;
         this.homeMap = homeMap;
     }
 
@@ -64,15 +63,8 @@ public class StreamStartRegulator implements Runnable {
         synchronized (this) {
             allIds = new ArrayList<>(isStreamingMap.keySet());
         }
-        List<String> channelIds = allIds.stream().map(id -> Long.toString(id)).collect(Collectors.toList());
-        StreamList streamList = client.getHelix().getStreams(null, "", null, null,null, null, null,
-                channelIds, null).execute();
 
-        Set<Long> streamingIds = new HashSet<>();
-        streamList.getStreams().forEach(stream -> {
-            long id = Long.parseLong(stream.getUserId());
-            streamingIds.add(id);
-        });
+        Set<Long> streamingIds = twitchService.getChannelsStreaming(allIds);
 
         for (long id : allIds) {
             boolean isStreaming = streamingIds.contains(id);
