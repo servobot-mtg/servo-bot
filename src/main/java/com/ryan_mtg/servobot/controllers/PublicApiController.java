@@ -62,10 +62,16 @@ public class PublicApiController {
         switch (query) {
             case "tournaments":
                 return informer.describeCurrentTournaments();
+            case "decklists":
+            case "decks":
+            case "deck":
+                return informer.getCurrentDecklists();
             case "pairings":
                 return informer.getCurrentPairings();
             case "standings":
                 return informer.getCurrentStandings();
+            case "round":
+                return informer.getCurrentRound();
             default:
                 return String.format("Unknown query %s", query);
         }

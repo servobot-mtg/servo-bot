@@ -38,8 +38,11 @@ public class BotConfig {
         symbolTable.addValue("randomStatement", randomStatement);
 
         symbolTable.addFunctor("cfbTournaments", () -> informer.describeCurrentTournaments());
+        symbolTable.addFunctor("cfbDecklists", () -> informer.getCurrentDecklists());
+        symbolTable.addFunctor("cfbDecks", () -> informer.getCurrentDecklists());
         symbolTable.addFunctor("cfbPairings", () -> informer.getCurrentPairings());
         symbolTable.addFunctor("cfbStandings", () -> informer.getCurrentStandings());
+        symbolTable.addFunctor("cfbRound", () -> informer.getCurrentRound());
 
         return new Scope(null, symbolTable);
     }

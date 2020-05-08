@@ -49,6 +49,11 @@ public class MfoInformer {
         return describeTournaments(tournament -> tournament.getName(), true);
     }
 
+    public String getCurrentDecklists() {
+        return describeTournaments(
+                tournament -> resolve(String.format("/deck/%d", tournament.getId())), false);
+    }
+
     public String getCurrentPairings() {
         return describeTournaments(
                 tournament -> resolve(String.format("/pairings/%d", tournament.getId())), false);
@@ -57,6 +62,11 @@ public class MfoInformer {
     public String getCurrentStandings() {
         return describeTournaments(
                 tournament -> resolve(String.format("/standings/%d", tournament.getId())), false);
+    }
+
+    public String getCurrentRound() {
+        return describeTournaments(
+                tournament -> String.format("round %d", tournament.getCurrentRound()), false);
     }
 
     private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId) {
