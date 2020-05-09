@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.channelfireball.mfo;
 
+import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairings;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
 import feign.Feign;
 import feign.Logger;
 import feign.Param;
@@ -15,6 +18,9 @@ public interface MfoClient {
 
     @RequestLine("GET /api/json/tournaments/{seriesId}")
     TournamentList getTournamentList(@Param("seriesId") int seriesId);
+
+    @RequestLine("GET /api/json/pairings/{tournamentId}")
+    Pairings getPairings(@Param("tournamentId")int tournamentId);
 
     static String getServerUrl() {
         return "https://my.cfbevents.com";

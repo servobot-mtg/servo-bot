@@ -1,5 +1,12 @@
 package com.ryan_mtg.servobot.channelfireball.mfo;
 
+import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairing;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairings;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.PlayerStanding;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.Tournament;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeries;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,9 +62,21 @@ public class MfoInformerTest {
                 "2020-01-11T00:03:00+00:00");
         tournament1.setCurrentRound(2);
 
+        Pairings pairings1 = Pairings.builder().currentRound(2).data(Arrays.asList(
+                Pairing.builder().player(PlayerStanding.builder().name("arenaA, discordA").points(3).build()).build(),
+                Pairing.builder().player(PlayerStanding.builder().name("arenaB, discordB").points(0).build()).build(),
+                Pairing.builder().player(PlayerStanding.builder().name("arenaC, discordC").points(3).build()).build()
+        )).build();
+        when(mockMfoClient.getPairings(123)).thenReturn(pairings1);
+
         tournament2 = createTournament(234,"Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
                 "2020-01-11T00:03:00+00:00");
         tournament2.setCurrentRound(1);
+
+        Pairings pairings2 = Pairings.builder().currentRound(4).data(Arrays.asList(
+            Pairing.builder().player(PlayerStanding.builder().name("arenaA, discordA").points(4).build()).build()
+        )).build();
+        when(mockMfoClient.getPairings(234)).thenReturn(pairings2);
     }
 
     @Test
@@ -68,7 +87,7 @@ public class MfoInformerTest {
     @Test
     public void testDescribeCurrentTournamentsWithSingletonTournamentList() {
         tournamentList.add(tournament1);
-        assertEquals("Daily Qualifier 1", informer.describeCurrentTournaments());
+        assertEquals("Daily Qualifier 1.", informer.describeCurrentTournaments());
     }
 
     @Test
@@ -100,7 +119,7 @@ public class MfoInformerTest {
     @Test
     public void testGetCurrentDecklistsWithSingletonTournamentList() {
         tournamentList.add(tournament1);
-        assertEquals("https://my.cfbevents.com/deck/123", informer.getCurrentDecklists());
+        assertEquals("Daily Qualifier 1: https://my.cfbevents.com/deck/123", informer.getCurrentDecklists());
     }
 
     @Test
@@ -119,7 +138,7 @@ public class MfoInformerTest {
     @Test
     public void testGetCurrentPairingsWithSingletonTournamentList() {
         tournamentList.add(tournament1);
-        assertEquals("https://my.cfbevents.com/pairings/123", informer.getCurrentPairings());
+        assertEquals("Daily Qualifier 1: https://my.cfbevents.com/pairings/123", informer.getCurrentPairings());
     }
 
     @Test
@@ -138,7 +157,7 @@ public class MfoInformerTest {
     @Test
     public void testGetCurrentStandingsWithSingletonTournamentList() {
         tournamentList.add(tournament1);
-        assertEquals("https://my.cfbevents.com/standings/123", informer.getCurrentStandings());
+        assertEquals("Daily Qualifier 1: https://my.cfbevents.com/standings/123", informer.getCurrentStandings());
     }
 
     @Test
@@ -157,7 +176,7 @@ public class MfoInformerTest {
     @Test
     public void testGetCurrentRoundWithSingletonTournamentList() {
         tournamentList.add(tournament1);
-        assertEquals("round 2", informer.getCurrentRound());
+        assertEquals("Daily Qualifier 1: round 2", informer.getCurrentRound());
     }
 
     @Test
@@ -167,6 +186,24 @@ public class MfoInformerTest {
         assertEquals("Daily Qualifier 1: round 2 and Daily Qualifier 2: round 1", informer.getCurrentRound());
     }
 
+    @Test
+    public void testGetCurrentRecordsWithEmptyTournamentList() {
+        assertEquals("There are no active tournaments.", informer.getCurrentRecords());
+    }
+
+    @Test
+    public void testGetCurrentRecordsWithSingletonTournamentList() {
+        tournamentList.add(tournament1);
+        assertEquals("Daily Qualifier 1: 1-0: 2 players, 0-1: 1 player.", informer.getCurrentRecords());
+    }
+
+    @Test
+    public void testGetCurrentRecordsWithMultipleActiveTournaments() {
+        tournamentList.add(tournament1);
+        tournamentList.add(tournament2);
+        assertEquals("Daily Qualifier 1: 1-0: 2 players, 0-1: 1 player and Daily Qualifier 2: 1-1-1: 1 player.",
+                informer.getCurrentRecords());
+    }
 
     private Tournament createTournament(final int id, final String name, final String startsAt, final String lastUpdatedAt) {
         Tournament tournament = new Tournament();
@@ -174,6 +211,7 @@ public class MfoInformerTest {
         tournament.setName(name);
         tournament.setStartsAt(startsAt);
         tournament.setLastUpdated(convertToUtc(lastUpdatedAt, LOCAL_TIME_ZONE));
+        tournament.setTournamentType("Grand Prix");
         return tournament;
     }
 

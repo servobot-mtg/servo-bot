@@ -43,6 +43,7 @@ public class BotConfig {
         symbolTable.addFunctor("cfbPairings", () -> informer.getCurrentPairings());
         symbolTable.addFunctor("cfbStandings", () -> informer.getCurrentStandings());
         symbolTable.addFunctor("cfbRound", () -> informer.getCurrentRound());
+        symbolTable.addFunctor("cfbRecords", () -> informer.getCurrentRecords());
 
         return new Scope(null, symbolTable);
     }

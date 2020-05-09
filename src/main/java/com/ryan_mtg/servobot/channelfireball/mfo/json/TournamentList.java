@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.channelfireball.mfo;
+package com.ryan_mtg.servobot.channelfireball.mfo.json;
 
 import lombok.Data;
 

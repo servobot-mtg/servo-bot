@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.channelfireball.mfo;
+package com.ryan_mtg.servobot.channelfireball.mfo.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -11,6 +11,9 @@ public class Tournament {
 
     @JsonProperty("starts_at")
     String startsAt;
+
+    @JsonProperty("tournament_type")
+    String tournamentType;
 
     @JsonProperty("registration_fee")
     String registrationFee;

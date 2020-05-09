@@ -72,6 +72,8 @@ public class PublicApiController {
                 return informer.getCurrentStandings();
             case "round":
                 return informer.getCurrentRound();
+            case "records":
+                return informer.getCurrentRecords();
             default:
                 return String.format("Unknown query %s", query);
         }
