@@ -11,7 +11,24 @@ public class PlayerSet {
     public Player add(final Player player) {
         arenaNameMap.put(player.getArenaName(), player);
         discordNameMap.put(player.getDiscordName(), player);
-        shortArenaNameMap.put(player.getShortArenaName(), player);
+        shortArenaNameMap.put(player.getShortArenaName().toLowerCase(), player);
         return player;
+    }
+
+    public Player findByArenaName(final String arenaName) {
+        if (arenaNameMap.containsKey(arenaName)) {
+            return arenaNameMap.get(arenaName);
+        }
+
+        String lowerCaseArenaName = arenaName.toLowerCase();
+        if (shortArenaNameMap.containsKey(lowerCaseArenaName)) {
+            return shortArenaNameMap.get(lowerCaseArenaName);
+        }
+
+        if (arenaNameMap.containsKey(lowerCaseArenaName)) {
+            return arenaNameMap.get(lowerCaseArenaName);
+        }
+
+        return null;
     }
 }

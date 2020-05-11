@@ -17,7 +17,7 @@ public class Player {
     public String getShortArenaName() {
         int hashTagIndex = arenaName.indexOf("#");
         if (hashTagIndex >= 0) {
-            arenaName.substring(0, hashTagIndex).toLowerCase();
+            return arenaName.substring(0, hashTagIndex);
         }
         return arenaName;
     }

@@ -1,11 +1,17 @@
 package com.ryan_mtg.servobot.channelfireball.mfo.model;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Standings {
+    @Getter
     private PlayerSet playerSet;
+
+    @Getter
     private int round;
+
     private Map<Player, Record> playerRecord = new HashMap<>();
 
     public Standings(final PlayerSet playerSet, final int round) {
@@ -25,5 +31,9 @@ public class Standings {
             recordCountMap.put(record, count + 1);
         });
         return recordCountMap;
+    }
+
+    public Record getRecord(final Player player) {
+        return playerRecord.get(player);
     }
 }

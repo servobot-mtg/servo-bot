@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -30,6 +31,8 @@ import java.util.function.Function;
 @Slf4j
 @Component
 public class MfoInformer {
+    private static final String NO_ACTIVE_TOURNAMENTS = "There are no active tournaments.";
+
     private MfoClient mfoClient;
     private Clock clock;
 
@@ -59,36 +62,59 @@ public class MfoInformer {
     }
 
     public String describeCurrentTournaments() {
-        return describeTournaments(tournament -> tournament.getName(), false, true);
+        return describeTournaments(tournament -> tournament.getName(), false, true,
+                NO_ACTIVE_TOURNAMENTS);
     }
 
     public String getCurrentDecklists() {
-        return describeTournaments(
-                tournament -> resolve(String.format("/deck/%d", tournament.getId())), true,false);
+        return describeTournaments(tournament -> resolve(String.format("/deck/%d", tournament.getId())), true,
+                false, NO_ACTIVE_TOURNAMENTS);
     }
 
     public String getCurrentPairings() {
-        return describeTournaments(
-                tournament -> resolve(String.format("/pairings/%d", tournament.getId())), true,false);
+        return describeTournaments(tournament -> resolve(String.format("/pairings/%d", tournament.getId())), true,
+                false, NO_ACTIVE_TOURNAMENTS);
     }
 
     public String getCurrentStandings() {
-        return describeTournaments(
-                tournament -> resolve(String.format("/standings/%d", tournament.getId())), true, false);
+        return describeTournaments( tournament -> resolve(String.format("/standings/%d", tournament.getId())), true,
+                false, NO_ACTIVE_TOURNAMENTS);
     }
 
     public String getCurrentRound() {
-        return describeTournaments(
-                tournament -> String.format("round %d", tournament.getCurrentRound()), true, false);
+        return describeTournaments(tournament -> String.format("round %d", tournament.getCurrentRound()), true,
+                false, NO_ACTIVE_TOURNAMENTS);
     }
 
     public String getCurrentRecords() {
         return describeTournaments(tournament -> {
-            Pairings pairings = mfoClient.getPairings(tournament.getId());
-            Standings standings = computeStandings(pairings, getMaxRounds(tournament));
+            Standings standings = computeStandings(tournament);
             Map<Record, Integer> recordCountMap = standings.getRecordCounts(3);
             return print(recordCountMap);
-        }, true, true);
+        }, true, true, NO_ACTIVE_TOURNAMENTS);
+    }
+
+    public String getCurrentRecord(final String arenaName) {
+        return describeTournaments(tournament -> {
+            Standings standings = computeStandings(tournament);
+            Player player = standings.getPlayerSet().findByArenaName(arenaName);
+            if (player == null) {
+                return null;
+            }
+            return standings.getRecord(player).toString();
+        }, true, true, String.format("There are no current tournaments for %s.", arenaName));
+    }
+
+    private Standings computeStandings(final Tournament tournament) {
+        int tournamentId = tournament.getId();
+        Pairings pairings = mfoClient.getPairings(tournamentId);
+        int maxRounds = getMaxRounds(tournament);
+        if (!pairings.getData().isEmpty()) {
+            return computeStandings(pairings, maxRounds);
+        }
+
+        com.ryan_mtg.servobot.channelfireball.mfo.json.Standings standingsJson = mfoClient.getStandings(tournamentId);
+        return computeStandings(standingsJson, maxRounds);
     }
 
     private Standings computeStandings(final Pairings pairings, final int maxRounds) {
@@ -106,6 +132,28 @@ public class MfoInformer {
         Standings standings = new Standings(playerSet, round);
         for (Pairing pairing : pairings.getData()) {
             PlayerStanding playerStanding = pairing.getPlayer();
+            Player player = Player.createFromMfoName(playerStanding.getName());
+            standings.add(player, Record.newRecord(playerStanding.getPoints(), round));
+        }
+
+        return standings;
+    }
+
+    private Standings computeStandings(final com.ryan_mtg.servobot.channelfireball.mfo.json.Standings standingsJson,
+            final int maxRounds) {
+        int round = Math.min(maxRounds, standingsJson.getCurrentRound() - 1);
+        int maxPoints = 0;
+        for (PlayerStanding playerStanding : standingsJson.getData()) {
+            maxPoints = Math.max(maxPoints, playerStanding.getPoints());
+        }
+
+        if (maxPoints > round * 3) {
+            round++;
+        }
+
+        PlayerSet playerSet = new PlayerSet();
+        Standings standings = new Standings(playerSet, round);
+        for (PlayerStanding playerStanding : standingsJson.getData()) {
             Player player = Player.createFromMfoName(playerStanding.getName());
             standings.add(player, Record.newRecord(playerStanding.getPoints(), round));
         }
@@ -135,10 +183,8 @@ public class MfoInformer {
         List<Tournament> tournaments = new ArrayList<>();
         for (Tournament tournament : tournamentList.getData()) {
             Instant startTime = parse(tournament.getStartsAt(), zoneId);
-            Instant lastUpdatedTime = parse(tournament.getLastUpdated());
             Instant now = clock.instant();
-            if (startTime.compareTo(now) < 0
-                    && now.compareTo(lastUpdatedTime.plus(90, ChronoUnit.MINUTES)) < 0) {
+            if (startTime.compareTo(now) < 0 && !hasEnded(tournament, now)) {
                 tournaments.add(tournament);
             }
         }
@@ -157,14 +203,36 @@ public class MfoInformer {
                     return 5;
                 }
                 return 6;
+            case "Select Your Playmat":
+            case "MagicFest In-A-Box":
+                return 0;
         }
 
-        throw new IllegalStateException("Unknown number of rounds for " + tournament.getName());
+        LOGGER.warn("Unknown tournament type: " + tournament.getTournamentType());
+        return 6; //This could be very, very wrong
+    }
+
+    private boolean hasEnded(final Tournament tournament, final Instant now) {
+        if (tournament.getCurrentRound() < getMaxRounds(tournament)) {
+            return false;
+        }
+
+        Instant lastUpdatedTime = parse(tournament.getLastUpdated());
+        return now.compareTo(lastUpdatedTime.plus(90, ChronoUnit.MINUTES)) > 0;
     }
 
     private String describeTournaments(final Function<Tournament, String> function, final boolean showHeader,
-            final boolean showPunctuation) {
-        List<Tournament> tournaments = getCurrentTournaments();
+            final boolean showPunctuation, final String emptyTournamentMessage) {
+        Map<Tournament, String> valueMap = new HashMap<>();
+        List<Tournament> tournaments = new ArrayList<>();
+        getCurrentTournaments().forEach(tournament -> {
+            String value = function.apply(tournament);
+            if (value != null) {
+                valueMap.put(tournament, value);
+                tournaments.add(tournament);
+            }
+        });
+
         StringBuilder builder = new StringBuilder();
         if (tournaments.size() > 1) {
             int seen = 0;
@@ -173,7 +241,7 @@ public class MfoInformer {
                 if (showHeader) {
                     builder.append(tournament.getName()).append(": ");
                 }
-                builder.append(function.apply(tournament));
+                builder.append(valueMap.get(tournament));
                 if (seen + 1 == tournaments.size()) {
                     if (showPunctuation && tournaments.size() > 2) {
                         builder.append(',');
@@ -196,12 +264,12 @@ public class MfoInformer {
             if (showHeader) {
                 builder.append(tournament.getName()).append(": ");
             }
-            builder.append(function.apply(tournament));
+            builder.append(valueMap.get(tournament));
             if (showPunctuation) {
                 builder.append(".");
             }
         } else {
-            return "There are no active tournaments.";
+            return emptyTournamentMessage;
         }
         return builder.toString();
     }

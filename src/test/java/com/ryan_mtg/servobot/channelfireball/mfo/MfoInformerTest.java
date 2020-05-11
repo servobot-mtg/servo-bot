@@ -58,20 +58,18 @@ public class MfoInformerTest {
         tournamentListResponse.setData(tournamentList);
         when(mockMfoClient.getTournamentList(1)).thenReturn(tournamentListResponse);
 
-        tournament1 = createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+        tournament1 = createTournament(123, 2, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
                 "2020-01-11T00:03:00+00:00");
-        tournament1.setCurrentRound(2);
 
         Pairings pairings1 = Pairings.builder().currentRound(2).data(Arrays.asList(
-                Pairing.builder().player(PlayerStanding.builder().name("arenaA, discordA").points(3).build()).build(),
-                Pairing.builder().player(PlayerStanding.builder().name("arenaB, discordB").points(0).build()).build(),
-                Pairing.builder().player(PlayerStanding.builder().name("arenaC, discordC").points(3).build()).build()
+            Pairing.builder().player(PlayerStanding.builder().name("arenaA#1111, discordA#11111").points(3).build()).build(),
+            Pairing.builder().player(PlayerStanding.builder().name("arenaB#2222, discordB#22222").points(0).build()).build(),
+            Pairing.builder().player(PlayerStanding.builder().name("arenaC#4444, discordC#33333").points(3).build()).build()
         )).build();
         when(mockMfoClient.getPairings(123)).thenReturn(pairings1);
 
-        tournament2 = createTournament(234,"Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
+        tournament2 = createTournament(234,1, "Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
                 "2020-01-11T00:03:00+00:00");
-        tournament2.setCurrentRound(1);
 
         Pairings pairings2 = Pairings.builder().currentRound(4).data(Arrays.asList(
             Pairing.builder().player(PlayerStanding.builder().name("arenaA, discordA").points(4).build()).build()
@@ -99,15 +97,22 @@ public class MfoInformerTest {
 
     @Test
     public void testDescribeCurrentTournamentsWithTournamentThatHasNotStartedIsEmptyList() {
-        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:04:00+00:00",
+        tournamentList.add(createTournament(123, 0, "Daily Qualifier 1", "2020-01-11T00:04:00+00:00",
                 "2020-01-11T00:03:00+00:00"));
         assertEquals("There are no active tournaments.", informer.describeCurrentTournaments());
     }
 
     @Test
+    public void testDescribeCurrentTournamentsWithTournamentInLastRoundOneHourAfterLastUpdate() {
+        tournamentList.add(createTournament(123, 6, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+                "2020-01-10T23:03:00+00:00", "Featured Tournament"));
+        assertEquals("Daily Qualifier 1.", informer.describeCurrentTournaments());
+    }
+
+    @Test
     public void testDescribeCurrentTournamentsWithTournamentNotUpdatedInTheLastTwoHours() {
-        tournamentList.add(createTournament(123, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
-                "2020-01-10T21:03:00+00:00"));
+        tournamentList.add(createTournament(123, 6, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
+                "2020-01-10T21:03:00+00:00", "Featured Tournament"));
         assertEquals("There are no active tournaments.", informer.describeCurrentTournaments());
     }
 
@@ -205,13 +210,39 @@ public class MfoInformerTest {
                 informer.getCurrentRecords());
     }
 
-    private Tournament createTournament(final int id, final String name, final String startsAt, final String lastUpdatedAt) {
+    @Test
+    public void testGetCurrentRecordForUnknownPlayer() {
+        tournamentList.add(tournament1);
+        assertEquals("There are no current tournaments for unknown.", informer.getCurrentRecord("unknown"));
+    }
+
+    @Test
+    public void testGetCurrentRecordWithSingletonTournamentList() {
+        tournamentList.add(tournament1);
+        assertEquals("Daily Qualifier 1: 1-0.", informer.getCurrentRecord("arenaa"));
+    }
+
+    @Test
+    public void testGetCurrentRecordWithMultipleTournamentList() {
+        tournamentList.add(tournament1);
+        tournamentList.add(tournament2);
+        assertEquals("Daily Qualifier 1: 1-0 and Daily Qualifier 2: 1-1-1.", informer.getCurrentRecord("arenaa"));
+    }
+
+    private Tournament createTournament(final int id, final int round, final String name, final String startsAt,
+                                        final String lastUpdatedAt) {
+        return createTournament(id, round, name, startsAt, lastUpdatedAt, "Grand Prix");
+    }
+
+    private Tournament createTournament(final int id, final int round, final String name, final String startsAt,
+                                        final String lastUpdatedAt, final String tournamentType) {
         Tournament tournament = new Tournament();
         tournament.setId(id);
         tournament.setName(name);
+        tournament.setCurrentRound(round);
         tournament.setStartsAt(startsAt);
         tournament.setLastUpdated(convertToUtc(lastUpdatedAt, LOCAL_TIME_ZONE));
-        tournament.setTournamentType("Grand Prix");
+        tournament.setTournamentType(tournamentType);
         return tournament;
     }
 

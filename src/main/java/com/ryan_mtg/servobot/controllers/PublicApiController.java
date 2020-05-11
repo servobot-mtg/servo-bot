@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,12 @@ public class PublicApiController {
             case "round":
                 return informer.getCurrentRound();
             case "records":
-                return informer.getCurrentRecords();
+            case "record":
+                if (Strings.isBlank(arenaName)) {
+                    return informer.getCurrentRecords();
+                } else {
+                    return informer.getCurrentRecord(arenaName);
+                }
             default:
                 return String.format("Unknown query %s", query);
         }
