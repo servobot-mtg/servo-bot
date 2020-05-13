@@ -1,11 +1,11 @@
 package com.ryan_mtg.servobot.discord.model;
 
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
 import com.ryan_mtg.servobot.discord.event.StreamStartRegulator;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import java.time.ZoneId;
@@ -133,6 +134,16 @@ public class DiscordService implements Service {
     public List<String> getChannels(final long guildId) {
         Guild guild = jda.getGuildById(guildId);
         return guild.getTextChannels().stream().map(GuildChannel::getName).collect(Collectors.toList());
+    }
+
+    public Channel getChannel(final long guildId, final String channelName)
+            throws BotErrorException {
+        Guild guild = jda.getGuildById(guildId);
+
+        TextChannel textChannel = guild.getTextChannels().stream().filter(channel -> channel.getName()
+                .equals(channelName)).findFirst()
+                .orElseThrow(() -> new BotErrorException(String.format("No channel with name %s.", channelName)));
+        return new DiscordChannel(null, textChannel);
     }
 
     public boolean isStreaming(final long guildId) {

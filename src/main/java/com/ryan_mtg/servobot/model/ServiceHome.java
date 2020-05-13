@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.events.BotErrorException;
+
 import java.util.List;
 
 public interface ServiceHome {
@@ -14,6 +16,7 @@ public interface ServiceHome {
     List<String> getEmotes();
     List<String> getRoles();
     List<String> getChannels();
+    Channel getChannel(String channelName) throws BotErrorException;
 
     boolean isStreaming();
 

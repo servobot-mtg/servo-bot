@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.model.Channel;
-import lombok.Getter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -14,7 +13,6 @@ public class DiscordChannel implements Channel {
     private static final Pattern NAME_PATTERN = Pattern.compile("@[a-z_A-Z][a-z_A-Z0-9]*");
     private MessageChannel channel;
 
-    @Getter
     private DiscordHome home;
 
     public DiscordChannel(final DiscordHome home, final MessageChannel channel) {

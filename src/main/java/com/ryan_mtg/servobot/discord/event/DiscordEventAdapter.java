@@ -50,7 +50,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
                 return;
             }
             DiscordUser sender = getUser(event.getMember(), botHome);
-            listener.onMessage(new DiscordMessageSentEvent(event, botHome.getId(), sender));
+            listener.onMessage(new DiscordMessageSentEvent(event, botHome, sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         }
@@ -88,7 +88,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
                 return;
             }
             DiscordUser member = getUser(event.getMember(), botHome);
-            listener.onNewUser(new DiscordNewUserEvent(event, botHome.getId(), member));
+            listener.onNewUser(new DiscordNewUserEvent(event, botHome, member));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         }

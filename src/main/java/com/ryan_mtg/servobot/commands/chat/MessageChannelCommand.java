@@ -43,7 +43,12 @@ public class MessageChannelCommand extends HomeCommand {
 
     @Override
     public void perform(final HomeEvent homeEvent) throws BotErrorException {
-        Channel channel = homeEvent.getHome().getChannel(channelName, serviceType);
+        Channel channel;
+        if (serviceType != homeEvent.getServiceType()) {
+            channel = homeEvent.getServiceHome(serviceType).getChannel(channelName);
+        } else {
+            channel = homeEvent.getHome().getChannel(channelName, serviceType);
+        }
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("commandCount", "");
         Scope commandScope = new Scope(homeEvent.getScope(), symbolTable);

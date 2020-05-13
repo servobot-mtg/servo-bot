@@ -82,7 +82,7 @@ public class StreamStartRegulator implements Runnable {
                         ((TwitchServiceHome)homeMap.get(id).getServiceHome(TwitchService.TYPE)).getChannelName();
                 LOGGER.info("Stream is starting for {}", channelName);
                 eventListener.onStreamStart(
-                        new TwitchStreamStartEvent(client, homeMap.get(id).getId(), channelName));
+                        new TwitchStreamStartEvent(client, homeMap.get(id), channelName));
             }
         }
     }

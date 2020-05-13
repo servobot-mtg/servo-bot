@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
 
@@ -30,11 +31,6 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
-    public Home getHome() {
-        return this;
-    }
-
-    @Override
     public void say(final String message) {
         if (!message.isEmpty()) {
             twitchChat.sendMessage(channelName, message);
@@ -49,6 +45,11 @@ public class TwitchChannel implements Channel, Home {
     @Override
     public String getBotName() {
         return homeEditor.getService(TwitchService.TYPE).getBotName();
+    }
+
+    @Override
+    public ServiceHome getServiceHome(int serviceType) {
+        return null;
     }
 
     @Override

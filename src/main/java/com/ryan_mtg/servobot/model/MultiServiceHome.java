@@ -34,6 +34,11 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
+    public ServiceHome getServiceHome(final int serviceType) {
+        return serviceHomes.get(serviceType);
+    }
+
+    @Override
     public Channel getChannel(final String channelName, final int serviceType) {
         ServiceHome serviceHome = serviceHomes.get(serviceType);
 

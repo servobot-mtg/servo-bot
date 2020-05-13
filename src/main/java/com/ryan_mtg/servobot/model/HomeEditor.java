@@ -13,7 +13,6 @@ import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.CommandDescriptor;
-import com.ryan_mtg.servobot.data.factories.BookSerializer;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
@@ -55,7 +54,6 @@ import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
@@ -308,7 +306,7 @@ public class HomeEditor {
 
     public void alert(final String alertToken) {
         Home home = new MultiServiceHome(botHome.getServiceHomes(), this);
-        AlertEvent alertEvent = new BotHomeAlertEvent(botHome.getId(), alertToken, home);
+        AlertEvent alertEvent = new BotHomeAlertEvent(botHome, alertToken, home);
         botHome.getEventListener().onAlert(alertEvent);
     }
 
@@ -891,13 +889,6 @@ public class HomeEditor {
 
     public String getTwitchChannelName() {
         return ((TwitchServiceHome) botHome.getServiceHome(TwitchService.TYPE)).getChannelName();
-    }
-
-    private void sendMessage(final int serviceType, final String channelName, final String message) {
-        ServiceHome serviceHome = botHome.getServiceHome(serviceType);
-        if (serviceHome != null) {
-            serviceHome.getHome().getChannel(channelName, serviceType).say(message);
-        }
     }
 
     private void whisperMessage(final int serviceType, final HomedUser user, final String message) {

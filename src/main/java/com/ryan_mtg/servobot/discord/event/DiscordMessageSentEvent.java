@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.discord.model.DiscordHome;
 import com.ryan_mtg.servobot.discord.model.DiscordMessage;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -14,8 +15,8 @@ public class DiscordMessageSentEvent extends DiscordEvent implements MessageSent
     private GuildMessageReceivedEvent event;
     private User sender;
 
-    public DiscordMessageSentEvent(final GuildMessageReceivedEvent event, final int homeId, final User sender) {
-        super(homeId);
+    public DiscordMessageSentEvent(final GuildMessageReceivedEvent event, final BotHome botHome, final User sender) {
+        super(botHome);
         this.event = event;
         this.sender = sender;
     }

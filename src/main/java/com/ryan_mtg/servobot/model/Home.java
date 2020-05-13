@@ -6,9 +6,10 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import java.util.List;
 
 public interface Home {
+    ServiceHome getServiceHome(int serviceType);
+    Channel getChannel(String channelName, int serviceType);
     String getName();
     String getBotName();
-    Channel getChannel(String channelName, int serviceType);
     boolean isStreamer(User user);
     boolean isStreaming();
 

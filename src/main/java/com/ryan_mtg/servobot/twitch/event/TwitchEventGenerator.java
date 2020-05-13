@@ -46,7 +46,7 @@ public class TwitchEventGenerator {
         try {
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHome);
-            eventListener.onMessage(new TwitchMessageSentEvent(client, event, botHome.getId(), sender));
+            eventListener.onMessage(new TwitchMessageSentEvent(client, event, botHome, sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {
@@ -60,7 +60,7 @@ public class TwitchEventGenerator {
             LOGGER.info("Subscribe event: " + event.getChannel() + " is subbed by " + event.getUser());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getTwitchChat(), event.getUser(), botHome);
-            eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome.getId(), subscriber));
+            eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome, subscriber));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {
@@ -74,7 +74,7 @@ public class TwitchEventGenerator {
             LOGGER.info("Raid event: " + event.getChannel() + " is raided by " + event.getRaider());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getTwitchChat(), event.getRaider(), botHome);
-            eventListener.onRaid(new TwitchRaidEvent(client, event, botHome.getId(), subscriber));
+            eventListener.onRaid(new TwitchRaidEvent(client, event, botHome, subscriber));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {

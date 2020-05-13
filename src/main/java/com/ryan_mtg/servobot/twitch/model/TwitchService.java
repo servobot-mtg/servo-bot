@@ -7,6 +7,7 @@ import com.github.twitch4j.helix.domain.StreamList;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
@@ -95,6 +96,10 @@ public class TwitchService implements Service {
             homeMap.put(twitchServiceHome.getChannelId(), botHome);
             regulator.addHome(twitchServiceHome);
         }
+    }
+
+    public Channel getChannel(final String channelName) {
+        return new TwitchChannelOnly(client.getChat(), channelName);
     }
 
     @Override

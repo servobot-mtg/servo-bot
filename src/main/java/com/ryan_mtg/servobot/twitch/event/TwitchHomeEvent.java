@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.twitch.event;
 
 import com.github.twitch4j.TwitchClient;
 import com.ryan_mtg.servobot.events.HomeEvent;
+import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.twitch.model.TwitchChannel;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -10,8 +11,8 @@ public class TwitchHomeEvent extends TwitchEvent implements HomeEvent {
     private String channelName;
     private TwitchChannel twitchChannel;
 
-    public TwitchHomeEvent(final TwitchClient client, final int botHomeId, final String channelName) {
-        super(client, botHomeId);
+    public TwitchHomeEvent(final TwitchClient client, final BotHome botHome, final String channelName) {
+        super(client, botHome);
         this.channelName = channelName;
     }
 
