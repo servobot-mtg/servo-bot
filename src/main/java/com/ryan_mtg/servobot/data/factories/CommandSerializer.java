@@ -5,6 +5,8 @@ import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
+import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
+import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
@@ -47,6 +49,7 @@ import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
+import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +70,9 @@ public class CommandSerializer {
     @Autowired
     private TriggerRepository triggerRepository;
 
+    @Autowired
+    private ScryfallQuerier scryfallQuerier;
+
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap)
             throws BotErrorException {
         int id = commandRow.getId();
@@ -83,6 +89,8 @@ public class CommandSerializer {
             case ARREST_COMMAND_TYPE:
                 return new ArrestCommand(id, flags, permission, Strings.trim(commandRow.getStringParameter()),
                         Strings.trim(commandRow.getStringParameter2()));
+            case CARD_SEARCH_COMMAND_TYPE:
+                return new CardSearchCommand(id, flags, permission, scryfallQuerier);
             case DELAYED_ALERT_COMMAND_TYPE:
                 return new DelayedAlertCommand(id, flags, permission, Duration.ofSeconds(commandRow.getLongParameter()),
                         Strings.trim(commandRow.getStringParameter()));
@@ -126,6 +134,8 @@ public class CommandSerializer {
             case REQUEST_PRIZE_COMMAND_TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new RequestPrizeCommand(id, flags, permission, giveawayId);
+            case SCRYFALL_SEARCH_COMMAND_TYPE:
+                return new ScryfallSearchCommand(id, flags, permission, scryfallQuerier);
             case SELECT_WINNER_COMMAND_TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new SelectWinnerCommand(id, flags, permission, giveawayId,
@@ -267,6 +277,11 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
+            saveCommand(cardSearchCommand, commandRow -> {});
+        }
+
+        @Override
         public void visitDelayedAlertCommand(final DelayedAlertCommand delayedAlertCommand) {
             saveCommand(delayedAlertCommand, commandRow -> {
                 commandRow.setLongParameter(delayedAlertCommand.getDelay().getSeconds());
@@ -366,6 +381,11 @@ public class CommandSerializer {
             saveCommand(requestPrizeCommand, commandRow -> {
                 commandRow.setLongParameter(requestPrizeCommand.getGiveawayId());
             });
+        }
+
+        @Override
+        public void visitScryfallSearchCommand(final ScryfallSearchCommand scryfallSearchCommand) {
+            saveCommand(scryfallSearchCommand, commandRow -> {});
         }
 
         @Override

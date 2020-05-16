@@ -5,6 +5,8 @@ import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
+import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
+import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
@@ -121,6 +123,11 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
+            description = "Searches for a card by name";
+        }
+
+        @Override
         public void visitDelayedAlertCommand(final DelayedAlertCommand delayedAlertCommand) {
             description = String.format("Alerts '%s' after %s", delayedAlertCommand.getAlertToken(),
                     delayedAlertCommand.getDelay().toString());
@@ -196,6 +203,11 @@ public class CommandDescriptor {
         @Override
         public void visitRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
             description = "Requests a giveaway prize";
+        }
+
+        @Override
+        public void visitScryfallSearchCommand(final ScryfallSearchCommand scryfallSearchCommand) {
+            description = "Searches Scryfall for a card";
         }
 
         @Override

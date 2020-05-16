@@ -676,6 +676,8 @@ const commandData = [
     {name: 'Jail Release Command', parameters: [{id: 'role', name: 'Prison Role Name'}]}, //29
     {name: 'Arrest Command', parameters: [{id: 'role', name: 'Prison Role Name'},
             {id: 'text-2', name: 'Response message'}]}, //30
+    {name: 'Scryfall Search Command', parameters: []}, //31
+    {name: 'Card Search Command', parameters: []}, //32
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];
