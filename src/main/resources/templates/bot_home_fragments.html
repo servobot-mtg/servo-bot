@@ -232,8 +232,8 @@
                 <div id="add-command-permissions-div">
                     <label>Permissions</label><br>
                     <select id="add-command-permissions-input">
-                        <th:block th:each="permission : ${permissions}">
-                            <option th:value="${permission}" th:text="${permission}"/>
+                        <th:block th:each="permission, status : ${permissions}">
+                            <option th:value="${permission}" th:text="${permission}" th:selected="${status.last}"/>
                         </th:block>
                     </select><br>
                 </div>

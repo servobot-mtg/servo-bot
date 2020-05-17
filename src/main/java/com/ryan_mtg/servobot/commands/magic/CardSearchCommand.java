@@ -35,7 +35,7 @@ public class CardSearchCommand extends MessageCommand {
 
         switch (lower) {
             case "sfm":
-                query = "Soulfire Grandmaster";
+                query = "Soulfire Grand Master";
                 break;
             case "snek":
                 query = "Ambush Viper";
@@ -44,6 +44,7 @@ public class CardSearchCommand extends MessageCommand {
                 query = "Tarmogoyf";
                 break;
             case "sfg":
+            case "sgm":
                 query = "Stoneforge Mystic";
                 break;
             case "bob":
