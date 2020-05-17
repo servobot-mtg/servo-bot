@@ -151,11 +151,6 @@ public class DiscordHome implements Home {
 
         JDA jda = guild.getJDA();
 
-        emotes = jda.getEmotes();
-        for (net.dv8tion.jda.api.entities.Emote e : emotes) {
-            LOGGER.info(e.getName());
-        }
-
         emotes = jda.getEmotesByName(emoteName, true);
         if (!emotes.isEmpty()) {
             net.dv8tion.jda.api.entities.Emote emote = emotes.get(0);
@@ -163,11 +158,6 @@ public class DiscordHome implements Home {
         }
 
         LOGGER.warn("Unable to find emote " + emoteName + " in " + guild);
-        emotes = guild.getEmotes();
-        for (net.dv8tion.jda.api.entities.Emote emote : emotes) {
-            LOGGER.info("  " + emote.getName());
-        }
-
         return null;
     }
 
