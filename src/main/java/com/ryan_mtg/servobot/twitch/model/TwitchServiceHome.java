@@ -59,7 +59,7 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public Channel getChannel(final String channelName) throws BotErrorException {
         if (channelName.equals(getChannelName())) {
-            twitchService.getChannel(channelName);
+            return twitchService.getChannel(channelName);
         }
         throw new BotErrorException(String.format("No Twitch channel named %s", channelName));
     }

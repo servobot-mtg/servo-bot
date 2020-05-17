@@ -190,8 +190,9 @@ public class CommandDescriptor {
 
         @Override
         public void visitMessageChannelCommand(final MessageChannelCommand messageChannelCommand) {
-            description = String.format("Sends the message '%s' to #%s", messageChannelCommand.getMessage(),
-                    messageChannelCommand.getChannelName());
+            description = String.format("Sends the message '%s' to #%s on service %d",
+                    messageChannelCommand.getMessage(), messageChannelCommand.getChannelName(),
+                    messageChannelCommand.getServiceType());
             edit = messageChannelCommand.getMessage();
         }
 

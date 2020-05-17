@@ -28,6 +28,10 @@ public class DiscordChannel implements Channel {
     }
 
     private String replaceNames(final String text) {
+        //TODO: Fix this once channels are constructed appropriately
+        if (home == null) {
+            return text;
+        }
         Guild guild = home.getGuild();
         StringBuilder message = new StringBuilder();
 
