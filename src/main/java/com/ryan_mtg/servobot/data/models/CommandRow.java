@@ -22,15 +22,17 @@ public class CommandRow {
     private int id;
 
     private int type;
+
+    @Column(name = "bot_home_id")
+    private int botHomeId;
+
     private int flags;
+
     private Permission permission;
 
     @Column(name = "rate_limit")
     //In seconds
-    private int rateLimitDuration;
-
-    @Column(name = "bot_home_id")
-    private int botHomeId;
+    private Integer rateLimitDuration;
 
     @Size(max = Validation.MAX_TEXT_LENGTH)
     private String stringParameter;

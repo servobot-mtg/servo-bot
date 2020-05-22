@@ -64,11 +64,26 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-
     public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) throws BotErrorException {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
         commandTableEdit.save(newCommand, commandAlias, this::registerCommand, this::triggerSaved);
+        return commandTableEdit;
+    }
+
+    public CommandTableEdit addAlias(final String newAlias, final String existingAlias) throws BotErrorException {
+        if (newAlias.equals(existingAlias)) {
+            throw new BotErrorException("Command can't alias itself.");
+        }
+        CommandTableEdit commandTableEdit = deleteCommand(newAlias);
+
+        Command command = getCommand(existingAlias);
+        if (command == null || !(command instanceof MessageCommand)) {
+            throw new BotErrorException(String.format("%s command does not exist.", existingAlias));
+        }
+
+        CommandAlias commandAlias = createAlias((MessageCommand) command, newAlias);
+        commandTableEdit.save(command.getId(), commandAlias, this::triggerSaved);
         return commandTableEdit;
     }
 

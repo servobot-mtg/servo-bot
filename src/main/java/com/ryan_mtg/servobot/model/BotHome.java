@@ -24,11 +24,13 @@ import lombok.Setter;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-
 public class BotHome {
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("H:mm");
+
     @Getter
     private int id;
 
@@ -181,6 +183,7 @@ public class BotHome {
         timeSymbolTable.addFunctor("dayOfYear", () -> now().getDayOfYear());
         timeSymbolTable.addFunctor("dayOfWeek",
                 () -> Strings.capitalize(now().getDayOfWeek().toString().toLowerCase()));
+        timeSymbolTable.addFunctor("timeOfDay", () -> dateTimeFormatter.format(now()));
 
         Scope timeScope = new Scope(botScope, timeSymbolTable);
         Scope bookScope = new Scope(timeScope, bookTable);

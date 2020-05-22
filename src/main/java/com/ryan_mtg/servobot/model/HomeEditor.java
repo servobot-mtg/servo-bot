@@ -85,6 +85,10 @@ public class HomeEditor {
         return botHome.getBotHomeScope();
     }
 
+    public Service getService(final int serviceType) {
+        return bot.getService(serviceType);
+    }
+
     @Transactional(rollbackOn = BotErrorException.class)
     public void modifyBotName(final String botName) {
         botHome.setBotName(botName);
@@ -174,11 +178,13 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void addCommand(final String alias, final MessageCommand command) throws BotErrorException {
+    public boolean addCommand(final String alias, final MessageCommand command) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
 
         CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
+        boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        return added;
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -210,6 +216,17 @@ public class HomeEditor {
             throw new BotErrorException(String.format("Command '%d' not found.", commandId));
         }
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+    }
+
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean aliasCommand(final String newAlias, final String existingAlias) throws BotErrorException {
+        CommandTable commandTable = botHome.getCommandTable();
+
+        CommandTableEdit commandTableEdit = commandTable.addAlias(newAlias, existingAlias);
+        boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
+        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        return added;
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -290,13 +307,16 @@ public class HomeEditor {
 
     public void alert(final String alertToken) {
         Home home = new MultiServiceHome(botHome.getServiceHomes(), this);
-        AlertEvent alertEvent = new BotHomeAlertEvent(botHome.getId(), alertToken, home);
+        AlertEvent alertEvent = new BotHomeAlertEvent(botHome, alertToken, home);
         botHome.getEventListener().onAlert(alertEvent);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
     public AlertGenerator addAlert(final int type, final String keyword, final int time) throws BotErrorException {
-        Validation.validateStringLength(keyword, Validation.MAX_TRIGGER_LENGTH, "Alert token");
+        Validation.validateStringValue(keyword, Validation.MAX_TRIGGER_LENGTH, "Alert Keyword",
+                Validation.NAME_PATTERN);
+
+        Validation.validateRange(time, "Time", 1, 24 * 60 * 60);
 
         AlertGeneratorRow alertGeneratorRow = new AlertGeneratorRow();
         alertGeneratorRow.setId(AlertGenerator.UNREGISTERED_ID);
@@ -306,6 +326,8 @@ public class HomeEditor {
         alertGeneratorRow.setTime(time);
         AlertGenerator alertGenerator =
                 serializers.getAlertGeneratorSerializer().createAlertGenerator(alertGeneratorRow);
+
+        alertGenerator.setTimeZone(botHome.getTimeZone());
 
         CommandTableEdit commandTableEdit = botHome.getCommandTable().addAlertGenerator(alertGenerator);
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
@@ -876,13 +898,6 @@ public class HomeEditor {
 
     public String getTwitchChannelName() {
         return ((TwitchServiceHome) botHome.getServiceHome(TwitchService.TYPE)).getChannelName();
-    }
-
-    private void sendMessage(final int serviceType, final String channelName, final String message) {
-        ServiceHome serviceHome = botHome.getServiceHome(serviceType);
-        if (serviceHome != null) {
-            serviceHome.getHome().getChannel(channelName, serviceType).say(message);
-        }
     }
 
     private void whisperMessage(final int serviceType, final HomedUser user, final String message) {

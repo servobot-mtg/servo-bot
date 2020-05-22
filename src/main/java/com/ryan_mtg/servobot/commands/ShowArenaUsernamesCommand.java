@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.user.User;
 import java.util.List;
 
 public class ShowArenaUsernamesCommand extends MessageCommand {
-    public static final int TYPE = 12;
+    public static final CommandType TYPE = CommandType.SHOW_ARENA_USERNAMES_COMMAND_TYPE;
 
     public ShowArenaUsernamesCommand(final int id, final CommandSettings commandSettings) {
         super(id, commandSettings);
@@ -26,7 +26,7 @@ public class ShowArenaUsernamesCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

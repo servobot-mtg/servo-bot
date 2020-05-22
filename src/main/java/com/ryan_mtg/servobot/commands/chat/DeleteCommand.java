@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.chat;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -8,7 +9,7 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 
 public class DeleteCommand extends MessageCommand {
-    public static final int TYPE = 6;
+    public static final CommandType TYPE = CommandType.DELETE_COMMAND_TYPE;
 
     public DeleteCommand(final int id, final CommandSettings commandSettings) {
         super(id, commandSettings);
@@ -38,7 +39,7 @@ public class DeleteCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

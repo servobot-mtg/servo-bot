@@ -36,7 +36,7 @@ public class Validation {
     public static void validateStringValue(final String value, final int maxLength, final String name,
             final Pattern valuePattern) throws BotErrorException {
         if (value != null && !valuePattern.matcher(value).matches()) {
-            throw new BotErrorException(String.format("Invalid %s pattern: %s", name, value));
+            throw new BotErrorException(String.format("%s is not a valid %s", value, name));
         }
 
         Validation.validateStringLength(value, maxLength, name);
@@ -72,6 +72,14 @@ public class Validation {
         }
     }
 
+    /** Checks that the value is between the lower and upper bounds, which are inclusive.
+     *
+     * @param value The value being checked
+     * @param description A human understandable name of the value
+     * @param lowerBound The lowest acceptable value
+     * @param upperBound The highest acceptable value
+     * @throws BotErrorException
+     */
     public static void validateRange(final int value, final String description, final int lowerBound,
                                      final int upperBound) throws BotErrorException {
         if (value < lowerBound) {

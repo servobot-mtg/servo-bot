@@ -1,18 +1,18 @@
 package com.ryan_mtg.servobot.commands.jail;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
-import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class JailCommand extends MessageCommand {
-    public static final int TYPE = 25;
+    public static final CommandType TYPE = CommandType.JAIL_COMMAND_TYPE;
 
     @Getter
     private String prisonRole;
@@ -35,7 +35,7 @@ public class JailCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 
@@ -46,24 +46,18 @@ public class JailCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        HomeEditor homeEditor = event.getHomeEditor();
         User sender = event.getSender();
-        IntegerStorageValue storageValue =
-                homeEditor.incrementStorageValue(sender.getHomedUser().getId(), variableName, 0);
 
-        int incrementedValue = storageValue.getValue();
-
-        if (incrementedValue >= threshold) {
-            event.getHome().setRole(sender, prisonRole);
+        if (JailUtility.isInJail(event.getHome(), sender, prisonRole)) {
+            return;
         }
 
-        if (incrementedValue == threshold) {
-            MessageCommand.say(event, sender.getName() + ", I'm throwing the book at you!");
-        } else if (incrementedValue == threshold + 1) {
-            MessageCommand.say(event, sender.getName() + ", you have the right to remain silent!");
-        } else if (incrementedValue == threshold + 2) {
-            MessageCommand.say(event,
-                    "You got to ask yourself one question, \"Do I feel lucky?\" Well, do you, punk? ");
-        }
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
+        symbolTable.addValue("criminal", sender.getName());
+        symbolTable.addValue("cop", event.getHome().getBotName());
+        symbolTable.addValue("role", prisonRole);
+
+        event.getHome().setRole(sender, prisonRole);
+        MessageCommand.say(event, symbolTable, "%criminal%, I'm throwing the book at you!");
     }
 }

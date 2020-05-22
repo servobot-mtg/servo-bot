@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.jail;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -14,7 +15,7 @@ import lombok.Getter;
 import java.util.List;
 
 public class JailBreakCommand extends MessageCommand {
-    public static final int TYPE = 26;
+    public static final CommandType TYPE = CommandType.JAIL_BREAK_COMMAND_TYPE;
 
     @Getter
     private String prisonRole;
@@ -34,7 +35,7 @@ public class JailBreakCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

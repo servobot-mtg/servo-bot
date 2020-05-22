@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.game_queue;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -8,7 +9,7 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 import lombok.Getter;
 
 public class ShowGameQueueCommand extends MessageCommand {
-    public static final int TYPE = 9;
+    public static final CommandType TYPE = CommandType.SHOW_GAME_QUEUE_COMMAND_TYPE;
 
     @Getter
     private int gameQueueId;
@@ -25,7 +26,7 @@ public class ShowGameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

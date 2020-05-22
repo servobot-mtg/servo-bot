@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Pattern;
 
 public class EvaluateExpressionCommand extends MessageCommand {
-    public static final int TYPE = 19;
+    public static final CommandType TYPE = CommandType.EVALUATE_EXPRESSION_COMMAND_TYPE;
     public static final Pattern gabyEasterEggPattern = Pattern.compile("2\\s*\\+\\s*2");
 
     private static Logger LOGGER = LoggerFactory.getLogger(EvaluateExpressionCommand.class);
@@ -59,7 +59,7 @@ public class EvaluateExpressionCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

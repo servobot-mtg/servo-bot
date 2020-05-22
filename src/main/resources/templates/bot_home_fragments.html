@@ -197,7 +197,7 @@
                  title="Add a command">+</div>
             <form id="add-command-form" class="add-form hidden"
                   th:onsubmit="'addCommand(' + ${botHome.id} + '); return false;'">
-                <div>
+                <div id="add-command-type-div">
                     <label>Command Type</label><br>
                     <select id='add-command-type-input' onchange="changeAddCommandType(this)">
                         <option value="1" selected>Respond Command</option>
@@ -205,19 +205,17 @@
                         <option value="4">Message Channel Command</option>
                         <option value="5">Add Command</option>
                         <option value="6">Delete Command</option>
-                        <option value="15" th:if="${!botHome.bookTable.empty}">Add Statement Command</option>
+                        <option value="15">Add Statement Command</option>
                         <option value="19">Math Command</option>
                         <option value="17" th:if="${!botHome.storageTable.empty}">Show Value Command</option>
                         <option value="18" th:if="${!botHome.storageTable.empty}">Set Value Command</option>
                         <option value="16">Delayed Alert Command</option>
-                        <option value="20">Start Giveaway Command</option>
-                        <option value="21">Enter Giveaway Command</option>
-                        <option value="22">Giveaway Status Command</option>
-                        <option value="23">Select Giveaway Winner Command</option>
                         <option value="7" th:if="${!botHome.gameQueues.empty}">Game Queue Command</option>
                         <option value="9" th:if="${!botHome.gameQueues.empty}">Show Game Queue Command</option>
                         <option value="8" th:if="${!botHome.gameQueues.empty}">Join Game Queue Command</option>
                         <option value="10" th:if="${!botHome.gameQueues.empty}">Remove From Game Queue Command</option>
+                        <option value="32">Card Search Command</option>
+                        <option value="31">Scryfall Search Command</option>
                         <option value="11">Set Arena Username Command</option>
                         <option value="12">Show Arena Usernames Command</option>
                         <option value="3">Friendship Tier Command</option>
@@ -228,17 +226,18 @@
                         <option th:if="${user.admin}" value="25">Jail Command</option>
                         <option th:if="${user.admin}" value="26">Jail Break Command</option>
                         <option th:if="${user.admin}" value="29">Jail Release Command</option>
+                        <option th:if="${user.admin}" value="30">Arrest Command</option>
                     </select><br>
                 </div>
-                <div>
+                <div id="add-command-permissions-div">
                     <label>Permissions</label><br>
                     <select id="add-command-permissions-input">
-                        <th:block th:each="permission : ${permissions}">
-                            <option th:value="${permission}" th:text="${permission}"/>
+                        <th:block th:each="permission, status : ${permissions}">
+                            <option th:value="${permission}" th:text="${permission}" th:selected="${status.last}"/>
                         </th:block>
                     </select><br>
                 </div>
-                <div>
+                <div id="add-command-secure-div">
                     <label>Hide</label><br>
                     <input type="checkbox" id="add-command-secure-input"><br>
                 </div>
@@ -254,6 +253,10 @@
                 <div id="add-command-integer-div" class="hidden">
                     <label id="add-command-integer-label">Integer</label><br>
                     <input id="add-command-integer-input" type="number" name="text" step="1"><br>
+                </div>
+                <div id="add-command-time-div" class="hidden">
+                    <label id="add-command-time-label">Integer</label><br>
+                    <input id="add-command-time-input" type="time" name="time" min="00:00" max="23:59" step="1"><br>
                 </div>
                 <div id="add-command-book-div" class="hidden">
                     <label id="add-command-book-label">Book</label><br>
@@ -413,19 +416,24 @@
                  title="Add an alert">+</div>
             <form id="add-alert-form" class="add-form hidden"
                   th:onsubmit="'addAlert(' + ${botHome.id} + '); return false;'">
-                <div>
+                <div id="add-alert-type-div">
                     <label>Alert Type</label><br>
-                    <select id='add-alert-type-input'>
+                    <select id="add-alert-type-input" onchange="changeAddAlertType(this)">
                         <option th:value="1" selected>Continual</option>
                         <option th:value="2">Daily</option>
                     </select>
                 </div>
-                <div>
-                    <label>Time</label><br>
-                    <input type="number" id="add-alert-time-input"><br>
-                </div><br>
-                <div>
-                    <label>Keyword</label><br>
+                <div id="add-alert-time-div">
+                    <label id="add-alert-time-label">Time</label><br>
+                    <input type="time" id="add-alert-time-input"><br>
+                </div>
+                <div id="add-alert-duration-div">
+                    <label id="add-alert-duration-label">Time</label><br>
+                    <input type="number" id="add-alert-duration-input"><br>
+                </div>
+                <br>
+                <div id="add-alert-keyword-div">
+                    <label id="add-alert-keyword-label">Keyword</label><br>
                     <input type="text" id="add-alert-keyword-input" class="name"><br>
                 </div><br>
                 <input type="submit" value="Create Alert">
@@ -465,11 +473,11 @@
                  title="Add a book">+</div>
             <form id="add-book-form" class="add-form hidden"
                   th:onsubmit="'addBook(' + ${botHome.id} + '); return false;'">
-                <div>
+                <div id="add-book-name-div">
                     <label>Name</label><br>
                     <input type="text" id="add-book-name-input" class="name"><br>
                 </div><br>
-                <div>
+                <div id="add-book-statement-div">
                     <label>First Statement</label><br>
                     <input type="text" id="add-book-statement-input"><br>
                 </div><br>

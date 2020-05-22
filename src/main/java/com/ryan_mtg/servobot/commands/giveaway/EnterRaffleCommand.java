@@ -1,15 +1,17 @@
 package com.ryan_mtg.servobot.commands.giveaway;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class EnterRaffleCommand extends MessageCommand {
-    public static final int TYPE = 21;
+    public static final CommandType TYPE = CommandType.ENTER_RAFFLE_COMMAND_TYPE;
 
     @Getter
     private int giveawayId;
@@ -28,12 +30,18 @@ public class EnterRaffleCommand extends MessageCommand {
 
     @Override
     public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        event.getHomeEditor().enterRaffle(event.getSender().getHomedUser(), giveawayId);
-        MessageCommand.say(event, response);
+        HomedUser entrant = event.getSender().getHomedUser();
+        event.getHomeEditor().enterRaffle(entrant, giveawayId);
+
+        if (entrant.isStreamer()) {
+            MessageCommand.say(event, "%sender% has rigged the raffle!");
+        } else {
+            MessageCommand.say(event, response);
+        }
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

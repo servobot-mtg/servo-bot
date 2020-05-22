@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
 import net.dv8tion.jda.api.JDA;
@@ -33,6 +34,16 @@ public class DiscordHome implements Home {
     @Override
     public String getName() {
         return guild.getName();
+    }
+
+    @Override
+    public String getBotName() {
+        return guild.getSelfMember().getEffectiveName();
+    }
+
+    @Override
+    public ServiceHome getServiceHome(int serviceType) {
+        return null;
     }
 
     @Override
@@ -74,8 +85,14 @@ public class DiscordHome implements Home {
 
     @Override
     public boolean hasRole(final User user, final String roleName) {
+        String deampedRoleName = deamp(roleName);
         Member member = getMember(user);
-        return member.getRoles().stream().anyMatch(role -> role.getName().equals(roleName));
+        return member.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase(deampedRoleName));
+    }
+
+    @Override
+    public boolean hasRole(final String roleName) {
+        return !guild.getRolesByName(deamp(roleName), false).isEmpty();
     }
 
     @Override
@@ -109,6 +126,15 @@ public class DiscordHome implements Home {
     }
 
     @Override
+    public boolean hasUser(final String userName) {
+        if (userName == null) {
+            return false;
+        }
+
+        return !guild.getMembersByEffectiveName(deamp(userName), true).isEmpty();
+    }
+
+    @Override
     public User getUser(final String userName) throws BotErrorException {
         Member member = getMember(userName);
         HomedUser homedUser = getHomeEditor().getUserByDiscordId(member.getIdLong(), member.getEffectiveName());
@@ -125,11 +151,6 @@ public class DiscordHome implements Home {
 
         JDA jda = guild.getJDA();
 
-        emotes = jda.getEmotes();
-        for (net.dv8tion.jda.api.entities.Emote e : emotes) {
-            LOGGER.info(e.getName());
-        }
-
         emotes = jda.getEmotesByName(emoteName, true);
         if (!emotes.isEmpty()) {
             net.dv8tion.jda.api.entities.Emote emote = emotes.get(0);
@@ -137,11 +158,6 @@ public class DiscordHome implements Home {
         }
 
         LOGGER.warn("Unable to find emote " + emoteName + " in " + guild);
-        emotes = guild.getEmotes();
-        for (net.dv8tion.jda.api.entities.Emote emote : emotes) {
-            LOGGER.info("  " + emote.getName());
-        }
-
         return null;
     }
 
@@ -174,13 +190,9 @@ public class DiscordHome implements Home {
             throw new BotErrorException("No one specified.");
         }
 
-        if (username.startsWith("@")) {
-            return getMember(username.substring(1));
-        }
-
-        List<Member> members = guild.getMembersByEffectiveName(username, true);
+        List<Member> members = guild.getMembersByEffectiveName(deamp(username), true);
         if (members.isEmpty()) {
-            throw new BotErrorException(String.format("No user named '%s'.", username));
+            throw new BotErrorException(String.format("No user named '%s'.", deamp(username)));
         }
         return members.get(0);
     }
@@ -196,7 +208,7 @@ public class DiscordHome implements Home {
     }
 
     private Role getRole(final String roleName) throws BotErrorException {
-        List<Role> roles = guild.getRolesByName(roleName, false);
+        List<Role> roles = guild.getRolesByName(deamp(roleName), false);
         if (roles.isEmpty()) {
             throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
         }
@@ -205,5 +217,12 @@ public class DiscordHome implements Home {
 
     private Member getMember(final User user) {
         return ((DiscordUser)user).getMember();
+    }
+
+    private String deamp(final String string) {
+        if (string.startsWith("@")) {
+            return string.substring(1);
+        }
+        return string;
     }
 }

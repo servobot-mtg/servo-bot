@@ -7,6 +7,7 @@ import com.github.twitch4j.helix.domain.StreamList;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
@@ -20,7 +21,13 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class TwitchService implements Service {
     public static final int TYPE = 1;
@@ -29,16 +36,23 @@ public class TwitchService implements Service {
     private String clientId;
     private String secret;
     private String oauthToken;
+    private String authToken;
     private TwitchEventGenerator generator;
+    private StreamStartRegulator regulator;
     private Map<Long, BotHome> homeMap = new HashMap<>();
     private Map<Long, String> channelNameMap = new HashMap<>();
     private Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
+    private ScheduledExecutorService executorService;
 
-    public TwitchService(final String clientId, final String secret, final String oauthToken) throws BotErrorException {
+    public TwitchService(final String clientId, final String secret, final String oauthToken,
+            final ScheduledExecutorService executorService) throws BotErrorException {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
+        this.authToken = oauthToken.substring(oauthToken.indexOf(':') + 1);
+        this.executorService = executorService;
+        this.regulator = new StreamStartRegulator(this, homeMap);
 
         Validation.validateStringLength(clientId, Validation.MAX_CLIENT_ID_LENGTH, "Client id");
         Validation.validateStringLength(secret, Validation.MAX_CLIENT_SECRET_LENGTH, "Client secret");
@@ -55,6 +69,17 @@ public class TwitchService implements Service {
         return "Twitch";
     }
 
+    @Override
+    public String getBotName() {
+        return getUserInfo(authToken).getUsername();
+    }
+
+    public TwitchUserInfo getUserInfo(final String auth) {
+        com.github.twitch4j.helix.domain.User user =
+                client.getHelix().getUsers(auth, null, null).execute().getUsers().get(0);
+        return new TwitchUserInfo(Integer.parseInt(user.getId()), user.getLogin());
+    }
+
     public String getClientId() {
         return clientId;
     }
@@ -67,29 +92,53 @@ public class TwitchService implements Service {
     public void register(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);
         if (serviceHome != null) {
-            homeMap.put(((TwitchServiceHome) serviceHome).getChannelId(), botHome);
+            TwitchServiceHome twitchServiceHome = (TwitchServiceHome) serviceHome;
+            homeMap.put(twitchServiceHome.getChannelId(), botHome);
+            regulator.addHome(twitchServiceHome);
         }
+    }
+
+    public Channel getChannel(final String channelName) {
+        return new TwitchChannelOnly(client.getChat(), channelName);
     }
 
     @Override
     public void unregister(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(TwitchService.TYPE);
         if (serviceHome != null) {
-            homeMap.remove(((TwitchServiceHome) serviceHome).getChannelId());
+            TwitchServiceHome twitchServiceHome = (TwitchServiceHome) serviceHome;
+            regulator.removeHome(twitchServiceHome);
+            homeMap.remove(twitchServiceHome.getChannelId());
         }
     }
 
     @Override
     public void start(final EventListener eventListener) {
         OAuth2Credential credential = new OAuth2Credential("twitch", oauthToken);
-
         client = TwitchClientBuilder.builder().withEnableHelix(true).withEnableChat(true)
                 .withClientId(clientId).withClientSecret(secret).withChatAccount(credential).build();
 
-        client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
         generator = new TwitchEventGenerator(client, eventListener, homeMap);
+        regulator.start(client, eventListener);
+        executorService.scheduleAtFixedRate(regulator, 60, 30, TimeUnit.SECONDS);
         homeMap.forEach((channelId, home) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
+
+        client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
     }
+
+    public Set<Long> getChannelsStreaming(final List<Long> channelIds) {
+        List<String> channelIdStrings = channelIds.stream().map(id -> Long.toString(id)).collect(Collectors.toList());
+        StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null, null,
+                channelIdStrings, null).execute();
+
+        Set<Long> streamingIds = new HashSet<>();
+        streamList.getStreams().forEach(stream -> {
+            long id = Long.parseLong(stream.getUserId());
+            streamingIds.add(id);
+        });
+        return streamingIds;
+    }
+
 
     @Override
     public void whisper(final User user, final String message) {
@@ -101,7 +150,7 @@ public class TwitchService implements Service {
     }
 
     public boolean isStreaming(final long channelId) {
-        StreamList streamList = client.getHelix().getStreams(null, "", null, null,null, null, null,
+        StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null, null,
                 Arrays.asList(Long.toString(channelId)), null).execute();
         return !streamList.getStreams().isEmpty();
     }
@@ -146,7 +195,7 @@ public class TwitchService implements Service {
 
     private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
         return client.getHelix().
-                getUsers(null, Collections.singletonList(Long.toString(channelId)), null).execute()
+                getUsers(authToken, Collections.singletonList(Long.toString(channelId)), null).execute()
                 .getUsers().get(0);
     }
 }

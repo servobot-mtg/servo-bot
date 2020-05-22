@@ -50,7 +50,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
                 return;
             }
             DiscordUser sender = getUser(event.getMember(), botHome);
-            listener.onMessage(new DiscordMessageSentEvent(event, botHome.getId(), sender));
+            listener.onMessage(new DiscordMessageSentEvent(event, botHome, sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         }
@@ -67,12 +67,16 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onUserActivityStart(@Nonnull final UserActivityStartEvent event) {
-        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
-        if (botHome == null) {
-            return;
-        }
-        if (streamStartRegulator.startActivity(event, botHome.getId())) {
-            listener.onStreamStart(new DiscordStreamStartEvent(event, botHome.getId()));
+        try {
+            BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+            if (botHome == null) {
+                return;
+            }
+            if (streamStartRegulator.startActivity(event, botHome.getId())) {
+                //listener.onStreamStart(new DiscordStreamStartEvent(event, botHome.getId()));
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error during activity start", e);
         }
     }
 
@@ -84,7 +88,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
                 return;
             }
             DiscordUser member = getUser(event.getMember(), botHome);
-            listener.onNewUser(new DiscordNewUserEvent(event, botHome.getId(), member));
+            listener.onNewUser(new DiscordNewUserEvent(event, botHome, member));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         }

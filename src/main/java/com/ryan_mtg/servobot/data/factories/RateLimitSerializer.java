@@ -9,14 +9,17 @@ import java.time.Duration;
 public class RateLimitSerializer {
     public void saveRateLimit(final CommandRow commandRow, final Duration rateLimitDuration) {
         if (rateLimitDuration == null) {
-            commandRow.setRateLimitDuration(0);
+            commandRow.setRateLimitDuration(null);
         } else {
             commandRow.setRateLimitDuration((int)rateLimitDuration.getSeconds());
         }
     }
 
     public Duration createRateLimitDuration(final CommandRow commandRow) {
-        int rateLimitDurationInSeconds = commandRow.getRateLimitDuration();
-        return rateLimitDurationInSeconds == 0 ? null : Duration.ofSeconds(rateLimitDurationInSeconds);
+        Integer rateLimitDurationInSeconds = commandRow.getRateLimitDuration();
+        if (rateLimitDurationInSeconds == null || rateLimitDurationInSeconds == 0) {
+            return null;
+        }
+        return Duration.ofSeconds(rateLimitDurationInSeconds);
     }
 }

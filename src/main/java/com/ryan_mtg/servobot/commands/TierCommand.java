@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
 
 public class TierCommand extends MessageCommand {
-    public static final int TYPE = 3;
+    public static final CommandType TYPE = CommandType.TIER_COMMAND_TYPE;
 
     public TierCommand(final int id, final CommandSettings commandSettings) {
         super(id, commandSettings);
@@ -22,7 +22,7 @@ public class TierCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

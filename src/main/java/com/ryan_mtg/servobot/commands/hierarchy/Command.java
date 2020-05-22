@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.hierarchy;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
@@ -98,7 +99,7 @@ public abstract class Command {
         return commandSettings.getRateLimitDuration();
     }
 
-    public abstract int getType();
+    public abstract CommandType getType();
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
 
     public boolean hasPermissions(final User user) {
@@ -134,14 +135,19 @@ public abstract class Command {
 
     protected static void say(final Channel channel, final Event event, final Scope scope, final String text)
             throws BotErrorException {
-        channel.say(evaluate(event, scope, text));
+        channel.say(evaluate(event, scope, text, 0));
     }
 
     private void setFlag(final int flag, final boolean value) {
         commandSettings.setFlags(Flags.setFlag(commandSettings.getFlags(), flag, value));
     }
 
-    private static String evaluate(final Event event, final Scope scope, final String text) throws BotErrorException {
+    private static String evaluate(final Event event, final Scope scope, final String text, final int recursionLevel)
+            throws BotErrorException {
+        if (recursionLevel >= 10) {
+            throw new BotErrorException("Too much recursion!");
+        }
+
         StringBuilder result = new StringBuilder();
         Matcher matcher = REPLACEMENT_PATTERN.matcher(text);
         int currentIndex = 0;
@@ -153,7 +159,9 @@ public abstract class Command {
             String expression = matcher.group(1);
 
             try {
-                result.append(parser.parse(expression).evaluate());
+                String evaluation = parser.parse(expression).evaluate();
+                String recursiveEvaluation = evaluate(event, scope, evaluation, recursionLevel + 1);
+                result.append(recursiveEvaluation);
             } catch (ParseException e) {
                 throw new BotErrorException(String.format("Failed to parse %%%s%%: %s", expression, e.getMessage()));
             }

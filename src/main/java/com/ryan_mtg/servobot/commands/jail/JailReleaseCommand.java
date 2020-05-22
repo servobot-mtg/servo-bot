@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.jail;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -11,7 +12,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class JailReleaseCommand extends MessageCommand {
-    public static final int TYPE = 29;
+    public static final CommandType TYPE = CommandType.JAIL_RELEASE_COMMAND_TYPE;
 
     @Getter
     private String prisonRole;
@@ -25,7 +26,7 @@ public class JailReleaseCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 
@@ -40,13 +41,19 @@ public class JailReleaseCommand extends MessageCommand {
         User releaser = event.getSender();
         User jailee = home.getUser(arguments);
 
-        if (home.hasRole(releaser, prisonRole)) {
+        if (JailUtility.isInJail(home, releaser, prisonRole)) {
             MessageCommand.say(event, String.format("You can't release someone while in %s!", prisonRole));
             return;
         }
 
-        if (!home.hasRole(jailee, prisonRole)) {
+        if (!JailUtility.isInJail(home, jailee, prisonRole)) {
             MessageCommand.say(event, String.format("%s is not in %s!", jailee.getName(), prisonRole));
+            return;
+        }
+
+        if (home.isHigherRanked(jailee, releaser)) {
+            home.setRole(event.getSender(), prisonRole);
+            MessageCommand.say(event, "I see through your tricks! I'm checking %sender% into the greybar hotel.");
             return;
         }
 

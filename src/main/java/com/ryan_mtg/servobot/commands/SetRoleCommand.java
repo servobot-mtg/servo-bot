@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class SetRoleCommand extends UserCommand {
-    public static final int TYPE = 13;
+    public static final CommandType TYPE = CommandType.SET_ROLE_COMMAND_TYPE;
 
     @Getter
     private String role;
@@ -27,7 +27,7 @@ public class SetRoleCommand extends UserCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

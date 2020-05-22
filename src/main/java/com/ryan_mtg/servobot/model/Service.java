@@ -8,6 +8,7 @@ public interface Service {
 
     int getType();
     String getName();
+    String getBotName();
     void register(BotHome botHome);
     void unregister(BotHome home);
 

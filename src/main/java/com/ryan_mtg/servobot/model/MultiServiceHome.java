@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Getter;
 
@@ -22,6 +23,19 @@ public class MultiServiceHome implements Home {
     @Override
     public String getName() {
         return null;
+    }
+
+    @Override
+    public String getBotName() {
+        if (serviceHomes.containsKey(TwitchService.TYPE)) {
+            return serviceHomes.get(TwitchService.TYPE).getService().getBotName();
+        }
+        throw new UnsupportedOperationException("I don't know my own name!");
+    }
+
+    @Override
+    public ServiceHome getServiceHome(final int serviceType) {
+        return serviceHomes.get(serviceType);
     }
 
     @Override
@@ -55,8 +69,12 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
-    public void clearRole(final User user, final String prisonRole) {
+    public boolean hasRole(final String role) {
+        return false;
+    }
 
+    @Override
+    public void clearRole(final User user, final String prisonRole) {
     }
 
     @Override
@@ -74,7 +92,12 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
-    public User getUser(String userName) throws BotErrorException {
+    public boolean hasUser(final String userName) {
+        return false;
+    }
+
+    @Override
+    public User getUser(final String userName) throws BotErrorException {
         return null;
     }
 

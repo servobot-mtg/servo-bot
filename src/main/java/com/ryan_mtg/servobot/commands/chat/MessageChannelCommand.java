@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.chat;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
@@ -13,7 +14,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class MessageChannelCommand extends HomeCommand {
-    public static final int TYPE = 4;
+    public static final CommandType TYPE = CommandType.MESSAGE_CHANNEL_COMMAND_TYPE;
 
     @Getter
     private final int serviceType;
@@ -36,13 +37,18 @@ public class MessageChannelCommand extends HomeCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 
     @Override
     public void perform(final HomeEvent homeEvent) throws BotErrorException {
-        Channel channel = homeEvent.getHome().getChannel(channelName, serviceType);
+        Channel channel;
+        if (serviceType != homeEvent.getServiceType()) {
+            channel = homeEvent.getServiceHome(serviceType).getChannel(channelName);
+        } else {
+            channel = homeEvent.getHome().getChannel(channelName, serviceType);
+        }
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("commandCount", "");
         Scope commandScope = new Scope(homeEvent.getScope(), symbolTable);

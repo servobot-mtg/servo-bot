@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>ServoBot Help</title>
+    <div th:include="fragments :: includes"/>
+</head>
+<body>
+    <div th:include="fragments :: header"/>
+    <div class="content">
+        <h1>ServoBot Features</h1>
+        <ul>
+            <li>Discord & Twitch integration</li>
+            <li>Custom commands</li>
+            <li>Alerts</li>
+            <li>Runs giveaways</li>
+            <li>Queue for challenging viewers on Arena</li>
+            <li>Special features available upon request</li>
+        </ul>
+
+        <h1>ServoBot Commands</h1>
+        <h3>Command Properties</h3>
+        <ul>
+            <li><b>Permission</b>: Who is allowed to trigger the command. The levels are
+                <th:block th:each="permission, stat : ${permissions}">
+                    <span th:text="${permission} + (${stat.last} ? '.' : ',')"/>
+                </th:block>
+            </li>
+            <li><b>Hide</b>: Whether &#x1F511; or not &#x1F512; the command is shown on the website. Use this to hide
+                commands that most viewers aren't able to access, have sensitive content, or a way to provide
+                'Easter Eggs' for viewers to find.
+            </li>
+            <li><b>Live</b>: Whether the command is only available while streaming &#x1F4FA; or can be triggered at any
+                time &#x1F570;&#xFE0F;.
+            </li>
+            <li><b>Twitch</b>: Whether the command can be triggered from Twitch
+                <img class="small-icon" src="/images/twitch.ico"> chat.
+            </li>
+            <li><b>Discord</b>: Whether the command can be triggered from the Discord
+                <img class="small-icon" src="/images/discord.ico"> server.
+            </li>
+        </ul>
+
+        <h3>Command Types</h3>
+        <table class="data-table">
+            <thead><tr>
+                <th>Type</th>
+                <th>Parameters</th>
+                <th>Description</th>
+            </tr></thead>
+            <tr>
+                <td>Respond Command</td>
+                <td></td>
+                <td>Replies with the command's predefined text. The text can contain expressions.</td>
+            </tr>
+            <tr>
+                <td>Message Channel Command</td>
+                <td></td>
+                <td>Replies with the command's predefined text to the predefined channel. The text can contain expressions.</td>
+            </tr>
+
+            <tr>
+                <td>Add Command</td>
+                <td>!&lt;<i>command&#x2011;name</i>&gt;&nbsp;[&lt;<i>flags</i>&gt;]&nbsp;&lt;<i>text</i>&gt;</td>
+                <td>Creates a new Respond Command with the given <i>text</i>. The command is triggered by
+                    <i>command-name</i>. The <i>flags</i> can change the permissions and settings of the command.
+                    <p class="help-paragraph">The add command can also change an existing trigger to respond with the
+                        new command, if no other triggers reference the previous command then it is deleted.</p>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Delete Command</td>
+                <td>!&lt;<i>command&#x2011;name</i>&gt;</td>
+                <td>Deletes the trigger <i>command-name</i>. If there are no other triggers referencing the command
+                    then it also deletes the command.</td>
+            </tr>
+
+            <tr>
+                <td>Add Statement Command</td>
+                <td>&lt;<i>book&#x2011;name</i>&gt; &lt;<i>text</i>&gt;</td>
+                <td>Creates a new statement with the given <i>text</i> and adds it to the book named <i>book-name</i>.
+                    <p class="help-paragraph">If there is no book named <i>book-name</i> and the command was issued
+                        by a mod, then it also creates a new book with that name.</p>
+                </td>
+            </tr>
+
+            <!--
+            <tr>
+                <td>Command</td>
+                <td></td>
+                <td></td>
+            </tr>
+            -->
+        </table>
+
+        <p><a href="https://discordapp.com/invite/w7uJW67"><img class="small-icon" src="/images/discord.ico"></a>
+            More information can be found in the
+            <a href="https://discordapp.com/invite/w7uJW67">Discord</a>
+            channel.</p>
+    </div>
+    <div th:include="fragments :: footer"/>
+</body>
+</html>

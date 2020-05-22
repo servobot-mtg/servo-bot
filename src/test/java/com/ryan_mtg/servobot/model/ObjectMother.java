@@ -98,8 +98,13 @@ public class ObjectMother {
     }
 
     public static HomeEvent mockHomeEvent(final Home home) {
+        return mockHomeEvent(home, 0);
+    }
+
+    public static HomeEvent mockHomeEvent(final Home home, final int serviceType) {
         HomeEvent event = mock(HomeEvent.class);
         when(event.getHome()).thenReturn(home);
+        when(event.getServiceType()).thenReturn(serviceType);
         return event;
     }
 

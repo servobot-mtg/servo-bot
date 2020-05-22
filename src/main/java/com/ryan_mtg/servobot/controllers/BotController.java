@@ -18,15 +18,12 @@ import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import javax.servlet.http.HttpSession;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,8 +52,8 @@ public class BotController {
         timeZones.add(new TimeZoneDescriptor("America/Vancouver", "Pacific"));
     }
 
-    @GetMapping("/")
-    public String index(final Model model, HttpSession session, Authentication authentication, Principal principal) {
+    @GetMapping({"/", "/index.html"})
+    public String index(final Model model) {
         model.addAttribute("page", "index");
         return "index";
     }
@@ -85,6 +82,12 @@ public class BotController {
 
         model.addAttribute("page", "wandering");
         return "home/wandering";
+    }
+
+    @GetMapping("/help")
+    public String showHelp(final Model model) {
+        model.addAttribute("page", "help");
+        return "help/overview";
     }
 
     @GetMapping("/home/{home}")
@@ -172,8 +175,13 @@ public class BotController {
     }
 
     @ModelAttribute
-    private void addBot(final Model model) {
+    private void addAttributes(final Model model) {
         model.addAttribute("bots", botRegistrar.getBots());
+        model.addAttribute("permissions", Lists.newArrayList(
+                Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
+        model.addAttribute("events", Lists.newArrayList(
+                CommandEvent.Type.STREAM_START, CommandEvent.Type.SUBSCRIBE, CommandEvent.Type.RAID,
+                CommandEvent.Type.NEW_USER));
     }
 
     private void addBotHome(final Model model, final BotHome botHome) {
@@ -181,11 +189,6 @@ public class BotController {
         model.addAttribute("commandDescriptors",
                 getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
         model.addAttribute("userTable", serializers.getUserTable());
-        model.addAttribute("permissions", Lists.newArrayList(
-                Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
-        model.addAttribute("events", Lists.newArrayList(
-                CommandEvent.Type.STREAM_START, CommandEvent.Type.SUBSCRIBE, CommandEvent.Type.RAID,
-                CommandEvent.Type.NEW_USER));
 
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {

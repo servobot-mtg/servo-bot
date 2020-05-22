@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Component
 public class ServiceSerializer {
@@ -23,7 +24,7 @@ public class ServiceSerializer {
     private ServiceRepository serviceRepository;
 
     @Autowired
-    private UserSerializer userSerializer;
+    private ScheduledExecutorService executorService;
 
     private Map<Integer, Service> serviceMap = new HashMap<>();
 
@@ -56,7 +57,7 @@ public class ServiceSerializer {
                 break;
             case TwitchService.TYPE:
                 service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
-                        serviceRow.getToken());
+                        serviceRow.getToken(), executorService);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());

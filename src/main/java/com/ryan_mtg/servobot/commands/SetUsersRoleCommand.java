@@ -10,7 +10,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class SetUsersRoleCommand extends MessageCommand {
-    public static final int TYPE = 27;
+    public static final CommandType TYPE = CommandType.SET_USERS_ROLE_COMMAND_TYPE;
 
     @Getter
     private String role;
@@ -32,11 +32,7 @@ public class SetUsersRoleCommand extends MessageCommand {
         Home home = event.getHome();
         User user = home.getUser(arguments);
 
-        if (home.isHigherRanked(user, event.getSender())) {
-            home.setRole(event.getSender(), role);
-
-            MessageCommand.say(event, "I see through your tricks! I'm checking %sender% into the greybar hotel.");
-        } else {
+        if (!home.hasRole(user, role)) {
             home.setRole(user, role);
 
             SimpleSymbolTable symbolTable = new SimpleSymbolTable();
@@ -49,7 +45,7 @@ public class SetUsersRoleCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

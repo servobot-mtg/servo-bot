@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot;
 
+import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
@@ -8,6 +9,7 @@ import com.ryan_mtg.servobot.data.factories.BotFactory;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +29,25 @@ public class BotConfig {
     @Autowired
     private BotFactory botFactory;
 
+    @Autowired
+    private MfoInformer informer;
+
     @Bean
     public Scope globalScope() {
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         Function<Book, String> randomStatement = Book::randomStatement;
         symbolTable.addValue("randomStatement", randomStatement);
+
+        symbolTable.addFunctor("cfbTournaments", () -> informer.describeCurrentTournaments());
+        symbolTable.addFunctor("cfbDecklists", () -> informer.getCurrentDecklists());
+        symbolTable.addFunctor("cfbDecks", () -> informer.getCurrentDecklists());
+        symbolTable.addFunctor("cfbPairings", () -> informer.getCurrentPairings());
+        symbolTable.addFunctor("cfbStandings", () -> informer.getCurrentStandings());
+        symbolTable.addFunctor("cfbRound", () -> informer.getCurrentRound());
+        symbolTable.addFunctor("cfbRecords", () -> informer.getCurrentRecords());
+
+        Function<String, String> cfbRecord = this::getRecord;
+        symbolTable.addFunctor("cfbRecord", () -> cfbRecord);
 
         return new Scope(null, symbolTable);
     }
@@ -40,5 +56,12 @@ public class BotConfig {
     public BotRegistrar botRegistrar(@Qualifier("globalScope") final Scope globalScope) throws BotErrorException {
         Bot bot = botFactory.createBot(botRepository.findFirst().get(), globalScope);
         return new BotRegistrar(bot);
+    }
+
+    private String getRecord(final String input) {
+        if (Strings.isBlank(input)) {
+            return informer.getCurrentRecords();
+        }
+        return informer.getCurrentRecord(input);
     }
 }

@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 
 public class ShowValueCommand extends MessageCommand {
-    public static final int TYPE = 17;
+    public static final CommandType TYPE = CommandType.SHOW_VALUE_COMMAND_TYPE;
 
     public ShowValueCommand(final int id, final CommandSettings commandSettings) {
         super(id, commandSettings);
@@ -25,7 +25,7 @@ public class ShowValueCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

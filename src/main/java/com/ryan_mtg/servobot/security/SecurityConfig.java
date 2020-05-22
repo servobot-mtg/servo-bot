@@ -52,6 +52,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private WebsiteUserFactory websiteUserFactory;
 
+    @Autowired
+    private TwitchService twitchService;
+
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {
         return new InMemoryClientRegistrationRepository(clientRegistration);
@@ -74,10 +77,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.POST)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-                // .scope("user_read")
                 .authorizationUri("https://id.twitch.tv/oauth2/authorize")
                 .tokenUri("https://id.twitch.tv/oauth2/token")
-                .userInfoUri("https://api.twitch.tv/helix/users")
                 .userNameAttributeName("data")
                 .clientName(twitchService.getName())
                 .build();
@@ -91,12 +92,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/script/invite.js").access("isInvited()")
             .antMatchers("/home/{home}").permitAll()
             .antMatchers("/home/{home}/**").access("isPrivileged(#home)")
-            .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home").permitAll()
+            .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home", "favicon.ico", "/api/public/**")
+                .permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager())
             .and().oauth2Login().loginPage("/oauth2/authorization/twitch").successHandler(new RefererSuccessHandler())
             .and().logout().logoutSuccessUrl("/").permitAll()
-            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(userTable));
+            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(twitchService, userTable));
     }
 
     @ModelAttribute

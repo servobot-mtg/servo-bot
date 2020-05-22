@@ -6,7 +6,7 @@ import com.ryan_mtg.servobot.model.books.Book;
 import lombok.Getter;
 
 public class SetStatusCommand extends HomeCommand {
-    public static final int TYPE = 14;
+    public static final CommandType TYPE = CommandType.SET_STATUS_COMMAND_TYPE;
 
     @Getter
     private Book book;
@@ -22,7 +22,7 @@ public class SetStatusCommand extends HomeCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

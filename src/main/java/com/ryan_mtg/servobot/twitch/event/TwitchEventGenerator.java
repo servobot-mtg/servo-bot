@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.twitch.event;
 
+import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
@@ -32,17 +33,20 @@ public class TwitchEventGenerator {
         this.eventListener = eventListener;
         this.homeMap = homeMap;
 
-        client.getEventManager().onEvent(ChannelMessageEvent.class).subscribe(this::handleMessageEvent);
+        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
+                .onEvent(ChannelMessageEvent.class, this::handleMessageEvent);
+        /*
         client.getEventManager().onEvent(SubscriptionEvent.class).subscribe(this::handleSubscriptionEvent);
         client.getEventManager().onEvent(RaidEvent.class).subscribe(this::handleRaidEvent);
         client.getEventManager().onEvent(HostOnEvent.class).subscribe(this::handleHostEvent);
+         */
     }
 
     private void handleMessageEvent(final ChannelMessageEvent event) {
         try {
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHome);
-            eventListener.onMessage(new TwitchMessageSentEvent(client, event, botHome.getId(), sender));
+            eventListener.onMessage(new TwitchMessageSentEvent(client, event, botHome, sender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {
@@ -53,9 +57,10 @@ public class TwitchEventGenerator {
 
     private void handleSubscriptionEvent(final SubscriptionEvent event) {
         try {
+            LOGGER.info("Subscribe event: " + event.getChannel() + " is subbed by " + event.getUser());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getTwitchChat(), event.getUser(), botHome);
-            eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome.getId(), subscriber));
+            eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome, subscriber));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {
@@ -66,9 +71,10 @@ public class TwitchEventGenerator {
 
     private void handleRaidEvent(final RaidEvent event) {
         try {
+            LOGGER.info("Raid event: " + event.getChannel() + " is raided by " + event.getRaider());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getTwitchChat(), event.getRaider(), botHome);
-            eventListener.onRaid(new TwitchRaidEvent(client, event, botHome.getId(), subscriber));
+            eventListener.onRaid(new TwitchRaidEvent(client, event, botHome, subscriber));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         } catch (Exception e) {

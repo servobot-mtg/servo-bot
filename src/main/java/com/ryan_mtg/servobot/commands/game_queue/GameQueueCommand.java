@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.game_queue;
 
 import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GameQueueCommand extends MessageCommand {
-    public static final int TYPE = 7;
+    public static final CommandType TYPE = CommandType.GAME_QUEUE_COMMAND_TYPE;
 
     private static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
 
@@ -25,7 +26,7 @@ public class GameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 

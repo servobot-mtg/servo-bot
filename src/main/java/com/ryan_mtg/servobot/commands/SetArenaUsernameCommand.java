@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.events.MessageSentEvent;
 import java.util.regex.Pattern;
 
 public class SetArenaUsernameCommand extends MessageCommand {
-    public static final int TYPE = 11;
+    public static final CommandType TYPE = CommandType.SET_ARENA_USERNAME_COMMAND_TYPE;
     private static final Pattern NAME_PATTERN = Pattern.compile(".+#\\d{5}");
 
     public SetArenaUsernameCommand(final int id, final CommandSettings commandSettings) {
@@ -30,7 +30,7 @@ public class SetArenaUsernameCommand extends MessageCommand {
     }
 
     @Override
-    public int getType() {
+    public CommandType getType() {
         return TYPE;
     }
 
