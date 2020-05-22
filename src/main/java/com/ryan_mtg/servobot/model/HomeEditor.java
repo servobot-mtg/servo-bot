@@ -312,7 +312,10 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public AlertGenerator addAlert(final int type, final String keyword, final int time) throws BotErrorException {
-        Validation.validateStringLength(keyword, Validation.MAX_TRIGGER_LENGTH, "Alert token");
+        Validation.validateStringValue(keyword, Validation.MAX_TRIGGER_LENGTH, "Alert Keyword",
+                Validation.NAME_PATTERN);
+
+        Validation.validateRange(time, "Time", 1, 24 * 60 * 60);
 
         AlertGeneratorRow alertGeneratorRow = new AlertGeneratorRow();
         alertGeneratorRow.setId(AlertGenerator.UNREGISTERED_ID);
@@ -322,6 +325,8 @@ public class HomeEditor {
         alertGeneratorRow.setTime(time);
         AlertGenerator alertGenerator =
                 serializers.getAlertGeneratorSerializer().createAlertGenerator(alertGeneratorRow);
+
+        alertGenerator.setTimeZone(botHome.getTimeZone());
 
         CommandTableEdit commandTableEdit = botHome.getCommandTable().addAlertGenerator(alertGenerator);
         serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);

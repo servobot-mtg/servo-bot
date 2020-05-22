@@ -701,6 +701,50 @@ function changeAddCommandType(selectElement) {
     }
 }
 
+function changeFormType(label, selectElement, typeData, elements) {
+    const type = parseInt(selectElement.value);
+    const data = typeData[type];
+
+    let elementIds = [];
+    for (let i = 0; i < data.parameters.length; i++) {
+        let parameter = data.parameters[i];
+        setElementText(label + '-' + parameter.id + '-label', parameter.label);
+        elementIds.push(label + '-' + parameter.id + '-div');
+    }
+
+    showFormElements(elements, elementIds);
+
+    if (data.parameters.length > 0) {
+        let parameter = data.parameters[0];
+        document.getElementById(label + '-' + parameter.id + '-input').focus();
+    }
+}
+
+function addFormParameter(label, parameters, parameterData) {
+    const name = parameterData.name;
+    let inputElement = document.getElementById(label + '-' + parameterData.id + '-input');
+    switch (parameterData.id) {
+        case 'checkbox':
+            parameters[name] = inputElement.checked;
+            return;
+        case 'long':
+            parameters[name] = parseInt(inputElement.value);
+            return;
+        case 'time':
+            const hmsSplit = inputElement.value.split(':');
+            if (hmsSplit == '') {
+                const message = 'Invalid ' + parameterData.label;
+                showErrorMessage(message);
+                throw message;
+            }
+            parameters[name] = (+hmsSplit[0] * 60 + +hmsSplit[1]) * 60 + (+hmsSplit[2] || 0);
+            return;
+        default:
+            parameters[name] = inputElement.value;
+            return;
+    }
+}
+
 function setElementText(elementId, text) {
     document.getElementById(elementId).innerHTML = text;
 }
@@ -720,6 +764,12 @@ function showAddCommandElements(elementIds) {
 
     showOrHideElement(elementIds.includes('add-command-text-div'), 'add-command-break-2');
     showOrHideElement(elementIds.includes('add-command-text-2-div'), 'add-command-break-3');
+}
+
+function showFormElements(elements, elementIds) {
+    for (let i = 0; i < elements.length; i++) {
+        showOrHideElement(elementIds.includes(elements[i]), elements[i]);
+    }
 }
 
 function showOrHideElement(show, elementId) {
@@ -957,20 +1007,49 @@ function addReactionRow(reaction, botHomeId) {
     });
 }
 
+const alertData = [
+    {},
+    {name: 'Continual', parameters: [{id: 'duration', label: 'Duration', name: 'time', type: 'integer'},
+            {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //1
+    {name: 'Daily', parameters: [{id: 'time', label: 'Time', name: 'time', type: 'time'},
+            {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //2
+];
+
+const addAlertElements = ['add-alert-time-div', 'add-alert-duration-div', 'add-alert-keyword-div'];
+
 function showAddAlertForm() {
     showForm('add-alert', addAlertFormData);
+    changeAddAlertType(document.getElementById('add-alert-type-input'));
+}
+
+function changeAddAlertType(selectElement) {
+    changeFormType('add-alert', selectElement, alertData, addAlertElements);
 }
 
 function addAlert(botHomeId) {
-    const type = document.getElementById('add-alert-type-input').value;
-    const time = document.getElementById('add-alert-time-input').value;
-    const keyword = document.getElementById('add-alert-keyword-input').value;
-    postAddAlert(botHomeId, type, keyword, time);
+    try {
+        const parameters = collectFormData(botHomeId, 'add-alert', alertData);
+        postAddAlert(parameters);
+    } catch (e) {
+    }
 }
 
-async function postAddAlert(botHomeId, type, keyword, time) {
+function collectFormData(botHomeId, label, formData) {
+    const parameters = {botHomeId: botHomeId};
+    const type = parseInt(document.getElementById(label + '-type-input').value);
+    addFormParameter(label, parameters, {id: 'type', name: 'type', type: 'integer'});
+
+    const data = formData[type];
+    for (let i = 0; i < data.parameters.length; i++) {
+        let parameterData = data.parameters[i];
+        addFormParameter(label, parameters, parameterData);
+    }
+
+    return parameters;
+}
+
+async function postAddAlert(parameters) {
     const label = 'add-alert';
-    const parameters = {botHomeId: botHomeId, type: type, keyword: keyword, time: time};
     let response = await makePost('/api/add_alert', parameters, [], false);
 
     if (response.ok) {
@@ -978,7 +1057,7 @@ async function postAddAlert(botHomeId, type, keyword, time) {
         showElementInlineById(label + '-button');
 
         let alert = await response.json();
-        addAlertRow(alert, botHomeId);
+        addAlertRow(alert, parameters.botHomeId);
     }
 }
 

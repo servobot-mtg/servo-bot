@@ -20,7 +20,8 @@ public abstract class AlertGenerator {
         this.id = id;
         this.alertToken = alertToken;
 
-        Validation.validateStringLength(alertToken, Validation.MAX_TRIGGER_LENGTH, "Alert token");
+        Validation.validateStringValue(alertToken, Validation.MAX_TRIGGER_LENGTH, "Alert Keyword",
+                Validation.NAME_PATTERN);
     }
 
     public abstract int getType();
