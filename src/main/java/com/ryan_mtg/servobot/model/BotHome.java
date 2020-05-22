@@ -157,7 +157,7 @@ public class BotHome {
         });
         alertQueue.update(this);
         active = true;
-        eventListener.setActive(active);
+        eventListener.setActive(true);
     }
 
     public void registerAlertGenerator(final AlertGenerator alertGenerator) {
@@ -169,7 +169,7 @@ public class BotHome {
     public void stop(final AlertQueue alertQueue) {
         if (active) {
             active = false;
-            eventListener.setActive(active);
+            eventListener.setActive(false);
             serviceHomes.values().forEach(serviceHome -> serviceHome.stop(this));
             alertQueue.remove(this);
         }

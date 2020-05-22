@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -239,8 +238,7 @@ public class BotController {
             descriptor.addTrigger(entry.getKey());
         }
 
-        Collections.sort(commands, new CommandDescriptorIdComparer());
-
+        commands.sort(new CommandDescriptorIdComparer());
         return commands;
     }
 

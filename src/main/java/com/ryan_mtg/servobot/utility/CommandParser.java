@@ -3,7 +3,7 @@ package com.ryan_mtg.servobot.utility;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -25,7 +25,7 @@ public class CommandParser {
         }
 
         public ParseResult(final ParseStatus status, final String command, final String input) {
-            this(status, command, input, Arrays.asList());
+            this(status, command, input, Collections.emptyList());
         }
 
         public ParseResult(final ParseStatus status, final String command, final String input,

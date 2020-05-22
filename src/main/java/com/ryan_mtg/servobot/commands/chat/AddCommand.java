@@ -1,11 +1,12 @@
 package com.ryan_mtg.servobot.commands.chat;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -128,7 +129,7 @@ public class AddCommand extends MessageCommand {
         }
 
         boolean added = homeEditor.addCommand(command, new TextCommand(Command.UNREGISTERED_ID,
-                new CommandSettings(commandFlags, permission, null), input));
+                new CommandSettings(commandFlags, permission, new RateLimit()), input));
 
         if (added) {
             MessageCommand.say(event, String.format("Command %s added.", command));

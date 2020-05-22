@@ -13,7 +13,6 @@ import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class TwitchChannel implements Channel, Home {
     @Override
     public boolean isStreaming() {
         StreamList streamList = twitchClient.getHelix().getStreams(null, "", null, null,null, null, null,
-                null, Arrays.asList(channelName)).execute();
+                null, Collections.singletonList(channelName)).execute();
         return !streamList.getStreams().isEmpty();
     }
 

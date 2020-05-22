@@ -28,7 +28,7 @@ public class Strings {
 
     public static String trim(final String string) {
         if (string == null) {
-            return string;
+            return null;
         }
         return string.trim();
     }

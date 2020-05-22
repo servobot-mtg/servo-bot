@@ -49,10 +49,10 @@ public class CommandTableSerializer {
             throws BotErrorException  {
         CommandTable commandTable = new CommandTable(false);
         Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
-        Iterable<Integer> commandIds = SerializationSupport.getIds(commandRows, commandRow -> commandRow.getId());
+        Iterable<Integer> commandIds = SerializationSupport.getIds(commandRows, CommandRow::getId);
 
         Map<Integer, List<TriggerRow>> triggerRowMap = SerializationSupport.getIdMapping(
-            triggerRepository.findAllByCommandIdIn(commandIds), commandIds, triggerRow -> triggerRow.getCommandId());
+            triggerRepository.findAllByCommandIdIn(commandIds), commandIds, TriggerRow::getCommandId);
 
         for (CommandRow commandRow : commandRows) {
             Command command = commandSerializer.createCommand(commandRow, bookMap);

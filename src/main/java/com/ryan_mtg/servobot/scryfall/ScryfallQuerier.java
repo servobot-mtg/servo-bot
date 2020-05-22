@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import feign.FeignException;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -20,7 +20,7 @@ public class ScryfallQuerier {
             CardList cardList = scryfallClient.cardSearch(ImmutableMap.of("q", query));
             return cardList.getData();
         } catch (FeignException.NotFound e) {
-            return Arrays.asList();
+            return Collections.emptyList();
         }
     }
 

@@ -1,8 +1,9 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
@@ -118,26 +119,26 @@ public class BotEditor {
             CommandTableEdit commandTableEdit = new CommandTableEdit();
             if (!Strings.isBlank(request.getAddCommandName())) {
                 MessageCommand addCommand = new AddCommand(Command.UNREGISTERED_ID,
-                        new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, null));
+                        new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, new RateLimit()));
                 commandTableEdit.merge(commandTable.addCommand(request.getAddCommandName(), addCommand));
             }
 
             if (!Strings.isBlank(request.getDeleteCommandName())) {
                 MessageCommand deleteCommand = new DeleteCommand(Command.UNREGISTERED_ID,
-                    new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, null));
+                    new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, new RateLimit()));
                 commandTableEdit.merge(commandTable.addCommand(request.getDeleteCommandName(), deleteCommand));
             }
 
             if (!Strings.isBlank(request.getShowCommandsName())) {
                 String text = String.format("Commands are listed at http://servobot.info/home/%s", homeName);
                 MessageCommand showCommandsCommand = new TextCommand(Command.UNREGISTERED_ID,
-                        new CommandSettings(Command.DEFAULT_FLAGS, Permission.ANYONE, null), text);
+                        new CommandSettings(Command.DEFAULT_FLAGS, Permission.ANYONE, new RateLimit()), text);
                 commandTableEdit.merge(commandTable.addCommand(request.getShowCommandsName(), showCommandsCommand));
             }
 
             for (TextCommandRequest textCommandRequest : request.getTextCommands()) {
                 MessageCommand textCommand = new TextCommand(Command.UNREGISTERED_ID, new CommandSettings(
-                        Command.DEFAULT_FLAGS, Permission.ANYONE, null), textCommandRequest.getValue());
+                        Command.DEFAULT_FLAGS, Permission.ANYONE, new RateLimit()), textCommandRequest.getValue());
                 commandTableEdit.merge(commandTable.addCommand(textCommandRequest.getName(), textCommand));
             }
             serializers.getCommandTableSerializer().commit(botHomeId, commandTableEdit);

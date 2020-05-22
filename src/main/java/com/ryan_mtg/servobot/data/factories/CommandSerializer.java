@@ -1,10 +1,11 @@
 package com.ryan_mtg.servobot.data.factories;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
@@ -80,10 +81,10 @@ public class CommandSerializer {
             throws BotErrorException {
         int id = commandRow.getId();
 
-        Duration rateLimitDuration = rateLimitSerializer.createRateLimitDuration(commandRow);
+        RateLimit rateLimit = rateLimitSerializer.createRateLimit(commandRow);
 
         CommandSettings commandSettings =
-                new CommandSettings(commandRow.getFlags(), commandRow.getPermission(), rateLimitDuration);
+                new CommandSettings(commandRow.getFlags(), commandRow.getPermission(), rateLimit);
         CommandType commandType = CommandType.getFromValue(commandRow.getType());
         switch (commandType) {
             case ADD_COMMAND_TYPE:
@@ -477,7 +478,7 @@ public class CommandSerializer {
             commandRow.setId(command.getId());
             commandRow.setFlags(command.getFlags());
             commandRow.setPermission(command.getPermission());
-            rateLimitSerializer.saveRateLimit(commandRow, command.getRateLimitDuration());
+            rateLimitSerializer.saveRateLimit(commandRow, command.getRateLimit());
             commandRow.setType(command.getType().getType());
             commandRow.setBotHomeId(botHomeId);
             consumer.accept(commandRow);

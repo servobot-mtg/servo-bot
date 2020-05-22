@@ -45,7 +45,7 @@ public class ReactionListener implements EventListener {
                         MessageCommand messageCommand = (MessageCommand) command;
                         try {
                             if (rateLimiter.allow(sender.getHomedUser().getId(), command.getId(),
-                                    command.getRateLimitDuration())) {
+                                    command.getRateLimit())) {
                                 messageCommand.perform(messageSentEvent, null);
                             }
                         } catch (BotErrorException e) {

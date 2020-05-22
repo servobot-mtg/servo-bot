@@ -78,7 +78,7 @@ public class Validation {
      * @param description A human understandable name of the value
      * @param lowerBound The lowest acceptable value
      * @param upperBound The highest acceptable value
-     * @throws BotErrorException
+     * @throws BotErrorException when the value is not in the acceptable range
      */
     public static void validateRange(final int value, final String description, final int lowerBound,
                                      final int upperBound) throws BotErrorException {

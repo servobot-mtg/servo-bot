@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

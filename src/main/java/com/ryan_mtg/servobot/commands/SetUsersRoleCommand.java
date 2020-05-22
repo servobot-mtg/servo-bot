@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
@@ -19,7 +20,7 @@ public class SetUsersRoleCommand extends MessageCommand {
     private String message;
 
     public SetUsersRoleCommand(final  int id, final CommandSettings commandSettings, final String role,
-            final String message) throws BotErrorException {
+                               final String message) throws BotErrorException {
         super(id, commandSettings);
         this.role = role;
         this.message = message;

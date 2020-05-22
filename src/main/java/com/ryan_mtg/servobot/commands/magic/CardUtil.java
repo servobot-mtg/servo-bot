@@ -24,7 +24,7 @@ public class CardUtil {
         }
 
         if (cards.size() <= 5) {
-            List<String> names = cards.stream().map(card -> card.getName()).collect(Collectors.toList());
+            List<String> names = cards.stream().map(Card::getName).collect(Collectors.toList());
             String.format("%d matches found. Please choose between %s.", cards.size(), CardUtil.printList(names));
         }
 

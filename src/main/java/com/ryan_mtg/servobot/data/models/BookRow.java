@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

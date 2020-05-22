@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
@@ -10,7 +11,6 @@ import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.Optional;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class AddStatementCommand extends MessageCommand {

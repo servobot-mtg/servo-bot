@@ -106,17 +106,17 @@ public class UserSerializer {
     public Iterable<Integer> getModeratorUserIds(final int botHomeId) {
         return StreamSupport.stream(userHomeRepository.findByBotHomeId(botHomeId).spliterator(), false)
             .filter(userHomeRow -> new UserStatus(userHomeRow.getState()).isModerator())
-            .map(userHomeRow -> userHomeRow.getUserId()).collect(Collectors.toList());
+            .map(UserHomeRow::getUserId).collect(Collectors.toList());
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
     public List<HomedUser> getHomedUsers(final int botHomeId, final Iterable<User> users) throws BotErrorException {
-        Iterable<Integer> userIds = StreamSupport.stream(users.spliterator(), false).map(user -> user.getId())
+        Iterable<Integer> userIds = StreamSupport.stream(users.spliterator(), false).map(User::getId)
                 .collect(Collectors.toList());
         Iterable<UserHomeRow> userHomeRows = userHomeRepository.findByBotHomeIdAndUserIdIn(botHomeId, userIds);
 
         Map<Integer, UserHomeRow> homeRowById = SerializationSupport.getIdUniqueMapping(userHomeRows,
-                userHomeRow -> userHomeRow.getUserId());
+                UserHomeRow::getUserId);
         userHomeRows.forEach(userHomeRow -> homeRowById.put(userHomeRow.getUserId(), userHomeRow));
 
         return createHomedUsers(users, homeRowById);

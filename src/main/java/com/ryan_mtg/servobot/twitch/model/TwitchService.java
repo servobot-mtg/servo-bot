@@ -151,7 +151,7 @@ public class TwitchService implements Service {
 
     public boolean isStreaming(final long channelId) {
         StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null, null,
-                Arrays.asList(Long.toString(channelId)), null).execute();
+                Collections.singletonList(Long.toString(channelId)), null).execute();
         return !streamList.getStreams().isEmpty();
     }
 

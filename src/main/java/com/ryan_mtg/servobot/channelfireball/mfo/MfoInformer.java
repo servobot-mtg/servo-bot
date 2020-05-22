@@ -62,8 +62,7 @@ public class MfoInformer {
     }
 
     public String describeCurrentTournaments() {
-        return describeTournaments(tournament -> tournament.getName(), false, true,
-                NO_ACTIVE_TOURNAMENTS);
+        return describeTournaments(Tournament::getName, false, true, NO_ACTIVE_TOURNAMENTS);
     }
 
     public String getCurrentDecklists() {

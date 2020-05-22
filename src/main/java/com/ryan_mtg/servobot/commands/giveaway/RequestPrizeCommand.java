@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.commands.giveaway;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;

@@ -55,7 +55,7 @@ public class MultiServiceHome implements Home {
 
     @Override
     public boolean isStreaming() {
-        return serviceHomes.values().stream().anyMatch(serviceHome -> serviceHome.isStreaming());
+        return serviceHomes.values().stream().anyMatch(ServiceHome::isStreaming);
     }
 
     @Override

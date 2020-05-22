@@ -1,7 +1,8 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
@@ -674,8 +675,8 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
-                                               final int winnerCount, final GiveawayCommandSettings startRaffle, final GiveawayCommandSettings enterRaffle,
-                                               final GiveawayCommandSettings raffleStatus, final String winnerResponse, final String discordChannel)
+            final int winnerCount, final GiveawayCommandSettings startRaffle, final GiveawayCommandSettings enterRaffle,
+            final GiveawayCommandSettings raffleStatus, final String winnerResponse, final String discordChannel)
             throws BotErrorException {
 
         Giveaway giveaway = getGiveaway(giveawayId);
@@ -700,7 +701,7 @@ public class HomeEditor {
             }
 
             StartRaffleCommand startRaffleCommand = new StartRaffleCommand(Command.UNREGISTERED_ID,
-                new CommandSettings(startRaffle.getFlags(), Permission.STREAMER, null), giveawayId,
+                new CommandSettings(startRaffle.getFlags(), Permission.STREAMER, new RateLimit()), giveawayId,
                 startRaffle.getMessage());
             giveawayEdit.merge(commandTable.addCommand(startRaffle.getCommandName(), startRaffleCommand));
             giveaway.setStartRaffleCommand(startRaffleCommand);
@@ -783,7 +784,7 @@ public class HomeEditor {
 
         GiveawayCommandSettings enterCommandSettings = raffleSettings.getEnterRaffle();
         EnterRaffleCommand enterRaffleCommand = new EnterRaffleCommand(Command.UNREGISTERED_ID,
-            new CommandSettings(enterCommandSettings.getFlags(), enterCommandSettings.getPermission(), null),
+            new CommandSettings(enterCommandSettings.getFlags(), enterCommandSettings.getPermission(), new RateLimit()),
             giveawayId, enterCommandSettings.getMessage());
         giveawayEdit.merge(commandTable.addCommand(enterCommandSettings.getCommandName(), enterRaffleCommand));
 
@@ -796,7 +797,7 @@ public class HomeEditor {
         alerts.add(new Alert(duration, winnerAlertToken));
         int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
         SelectWinnerCommand selectWinnerCommand = new SelectWinnerCommand(Command.UNREGISTERED_ID,
-            new CommandSettings(flags, Permission.STREAMER, null), giveawayId,
+            new CommandSettings(flags, Permission.STREAMER, new RateLimit()), giveawayId,
             raffleSettings.getWinnerResponse(), raffleSettings.getDiscordChannel());
         tokenMap.put(winnerAlertToken, selectWinnerCommand);
         giveawayEdit.merge(commandTable.addCommand(selectWinnerCommand));
@@ -806,8 +807,8 @@ public class HomeEditor {
         if (raffleSettings.hasRaffleStatusCommand()) {
             GiveawayCommandSettings raffleStatusSettings = raffleSettings.getRaffleStatus();
             raffleStatusCommand = new RaffleStatusCommand(Command.UNREGISTERED_ID,
-                new CommandSettings(raffleStatusSettings.getFlags(), raffleStatusSettings.getPermission(), null),
-                giveawayId, raffleStatusSettings.getMessage());
+                new CommandSettings(raffleStatusSettings.getFlags(), raffleStatusSettings.getPermission(),
+                        new RateLimit()), giveawayId, raffleStatusSettings.getMessage());
             giveawayEdit.merge(
                     commandTable.addCommand(raffleSettings.getRaffleStatus().getCommandName(), raffleStatusCommand));
         }
@@ -821,7 +822,7 @@ public class HomeEditor {
                 alerts.add(new Alert(waitDuration, waitAlertToken));
                 String alertMessage = String.format("%d minutes left in the raffle.", waitMinutes[i]);
                 Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID,
-                        new CommandSettings(flags, Permission.ANYONE, null),
+                        new CommandSettings(flags, Permission.ANYONE, new RateLimit()),
                         TwitchService.TYPE, getTwitchChannelName(), alertMessage);
 
                 tokenMap.put(waitAlertToken, alertCommand);

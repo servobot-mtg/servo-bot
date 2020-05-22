@@ -31,7 +31,7 @@ public class SerializationSupport {
 
     public static <RowType> Iterable<Integer> getIds(final Iterable<RowType> rows,
             final Function<RowType, Integer> extractId) {
-        return StreamSupport.stream(rows.spliterator(), false).map(row -> extractId.apply(row))
+        return StreamSupport.stream(rows.spliterator(), false).map(extractId::apply)
                 .collect(Collectors.toList());
     }
 }

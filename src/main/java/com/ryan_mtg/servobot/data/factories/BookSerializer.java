@@ -41,10 +41,10 @@ public class BookSerializer {
         List<Book> books = new ArrayList<>();
 
         Iterable<BookRow> bookRows = bookRepository.findAllByBotHomeId(botHomeId);
-        Iterable<Integer> bookIds = SerializationSupport.getIds(bookRows, bookRow -> bookRow.getId());
+        Iterable<Integer> bookIds = SerializationSupport.getIds(bookRows, BookRow::getId);
 
         Map<Integer, List<StatementRow>> statementRowMap = SerializationSupport.getIdMapping(
-            statementRepository.findAllByBookIdIn(bookIds), bookIds, statementRow -> statementRow.getBookId());
+            statementRepository.findAllByBookIdIn(bookIds), bookIds, StatementRow::getBookId);
 
         for(BookRow bookRow : bookRepository.findAllByBotHomeId(botHomeId)) {
             List<Statement> statements = new ArrayList<>();

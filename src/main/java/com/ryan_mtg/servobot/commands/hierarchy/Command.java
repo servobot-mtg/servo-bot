@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.commands.hierarchy;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
@@ -17,7 +16,6 @@ import com.ryan_mtg.servobot.utility.Flags;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,8 +93,8 @@ public abstract class Command {
         this.commandSettings.setPermission(permission);
     }
 
-    public Duration getRateLimitDuration() {
-        return commandSettings.getRateLimitDuration();
+    public RateLimit getRateLimit() {
+        return commandSettings.getRateLimit();
     }
 
     public abstract CommandType getType();

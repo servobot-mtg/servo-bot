@@ -44,15 +44,15 @@ public class ReactionTableSerializer {
         ReactionTable reactionTable = new ReactionTable();
         Iterable<ReactionRow> reactionRows = reactionRepository.findAllByBotHomeId(botHomeId);
 
-        Iterable<Integer> reactionIds = SerializationSupport.getIds(reactionRows, reactionRow -> reactionRow.getId());
+        Iterable<Integer> reactionIds = SerializationSupport.getIds(reactionRows, ReactionRow::getId);
 
         Map<Integer, List<ReactionPatternRow>> patternRowMap = SerializationSupport.getIdMapping(
                 reactionPatternRepository.findAllByReactionIdIn(reactionIds), reactionIds,
-                reactionPatternRow -> reactionPatternRow.getReactionId());
+                ReactionPatternRow::getReactionId);
 
         Map<Integer, List<ReactionCommandRow>> commandRowMap = SerializationSupport.getIdMapping(
                 reactionCommandRepository.findAllByReactionIdIn(reactionIds), reactionIds,
-                reactionCommandRow -> reactionCommandRow.getReactionId());
+                ReactionCommandRow::getReactionId);
 
         for (ReactionRow reactionRow : reactionRows) {
             List<Pattern> patterns = new ArrayList<>();

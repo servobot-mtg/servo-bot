@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.commands.giveaway;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
@@ -53,8 +53,7 @@ public class SelectWinnerCommand extends HomeCommand {
         if (winners.isEmpty()) {
             message = "The raffle has no winner, because there were no entrants.";
         } else {
-            String winnerString = Strings.join(
-                    winners.stream().map(homedUser -> homedUser.getName()).collect(Collectors.toList()));
+            String winnerString = Strings.join(winners.stream().map(HomedUser::getName).collect(Collectors.toList()));
             SimpleSymbolTable symbolTable = new SimpleSymbolTable();
             scope = new Scope(scope, symbolTable);
             symbolTable.addValue("winner", winnerString);

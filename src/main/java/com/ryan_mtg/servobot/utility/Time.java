@@ -11,11 +11,11 @@ import java.util.function.Function;
 
 public class Time {
     private static final UnitDescriptor[] unitDescriptors = {
-        new UnitDescriptor("week", duration -> duration.toDays(), 7, "a"),
-        new UnitDescriptor("day", duration -> duration.toHours(), 24, "a"),
-        new UnitDescriptor("hour", duration -> duration.toMinutes(), 60, "an"),
-        new UnitDescriptor("minute", duration -> duration.getSeconds(), 60, "a"),
-        new UnitDescriptor("second", duration -> duration.getSeconds(), 1, "a"),
+        new UnitDescriptor("week", Duration::toDays, 7, "a"),
+        new UnitDescriptor("day", Duration::toHours, 24, "a"),
+        new UnitDescriptor("hour", Duration::toMinutes, 60, "an"),
+        new UnitDescriptor("minute", Duration::getSeconds, 60, "a"),
+        new UnitDescriptor("second", Duration::getSeconds, 1, "a"),
         new UnitDescriptor("", duration -> 0L, 1, ""),
     };
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);

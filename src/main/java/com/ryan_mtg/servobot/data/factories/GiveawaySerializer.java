@@ -116,10 +116,10 @@ public class GiveawaySerializer {
     public List<Giveaway> createGiveaways(final int botHomeId, final HomedUserTable homedUserTable,
             final CommandTable commandTable) throws BotErrorException {
         Iterable<GiveawayRow> giveawayRows = giveawayRepository.findAllByBotHomeId(botHomeId);
-        Iterable<Integer> giveawayIds = SerializationSupport.getIds(giveawayRows, giveawayRow -> giveawayRow.getId());
+        Iterable<Integer> giveawayIds = SerializationSupport.getIds(giveawayRows, GiveawayRow::getId);
 
         Map<Integer, List<PrizeRow>> prizeRowMap = SerializationSupport.getIdMapping(
-            prizeRepository.findAllByGiveawayIdIn(giveawayIds), giveawayIds, prizeRow -> prizeRow.getGiveawayId());
+            prizeRepository.findAllByGiveawayIdIn(giveawayIds), giveawayIds, PrizeRow::getGiveawayId);
 
         Set<Integer> userIds = new HashSet<>();
         prizeRowMap.forEach((giveawayId, prizeRows) -> prizeRows.forEach(prizeRow -> {

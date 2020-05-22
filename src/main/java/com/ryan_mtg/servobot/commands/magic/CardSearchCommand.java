@@ -1,9 +1,8 @@
 package com.ryan_mtg.servobot.commands.magic;
 
-import com.ryan_mtg.servobot.commands.CommandSettings;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;

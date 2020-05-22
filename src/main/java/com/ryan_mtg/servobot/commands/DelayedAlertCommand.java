@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
+import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.HomeEvent;
