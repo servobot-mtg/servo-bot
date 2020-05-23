@@ -229,6 +229,7 @@ public class MfoInformerTest {
         assertEquals("Daily Qualifier 1: 1-0 and Daily Qualifier 2: 1-1-1.", informer.getCurrentRecord("arenaa"));
     }
 
+    /*
     @Test
     public void debug() {
         informer = new MfoInformer(MfoClient.newClient(), Clock.systemUTC());
@@ -236,6 +237,7 @@ public class MfoInformerTest {
             System.out.println(tournament.getName() + ": " + tournament.getCurrentRound());
         }
     }
+     */
 
     private Tournament createTournament(final int id, final int round, final String name, final String startsAt,
                                         final String lastUpdatedAt) {
