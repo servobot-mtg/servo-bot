@@ -190,18 +190,46 @@ public class MfoInformer {
 
             Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
 
-            List<String> results = new ArrayList<>();
+            List<String> urls = new ArrayList<>();
             document.select("tr").forEach(row -> {
                 if(!row.parent().nodeName().equals("thead")) {
                     if (row.child(0).text().equals(player.getArenaName())) {
                         Element anchor = row.child(2).child(0);
-                        results.add(anchor.attr("href"));
+                        urls.add(anchor.attr("href"));
                     }
                 }
             });
 
-            if (!results.isEmpty()) {
-                return results.get(0);
+            if (!urls.isEmpty()) {
+                String decklistUrl = urls.get(0);
+                String decklistName = getDecklistName(decklistUrl);
+                if (decklistName == null) {
+                    return decklistUrl;
+                }
+                return String.format("%s %s", decklistName, decklistUrl);
+            }
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private String getDecklistName(final String decklistUrl) {
+        try {
+            String url = String.format(decklistUrl);
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(url);
+            HttpResponse response = httpClient.execute(httpGet);
+
+            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
+
+            List<String> headers = new ArrayList<>();
+            document.select("h1").forEach(header -> {
+                headers.add(header.text());
+            });
+
+            if (headers.size() == 3) {
+                return headers.get(1);
             }
             return null;
         } catch (IOException e) {
