@@ -12,8 +12,17 @@ import com.ryan_mtg.servobot.channelfireball.mfo.model.PlayerSet;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Standings;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.Charsets;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -26,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
@@ -68,6 +78,17 @@ public class MfoInformer {
     public String getCurrentDecklists() {
         return describeTournaments(tournament -> resolve(String.format("/deck/%d", tournament.getId())), true,
                 false, NO_ACTIVE_TOURNAMENTS);
+    }
+
+    public String getCurrentDecklist(final String arenaName) {
+        return describeTournaments(tournament -> {
+            Standings standings = computeStandings(tournament);
+            Player player = standings.getPlayerSet().findByArenaName(arenaName);
+            if (player == null) {
+                return null;
+            }
+            return parseDecklistsFor(player, tournament.getId());
+        }, true, false, String.format("%s is not in the tournament.", arenaName));
     }
 
     public String getCurrentPairings() {
@@ -158,6 +179,34 @@ public class MfoInformer {
         }
 
         return standings;
+    }
+
+    private String parseDecklistsFor(final Player player, final int tournamentId) {
+        try {
+            String url = String.format("https://my.cfbevents.com/deck/%d", tournamentId);
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(url);
+            HttpResponse response = httpClient.execute(httpGet);
+
+            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
+
+            List<String> results = new ArrayList<>();
+            document.select("tr").forEach(row -> {
+                if(!row.parent().nodeName().equals("thead")) {
+                    if (row.child(0).text().equals(player.getArenaName())) {
+                        Element anchor = row.child(2).child(0);
+                        results.add(anchor.attr("href"));
+                    }
+                }
+            });
+
+            if (!results.isEmpty()) {
+                return results.get(0);
+            }
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     private String print(final Map<Record, Integer> recordCountMap) {

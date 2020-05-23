@@ -66,7 +66,11 @@ public class PublicApiController {
             case "decklists":
             case "decks":
             case "deck":
-                return informer.getCurrentDecklists();
+                if (Strings.isBlank(arenaName)) {
+                    return informer.getCurrentDecklists();
+                } else {
+                    return informer.getCurrentDecklist(arenaName);
+                }
             case "pairings":
                 return informer.getCurrentPairings();
             case "standings":
