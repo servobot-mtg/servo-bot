@@ -51,7 +51,7 @@ public class MfoInformer {
         for (TournamentSeries series : seriesList.getData()) {
             ZoneId zoneId = ZoneId.of(series.getTimezone());
             Instant startTime = parse(series.getStartDate(), zoneId);
-            Instant endTime = parse(series.getEndDate(), zoneId);
+            Instant endTime = parse(series.getEndDate(), zoneId).plus(1, ChronoUnit.DAYS);
             Instant now = clock.instant();
             if (startTime.compareTo(now) < 0 &&
                     (now.compareTo(endTime) < 0 || series.getName().contains("MagicFest Online"))) {
@@ -200,8 +200,12 @@ public class MfoInformer {
             case "Featured Tournament":
                 if (tournament.getName().contains("Finals Qualifier")) {
                     return 5;
+                } else if (tournament.getName().contains("Showdown")) {
+                    return 8;
                 }
                 return 6;
+            case "Package":
+            case "Players Tour":
             case "Select Your Playmat":
             case "MagicFest In-A-Box":
                 return 0;
