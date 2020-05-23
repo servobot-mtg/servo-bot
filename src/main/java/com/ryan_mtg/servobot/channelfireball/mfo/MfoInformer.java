@@ -258,9 +258,8 @@ public class MfoInformer {
         TournamentList tournamentList = mfoClient.getTournamentList(tournamentSeriesId);
         List<Tournament> tournaments = new ArrayList<>();
         for (Tournament tournament : tournamentList.getData()) {
-            Instant startTime = parse(tournament.getStartsAt(), zoneId);
             Instant now = clock.instant();
-            if (startTime.compareTo(now) < 0 && !hasEnded(tournament, now)) {
+            if (hasStarted(tournament, now, zoneId) && !hasEnded(tournament, now)) {
                 tournaments.add(tournament);
             }
         }
@@ -290,6 +289,15 @@ public class MfoInformer {
 
         LOGGER.warn("Unknown tournament type: " + tournament.getTournamentType());
         return 6; //This could be very, very wrong
+    }
+
+    private boolean hasStarted(final Tournament tournament, final Instant now, final ZoneId zoneId) {
+        int maxRounds = getMaxRounds(tournament);
+        if (tournament.getCurrentRound() == 0 || maxRounds == 0) {
+            return false;
+        }
+        Instant startTime = parse(tournament.getStartsAt(), zoneId);
+        return startTime.compareTo(now) < 0;
     }
 
     private boolean hasEnded(final Tournament tournament, final Instant now) {
