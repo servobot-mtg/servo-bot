@@ -34,7 +34,7 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
         Map<String, Object> attributes = new HashMap<>();
 
         TwitchUserInfo twitchUserInfo = twitchService.getUserInfo(userRequest.getAccessToken().getTokenValue());
-        User user = null;
+        User user;
         try {
             user = userTable.getByTwitchId(twitchUserInfo.getId(), twitchUserInfo.getUsername());
         } catch (BotErrorException e) {

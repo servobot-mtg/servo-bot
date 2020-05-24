@@ -8,145 +8,64 @@ import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.user.UserTable;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
 public class SerializerContainer {
+    @Setter
     private BotFactory botFactory;
 
-    @Autowired
-    @Getter
-    private AlertGeneratorSerializer alertGeneratorSerializer;
+    private final AlertGeneratorSerializer alertGeneratorSerializer;
+    private final BookSerializer bookSerializer;
+    private final BotHomeRepository botHomeRepository;
+    private final CommandSerializer commandSerializer;
+    private final CommandTableSerializer commandTableSerializer;
+    private final GameQueueRepository gameQueueRepository;
+    private final GameQueueSerializer gameQueueSerializer;
+    private final GameQueueEntryRepository gameQueueEntryRepository;
+    private final GiveawaySerializer giveawaySerializer;
+    private final ReactionSerializer reactionSerializer;
+    private final ReactionTableSerializer reactionTableSerializer;
+    private final ServiceHomeRepository serviceHomeRepository;
+    private final ServiceSerializer serviceSerializer;
+    private final StatementRepository statementRepository;
+    private final StorageTableSerializer storageTableSerializer;
+    private final StorageValueSerializer storageValueSerializer;
+    private final SuggestionRepository suggestionRepository;
+    private final UserSerializer userSerializer;
+    private final UserTable userTable;
 
-    @Autowired
-    private BookSerializer bookSerializer;
+    public SerializerContainer(final AlertGeneratorSerializer alertGeneratorSerializer,
+            final BookSerializer bookSerializer, final BotHomeRepository botHomeRepository,
+            final CommandSerializer commandSerializer, final CommandTableSerializer commandTableSerializer,
+            final GameQueueRepository gameQueueRepository, final GameQueueSerializer gameQueueSerializer,
+            final GameQueueEntryRepository gameQueueEntryRepository, final GiveawaySerializer giveawaySerializer,
+            final ReactionSerializer reactionSerializer, final ReactionTableSerializer reactionTableSerializer,
+            final ServiceHomeRepository serviceHomeRepository, final ServiceSerializer serviceSerializer,
+            final StatementRepository statementRepository, final StorageTableSerializer storageTableSerializer,
+            final StorageValueSerializer storageValueSerializer, final SuggestionRepository suggestionRepository,
+            final UserSerializer userSerializer, final UserTable userTable) {
 
-    @Autowired
-    private BotHomeRepository botHomeRepository;
-
-    @Autowired
-    private CommandSerializer commandSerializer;
-
-    @Autowired
-    private CommandTableSerializer commandTableSerializer;
-
-    @Autowired
-    private GameQueueRepository gameQueueRepository;
-
-    @Autowired
-    private GameQueueSerializer gameQueueSerializer;
-
-    @Autowired
-    private GameQueueEntryRepository gameQueueEntryRepository;
-
-    @Autowired
-    private GiveawaySerializer giveawaySerializer;
-
-    @Autowired
-    private ReactionSerializer reactionSerializer;
-
-    @Autowired
-    private ReactionTableSerializer reactionTableSerializer;
-
-    @Autowired
-    private ServiceHomeRepository serviceHomeRepository;
-
-    @Autowired
-    private ServiceSerializer serviceSerializer;
-
-    @Autowired
-    private StatementRepository statementRepository;
-
-    @Autowired
-    private StorageTableSerializer storageTableSerializer;
-
-    @Autowired
-    private StorageValueSerializer storageValueSerializer;
-
-    @Autowired
-    private SuggestionRepository suggestionRepository;
-
-    @Autowired
-    private UserSerializer userSerializer;
-
-    @Autowired
-    @Getter
-    private UserTable userTable;
-
-    public BookSerializer getBookSerializer() {
-        return bookSerializer;
-    }
-
-    public BotFactory getBotFactory() {
-        return botFactory;
-    }
-
-    public void setBotFactory(final BotFactory botFactory) {
-        this.botFactory = botFactory;
-    }
-
-    public BotHomeRepository getBotHomeRepository() {
-        return botHomeRepository;
-    }
-
-    public CommandSerializer getCommandSerializer() {
-        return commandSerializer;
-    }
-
-    public CommandTableSerializer getCommandTableSerializer() {
-        return commandTableSerializer;
-    }
-
-    public GameQueueRepository getGameQueueRepository() {
-        return gameQueueRepository;
-    }
-
-    public GameQueueSerializer getGameQueueSerializer() {
-        return gameQueueSerializer;
-    }
-
-    public GameQueueEntryRepository getGameQueueEntryRepository() {
-        return gameQueueEntryRepository;
-    }
-
-    public GiveawaySerializer getGiveawaySerializer() {
-        return giveawaySerializer;
-    }
-
-    public ReactionTableSerializer getReactionTableSerializer() {
-        return reactionTableSerializer;
-    }
-
-    public ReactionSerializer getReactionSerializer() {
-        return reactionSerializer;
-    }
-
-    public ServiceHomeRepository getServiceHomeRepository() {
-        return serviceHomeRepository;
-    }
-
-    public ServiceSerializer getServiceSerializer() {
-        return serviceSerializer;
-    }
-
-    public StatementRepository getStatementRepository() {
-        return statementRepository;
-    }
-
-    public StorageTableSerializer getStorageTableSerializer() {
-        return storageTableSerializer;
-    }
-
-    public StorageValueSerializer getStorageValueSerializer() {
-        return storageValueSerializer;
-    }
-
-    public SuggestionRepository getSuggestionRepository() {
-        return suggestionRepository;
-    }
-
-    public UserSerializer getUserSerializer() {
-        return userSerializer;
+        this.alertGeneratorSerializer = alertGeneratorSerializer;
+        this.bookSerializer = bookSerializer;
+        this.botHomeRepository = botHomeRepository;
+        this.commandSerializer = commandSerializer;
+        this.commandTableSerializer = commandTableSerializer;
+        this.gameQueueRepository = gameQueueRepository;
+        this.gameQueueSerializer = gameQueueSerializer;
+        this.gameQueueEntryRepository = gameQueueEntryRepository;
+        this.giveawaySerializer = giveawaySerializer;
+        this.reactionSerializer = reactionSerializer;
+        this.reactionTableSerializer = reactionTableSerializer;
+        this.serviceHomeRepository = serviceHomeRepository;
+        this.serviceSerializer = serviceSerializer;
+        this.statementRepository = statementRepository;
+        this.storageTableSerializer = storageTableSerializer;
+        this.storageValueSerializer = storageValueSerializer;
+        this.suggestionRepository = suggestionRepository;
+        this.userSerializer = userSerializer;
+        this.userTable = userTable;
     }
 }

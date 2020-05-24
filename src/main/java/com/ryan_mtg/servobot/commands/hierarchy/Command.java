@@ -24,12 +24,12 @@ public abstract class Command {
 
     private static Pattern REPLACEMENT_PATTERN = Pattern.compile("%([^%]*)%");
 
-    public static final int SECURE_FLAG = 1<<0;
-    public static final int TWITCH_FLAG = 1<<TwitchService.TYPE;
-    public static final int DISCORD_FLAG = 1<<DiscordService.TYPE;
+    public static final int SECURE_FLAG = 1 << 0;
+    public static final int TWITCH_FLAG = 1 << TwitchService.TYPE;
+    public static final int DISCORD_FLAG = 1 << DiscordService.TYPE;
     public static final int DEFAULT_FLAGS = TWITCH_FLAG | DISCORD_FLAG;
-    public static final int ONLY_WHILE_STREAMING_FLAG = 1<<5;
-    public static final int TEMPORARY_FLAG = 1<<10;
+    public static final int ONLY_WHILE_STREAMING_FLAG = 1 << 5;
+    public static final int TEMPORARY_FLAG = 1 << 10;
 
     @Getter @Setter
     private int id;

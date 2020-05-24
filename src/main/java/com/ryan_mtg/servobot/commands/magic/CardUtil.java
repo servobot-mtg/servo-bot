@@ -25,11 +25,11 @@ public class CardUtil {
 
         if (cards.size() <= 5) {
             List<String> names = cards.stream().map(Card::getName).collect(Collectors.toList());
-            String.format("%d matches found. Please choose between %s.", cards.size(), CardUtil.printList(names));
+            return String.format("%d matches found. Please choose between %s.", cards.size(), CardUtil.printList(names));
         }
 
         if (cards.size() > 100) {
-            return String.format("hundreds of matches found; please clarify.", cards.size());
+            return "hundreds of matches found; please clarify.";
         }
 
         return String.format("%d matches found; please clarify.", cards.size());

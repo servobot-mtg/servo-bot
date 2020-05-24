@@ -16,7 +16,6 @@ import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
@@ -30,20 +29,21 @@ import java.util.Set;
 public class CommandTableSerializer {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandTableSerializer.class);
 
-    @Autowired
-    private AlertGeneratorRepository alertGeneratorRepository;
+    private final AlertGeneratorRepository alertGeneratorRepository;
+    private final AlertGeneratorSerializer alertGeneratorSerializer;
+    private final CommandRepository commandRepository;
+    private final CommandSerializer commandSerializer;
+    private final TriggerRepository triggerRepository;
 
-    @Autowired
-    private AlertGeneratorSerializer alertGeneratorSerializer;
-
-    @Autowired
-    private CommandRepository commandRepository;
-
-    @Autowired
-    private CommandSerializer commandSerializer;
-
-    @Autowired
-    private TriggerRepository triggerRepository;
+    public CommandTableSerializer(final AlertGeneratorRepository alertGeneratorRepository,
+            final AlertGeneratorSerializer alertGeneratorSerializer, final CommandRepository commandRepository,
+            final CommandSerializer commandSerializer, final TriggerRepository triggerRepository) {
+        this.alertGeneratorRepository = alertGeneratorRepository;
+        this.alertGeneratorSerializer = alertGeneratorSerializer;
+        this.commandRepository = commandRepository;
+        this.commandSerializer = commandSerializer;
+        this.triggerRepository = triggerRepository;
+    }
 
     public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap)
             throws BotErrorException  {

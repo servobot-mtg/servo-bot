@@ -18,7 +18,6 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
@@ -35,14 +34,16 @@ public class GiveawaySerializer {
     private static final int SELF_SERVICE_FLAG = 1 << 0;
     private static final int RAFFLE_FLAG = 1 << 1;
 
-    @Autowired
-    private GiveawayRepository giveawayRepository;
+    private final GiveawayRepository giveawayRepository;
+    private final PrizeRepository prizeRepository;
+    private final CommandTableSerializer commandTableSerializer;
 
-    @Autowired
-    private PrizeRepository prizeRepository;
-
-    @Autowired
-    private CommandTableSerializer commandTableSerializer;
+    public GiveawaySerializer(final GiveawayRepository giveawayRepository, final PrizeRepository prizeRepository,
+            final CommandTableSerializer commandTableSerializer) {
+        this.giveawayRepository = giveawayRepository;
+        this.prizeRepository = prizeRepository;
+        this.commandTableSerializer = commandTableSerializer;
+    }
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void commit(final int botHomeId, final GiveawayEdit giveawayEdit) {

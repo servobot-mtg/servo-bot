@@ -54,7 +54,6 @@ import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -65,17 +64,18 @@ import java.util.function.Consumer;
 public class CommandSerializer {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandSerializer.class);
 
-    @Autowired
-    private CommandRepository commandRepository;
+    private final CommandRepository commandRepository;
+    private final TriggerRepository triggerRepository;
+    private final RateLimitSerializer rateLimitSerializer;
+    private final ScryfallQuerier scryfallQuerier;
 
-    @Autowired
-    private TriggerRepository triggerRepository;
-
-    @Autowired
-    private RateLimitSerializer rateLimitSerializer;
-
-    @Autowired
-    private ScryfallQuerier scryfallQuerier;
+    public CommandSerializer(final CommandRepository commandRepository, final TriggerRepository triggerRepository,
+            final RateLimitSerializer rateLimitSerializer, final ScryfallQuerier scryfallQuerier) {
+        this.commandRepository = commandRepository;
+        this.triggerRepository = triggerRepository;
+        this.rateLimitSerializer = rateLimitSerializer;
+        this.scryfallQuerier = scryfallQuerier;
+    }
 
     public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap)
             throws BotErrorException {

@@ -48,7 +48,7 @@ public class ArrestCommand extends MessageCommand {
         User cop  = event.getSender();
 
         if (JailUtility.isInAnyJail(home, cop, prisonRole)) {
-            MessageCommand.say(event, String.format("You can't arrest someone while in jail!", prisonRole));
+            MessageCommand.say(event, "You can't arrest someone while in jail!");
             return;
         }
 
@@ -70,7 +70,7 @@ public class ArrestCommand extends MessageCommand {
         }
 
         if (JailUtility.isInAnyJail(home, criminal, prisonRole)) {
-            MessageCommand.say(event, String.format("%s is already in jail!", criminal.getName(), prisonRole));
+            MessageCommand.say(event, String.format("%s is already in jail!", criminal.getName()));
             return;
         }
 

@@ -17,7 +17,6 @@ import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,15 +35,14 @@ import java.util.function.Function;
 public class BotController {
     private static Logger LOGGER = LoggerFactory.getLogger(BotController.class);
 
-    @Autowired
-    private BotRegistrar botRegistrar;
+    private final BotRegistrar botRegistrar;
+    private final SerializerContainer serializers;
+    private final List<TimeZoneDescriptor> timeZones = new ArrayList<>();
 
-    @Autowired
-    private SerializerContainer serializers;
+    public BotController(final BotRegistrar botRegistrar, final SerializerContainer serializers) {
+        this.botRegistrar = botRegistrar;
+        this.serializers = serializers;
 
-    private List<TimeZoneDescriptor> timeZones = new ArrayList<>();
-
-    public BotController() {
         timeZones.add(new TimeZoneDescriptor("America/New_York", "Eastern"));
         timeZones.add(new TimeZoneDescriptor("America/Chicago", "Central"));
         timeZones.add(new TimeZoneDescriptor("America/Denver", "Mountain"));

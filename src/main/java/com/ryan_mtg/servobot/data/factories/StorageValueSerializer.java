@@ -5,13 +5,15 @@ import com.ryan_mtg.servobot.data.repositories.StorageValueRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StorageValueSerializer {
-    @Autowired
-    private StorageValueRepository storageValueRepository;
+    private final StorageValueRepository storageValueRepository;
+
+    public StorageValueSerializer(final StorageValueRepository storageValueRepository) {
+        this.storageValueRepository = storageValueRepository;
+    }
 
     public StorageValue createStorageValue(final StorageValueRow storageValueRow) throws BotErrorException {
         switch (storageValueRow.getType()) {

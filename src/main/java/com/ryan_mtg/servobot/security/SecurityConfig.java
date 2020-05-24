@@ -4,7 +4,6 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.UserTable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,17 +42,18 @@ import java.util.List;
 @Configuration
 @ControllerAdvice
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private BotRegistrar botRegistrar;
+    private final BotRegistrar botRegistrar;
+    private final UserTable userTable;
+    private final WebsiteUserFactory websiteUserFactory;
+    private final TwitchService twitchService;
 
-    @Autowired
-    private UserTable userTable;
-
-    @Autowired
-    private WebsiteUserFactory websiteUserFactory;
-
-    @Autowired
-    private TwitchService twitchService;
+    public SecurityConfig(final BotRegistrar botRegistrar, final UserTable userTable,
+            final WebsiteUserFactory websiteUserFactory, final TwitchService twitchService) {
+        this.botRegistrar = botRegistrar;
+        this.userTable = userTable;
+        this.websiteUserFactory = websiteUserFactory;
+        this.twitchService = twitchService;
+    }
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {

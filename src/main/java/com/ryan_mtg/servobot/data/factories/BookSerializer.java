@@ -9,7 +9,6 @@ import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.books.BookTableEdit;
 import com.ryan_mtg.servobot.model.books.Statement;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
@@ -19,11 +18,13 @@ import java.util.Map;
 
 @Component
 public class BookSerializer {
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
+    private final StatementRepository statementRepository;
 
-    @Autowired
-    private StatementRepository statementRepository;
+    public BookSerializer(final BookRepository bookRepository, final StatementRepository statementRepository) {
+        this.bookRepository = bookRepository;
+        this.statementRepository = statementRepository;
+    }
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void saveBook(final int botHomeId, final Book book) {

@@ -100,7 +100,7 @@ public class AlertQueue {
         private String alertToken;
         private AlertTask alertTask;
 
-        public OneShotAlertable(final BotHome botHome, final Duration waitTime, final String alertToken) {
+        OneShotAlertable(final BotHome botHome, final Duration waitTime, final String alertToken) {
             this.botHome = botHome;
             this.waitTime = waitTime;
             this.alertToken = alertToken;
@@ -135,7 +135,7 @@ public class AlertQueue {
         private AlertGenerator generator;
         private AlertTask alertTask;
 
-        public RepeatingAlertable(final BotHome home, final AlertGenerator generator) {
+        RepeatingAlertable(final BotHome home, final AlertGenerator generator) {
             this.home = home;
             this.generator = generator;
         }
@@ -151,7 +151,7 @@ public class AlertQueue {
             schedule(Instant.now());
         }
 
-        public void update(final Instant now) {
+        void update(final Instant now) {
             if (alertTask == null) {
                 schedule(now);
                 return;
@@ -195,16 +195,16 @@ public class AlertQueue {
         private Instant alertTime;
         private boolean alive = true;
 
-        public AlertTask(final Alertable alertable, final Instant alertTime) {
+        AlertTask(final Alertable alertable, final Instant alertTime) {
             this.alertable = alertable;
             this.alertTime = alertTime;
         }
 
-        public void kill() {
+        void kill() {
             alive = false;
         }
 
-        public Instant getAlertTime() {
+        Instant getAlertTime() {
             return alertTime;
         }
 

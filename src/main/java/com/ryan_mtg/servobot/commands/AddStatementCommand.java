@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class AddStatementCommand extends MessageCommand {
-    public static final CommandType TYPE = CommandType.ADD_STATEMENT_COMMAND_TYPE;
     private static final Pattern BOOK_PATTERN = Pattern.compile("\\w+");
     private static final CommandParser COMMAND_PARSER = new CommandParser(BOOK_PATTERN);
 
@@ -24,7 +23,7 @@ public class AddStatementCommand extends MessageCommand {
 
     @Override
     public CommandType getType() {
-        return TYPE;
+        return CommandType.ADD_STATEMENT_COMMAND_TYPE;
     }
 
     @Override

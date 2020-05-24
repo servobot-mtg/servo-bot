@@ -6,7 +6,6 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.ContinualGenerator;
 import com.ryan_mtg.servobot.model.alerts.DailyGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -14,8 +13,11 @@ import java.time.LocalTime;
 
 @Component
 public class AlertGeneratorSerializer {
-    @Autowired
-    private AlertGeneratorRepository alertGeneratorRepository;
+    private final AlertGeneratorRepository alertGeneratorRepository;
+
+    public AlertGeneratorSerializer(final AlertGeneratorRepository alertGeneratorRepository) {
+        this.alertGeneratorRepository = alertGeneratorRepository;
+    }
 
     public AlertGenerator createAlertGenerator(final AlertGeneratorRow alertGeneratorRow) throws BotErrorException {
         switch (alertGeneratorRow.getType()) {

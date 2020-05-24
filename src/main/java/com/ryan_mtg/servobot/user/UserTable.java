@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.user;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.ref.WeakReference;
@@ -16,8 +15,11 @@ import java.util.function.Predicate;
 
 @Component
 public class UserTable {
-    @Autowired
-    private UserSerializer userSerializer;
+    private final UserSerializer userSerializer;
+
+    public UserTable(final UserSerializer userSerializer) {
+        this.userSerializer = userSerializer;
+    }
 
     private Map<Integer, WeakReference<User>> userMap = new HashMap<>();
 

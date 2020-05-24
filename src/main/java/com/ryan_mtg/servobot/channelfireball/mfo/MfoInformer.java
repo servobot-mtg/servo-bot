@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
@@ -216,7 +215,7 @@ public class MfoInformer {
 
     private String getDecklistName(final String decklistUrl) {
         try {
-            String url = String.format(decklistUrl);
+            String url = decklistUrl;
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
             HttpResponse response = httpClient.execute(httpGet);
@@ -224,9 +223,7 @@ public class MfoInformer {
             Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
 
             List<String> headers = new ArrayList<>();
-            document.select("h1").forEach(header -> {
-                headers.add(header.text());
-            });
+            document.select("h1").forEach(header -> headers.add(header.text()));
 
             if (headers.size() == 3) {
                 return headers.get(1);

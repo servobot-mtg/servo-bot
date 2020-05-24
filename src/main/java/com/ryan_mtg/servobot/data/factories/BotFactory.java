@@ -23,7 +23,6 @@ import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.user.HomedUserTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -37,11 +36,13 @@ import java.util.Map;
 public class BotFactory {
     private static Logger LOGGER = LoggerFactory.getLogger(BotFactory.class);
 
-    @Autowired
-    private ServiceHomeRepository serviceHomeRepository;
+    private final ServiceHomeRepository serviceHomeRepository;
+    private final SerializerContainer serializers;
 
-    @Autowired
-    private SerializerContainer serializers;
+    public BotFactory(final ServiceHomeRepository serviceHomeRepository, final SerializerContainer serializers) {
+        this.serviceHomeRepository = serviceHomeRepository;
+        this.serializers = serializers;
+    }
 
     @PostConstruct
     public void setFactoryProperty() {

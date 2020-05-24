@@ -12,7 +12,6 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,14 +22,15 @@ import java.util.function.Function;
 public class BotConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(BotConfig.class);
 
-    @Autowired
-    private BotRepository botRepository;
+    private final BotRepository botRepository;
+    private final BotFactory botFactory;
+    private final MfoInformer informer;
 
-    @Autowired
-    private BotFactory botFactory;
-
-    @Autowired
-    private MfoInformer informer;
+    public BotConfig(final BotRepository botRepository, final BotFactory botFactory, final MfoInformer mfoInformer) {
+        this.botRepository = botRepository;
+        this.botFactory = botFactory;
+        this.informer = mfoInformer;
+    }
 
     @Bean
     public Scope globalScope() {
@@ -38,13 +38,13 @@ public class BotConfig {
         Function<Book, String> randomStatement = Book::randomStatement;
         symbolTable.addValue("randomStatement", randomStatement);
 
-        symbolTable.addFunctor("cfbTournaments", () -> informer.describeCurrentTournaments());
-        symbolTable.addFunctor("cfbDecklists", () -> informer.getCurrentDecklists());
-        symbolTable.addFunctor("cfbDecks", () -> informer.getCurrentDecklists());
-        symbolTable.addFunctor("cfbPairings", () -> informer.getCurrentPairings());
-        symbolTable.addFunctor("cfbStandings", () -> informer.getCurrentStandings());
-        symbolTable.addFunctor("cfbRound", () -> informer.getCurrentRound());
-        symbolTable.addFunctor("cfbRecords", () -> informer.getCurrentRecords());
+        symbolTable.addFunctor("cfbTournaments", informer::describeCurrentTournaments);
+        symbolTable.addFunctor("cfbDecklists", informer::getCurrentDecklists);
+        symbolTable.addFunctor("cfbDecks", informer::getCurrentDecklists);
+        symbolTable.addFunctor("cfbPairings", informer::getCurrentPairings);
+        symbolTable.addFunctor("cfbStandings", informer::getCurrentStandings);
+        symbolTable.addFunctor("cfbRound", informer::getCurrentRound);
+        symbolTable.addFunctor("cfbRecords", informer::getCurrentRecords);
 
         Function<String, String> cfbRecord = this::getRecord;
         symbolTable.addFunctor("cfbRecord", () -> cfbRecord);

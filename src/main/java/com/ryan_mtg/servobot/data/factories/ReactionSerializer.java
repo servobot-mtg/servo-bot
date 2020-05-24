@@ -12,18 +12,20 @@ import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.model.reaction.ReactionFilter;
 import com.ryan_mtg.servobot.model.reaction.UserReactionFilter;
 import com.ryan_mtg.servobot.model.reaction.WatershedFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class ReactionSerializer {
-    @Autowired
-    private ReactionRepository reactionRepository;
+    private final ReactionRepository reactionRepository;
+    private final ReactionPatternRepository reactionPatternRepository;
 
-    @Autowired
-    private ReactionPatternRepository reactionPatternRepository;
+    public ReactionSerializer(final ReactionRepository reactionRepository,
+            final ReactionPatternRepository reactionPatternRepository) {
+        this.reactionRepository = reactionRepository;
+        this.reactionPatternRepository = reactionPatternRepository;
+    }
 
     public Reaction createReaction(final ReactionRow reactionRow, final List<Pattern> patterns,
                                    final List<ReactionCommand> commands) throws BotErrorException {

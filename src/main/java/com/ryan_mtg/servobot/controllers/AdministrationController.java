@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.controllers;
 
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.UserTable;
@@ -16,18 +15,16 @@ import java.util.Optional;
 
 @Controller
 public class AdministrationController {
-    @Autowired
-    private UserSerializer userSerializer;
+    private final SuggestionRepository suggestionRepository;
+    private final UserTable userTable;
+    private final Runnable adminTask;
 
-    @Autowired
-    private SuggestionRepository suggestionRepository;
-
-    @Autowired
-    private UserTable userTable;
-
-    @Autowired
-    @Qualifier("adminTask")
-    private Optional<Runnable> adminTask;
+    public AdministrationController(final SuggestionRepository suggestionRepository, final UserTable userTable,
+            @Autowired(required = false) @Qualifier("adminTask") final Runnable adminTask) {
+        this.suggestionRepository = suggestionRepository;
+        this.userTable = userTable;
+        this.adminTask = adminTask;
+    }
 
     @GetMapping("/admin")
     public String index(final Model model) throws BotErrorException {
@@ -39,8 +36,8 @@ public class AdministrationController {
 
     @PostMapping("/admin/run")
     public String run() {
-        if (adminTask.isPresent()) {
-            adminTask.get().run();
+        if (adminTask != null) {
+            adminTask.run();
             return "redirect:/admin";
         } else {
             return "redirect:/admin";

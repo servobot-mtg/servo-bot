@@ -5,7 +5,6 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,11 +16,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 public class AdministrationApiController {
-    @Autowired
-    private UserSerializer userSerializer;
+    private final UserSerializer userSerializer;
+    private final UserTable userTable;
 
-    @Autowired
-    private UserTable userTable;
+    public AdministrationApiController(final UserSerializer userSerializer, final UserTable userTable) {
+        this.userSerializer = userSerializer;
+        this.userTable = userTable;
+    }
 
     @PostMapping(value = "/give_invite", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean giveInvite(@RequestBody final UserRequest request) throws BotErrorException {

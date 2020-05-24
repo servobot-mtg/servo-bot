@@ -29,7 +29,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,11 +49,13 @@ import java.util.List;
 public class ApiController {
     private static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
 
-    @Autowired
-    private BotRegistrar botRegistrar;
+    private final BotRegistrar botRegistrar;
+    private final WebsiteUserFactory websiteUserFactory;
 
-    @Autowired
-    private WebsiteUserFactory websiteUserFactory;
+    public ApiController(final BotRegistrar botRegistrar, final WebsiteUserFactory websiteUserFactory) {
+        this.botRegistrar = botRegistrar;
+        this.websiteUserFactory = websiteUserFactory;
+    }
 
     @PostMapping(value = "/create_bot_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CreateBotHomeResponse createBotHome(final Authentication authentication, @RequestBody final CreateBotHomeRequest request)

@@ -5,18 +5,20 @@ import com.ryan_mtg.servobot.data.repositories.StorageValueRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 
 @Component
 public class StorageTableSerializer {
-    @Autowired
-    private StorageValueSerializer storageValueSerializer;
+    private final StorageValueSerializer storageValueSerializer;
+    private final StorageValueRepository storageValueRepository;
 
-    @Autowired
-    private StorageValueRepository storageValueRepository;
+    public StorageTableSerializer(final StorageValueSerializer storageValueSerializer,
+            final StorageValueRepository storageValueRepository) {
+        this.storageValueSerializer = storageValueSerializer;
+        this.storageValueRepository = storageValueRepository;
+    }
 
     public StorageTable createStorageTable(final int botHomeId) throws BotErrorException {
         Iterable<StorageValueRow> storageValueRows = storageValueRepository.findByBotHomeId(botHomeId);

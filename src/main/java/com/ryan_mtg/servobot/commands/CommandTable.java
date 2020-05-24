@@ -78,7 +78,7 @@ public class CommandTable {
         CommandTableEdit commandTableEdit = deleteCommand(newAlias);
 
         Command command = getCommand(existingAlias);
-        if (command == null || !(command instanceof MessageCommand)) {
+        if (!(command instanceof MessageCommand)) {
             throw new BotErrorException(String.format("%s command does not exist.", existingAlias));
         }
 

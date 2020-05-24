@@ -2,15 +2,17 @@ package com.ryan_mtg.servobot.security;
 
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Component;
 
 @Component
 public class WebsiteUserFactory {
-    @Autowired
-    private UserTable userTable;
+    private final UserTable userTable;
+
+    public WebsiteUserFactory(final UserTable userTable) {
+        this.userTable = userTable;
+    }
 
     public WebsiteUser createWebsiteUser(final Authentication authentication) {
         User user = null;

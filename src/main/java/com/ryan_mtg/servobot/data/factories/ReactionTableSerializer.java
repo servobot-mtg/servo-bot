@@ -16,7 +16,6 @@ import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -27,17 +26,19 @@ import java.util.Map;
 public class ReactionTableSerializer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactionTableSerializer.class);
 
-    @Autowired
-    private ReactionSerializer reactionSerializer;
+    private final ReactionSerializer reactionSerializer;
+    private final ReactionRepository reactionRepository;
+    private final ReactionCommandRepository reactionCommandRepository;
+    private final ReactionPatternRepository reactionPatternRepository;
 
-    @Autowired
-    private ReactionRepository reactionRepository;
-
-    @Autowired
-    private ReactionCommandRepository reactionCommandRepository;
-
-    @Autowired
-    private ReactionPatternRepository reactionPatternRepository;
+    public ReactionTableSerializer(final ReactionSerializer reactionSerializer,
+            final ReactionRepository reactionRepository, final ReactionCommandRepository reactionCommandRepository,
+            final ReactionPatternRepository reactionPatternRepository) {
+        this.reactionSerializer = reactionSerializer;
+        this.reactionRepository = reactionRepository;
+        this.reactionCommandRepository = reactionCommandRepository;
+        this.reactionPatternRepository = reactionPatternRepository;
+    }
 
     public ReactionTable createReactionTable(final int botHomeId, final CommandTable commandTable)
             throws BotErrorException {

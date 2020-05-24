@@ -6,10 +6,10 @@ import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 public class UserStatus {
     private TwitchUserStatus twitchStatus;
     private DiscordUserStatus discordUserStatus;
-    private static int TWITCH_BITS = (1<<8)-1;
-    private static int DISCORD_SHIFT = 8;
-    private static int DISCORD_BITS = ((1<<8)-1)<<DISCORD_SHIFT;
-    private static int MEMBER_BIT = 1<<(8+8);
+    private static final int TWITCH_BITS = (1 << 8) - 1;
+    private static final int DISCORD_SHIFT = 8;
+    private static final int DISCORD_BITS = ((1 << 8) - 1) << DISCORD_SHIFT;
+    private static final int MEMBER_BIT = 1 << (8 + 8);
 
     public UserStatus() {
         this(MEMBER_BIT);

@@ -12,8 +12,6 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class AddReactionCommand extends MessageCommand {
-    public static final CommandType TYPE = CommandType.ADD_REACTION_COMMAND_TYPE;
-
     @Getter
     private String emoteName;
 
@@ -27,7 +25,7 @@ public class AddReactionCommand extends MessageCommand {
 
     @Override
     public CommandType getType() {
-        return TYPE;
+        return CommandType.ADD_REACTION_COMMAND_TYPE;
     }
 
     @Override

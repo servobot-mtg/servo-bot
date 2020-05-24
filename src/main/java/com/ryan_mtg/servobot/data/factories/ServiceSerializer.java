@@ -10,7 +10,6 @@ import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -20,13 +19,16 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Component
 public class ServiceSerializer {
-    @Autowired
-    private ServiceRepository serviceRepository;
+    private final ServiceRepository serviceRepository;
+    private final ScheduledExecutorService executorService;
 
-    @Autowired
-    private ScheduledExecutorService executorService;
+    private final Map<Integer, Service> serviceMap = new HashMap<>();
 
-    private Map<Integer, Service> serviceMap = new HashMap<>();
+    public ServiceSerializer(final ServiceRepository serviceRepository,
+            final ScheduledExecutorService executorService) {
+        this.serviceRepository = serviceRepository;
+        this.executorService = executorService;
+    }
 
     @Bean
     public TwitchService twitchService() throws BotErrorException {

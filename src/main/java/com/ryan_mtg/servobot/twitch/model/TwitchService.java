@@ -18,7 +18,6 @@ import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -138,7 +137,6 @@ public class TwitchService implements Service {
         });
         return streamingIds;
     }
-
 
     @Override
     public void whisper(final User user, final String message) {

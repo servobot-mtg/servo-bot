@@ -7,18 +7,20 @@ import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.GameQueue;
 import com.ryan_mtg.servobot.model.GameQueueEntry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 
 @Component
 public class GameQueueSerializer {
-    @Autowired
-    private GameQueueRepository gameQueueRepository;
+    private final GameQueueRepository gameQueueRepository;
+    private final GameQueueEntryRepository gameQueueEntryRepository;
 
-    @Autowired
-    private GameQueueEntryRepository gameQueueEntryRepository;
+    public GameQueueSerializer(final GameQueueRepository gameQueueRepository,
+            final GameQueueEntryRepository gameQueueEntryRepository) {
+        this.gameQueueRepository = gameQueueRepository;
+        this.gameQueueEntryRepository = gameQueueEntryRepository;
+    }
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void saveGameQueue(final GameQueue gameQueue) {

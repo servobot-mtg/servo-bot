@@ -84,11 +84,7 @@ public class WebsiteUser implements Principal {
             return true;
         }
 
-        if (!userTable.getHomesModerated(getUserId()).isEmpty()) {
-            return true;
-        }
-
-        return false;
+        return !userTable.getHomesModerated(getUserId()).isEmpty();
     }
 
     public boolean isPrivileged(final BotHome botHome) {
@@ -104,11 +100,7 @@ public class WebsiteUser implements Principal {
             return true;
         }
 
-        if (userTable.getHomesModerated(getUserId()).contains(botHome.getId())) {
-            return true;
-        }
-
-        return false;
+        return userTable.getHomesModerated(getUserId()).contains(botHome.getId());
     }
 
     public int getUserId() {

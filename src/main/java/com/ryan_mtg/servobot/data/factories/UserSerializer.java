@@ -10,7 +10,6 @@ import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
@@ -24,11 +23,14 @@ import java.util.stream.StreamSupport;
 @Component
 public class UserSerializer {
     private static Logger LOGGER = LoggerFactory.getLogger(UserSerializer.class);
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private UserHomeRepository userHomeRepository;
+    private final UserRepository userRepository;
+    private final UserHomeRepository userHomeRepository;
+
+    public UserSerializer(final UserRepository userRepository, final UserHomeRepository userHomeRepository) {
+        this.userRepository = userRepository;
+        this.userHomeRepository = userHomeRepository;
+    }
 
     public Iterable<Integer> getAllUserIds() {
         return userRepository.getAllIds();

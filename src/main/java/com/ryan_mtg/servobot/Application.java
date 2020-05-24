@@ -6,7 +6,6 @@ import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.security.SecurityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,11 +21,13 @@ import javax.annotation.PostConstruct;
 public class Application {
     private static Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
+    private final BotRegistrar botRegistrar;
 
-    @Autowired
-    private BotRegistrar botRegistrar;
+    public Application(final Environment environment, final BotRegistrar botRegistrar) {
+        this.environment = environment;
+        this.botRegistrar = botRegistrar;
+    }
 
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(Application.class);

@@ -16,7 +16,7 @@ public abstract class AlertGenerator {
     @Getter
     private String alertToken;
 
-    protected AlertGenerator(final int id, final String alertToken) throws BotErrorException {
+    AlertGenerator(final int id, final String alertToken) throws BotErrorException {
         this.id = id;
         this.alertToken = alertToken;
 

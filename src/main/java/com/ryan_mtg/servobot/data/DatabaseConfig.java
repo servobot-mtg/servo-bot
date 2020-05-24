@@ -41,8 +41,7 @@ public class DatabaseConfig {
 
     @Bean
     public ScheduledExecutorService scheduledExecutorService() {
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(3);
-        return executorService;
+        return Executors.newScheduledThreadPool(3);
     }
 
     @Bean

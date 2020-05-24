@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class AddCommand extends MessageCommand {
-    public static final CommandType TYPE = CommandType.ADD_COMMAND_TYPE;
-
     private static final Pattern COMMAND_PATTERN = Pattern.compile("!\\w+");
     private static final Pattern FLAG_PATTERN = Pattern.compile("(@|=|\\+|-|->)\\w+");
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN, FLAG_PATTERN);
@@ -30,7 +28,7 @@ public class AddCommand extends MessageCommand {
 
     @Override
     public CommandType getType() {
-        return TYPE;
+        return CommandType.ADD_COMMAND_TYPE;
     }
 
     @Override

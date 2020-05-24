@@ -1,10 +1,7 @@
 package com.ryan_mtg.servobot.controllers.error;
 
-import com.ryan_mtg.servobot.controllers.error.AccessDeniedException;
-import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,8 +18,11 @@ import java.net.HttpURLConnection;
 
 @ControllerAdvice
 public class ErrorHandler {
-    @Autowired
-    private WebsiteUserFactory websiteUserFactory;
+    private final WebsiteUserFactory websiteUserFactory;
+
+    public ErrorHandler(final WebsiteUserFactory websiteUserFactory) {
+        this.websiteUserFactory = websiteUserFactory;
+    }
 
     @ExceptionHandler(BotErrorException.class)
     public ModelAndView renderBotError(final BotErrorException botError) {
