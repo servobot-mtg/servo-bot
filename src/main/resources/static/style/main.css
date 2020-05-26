@@ -410,6 +410,34 @@ table {
     min-width: 50em;
 }
 
+.message-form {
+    margin: 12px;
+    padding: 12px;
+    border: solid 2px var(--add-color, midnightblue);
+}
+
+.message-form label {
+    margin: 4px 0 0 0;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.message-form div {
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-right: 5em;
+}
+
+.message-form input[type=submit] {
+    margin: 12px 0 0 0;
+    float: right;
+}
+
+.message-form input[type=text] {
+    box-sizing: border-box;
+    min-width: 50em;
+}
+
 input[type=text].name {
     box-sizing: border-box;
     min-width: 17em;

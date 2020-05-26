@@ -58,6 +58,10 @@ public class Bot {
         return botScope;
     }
 
+    public Map<Integer, Service> getServices() {
+        return services;
+    }
+
     public Service getService(final int serviceType) {
         return services.get(serviceType);
     }

@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Users</title>
+    <div th:include="fragments :: includes"/>
+</head>
+<body>
+<div th:include="fragments :: header"/>
+<div class="content">
+    <h2>Users</h2>
+    <div id="merge-users" style="display: none">
+        <button onclick="mergeUsers()">Merge Users</button>
+        <span id="merge-users-response"/>
+    </div>
+    <table class="data-table">
+        <thead><tr>
+            <th>Id</th>
+            <th>Twitch Name</th>
+            <th>Twitch Id</th>
+            <th>Discord Name</th>
+            <th>Discord Id</th>
+            <th>Arena Name</th>
+            <th>Flags</th>
+            <th>Select</th>
+        </tr></thead>
+        <th:block th:each="user : ${users}" th:with="label=${'user-' + user.id}">
+            <tr th:id="${label} + '-row'">
+                <td th:text="${user.id}"/>
+                <td th:id="${label} + '-twitch-username'" th:text="${user.twitchUsername}"/>
+                <td th:id="${label} + '-twitch-id'" th:text="${user.twitchId}"/>
+                <td th:id="${label} + '-discord-username'" th:text="${user.discordUsername}"/>
+                <td th:id="${label} + '-discord-id'" th:text="${user.discordId}"/>
+                <td>
+                    <span th:id="${label} + '-arena-username'" th:text="${user.arenaUsername}"/>
+                    <span th:id="${label} + '-arena-username-delete-icon'"
+                          class="pseudo-link" th:onclick="'deleteArenaUsername(' + ${user.id} + ')'">
+                                <span th:if="${user.arenaUsername}">&#x1F5D1;</span>
+                            </span>
+                </td>
+                <td th:id="${label} + '-flags'">
+                    <span th:text="${user.admin ? '&#x1F477;' : ''}"/>
+                    <span th:if="${user.hasInvite()}">&#x2709;&#xFE0F;</span>
+                    <span th:if="${!user.hasInvite()}" th:id="${label} + '-invite'" class="pseudo-link"
+                          th:onclick="'giveInvite(' + ${user.id}+ ')'">
+                                &#x1F4E5;
+                            </span>
+                </td>
+                <td><input type="checkbox" th:onchange="'selectUser(event, ' + ${user.id} + ')'"/></td>
+            </tr>
+        </th:block>
+    </table>
+</div>
+<div th:include="fragments :: footer"/>
+</body>
+</html>

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VAR
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
                                     flags INTEGER, permission INTEGER, stringParameter VARCHAR(200),
-                                    stringParameter2 VARCHAR(200), longParameter BIGINT);
+                                    stringParameter2 VARCHAR(200), longParameter BIGINT, rate_limit INTEGER);
 
 CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emote VARCHAR(30), secure BIT,
                                      filter INTEGER, filter_value INTEGER, bot_home_id INTEGER);
@@ -61,9 +61,11 @@ CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_
         raffle_status_message VARCHAR(200), raffle_duration INTEGER, raffle_winner_count INTEGER,
         raffle_winner_response VARCHAR(200), discord_channel VARCHAR(200));
 
-
 CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
         description VARCHAR(200), status INTEGER, winner_id INTEGER);
+
+CREATE TABLE IF NOT EXISTS logged_message (id INTEGER AUTO_INCREMENT PRIMARY KEY, user_id INTEGER, message TEXT,
+        service_type INTEGER, direction INTEGER, sent_time BIGINT);
 
 CREATE TABLE IF NOT EXISTS session (primary_id CHAR(36) NOT NULL, session_id CHAR(36) NOT NULL,
         creation_time BIGINT NOT NULL, last_access_time BIGINT NOT NULL, max_inactive_interval INT NOT NULL,
@@ -78,10 +80,3 @@ CREATE TABLE session_ATTRIBUTES (session_primary_id CHAR(36) NOT NULL, attribute
 CREATE UNIQUE INDEX spring_session_ix1 ON session (session_id);
 CREATE INDEX spring_session_ix2 ON session (expiry_time);
 CREATE INDEX spring_session_ix3 ON session (principal_name);
-
-ALTER TABLE command ADD COLUMN rate_limit INTEGER;
-
-CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
-                                    flags INTEGER, permission INTEGER, stringParameter VARCHAR(200),
-                                    stringParameter2 VARCHAR(200), longParameter BIGINT);
-

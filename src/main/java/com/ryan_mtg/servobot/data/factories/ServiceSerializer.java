@@ -21,13 +21,14 @@ import java.util.concurrent.ScheduledExecutorService;
 public class ServiceSerializer {
     private final ServiceRepository serviceRepository;
     private final ScheduledExecutorService executorService;
-
+    private final LoggedMessageSerializer loggedMessageSerializer;
     private final Map<Integer, Service> serviceMap = new HashMap<>();
 
     public ServiceSerializer(final ServiceRepository serviceRepository,
-            final ScheduledExecutorService executorService) {
+            final ScheduledExecutorService executorService, final LoggedMessageSerializer loggedMessageSerializer) {
         this.serviceRepository = serviceRepository;
         this.executorService = executorService;
+        this.loggedMessageSerializer = loggedMessageSerializer;
     }
 
     @Bean
@@ -55,11 +56,11 @@ public class ServiceSerializer {
         Service service;
         switch (serviceType) {
             case DiscordService.TYPE:
-                service = new DiscordService(serviceRow.getToken());
+                service = new DiscordService(serviceRow.getToken(), loggedMessageSerializer);
                 break;
             case TwitchService.TYPE:
                 service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
-                        serviceRow.getToken(), executorService);
+                        serviceRow.getToken(), executorService, loggedMessageSerializer);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());

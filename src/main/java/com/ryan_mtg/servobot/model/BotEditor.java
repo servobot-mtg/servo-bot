@@ -55,16 +55,8 @@ public class BotEditor {
         serializers.getUserTable().modifyUser(userId, user -> user.setArenaUsername(username));
     }
 
-    private void validateNewCommandName(final Set<String> commandNames, final String commandName)
-            throws BotErrorException {
-        if (commandName != null) {
-            CommandAlias.validateAlias(commandName);
-            if (commandNames.contains(commandName)) {
-                throw new BotErrorException(
-                        String.format("%s is a duplicated command name.", commandName));
-            }
-            commandNames.add(commandName);
-        }
+    public void sendMessage(final User receiver, final String message, final int serviceType) {
+        bot.getService(serviceType).whisper(receiver, message);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -173,5 +165,17 @@ public class BotEditor {
         BotHome botHome = this.serializers.getBotFactory().createBotHome(botHomeId);
         bot.addHome(botHome);
         botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
+    }
+
+    private void validateNewCommandName(final Set<String> commandNames, final String commandName)
+            throws BotErrorException {
+        if (commandName != null) {
+            CommandAlias.validateAlias(commandName);
+            if (commandNames.contains(commandName)) {
+                throw new BotErrorException(
+                        String.format("%s is a duplicated command name.", commandName));
+            }
+            commandNames.add(commandName);
+        }
     }
 }

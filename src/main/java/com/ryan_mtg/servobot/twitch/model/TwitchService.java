@@ -4,6 +4,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.StreamList;
+import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -43,15 +44,18 @@ public class TwitchService implements Service {
     private Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
     private ScheduledExecutorService executorService;
+    private LoggedMessageSerializer loggedMessageSerializer;
 
     public TwitchService(final String clientId, final String secret, final String oauthToken,
-            final ScheduledExecutorService executorService) throws BotErrorException {
+            final ScheduledExecutorService executorService, final LoggedMessageSerializer loggedMessageSerializer)
+            throws BotErrorException {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
         this.authToken = oauthToken.substring(oauthToken.indexOf(':') + 1);
         this.executorService = executorService;
         this.regulator = new StreamStartRegulator(this, homeMap);
+        this.loggedMessageSerializer = loggedMessageSerializer;
 
         Validation.validateStringLength(clientId, Validation.MAX_CLIENT_ID_LENGTH, "Client id");
         Validation.validateStringLength(secret, Validation.MAX_CLIENT_SECRET_LENGTH, "Client secret");
@@ -140,6 +144,7 @@ public class TwitchService implements Service {
 
     @Override
     public void whisper(final User user, final String message) {
+        loggedMessageSerializer.logSentMessage(user, message, TwitchService.TYPE);
         throw new RuntimeException("Not supported");
     }
 

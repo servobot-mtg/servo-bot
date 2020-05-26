@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.discord.model;
 
+import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
 import com.ryan_mtg.servobot.discord.event.StreamStartRegulator;
 import com.ryan_mtg.servobot.events.BotErrorException;
@@ -39,9 +40,12 @@ public class DiscordService implements Service {
     // guildId -> home
     private Map<Long, BotHome> homeMap = new HashMap<>();
     private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
+    private LoggedMessageSerializer loggedMessageSerializer;
 
-    public DiscordService(final String token) throws BotErrorException {
+    public DiscordService(final String token, final LoggedMessageSerializer loggedMessageSerializer)
+            throws BotErrorException {
         this.token = token;
+        this.loggedMessageSerializer = loggedMessageSerializer;
 
         Validation.validateStringLength(token, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "Token");
     }
@@ -98,6 +102,7 @@ public class DiscordService implements Service {
     @Override
     public void whisper(final com.ryan_mtg.servobot.user.User user, final String message) {
         User discordUser = jda.getUserById(user.getDiscordId());
+        loggedMessageSerializer.logSentMessage(user, message, DiscordService.TYPE);
         discordUser.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
     }
 

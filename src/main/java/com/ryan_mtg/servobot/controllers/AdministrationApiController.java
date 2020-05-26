@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.BotEditor;
+import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import lombok.Getter;
@@ -16,10 +18,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 public class AdministrationApiController {
+    private final BotRegistrar botRegistrar;
     private final UserSerializer userSerializer;
     private final UserTable userTable;
 
-    public AdministrationApiController(final UserSerializer userSerializer, final UserTable userTable) {
+    public AdministrationApiController(final BotRegistrar botRegistrar,final UserSerializer userSerializer, final UserTable userTable) {
+        this.botRegistrar = botRegistrar;
         this.userSerializer = userSerializer;
         this.userTable = userTable;
     }
@@ -30,8 +34,8 @@ public class AdministrationApiController {
         return true;
     }
 
-    public static class UserRequest {
-        @Getter
+    @Getter
+    static class UserRequest {
         private int userId;
     }
 
@@ -41,8 +45,8 @@ public class AdministrationApiController {
         return userSerializer.mergeUsers(request.getUserIds());
     }
 
-    public static class MergeUsersRequest {
-        @Getter
+    @Getter
+    static class MergeUsersRequest {
         private List<Integer> userIds;
     }
 
@@ -53,8 +57,22 @@ public class AdministrationApiController {
         return true;
     }
 
-    public static class DeleteArenaUsernameRequest {
-        @Getter
+    @Getter
+    static class DeleteArenaUsernameRequest {
         private int userId;
+    }
+
+    @PostMapping(value = "/send_message", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void sendMessage(@RequestBody final SendMessageRequest request) throws BotErrorException {
+        BotEditor botEditor = botRegistrar.getDefaultBot().getBotEditor();
+        User receiver = userTable.getById(request.getReceiverId());
+        botEditor.sendMessage(receiver, request.getMessage(), request.getServiceType());
+    }
+
+    @Getter
+    static class SendMessageRequest {
+        private int receiverId;
+        private String message;
+        private int serviceType;
     }
 }

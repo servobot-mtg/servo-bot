@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Messages</title>
+    <div th:include="fragments :: includes"/>
+</head>
+<body>
+<div th:include="fragments :: header"/>
+<div class="content">
+    <h2>Send Message</h2>
+    <form class="message-form">
+        <div>
+            <label>User</label><br>
+            <datalist id="user-list">
+                <th:block th:each="user : ${users}">
+                    <option th:text="${user.getName()}" th:value="${user.getId()}"/>
+                </th:block>
+            </datalist>
+            <input id="send-message-user-input" class="name" type="text" name="user" list="user-list"><br>
+        </div>
+        <div>
+            <label>Service</label><br>
+            <select id="send-message-service-input">
+                <th:block th:each="serviceEntry : ${bot.services}" th:object="${serviceEntry.value}">
+                    <option th:value="*{type}" th:text="*{name}"/>
+                </th:block>
+            </select>
+        </div><br>
+        <div>
+            <label>Message</label><br>
+            <input id="send-message-text-input" type="text" name="text"><br>
+        </div>
+        <input type="submit" value="Send">
+    </form>
+
+    <h2>Messages</h2>
+    <table class="data-table">
+        <thead><tr>
+            <th>User</th>
+            <th>Messages</th>
+            <th>Direction</th>
+            <th>Time</th>
+            <th>Service</th>
+        </tr></thead>
+        <th:block th:each="message : ${messages}">
+            <tr>
+                <td th:text="${message.getUser().getName()}"/>
+                <td th:text="${message.getMessage()}"/>
+                <td th:text="${message.getDirection()}"/>
+                <td th:text="${message.getSentTime()}"/>
+                <td th:text="${message.getServiceType()}"/>
+            </tr>
+        </th:block>
+    </table>
+</div>
+<div th:include="fragments :: footer"/>
+</body>
+</html>
