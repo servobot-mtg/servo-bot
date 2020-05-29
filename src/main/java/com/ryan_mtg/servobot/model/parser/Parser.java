@@ -1,11 +1,13 @@
 package com.ryan_mtg.servobot.model.parser;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.BotThrowingFunction;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StringEvaluatable;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Time;
 
@@ -97,6 +99,10 @@ public class Parser {
         switch (token.getType()) {
             case INTEGER:
                 result = Integer.parseInt(lexer.getNextToken().getLexeme());
+                break;
+            case STRING_LITERAL:
+                String lexeme = lexer.getNextToken().getLexeme();
+                result = lexeme.substring(1, lexeme.length() - 1);
                 break;
             case IDENTIFIER:
                 Token identifierToken = lexer.getNextToken();
@@ -192,11 +198,14 @@ public class Parser {
     @SuppressWarnings("unchecked")
     private Object applyFunction(final Token functionToken, final Object function, final Object argument)
             throws ParseException {
-        if (!(function instanceof Function)) {
-            throw new ParseException(String.format("Expected '%s' to be a function", functionToken.getLexeme()));
-        }
         try {
-            return ((Function<Object, Object>)function).apply(argument);
+            if (function instanceof Function) {
+                return ((Function<Object, Object>)function).apply(argument);
+            }
+            if (function instanceof BotThrowingFunction) {
+                return ((BotThrowingFunction<Object, Object>)function).apply(argument);
+            }
+            throw new ParseException(String.format("Expected '%s' to be a function", functionToken.getLexeme()));
         } catch (Exception e) {
             e.printStackTrace();
 
@@ -262,6 +271,10 @@ public class Parser {
 
         if (value instanceof Duration) {
             return new StringEvaluatable(Time.toReadableString((Duration) value));
+        }
+
+        if (value instanceof HomedUser) {
+            return new StringEvaluatable(((HomedUser)value).getName());
         }
 
         throw new ParseException(String.format("Unknown type '%s' for value: %s", value.getClass(), value));

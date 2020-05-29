@@ -44,6 +44,11 @@ public class ParserTest {
     }
 
     @Test
+    public void testStringLiteralExpression() throws ParseException {
+        assertEquals("hi", parser.parse("'hi'").evaluate());
+    }
+
+    @Test
     public void testParenthesisExpression() throws ParseException {
         assertEquals("2", parser.parse("(2)").evaluate());
     }

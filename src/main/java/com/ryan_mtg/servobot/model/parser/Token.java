@@ -14,6 +14,7 @@ public class Token {
         MULTIPLY,
         CONDITIONAL,
         CONDITIONAL_ELSE,
+        STRING_LITERAL,
         ;
     }
 

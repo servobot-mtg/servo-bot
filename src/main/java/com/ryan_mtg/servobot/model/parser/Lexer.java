@@ -5,7 +5,7 @@ public class Lexer {
     private int position;
     private Token nextToken;
 
-    public Lexer(final String input) {
+    public Lexer(final String input) throws ParseException {
         this.input = input;
         position = 0;
         readToken();
@@ -19,7 +19,7 @@ public class Lexer {
         return nextToken;
     }
 
-    public Token getNextToken() {
+    public Token getNextToken() throws ParseException {
         Token result = nextToken;
         readToken();
         return result;
@@ -29,7 +29,7 @@ public class Lexer {
         return nextToken != null && nextToken.getType() == tokenType;
     }
 
-    private void readToken() {
+    private void readToken() throws ParseException {
         nextToken = null;
         while (position < input.length() && Character.isWhitespace(input.charAt(position))) {
             position++;
@@ -64,6 +64,26 @@ public class Lexer {
             case '.':
                 nextToken = new Token(Token.Type.MEMBER_ACCESSOR, ".");
                 position++;
+                return;
+            case '\'':
+            case '"':
+                StringBuilder lexeme = new StringBuilder();
+                lexeme.append(startCharacter);
+                position++;
+
+                while (position < input.length() && input.charAt(position) != startCharacter) {
+                    lexeme.append(input.charAt(position));
+                    position++;
+                }
+
+                if (position >= input.length()) {
+                    throw new ParseException(String.format("Unterminated String constant %s.", lexeme.toString()));
+                }
+
+                lexeme.append(input.charAt(position));
+                position++;
+
+                nextToken = new Token(Token.Type.STRING_LITERAL, lexeme.toString());
                 return;
             case '+':
                 if (position + 1 < input.length() && input.charAt(position + 1) == '+') {
