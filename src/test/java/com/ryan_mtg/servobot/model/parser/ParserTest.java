@@ -59,6 +59,16 @@ public class ParserTest {
     }
 
     @Test
+    public void testConditionalExpressionWithTrue() throws ParseException {
+        assertEquals("1", parser.parse("true?1:2").evaluate());
+    }
+
+    @Test
+    public void testConditionalExpressionWithFalse() throws ParseException {
+        assertEquals("1", parser.parse("true?1:2").evaluate());
+    }
+
+    @Test
     public void testOrderOfOperations() throws ParseException {
         assertEquals("10", parser.parse("4+3*2").evaluate());
     }

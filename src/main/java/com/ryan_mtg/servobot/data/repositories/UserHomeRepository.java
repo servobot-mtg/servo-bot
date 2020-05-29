@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface UserHomeRepository extends CrudRepository<UserHomeRow, UserHomeRow.UserHomeId> {
     UserHomeRow findByUserIdAndBotHomeId(int userId, int botHomeId);
-    void deleteByBotHomeIdAndUserId(Iterable<Integer> botHomeIds, Iterable<Integer> userIds);
+    void deleteByBotHomeIdAndUserId(int botHomeId, int userId);
 
     List<UserHomeRow> findByUserId(int userId);
     Iterable<UserHomeRow> findByUserIdIn(Iterable<Integer> userIds);

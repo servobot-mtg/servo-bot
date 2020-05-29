@@ -55,6 +55,18 @@ public class LexerTest {
     }
 
     @Test
+    public void testConditional() {
+        Lexer lexer = new Lexer("?");
+        assertThat(lexer.getNextToken(), isAToken(Token.Type.CONDITIONAL, "?"));
+    }
+
+    @Test
+    public void testConditionalElse() {
+        Lexer lexer = new Lexer(":");
+        assertThat(lexer.getNextToken(), isAToken(Token.Type.CONDITIONAL_ELSE, ":"));
+    }
+
+    @Test
     public void testIncrementThenIdentifier() {
         Lexer lexer = new Lexer("++hello");
         assertThat(lexer.getNextToken(), isAToken(Token.Type.INCREMENT, "++"));

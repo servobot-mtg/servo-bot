@@ -53,6 +53,14 @@ public class Lexer {
                 nextToken = new Token(Token.Type.MULTIPLY, "*");
                 position++;
                 return;
+            case '?':
+                nextToken = new Token(Token.Type.CONDITIONAL, "?");
+                position++;
+                return;
+            case ':':
+                nextToken = new Token(Token.Type.CONDITIONAL_ELSE, ":");
+                position++;
+                return;
             case '.':
                 nextToken = new Token(Token.Type.MEMBER_ACCESSOR, ".");
                 position++;

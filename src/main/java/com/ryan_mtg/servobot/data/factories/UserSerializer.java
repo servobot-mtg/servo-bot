@@ -173,13 +173,9 @@ public class UserSerializer {
         );
         userHomeRepository.saveAll(userHomeRows);
 
-        List<Integer> botHomeIdsToDelete = new ArrayList<>();
-        List<Integer> userIdsToDelete = new ArrayList<>();
         userHomeEdit.getDeletedHomeUsers().forEach(userHomeId -> {
-            botHomeIdsToDelete.add(userHomeId.getBotHomeId());
-            userIdsToDelete.add(userHomeId.getUserId());
+            userHomeRepository.deleteByBotHomeIdAndUserId(userHomeId.getBotHomeId(), userHomeId.getUserId());
         });
-        userHomeRepository.deleteByBotHomeIdAndUserId(botHomeIdsToDelete, userIdsToDelete);
     }
 
     private User createUser(final UserRow userRow) throws BotErrorException {

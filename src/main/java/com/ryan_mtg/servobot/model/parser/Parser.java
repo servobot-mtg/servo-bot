@@ -6,15 +6,20 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StringEvaluatable;
+import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Time;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import static com.ryan_mtg.servobot.model.parser.Token.Type.CLOSE_PARENTHESIS;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.CONDITIONAL;
+import static com.ryan_mtg.servobot.model.parser.Token.Type.CONDITIONAL_ELSE;
 import static com.ryan_mtg.servobot.model.parser.Token.Type.IDENTIFIER;
 import static com.ryan_mtg.servobot.model.parser.Token.Type.INCREMENT;
 import static com.ryan_mtg.servobot.model.parser.Token.Type.MEMBER_ACCESSOR;
@@ -24,10 +29,13 @@ public class Parser {
     private Lexer lexer;
     private Scope scope;
     private HomeEditor homeEditor;
+    private Map<String, Object> constants = new HashMap<>();
 
     public Parser(final Scope scope, final HomeEditor homeEditor) {
         this.scope = scope;
         this.homeEditor = homeEditor;
+        constants.put("true", true);
+        constants.put("false", false);
     }
 
     public Evaluatable parse(final String expression) throws ParseException {
@@ -43,6 +51,21 @@ public class Parser {
     }
 
     private Object parseExpression() throws ParseException {
+        Object result = parseTermExpression();
+
+        if (lexer.hasNextToken() && lexer.peekNextToken().getType() == CONDITIONAL) {
+            expect(CONDITIONAL);
+            Object trueOperand = parseExpression();
+            expect(CONDITIONAL_ELSE);
+            Object falseOperand = parseExpression();
+
+            result = testCondition(result) ? trueOperand : falseOperand;
+        }
+
+        return result;
+    }
+
+    private Object parseTermExpression() throws ParseException {
         Object result = parseTerm();
 
         while (lexer.hasNextToken() && isTermOperation(lexer.peekNextToken().getType())) {
@@ -77,9 +100,13 @@ public class Parser {
                 break;
             case IDENTIFIER:
                 Token identifierToken = lexer.getNextToken();
-                result = scope.lookup(identifierToken.getLexeme());
+                String identifier = identifierToken.getLexeme();
+                result = constants.get(identifier);
                 if (result == null) {
-                    throw new ParseException(String.format("No value named %s.", identifierToken.getLexeme()));
+                    result = scope.lookup(identifier);
+                }
+                if (result == null) {
+                    throw new ParseException(String.format("No value named %s.", identifier));
                 }
 
                 while (lexer.isNextToken(MEMBER_ACCESSOR)) {
@@ -106,7 +133,7 @@ public class Parser {
                 }
                 break;
             case OPEN_PARENTHESIS:
-                lexer.getNextToken();
+                expect(OPEN_PARENTHESIS);
                 result = parseExpression();
                 expect(CLOSE_PARENTHESIS);
                 break;
@@ -147,6 +174,19 @@ public class Parser {
                 return getInteger(leftHandOperand) * getInteger(rightHandOperand);
         }
         throw new ParseException(String.format("Invalid Operation '%s'", operation));
+    }
+
+    private boolean testCondition(final Object condition) throws ParseException {
+        if (condition == null) {
+            return false;
+        }
+        if (condition instanceof Boolean) {
+            return (Boolean) condition;
+        }
+        if (condition instanceof String) {
+            return !Strings.isBlank((String) condition);
+        }
+        throw new ParseException("Condition is not a boolean type.");
     }
 
     @SuppressWarnings("unchecked")
@@ -214,6 +254,10 @@ public class Parser {
 
         if (value instanceof Integer) {
             return new StringEvaluatable(Integer.toString((int) value));
+        }
+
+        if (value instanceof Boolean) {
+            return new StringEvaluatable(Boolean.toString((boolean) value));
         }
 
         if (value instanceof Duration) {
