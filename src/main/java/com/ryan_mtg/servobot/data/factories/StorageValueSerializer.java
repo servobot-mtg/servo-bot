@@ -24,7 +24,8 @@ public class StorageValueSerializer {
         throw new IllegalArgumentException("Unsupported type: " + storageValueRow.getType());
     }
 
-    public void save(final StorageValue storageValue, final int botHomeId) {
+
+    public StorageValueRow createStorageValueRow(final int botHomeId, final StorageValue storageValue) {
         StorageValueRow storageValueRow = new StorageValueRow();
         storageValueRow.setId(storageValue.getId());
         storageValueRow.setUserId(storageValue.getUserId());
@@ -36,9 +37,12 @@ public class StorageValueSerializer {
             case IntegerStorageValue.TYPE:
                 storageValueRow.setNumber((int)storageValue.getValue());
         }
+        return storageValueRow;
+    }
 
+    public void save(final StorageValue storageValue, final int botHomeId) {
+        StorageValueRow storageValueRow = createStorageValueRow(botHomeId, storageValue);
         storageValueRepository.save(storageValueRow);
-
         storageValue.setId(storageValueRow.getId());
     }
 }

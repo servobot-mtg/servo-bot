@@ -66,6 +66,10 @@ bootJar {
     mainClassName = 'com.ryan_mtg.servobot.Application'
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
 bootRun {
     main = 'com.ryan_mtg.servobot.Application'
 }

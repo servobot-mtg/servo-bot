@@ -11,12 +11,15 @@ import java.util.List;
 @Repository
 public interface UserHomeRepository extends CrudRepository<UserHomeRow, UserHomeRow.UserHomeId> {
     UserHomeRow findByUserIdAndBotHomeId(int userId, int botHomeId);
-    void deleteByUserIdAndBotHomeId(int userId, int botHomeId);
+    void deleteByBotHomeIdAndUserId(Iterable<Integer> botHomeIds, Iterable<Integer> userIds);
 
     List<UserHomeRow> findByUserId(int userId);
+    Iterable<UserHomeRow> findByUserIdIn(Iterable<Integer> userIds);
+
     Iterable<UserHomeRow> findByBotHomeIdAndUserIdIn(int botHomeId, Iterable<Integer> userIds);
     List<UserHomeRow> findByBotHomeId(int botHomeId);
 
     @Query(value = "SELECT userId FROM UserHomeRow WHERE bot_home_id = :bot_home_id")
     Iterable<Integer> getAllUserIds(@Param("bot_home_id") int botHomeId);
+
 }

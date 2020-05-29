@@ -46,11 +46,11 @@ public class GiveawaySerializer {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void commit(final int botHomeId, final GiveawayEdit giveawayEdit) {
-        commandTableSerializer.commit(botHomeId, giveawayEdit.getCommandTableEdit());
+    public void commit(final GiveawayEdit giveawayEdit) {
+        commandTableSerializer.commit(giveawayEdit.getCommandTableEdit());
 
         giveawayEdit.getSavedPrizes().forEach((key, value) -> savePrize(value, key));
-        giveawayEdit.getSavedGiveaways().forEach(giveaway -> saveGiveaway(botHomeId, giveaway));
+        giveawayEdit.getSavedGiveaways().forEach((giveaway, botHomeId) -> saveGiveaway(botHomeId, giveaway));
         giveawayEdit.getDeletedPrizes().forEach(prize -> prizeRepository.deleteById(prize.getId()));
     }
 

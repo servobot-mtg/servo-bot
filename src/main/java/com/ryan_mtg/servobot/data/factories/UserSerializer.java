@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.data.repositories.UserRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserHomeEdit;
 import com.ryan_mtg.servobot.user.UserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,11 +86,7 @@ public class UserSerializer {
     }
 
     public void saveHomedStatus(final int botHomeId, final HomedUser homedUser) {
-        UserHomeRow userHomeRow = new UserHomeRow();
-        userHomeRow.setUserId(homedUser.getId());
-        userHomeRow.setBotHomeId(botHomeId);
-        userHomeRow.setState(homedUser.getUserStatus().getState());
-        userHomeRepository.save(userHomeRow);
+        userHomeRepository.save(createUserHomeRow(botHomeId, homedUser));
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -160,64 +157,29 @@ public class UserSerializer {
         return userRow;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public User mergeUsers(final List<Integer> userIds) throws BotErrorException {
-        Iterable<UserRow> userRows = userRepository.findAllById(userIds);
-
-        UserRow mergedUser = userRows.iterator().next();
-        List<UserRow> usersToDeleete = new ArrayList<>();
-
-        for (UserRow userRow : userRows) {
-            if (mergedUser.getTwitchId() == 0) {
-                mergedUser.setTwitchId(userRow.getTwitchId());
-            } else if (userRow.getTwitchId() != 0 && userRow.getTwitchId() != mergedUser.getTwitchId()) {
-                throw new BotErrorException("Twitch Ids do not match");
-            }
-
-            if (mergedUser.getDiscordId() == 0) {
-                mergedUser.setDiscordId(userRow.getDiscordId());
-            } else if (userRow.getDiscordId() != 0 && userRow.getDiscordId() != mergedUser.getDiscordId()) {
-                throw new BotErrorException("Discord Ids do not match");
-            }
-
-            if (mergedUser.getTwitchUsername() == null) {
-                mergedUser.setTwitchUsername(userRow.getTwitchUsername());
-            } else if (userRow.getTwitchUsername() != null
-                    && !userRow.getTwitchUsername().equals(mergedUser.getTwitchUsername())) {
-                throw new BotErrorException("Twitch usernames do not match");
-            }
-
-            if (mergedUser.getDiscordUsername() == null) {
-                mergedUser.setDiscordUsername(userRow.getDiscordUsername());
-            } else if (userRow.getDiscordUsername() != null
-                    && !userRow.getDiscordUsername().equals(mergedUser.getDiscordUsername())) {
-                throw new BotErrorException("Discord usernames do not match");
-            }
-
-            if (mergedUser.getArenaUsername() == null) {
-                mergedUser.setArenaUsername(userRow.getArenaUsername());
-            } else if (userRow.getArenaUsername() != null
-                    && !userRow.getArenaUsername().equals(mergedUser.getArenaUsername())) {
-                throw new BotErrorException("Arena usernames do not match");
-            }
-
-            if (userRow.getId() != mergedUser.getId()) {
-                usersToDeleete.add(userRow);
-            }
-        }
-
-        userRepository.save(mergedUser);
-        userRepository.deleteAll(usersToDeleete);
-
-        return createUser(mergedUser);
-    }
-
     public List<User> getArenaUsers(final int botHomeId) throws BotErrorException {
         List<User> users = new ArrayList<>();
         for (UserRow userRow : userRepository.findByArenaUsernameIsNotNull()) {
             users.add(createUser(userRow));
         }
         return users;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void commit(final UserHomeEdit userHomeEdit) {
+        List<UserHomeRow> userHomeRows = new ArrayList<>();
+        userHomeEdit.getSavedHomeUsers().forEach(
+            (homedUser, botHomeId) -> userHomeRows.add(createUserHomeRow(botHomeId, homedUser))
+        );
+        userHomeRepository.saveAll(userHomeRows);
+
+        List<Integer> botHomeIdsToDelete = new ArrayList<>();
+        List<Integer> userIdsToDelete = new ArrayList<>();
+        userHomeEdit.getDeletedHomeUsers().forEach(userHomeId -> {
+            botHomeIdsToDelete.add(userHomeId.getBotHomeId());
+            userIdsToDelete.add(userHomeId.getUserId());
+        });
+        userHomeRepository.deleteByBotHomeIdAndUserId(botHomeIdsToDelete, userIdsToDelete);
     }
 
     private User createUser(final UserRow userRow) throws BotErrorException {
@@ -243,5 +205,13 @@ public class UserSerializer {
             homedUsers.add(createHomedUser(user, userStatus));
         }
         return homedUsers;
+    }
+
+    private UserHomeRow createUserHomeRow(final int botHomeId, final HomedUser homedUser) {
+        UserHomeRow userHomeRow = new UserHomeRow();
+        userHomeRow.setUserId(homedUser.getId());
+        userHomeRow.setBotHomeId(botHomeId);
+        userHomeRow.setState(homedUser.getUserStatus().getState());
+        return userHomeRow;
     }
 }

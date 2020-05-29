@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.data.models;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.Objects;
 
 @Entity
 @Table(name = "game_queue_entry")
@@ -37,30 +38,14 @@ public class GameQueueEntryRow {
         this.userId = userId;
     }
 
-    @Getter
+    @Getter @EqualsAndHashCode @NoArgsConstructor
     public static class GameQueueEntryRowId implements Serializable {
         private int gameQueueId;
         private int spot;
 
-        public GameQueueEntryRowId() {}
-
         public GameQueueEntryRowId(final int gameQueueId, final int spot) {
             this.gameQueueId = gameQueueId;
             this.spot = spot;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            GameQueueEntryRowId that = (GameQueueEntryRowId) o;
-            return gameQueueId == that.gameQueueId &&
-                    spot == that.spot;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(gameQueueId, spot);
         }
     }
 }

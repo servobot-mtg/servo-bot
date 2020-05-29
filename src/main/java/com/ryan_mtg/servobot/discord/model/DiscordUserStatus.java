@@ -40,4 +40,8 @@ public class DiscordUserStatus {
     public int getState() {
         return state;
     }
+
+    public void merge(final int state) {
+        this.state |= state;
+    }
 }

@@ -49,4 +49,8 @@ public class TwitchUserStatus {
     public boolean isStreamer() {
         return (state & STREAMER_BIT) != 0;
     }
+
+    public void merge(final int state) {
+        this.state |= state;
+    }
 }

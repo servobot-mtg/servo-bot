@@ -92,7 +92,7 @@ public class Raffle {
             } else {
                 prize.setStatus(Prize.Status.AVAILABLE);
             }
-            giveawayEdit.addPrize(giveaway.getId(), prize);
+            giveawayEdit.savePrize(giveaway.getId(), prize);
         }
 
         giveawayEdit.merge(commandTable.deleteCommand(enterRaffleCommand.getId()));

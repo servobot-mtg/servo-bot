@@ -15,7 +15,7 @@ public abstract class StorageValue implements Evaluatable {
     @Getter @Setter
     private int id;
 
-    @Getter
+    @Getter @Setter
     private int userId;
 
     @Getter

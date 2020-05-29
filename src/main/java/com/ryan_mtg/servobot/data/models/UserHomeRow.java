@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.data.models;
 
-import lombok.EqualsAndHashCode;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,13 +27,9 @@ public class UserHomeRow {
 
     private int state;
 
-    @EqualsAndHashCode
-    @NoArgsConstructor
+    @Data @NoArgsConstructor
     public static class UserHomeId implements Serializable {
-        @Getter @Setter
         private int userId;
-
-        @Getter @Setter
         private int botHomeId;
     }
 }

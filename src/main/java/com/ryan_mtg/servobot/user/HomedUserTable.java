@@ -44,6 +44,15 @@ public class HomedUserTable {
         return store(userSerializer.lookup(botHomeId, user));
     }
 
+    public HomedUser getById(final int userId) throws BotErrorException {
+        HomedUser homedUser = findUser(user -> user.getId() == userId);
+        if (homedUser == null) {
+            User user = userTable.getById(userId);
+            homedUser = store(userSerializer.lookup(botHomeId, user));
+        }
+        return homedUser;
+    }
+
     public Iterable<HomedUser> getHomedUsers() throws BotErrorException {
         return getHomedUsers(userSerializer.getAllHomedUserIds(botHomeId));
     }
@@ -72,7 +81,7 @@ public class HomedUserTable {
     public HomedUser getByTwitchId(final int twitchId, final String twitchUsername,
                                     final TwitchUserStatus twitchUserStatus) throws BotErrorException {
         HomedUser homedUser = getByTwitchId(twitchId, twitchUsername);
-        updateStatus(homedUser, userStatus -> userStatus.merge(twitchUserStatus));
+        updateStatus(homedUser, userStatus -> userStatus.update(twitchUserStatus));
         return homedUser;
     }
 
@@ -92,7 +101,7 @@ public class HomedUserTable {
     public HomedUser getByDiscordId(final long discordId, final String discordUsername,
                                     final DiscordUserStatus discordUserStatus) throws BotErrorException {
         HomedUser homedUser = getByDiscordId(discordId, discordUsername);
-        updateStatus(homedUser, userStatus -> userStatus.merge(discordUserStatus));
+        updateStatus(homedUser, userStatus -> userStatus.update(discordUserStatus));
         return homedUser;
     }
 
@@ -107,6 +116,27 @@ public class HomedUserTable {
             homedUser = store(userSerializer.lookup(botHomeId, user));
         }
         return homedUser;
+    }
+
+    public UserHomeEdit update(final User user, final UserStatus userStatus) {
+        HomedUser oldUser = getUser(user.getId());
+        HomedUser newUser = new HomedUser(user, userStatus);
+        store(newUser);
+
+        UserHomeEdit userHomeEdit = new UserHomeEdit();
+        if (oldUser == null || oldUser.getUserStatus().getState() != userStatus.getState())  {
+            userHomeEdit.save(botHomeId, newUser);
+        }
+        return userHomeEdit;
+    }
+
+    public UserHomeEdit purge(final List<Integer> userIdsToDelete) {
+        UserHomeEdit userHomeEdit = new UserHomeEdit();
+        userIdsToDelete.forEach(userId -> {
+            userMap.remove(userId);
+            userHomeEdit.delete(botHomeId, userId);
+        });
+        return userHomeEdit;
     }
 
     private Collection<HomedUser> store(final Collection<HomedUser> users) {

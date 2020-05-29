@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
-import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.SystemEditor;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import lombok.Getter;
@@ -16,11 +16,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 public class AdministrationApiController {
-    private final UserSerializer userSerializer;
+    private final SystemEditor systemEditor;
     private final UserTable userTable;
 
-    public AdministrationApiController(final UserSerializer userSerializer, final UserTable userTable) {
-        this.userSerializer = userSerializer;
+    public AdministrationApiController(final SystemEditor systemEditor, final UserTable userTable) {
+        this.systemEditor = systemEditor;
         this.userTable = userTable;
     }
 
@@ -38,7 +38,7 @@ public class AdministrationApiController {
     @PostMapping(value = "/merge_users", consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
     public User mergeUsers(@RequestBody final MergeUsersRequest request) throws BotErrorException {
-        return userSerializer.mergeUsers(request.getUserIds());
+        return systemEditor.mergeUsers(request.getUserIds());
     }
 
     public static class MergeUsersRequest {
