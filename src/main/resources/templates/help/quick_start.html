@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>ServoBot Quick Start Guide</title>
+    <div th:include="fragments :: includes"/>
+</head>
+<body>
+    <div th:include="fragments :: header"/>
+    <div class="content">
+        <h1>Quick Start Guide</h1>
+        <p th:if="${!user.authenticated || !user.hasInvite()}">To have the bot join your channel,
+            you must have a special invite and <a th:href="@{/oauth2/authorization/twitch}">log in</a>.
+            To get an invite, visit the ServoBot <a href="https://discordapp.com/invite/w7uJW67">Discord Server.</a>
+        </p>
+
+        <p th:if="${user.hasInvite()}">You have a special <a href="/home">invite</a> to have the bot join your
+            channel.</p>
+
+        <h2>Using an Invite</h2>
+        <p>
+            Once you have an invite fill out the Bot Invitation <a href="/home">form</a> It asks you to set your time
+            zone and to configure some commands. You can decide which commands you want enabled for your channel and
+            change the command names.
+        </p>
+
+        <h2>Adding New Commands</h2>
+        <p>There are two ways to add new commands.</p>
+        <ol>
+            <li>In chat on Twitch. Type the line: <span class="command-line">!add
+                !<span class="command-parameter">&lt;command-name&gt;</span>
+                &lt;command-text&gt;</span>
+                <ul>
+                    <li><span class="note">Note</span>: If you changed the add command's name when submitting the
+                        invite then use that instead of !add.</li>
+                    <li>Command-name must be composed of letters, numbers, and/or underscores.</li>
+                    <li>Command-text is what the bot will respond with when someone in chat issues the command.</li>
+                </ul>
+            </li>
+            <li> On the ServoBot web page.
+                <ol>
+                    <li>Go to the channel's homepage.</li>
+                    <li>Sign in by clicking the Twitch <img class="small-icon" src="/images/twitch.ico"> icon in the
+                        upper right.</li>
+                    <li>Press the add button at the bottom of the table of commands. It will show a small dialog.</li>
+                    <li>Fill out the dialog. <img src="/images/add-command-dialog.png">
+                        <ul>
+                            <li>Options are explained on the <a href="/help/commands">Command Help</a> page.</li>
+                            <li>For a Respond Command the Text option is the same as command-text above.</li>
+                        </ul>
+                    </li>
+                    <li>Click the "Create Command" button. This will add your new command to the command table.</li>
+                    <li>On the command's row click the add button in the trigger columns.</li>
+                </ol>
+            </li>
+        </ol>
+        <h2>Fin</h2>
+        <p><a href="https://discordapp.com/invite/w7uJW67"><img class="small-icon" src="/images/discord.ico"></a>
+            For more information check out the full <a href="/help">documentation</a> or join the ServoBot
+            <a href="https://discordapp.com/invite/w7uJW67">Discord Server</a>.
+        </p>
+    </div>
+    <div th:include="fragments :: footer"/>
+</body>
+</html>

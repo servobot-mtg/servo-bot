@@ -7,10 +7,10 @@
             type="text/javascript" src="/script/privileged.js"></script>
 </head>
 <body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}">
-<div th:include="fragments :: header" />
-<div class="content">
-    <div th:include="bot_home_fragments :: users (title='Users')"/>
-</div>
-<div th:include="fragments :: footer" />
+    <div th:include="fragments :: header" />
+    <div class="content">
+        <div th:include="bot_home_fragments :: users (title='Users')"/>
+    </div>
+    <div th:include="fragments :: footer" />
 </body>
 </html>

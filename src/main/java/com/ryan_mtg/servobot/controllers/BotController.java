@@ -87,6 +87,14 @@ public class BotController {
         return "help/overview";
     }
 
+    @GetMapping("/help/{page}")
+    public String showHelpPage(final Model model, @PathVariable("page") final String page) {
+        // TODO: use a map of allowed pages
+        model.addAttribute("page", page);
+        return String.format("help/%s", page);
+    }
+
+
     @GetMapping("/home/{home}")
     public String showHome(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
         model.addAttribute("page", "home");
