@@ -116,6 +116,10 @@ public class HomeEditor {
         botHomeRepository.save(botHomeRow);
     }
 
+    public HomedUser getUserById(final int userId) throws BotErrorException {
+        return botHome.getHomedUserTable().getById(userId);
+    }
+
     public HomedUser getUserByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
         return botHome.getHomedUserTable().getByDiscordId(discordId, discordUsername);
     }
@@ -394,6 +398,11 @@ public class HomeEditor {
         return storageValue;
     }
 
+    public List<StorageValue> getAllUsersStorageValues(final String name) throws BotErrorException {
+        StorageValue.validateName(name);
+        return botHome.getStorageTable().getAllUsersStorage(name);
+    }
+
     public IntegerStorageValue getStorageValue(final int userId, final String name, final int defaultValue)
             throws BotErrorException {
         StorageValue.validateName(name);
@@ -430,9 +439,17 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void remoteStorageVariables(final String name) {
+    public void removeStorageVariables(final String name) {
         botHome.getStorageTable().removeVariables(name);
         serializers.getStorageTableSerializer().removeVariables(name, botHome.getId());
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void removeStorageVariable(final int userId, final String name) {
+        StorageValue storageValue = botHome.getStorageTable().removeVariable(userId, name);
+        if (storageValue != null) {
+            serializers.getStorageValueRepository().deleteById(storageValue.getId());
+        }
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -448,10 +465,16 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public IntegerStorageValue incrementStorageValue(final int userId, final String name, final int defaultVariable)
+    public IntegerStorageValue incrementStorageValue(final int userId, final String name, final int defaultValue)
             throws BotErrorException {
-        IntegerStorageValue value = getStorageValue(userId, name, defaultVariable);
-        value.setValue(value.getValue() + 1);
+        return increaseStorageValue(userId, name, 1, defaultValue);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public IntegerStorageValue increaseStorageValue(final int userId, final String name, final int amount,
+            final int defaultValue) throws BotErrorException {
+        IntegerStorageValue value = getStorageValue(userId, name, defaultValue);
+        value.setValue(value.getValue() + amount);
         serializers.getStorageValueSerializer().save(value, botHome.getId());
         return value;
     }

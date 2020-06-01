@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.data.factories;
 
+import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
@@ -51,6 +52,7 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +79,7 @@ public class CommandSerializer {
         this.scryfallQuerier = scryfallQuerier;
     }
 
-    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap)
-            throws BotErrorException {
+    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) throws BotErrorException {
         int id = commandRow.getId();
 
         RateLimit rateLimit = rateLimitSerializer.createRateLimit(commandRow);
@@ -110,7 +111,6 @@ public class CommandSerializer {
             case EVALUATE_EXPRESSION_COMMAND_TYPE:
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
                 return new EvaluateExpressionCommand(id, commandSettings, gabyEasterEgg);
-
             case FACTS_COMMAND_TYPE:
                 int bookId = (int) (long) commandRow.getLongParameter();
                 return new FactsCommand(id, commandSettings, bookMap.get(bookId));
@@ -142,6 +142,9 @@ public class CommandSerializer {
             case REQUEST_PRIZE_COMMAND_TYPE:
                 giveawayId = (int) (long) commandRow.getLongParameter();
                 return new RequestPrizeCommand(id, commandSettings, giveawayId);
+            case SCORE_COMMAND_TYPE:
+                return new ScoreCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
+                        Strings.trim(commandRow.getStringParameter2()));
             case SCRYFALL_SEARCH_COMMAND_TYPE:
                 return new ScryfallSearchCommand(id, commandSettings, scryfallQuerier);
             case SELECT_WINNER_COMMAND_TYPE:
@@ -394,6 +397,14 @@ public class CommandSerializer {
         @Override
         public void visitScryfallSearchCommand(final ScryfallSearchCommand scryfallSearchCommand) {
             saveCommand(scryfallSearchCommand, commandRow -> {});
+        }
+
+        @Override
+        public void visitScoreCommand(final ScoreCommand scoreCommand) {
+            saveCommand(scoreCommand, commandRow -> {
+                commandRow.setStringParameter(scoreCommand.getGameName());
+                commandRow.setStringParameter2(scoreCommand.getScoreVariable());
+            });
         }
 
         @Override

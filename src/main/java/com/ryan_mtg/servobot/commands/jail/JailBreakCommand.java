@@ -51,7 +51,7 @@ public class JailBreakCommand extends MessageCommand {
         List<String> inmates = event.getHome().clearRole(prisonRole);
 
         HomeEditor homeEditor = event.getHomeEditor();
-        homeEditor.remoteStorageVariables(variableName);
+        homeEditor.removeStorageVariables(variableName);
 
         if (inmates.isEmpty()) {
             return;

@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StorageTable implements Iterable<StorageValue>, SymbolTable {
     private Map<StorageKey, StorageValue> storageMap = new HashMap<>();
@@ -26,6 +27,11 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
 
     public StorageValue getStorage(final String name) {
         return storageMap.get(new StorageKey(StorageValue.GLOBAL_USER, name));
+    }
+
+    public List<StorageValue> getAllUsersStorage(final String name) {
+        return storageMap.values().stream().filter(storageValue -> storageValue.getName().equals(name))
+                .collect(Collectors.toList());
     }
 
     public Collection<StorageValue> getValues() {
@@ -45,6 +51,11 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
     @Override
     public StorageValue lookup(final String name) {
         return getStorage(name);
+    }
+
+    public StorageValue removeVariable(final int userId, final String name) {
+        StorageKey keyToRemove = new StorageKey(userId, name);
+        return storageMap.remove(keyToRemove);
     }
 
     public void removeVariables(final String name) {
