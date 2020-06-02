@@ -54,7 +54,13 @@ public class BotFactory {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
 
-        Bot bot = new Bot(botRow.getName(), globalScope, services, serializers);
+        int botId = botRow.getId();
+
+        BookTable bookTable = serializers.getBookSerializer().createBookTable(-botId);
+        Map<Integer, Book> bookMap = bookTable.getBookMap();
+        CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(-botId, bookMap);
+
+        Bot bot = new Bot(botId, botRow.getName(), globalScope, services, serializers, commandTable, bookTable);
         for (BotHomeRow botHomeRow : serializers.getBotHomeRepository().findAll()) {
             bot.addHome(createBotHome(botHomeRow));
         }

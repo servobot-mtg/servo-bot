@@ -1,11 +1,12 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
-import com.ryan_mtg.servobot.model.scope.NullSymbolTable;
+import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class Bot {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
+    private int id;
     private String name;
     private Scope botScope;
     private BotEditor botEditor;
@@ -31,17 +33,23 @@ public class Bot {
     private Map<Integer, Service> services;
     private Map<Integer, HomeEditor> homeEditorMap = new HashMap<>();
     private SerializerContainer serializers;
+    private CommandTable commandTable;
+    private BookTable bookTable;
     private AlertQueue alertQueue = new AlertQueue(this);
 
-    public Bot(final String name, final Scope globalScope, final Map<Integer, Service> services,
-               final SerializerContainer serializers) throws BotErrorException {
+    public Bot(final int id, final String name, final Scope globalScope, final Map<Integer, Service> services,
+            final SerializerContainer serializers, final CommandTable commandTable, final BookTable bookTable)
+            throws BotErrorException {
+        this.id = id;
         this.name = name;
         this.services = services;
         this.serializers = serializers;
+        this.commandTable = commandTable;
+        this.bookTable = bookTable;
 
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
 
-        botScope = new Scope(globalScope, new NullSymbolTable());
+        botScope = new Scope(globalScope, bookTable);
         botEditor = new BotEditor(this);
         listener = new HomeDelegatingListener(botEditor, homeEditorMap);
     }

@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.events;
 
-import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
@@ -8,7 +7,6 @@ import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.UserCommand;
 import com.ryan_mtg.servobot.model.Message;
-import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import org.slf4j.Logger;
@@ -16,23 +14,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
-import static com.ryan_mtg.servobot.user.User.UNREGISTERED_ID;
-
 public class CommandListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
     private static final Pattern COMMAND_PATTERN = Pattern.compile("!\\w+");
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
 
+    private CommandPerformer commandPerformer;
     private CommandTable commandTable;
-    private RateLimiter rateLimiter;
 
-    public CommandListener(final CommandTable commandTable, final RateLimiter rateLimiter) {
+    public CommandListener(final CommandPerformer commandPerformer, final CommandTable commandTable) {
+        this.commandPerformer = commandPerformer;
         this.commandTable = commandTable;
-        this.rateLimiter = rateLimiter;
     }
 
     @Override
-    public void onMessage(final MessageSentEvent messageSentEvent) throws BotErrorException {
+    public void onMessage(final MessageSentEvent messageSentEvent) {
         Message message = messageSentEvent.getMessage();
         User sender = messageSentEvent.getSender();
         if (sender.isBot()) {
@@ -55,16 +51,7 @@ public class CommandListener implements EventListener {
 
         if (command instanceof MessageCommand) {
             MessageCommand messageCommand = (MessageCommand) command;
-            LOGGER.info("Performing " + commandString + " for " + sender.getName() + " with arguments " + arguments);
-
-            if (shouldPerform(sender.getHomedUser().getId(), messageCommand, messageSentEvent)) {
-                if (messageCommand.hasPermissions(sender)) {
-                    messageCommand.perform(messageSentEvent, arguments);
-                } else {
-                    throw new BotErrorException(
-                            String.format("%s is not allowed to %s.", sender.getName(), commandString));
-                }
-            }
+            commandPerformer.perform(commandString, arguments, messageSentEvent, messageCommand);
         } else if (command == null) {
             messageSentEvent.getHomeEditor().addSuggestion(commandString);
             LOGGER.warn("Unknown command " + commandString + " for " + messageSentEvent.getSender().getName()
@@ -75,38 +62,28 @@ public class CommandListener implements EventListener {
     @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
         for (HomeCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, HomeCommand.class)) {
-            try {
-                command.perform(streamStartEvent);
-            } catch (BotErrorException e) {
-                LOGGER.error(e.getErrorMessage(), e);
-            }
+            commandPerformer.perform(streamStartEvent, command);
         }
     }
 
     @Override
-    public void onNewUser(final UserEvent newUserEvent) throws BotErrorException {
+    public void onNewUser(final UserEvent newUserEvent) {
         for (UserCommand command : commandTable.getCommands(CommandEvent.Type.NEW_USER, UserCommand.class)) {
-            if (shouldPerform(newUserEvent.getUser().getHomedUser().getId(), command, newUserEvent)) {
-                command.perform(newUserEvent.getHome(), newUserEvent.getUser());
-            }
+            commandPerformer.perform(newUserEvent, command);
         }
     }
 
     @Override
-    public void onRaid(final UserEvent raidEvent) throws BotErrorException {
+    public void onRaid(final UserEvent raidEvent) {
         for (UserCommand command : commandTable.getCommands(CommandEvent.Type.RAID, UserCommand.class)) {
-            if (shouldPerform(UNREGISTERED_ID, command, raidEvent)) {
-                command.perform(raidEvent.getHome(), raidEvent.getUser());
-            }
+            commandPerformer.perform(raidEvent,command);
         }
     }
 
     @Override
-    public void onSubscribe(final UserEvent subscribeEvent) throws BotErrorException {
+    public void onSubscribe(final UserEvent subscribeEvent) {
         for (UserCommand command : commandTable.getCommands(CommandEvent.Type.SUBSCRIBE, UserCommand.class)) {
-            if (shouldPerform(UNREGISTERED_ID, command, subscribeEvent)) {
-                command.perform(subscribeEvent.getHome(), subscribeEvent.getUser());
-            }
+            commandPerformer.perform(subscribeEvent, command);
         }
     }
 
@@ -115,20 +92,7 @@ public class CommandListener implements EventListener {
         LOGGER.info("Performing alert " + alertEvent.getAlertToken());
         for (HomeCommand command :
                 commandTable.getCommandsFromAlertToken(alertEvent.getAlertToken(), HomeCommand.class)) {
-            try {
-                if (shouldPerform(UNREGISTERED_ID, command, alertEvent)) {
-                    LOGGER.info("Performing command " + command.getId());
-                    command.perform(alertEvent);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            commandPerformer.perform(alertEvent,command);
         }
-    }
-
-    private boolean shouldPerform(final int userId, final Command command, final HomeEvent homeEvent) {
-        return (!command.isOnlyWhileStreaming() || homeEvent.getHome().isStreaming())
-            && (homeEvent.getServiceType() == Service.NO_SERVICE_TYPE || command.getService(homeEvent.getServiceType()))
-            && rateLimiter.allow(userId, command.getId(), command.getRateLimit());
     }
 }

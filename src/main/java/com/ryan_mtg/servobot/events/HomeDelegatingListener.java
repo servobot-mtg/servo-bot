@@ -11,10 +11,10 @@ import java.util.Map;
 
 public class HomeDelegatingListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(HomeDelegatingListener.class);
+
     private BotEditor botEditor;
     private Map<Integer, HomeEditor> homeEditorMap;
     private Map<Integer, EventListener> botHomeMap = new HashMap<>();
-
 
     public HomeDelegatingListener(final BotEditor botEditor, final Map<Integer, HomeEditor> homeEditorMap) {
         this.botEditor = botEditor;

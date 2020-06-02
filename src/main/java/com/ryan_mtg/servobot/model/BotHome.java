@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandListener;
+import com.ryan_mtg.servobot.events.CommandPerformer;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
 import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
@@ -113,8 +114,9 @@ public class BotHome {
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
+        CommandPerformer commandPerformer = new CommandPerformer(rateLimiter);
         eventListener =
-                new MultiDelegatingListener(new CommandListener(commandTable, rateLimiter),
+                new MultiDelegatingListener(new CommandListener(commandPerformer, commandTable),
                         new ReactionListener(reactionTable, rateLimiter));
     }
 

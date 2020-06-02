@@ -42,5 +42,4 @@ public abstract class MessageCommand extends Command {
         Channel channel = event.getChannel();
         channel.say(text);
     }
-
 }
