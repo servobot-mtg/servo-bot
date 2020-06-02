@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
+import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -20,13 +21,15 @@ import java.util.concurrent.ScheduledExecutorService;
 @Component
 public class ServiceSerializer {
     private final ServiceRepository serviceRepository;
+    private final UserTable userTable;
     private final ScheduledExecutorService executorService;
     private final LoggedMessageSerializer loggedMessageSerializer;
     private final Map<Integer, Service> serviceMap = new HashMap<>();
 
-    public ServiceSerializer(final ServiceRepository serviceRepository,
+    public ServiceSerializer(final ServiceRepository serviceRepository, final UserTable userTable,
             final ScheduledExecutorService executorService, final LoggedMessageSerializer loggedMessageSerializer) {
         this.serviceRepository = serviceRepository;
+        this.userTable = userTable;
         this.executorService = executorService;
         this.loggedMessageSerializer = loggedMessageSerializer;
     }
@@ -56,7 +59,7 @@ public class ServiceSerializer {
         Service service;
         switch (serviceType) {
             case DiscordService.TYPE:
-                service = new DiscordService(serviceRow.getToken(), loggedMessageSerializer);
+                service = new DiscordService(serviceRow.getToken(), userTable, loggedMessageSerializer);
                 break;
             case TwitchService.TYPE:
                 service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),

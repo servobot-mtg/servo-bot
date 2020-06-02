@@ -28,15 +28,11 @@
                 <li>Queue for challenging viewers on Arena</li>
                 <li>Special features available upon request</li>
             </ul>
-            <p th:if="${!user.authenticated}">To have the bot join your channel, you must have a special invite and
-                <a th:href="@{/oauth2/authorization/twitch}">log in</a>.</p>
-            <p th:if="${user.hasInvite()}">You have a special <a href="/home">invite</a> to have the bot join your
-                channel.</p>
 
-            <p><a href="https://discordapp.com/invite/w7uJW67"><img class="small-icon" src="/images/discord.ico"></a>
-                More information can be found in the
-                <a href="https://discordapp.com/invite/w7uJW67">Discord</a>
-                channel.</p>
+            <h2>Documentation</h2>
+            <p>Full ServoBot <a href="/help">Documentation</a></p>
+            <p>Quick Start <a href="/help/quick_start">Guide</a></p>
+            <p class="hidden">Streaming <a href="/help/streaming">Guide</a></p>
         </div>
         <div th:include="fragments :: footer"/>
     </body>

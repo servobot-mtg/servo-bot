@@ -10,25 +10,31 @@ import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class BotHome {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BotHome.class);
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("H:mm");
 
     @Getter
@@ -185,6 +191,9 @@ public class BotHome {
                 () -> Strings.capitalize(now().getDayOfWeek().toString().toLowerCase()));
         timeSymbolTable.addFunctor("timeOfDay", () -> dateTimeFormatter.format(now()));
 
+        timeSymbolTable.addValue("hasUser", (Function<String, Boolean>)this::hasUser);
+        timeSymbolTable.addValue("findUser", (Function<String, HomedUser>)this::findUser);
+
         Scope timeScope = new Scope(botScope, timeSymbolTable);
         Scope bookScope = new Scope(timeScope, bookTable);
         return new Scope(bookScope, storageTable);
@@ -193,5 +202,28 @@ public class BotHome {
     private ZonedDateTime now() {
         ZoneId zoneId = ZoneId.of(timeZone);
         return ZonedDateTime.now(zoneId);
+    }
+
+    private boolean hasUser(final String userName) {
+        for (ServiceHome serviceHome : serviceHomes.values()) {
+            if (serviceHome.getHome().hasUser(userName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private HomedUser findUser(final String userName) {
+        try {
+            for (ServiceHome serviceHome : serviceHomes.values()) {
+                Home home = serviceHome.getHome();
+                if (home.hasUser(userName)) {
+                    return home.getUser(userName).getHomedUser();
+                }
+            }
+        } catch (BotErrorException e) {
+            LOGGER.error(String.format("Problem finding user %s", userName), e);
+        }
+        return null;
     }
 }

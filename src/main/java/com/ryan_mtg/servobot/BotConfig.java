@@ -46,8 +46,7 @@ public class BotConfig {
         symbolTable.addFunctor("cfbRound", informer::getCurrentRound);
         symbolTable.addFunctor("cfbRecords", informer::getCurrentRecords);
 
-        Function<String, String> cfbRecord = this::getRecord;
-        symbolTable.addFunctor("cfbRecord", () -> cfbRecord);
+        symbolTable.addValue("cfbRecord", (Function<String, String>) this::getCfbRecord);
 
         return new Scope(null, symbolTable);
     }
@@ -58,7 +57,7 @@ public class BotConfig {
         return new BotRegistrar(bot);
     }
 
-    private String getRecord(final String input) {
+    private String getCfbRecord(final String input) {
         if (Strings.isBlank(input)) {
             return informer.getCurrentRecords();
         }

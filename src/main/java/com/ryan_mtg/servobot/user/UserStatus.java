@@ -16,8 +16,8 @@ public class UserStatus {
     }
 
     public UserStatus(int state) {
-        twitchStatus = new TwitchUserStatus(state & TWITCH_BITS);
-        discordUserStatus = new DiscordUserStatus((state & DISCORD_BITS) >> DISCORD_SHIFT);
+        twitchStatus = new TwitchUserStatus(getTwitchBits(state));
+        discordUserStatus = new DiscordUserStatus(getDiscordBits(state));
     }
 
     public boolean isMember() {
@@ -44,11 +44,24 @@ public class UserStatus {
         return twitchStatus.getState() | discordUserStatus.getState()<<DISCORD_SHIFT | MEMBER_BIT;
     }
 
-    public void merge(final TwitchUserStatus twitchStatus) {
+    public void update(final TwitchUserStatus twitchStatus) {
         this.twitchStatus = twitchStatus;
     }
 
-    public void merge(final DiscordUserStatus discordUserStatus) {
+    public void update(final DiscordUserStatus discordUserStatus) {
         this.discordUserStatus = discordUserStatus;
+    }
+
+    public void merge(final int state) {
+        twitchStatus.merge(getTwitchBits(state));
+        discordUserStatus.merge(getDiscordBits(state));
+    }
+
+    private static int getTwitchBits(final int state) {
+        return state & TWITCH_BITS;
+    }
+
+    private static int getDiscordBits(final int state) {
+        return (state & DISCORD_BITS) >> DISCORD_SHIFT;
     }
 }

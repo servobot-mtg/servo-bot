@@ -18,7 +18,7 @@ public class CommandTableEdit {
     private List<Command> deletedCommands = new ArrayList<>();
 
     @Getter
-    private List<Command> savedCommands = new ArrayList<>();
+    private Map<Command, Integer> savedCommands = new HashMap<>();
 
     @Getter
     private List<Trigger> deletedTriggers = new ArrayList<>();
@@ -30,25 +30,23 @@ public class CommandTableEdit {
     private Map<Trigger, BiConsumer<Integer, Trigger>> triggerSaveCallbackMap = new IdentityHashMap<>();
 
     @Getter
-    private List<AlertGenerator> savedAlertGenerators = new ArrayList<>();
+    private Map<AlertGenerator, Integer> savedAlertGenerators = new HashMap<>();
 
     @Getter
     private List<AlertGenerator> deletedAlertGenerators = new ArrayList<>();
-
 
     public void delete(final Command command) {
         deletedCommands.add(command);
     }
 
-    public void save(final Command command, final Consumer<Command> commandSaveCallback) {
-        savedCommands.add(command);
+    public void save(final int botHomeId, final Command command, final Consumer<Command> commandSaveCallback) {
+        savedCommands.put(command, botHomeId);
         commandSaveCallbackMap.put(command, commandSaveCallback);
     }
 
-    public void save(final Command command, final Trigger trigger,
-                     final Consumer<Command> commandSaveCallback,
-                     final BiConsumer<Integer, Trigger> aliasSaveCallback) {
-        savedCommands.add(command);
+    public void save(final int botHomeId, final Command command, final Trigger trigger,
+            final Consumer<Command> commandSaveCallback, final BiConsumer<Integer, Trigger> aliasSaveCallback) {
+        savedCommands.put(command, botHomeId);
         savedCommandToTriggerMap.put(command, trigger);
         commandSaveCallbackMap.put(command, commandSaveCallback);
         triggerSaveCallbackMap.put(trigger, aliasSaveCallback);
@@ -75,8 +73,8 @@ public class CommandTableEdit {
         deletedTriggers.add(trigger);
     }
 
-    public void save(final AlertGenerator alertGenerator) {
-        savedAlertGenerators.add(alertGenerator);
+    public void save(final int botHomeId, final AlertGenerator alertGenerator) {
+        savedAlertGenerators.put(alertGenerator, botHomeId);
     }
 
     public void delete(final AlertGenerator alertGenerator) {
@@ -85,14 +83,17 @@ public class CommandTableEdit {
 
     public void merge(final CommandTableEdit commandTableEdit) {
         deletedCommands.addAll(commandTableEdit.deletedCommands);
-        savedCommands.addAll(commandTableEdit.savedCommands);
+        savedCommands.putAll(commandTableEdit.savedCommands);
 
         deletedTriggers.addAll(commandTableEdit.deletedTriggers);
 
-        merge(savedTriggers, commandTableEdit.savedTriggers);
-        merge(savedCommandToTriggerMap, commandTableEdit.savedCommandToTriggerMap);
-        merge(commandSaveCallbackMap, commandTableEdit.commandSaveCallbackMap);
-        merge(triggerSaveCallbackMap, commandTableEdit.triggerSaveCallbackMap);
+        savedTriggers.putAll(commandTableEdit.savedTriggers);
+        savedCommandToTriggerMap.putAll(commandTableEdit.savedCommandToTriggerMap);
+        commandSaveCallbackMap.putAll(commandTableEdit.commandSaveCallbackMap);
+        triggerSaveCallbackMap.putAll(commandTableEdit.triggerSaveCallbackMap);
+
+        savedAlertGenerators.putAll(commandTableEdit.savedAlertGenerators);
+        deletedAlertGenerators.addAll(deletedAlertGenerators);
     }
 
     private <Key, Value> void merge(final Map<Key, Value> map, final Map<Key, Value> sourceMap) {

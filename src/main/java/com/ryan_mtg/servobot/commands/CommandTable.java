@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 public class CommandTable {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandTable.class);
 
-    private boolean isCaseSensitive;
+    private final int botHomeId;
+    private final boolean isCaseSensitive;
 
     private Map<Integer, Command> idToCommandMap = new HashMap<>();
 
@@ -42,7 +43,8 @@ public class CommandTable {
 
     private List<AlertGenerator> alertGenerators = new ArrayList<>();
 
-    public CommandTable(final boolean isCaseSensitive) {
+    public CommandTable(final int botHomeId, final boolean isCaseSensitive) {
+        this.botHomeId = botHomeId;
         this.isCaseSensitive = isCaseSensitive;
     }
 
@@ -60,14 +62,14 @@ public class CommandTable {
 
     public CommandTableEdit addCommand(Command command) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
-        commandTableEdit.save(command, this::registerCommand);
+        commandTableEdit.save(botHomeId, command, this::registerCommand);
         return commandTableEdit;
     }
 
     public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) throws BotErrorException {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
-        commandTableEdit.save(newCommand, commandAlias, this::registerCommand, this::triggerSaved);
+        commandTableEdit.save(botHomeId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
         return commandTableEdit;
     }
 
@@ -146,7 +148,7 @@ public class CommandTable {
     public CommandTableEdit addAlertGenerator(final AlertGenerator alertGenerator) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
         alertGenerators.add(alertGenerator);
-        commandTableEdit.save(alertGenerator);
+        commandTableEdit.save(botHomeId, alertGenerator);
         return commandTableEdit;
     }
 

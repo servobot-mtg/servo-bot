@@ -4,36 +4,38 @@ import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class GiveawayEdit {
-    @Getter
     private CommandTableEdit commandTableEdit = new CommandTableEdit();
-
-    @Getter
-    private List<Giveaway> savedGiveaways = new ArrayList<>();
-
-    @Getter
+    private Map<Giveaway, Integer> savedGiveaways = new HashMap<>();
     private Map<Prize, Integer> savedPrizes = new IdentityHashMap<>();
-
-    @Getter
     private List<Prize> deletedPrizes = new ArrayList<>();
 
-    public void addGiveaway(final Giveaway giveaway) {
-        savedGiveaways.add(giveaway);
+    public void addGiveaway(final int botHomdId, final Giveaway giveaway) {
+        savedGiveaways.put(giveaway, botHomdId);
     }
 
-    public void addPrize(final int giveawayId, final Prize prize) {
+    public void savePrize(final int giveawayId, final Prize prize) {
         savedPrizes.put(prize, giveawayId);
-    }
-
-    public void merge(final CommandTableEdit commandTableEdit) {
-        this.commandTableEdit.merge(commandTableEdit);
     }
 
     public void deletePrize(final Prize prize) {
         deletedPrizes.add(prize);
+    }
+
+    public void merge(final GiveawayEdit giveawayEdit) {
+        commandTableEdit.merge(giveawayEdit.commandTableEdit);
+        savedGiveaways.putAll(giveawayEdit.savedGiveaways);
+        savedPrizes.putAll(giveawayEdit.savedPrizes);
+        deletedPrizes.addAll(deletedPrizes);
+    }
+
+    public void merge(final CommandTableEdit commandTableEdit) {
+        this.commandTableEdit.merge(commandTableEdit);
     }
 }

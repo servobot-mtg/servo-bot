@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
@@ -209,6 +210,11 @@ public class CommandDescriptor {
         @Override
         public void visitScryfallSearchCommand(final ScryfallSearchCommand scryfallSearchCommand) {
             description = "Searches Scryfall for a card";
+        }
+
+        @Override
+        public void visitScoreCommand(final ScoreCommand scoreCommand) {
+            description = String.format("Gives the scores for %s", scoreCommand.getGameName());
         }
 
         @Override

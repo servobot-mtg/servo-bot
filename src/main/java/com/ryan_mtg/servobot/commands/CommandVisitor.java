@@ -43,6 +43,7 @@ public interface CommandVisitor {
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
     void visitRequestPrizeCommand(RequestPrizeCommand requestPrizeCommand);
     void visitScryfallSearchCommand(ScryfallSearchCommand scryfallSearchCommand);
+    void visitScoreCommand(ScoreCommand scoreCommand);
     void visitSelectWinnerCommand(SelectWinnerCommand selectWinnerCommand);
     void visitSetArenaUsernameCommand(SetArenaUsernameCommand setArenaUsernameCommand);
     void visitSetRoleCommand(SetRoleCommand setRoleCommand);

@@ -14,6 +14,7 @@ import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -47,7 +48,7 @@ public class CommandTableSerializer {
 
     public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap)
             throws BotErrorException  {
-        CommandTable commandTable = new CommandTable(false);
+        CommandTable commandTable = new CommandTable(botHomeId, false);
         Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
         Iterable<Integer> commandIds = SerializationSupport.getIds(commandRows, CommandRow::getId);
 
@@ -90,7 +91,7 @@ public class CommandTableSerializer {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void commit(final int botHomeId, final CommandTableEdit commandTableEdit) {
+    public void commit(final CommandTableEdit commandTableEdit) {
         for (Trigger trigger : commandTableEdit.getDeletedTriggers()) {
             triggerRepository.deleteById(trigger.getId());
         }
@@ -103,9 +104,9 @@ public class CommandTableSerializer {
             alertGeneratorRepository.deleteById(alertGenerator.getId());
         }
 
-        for (Command command : commandTableEdit.getSavedCommands()) {
-            commandSerializer.saveCommand(botHomeId, command);
-            commandTableEdit.commandSaved(command);
+        for (Map.Entry<Command, Integer> entry : commandTableEdit.getSavedCommands().entrySet()) {
+            commandSerializer.saveCommand(entry.getValue(), entry.getKey());
+            commandTableEdit.commandSaved(entry.getKey());
         }
 
         for (Map.Entry<Trigger, Integer> triggerEntry : commandTableEdit.getSavedTriggers().entrySet()) {
@@ -113,8 +114,8 @@ public class CommandTableSerializer {
             commandTableEdit.triggerSaved(triggerEntry.getKey());
         }
 
-        for (AlertGenerator alertGenerator : commandTableEdit.getSavedAlertGenerators()) {
-            alertGeneratorSerializer.saveAlertGenerator(botHomeId, alertGenerator);
+        for (Map.Entry<AlertGenerator,Integer> entry : commandTableEdit.getSavedAlertGenerators().entrySet()) {
+            alertGeneratorSerializer.saveAlertGenerator(entry.getValue(), entry.getKey());
         }
     }
 }

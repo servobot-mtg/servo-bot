@@ -5,11 +5,14 @@ import com.ryan_mtg.servobot.data.models.GameQueueRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.model.GameQueue;
-import com.ryan_mtg.servobot.model.GameQueueEntry;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueEntry;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class GameQueueSerializer {
@@ -24,14 +27,7 @@ public class GameQueueSerializer {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void saveGameQueue(final GameQueue gameQueue) {
-        GameQueueRow gameQueueRow = gameQueueRepository.findById(gameQueue.getId());
-        gameQueueRow.setState(gameQueue.getState());
-        gameQueueRow.setCurrentPlayerId(gameQueue.getCurrentPlayerId());
-        gameQueueRow.setNext(gameQueue.getNext());
-        if (!gameQueue.getName().equals(gameQueueRow.getName())) {
-            gameQueueRow.setName(gameQueue.getName());
-        }
-        gameQueueRepository.save(gameQueueRow);
+        gameQueueRepository.save(createGameQueueRow(gameQueue));
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -42,11 +38,7 @@ public class GameQueueSerializer {
 
     @Transactional(rollbackOn = BotErrorException.class)
     public void addEntry(final GameQueue gameQueue, final GameQueueEntry gameQueueEntry) {
-        GameQueueEntryRow gameQueueEntryRow = new GameQueueEntryRow();
-        gameQueueEntryRow.setGameQueueId(gameQueue.getId());
-        gameQueueEntryRow.setSpot(gameQueueEntry.getSpot());
-        gameQueueEntryRow.setUserId(gameQueueEntry.getUserId());
-        gameQueueEntryRepository.save(gameQueueEntryRow);
+        gameQueueEntryRepository.save(createGameQueueEntryRow(gameQueue.getId(), gameQueueEntry));
 
         saveGameQueue(gameQueue);
     }
@@ -55,5 +47,42 @@ public class GameQueueSerializer {
     public void emptyGameQueue(GameQueue gameQueue) {
         gameQueueEntryRepository.deleteAllByGameQueueId(gameQueue.getId());
         saveGameQueue(gameQueue);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void commit(final GameQueueEdit gameQueueEdit) {
+        List<GameQueueRow> gameQueueRows = new ArrayList<>();
+        gameQueueEdit.getSavedGameQueues().forEach(gameQueue -> gameQueueRows.add(createGameQueueRow(gameQueue)));
+        gameQueueRepository.saveAll(gameQueueRows);
+
+        gameQueueEdit.getDeletedGameQueueEntries().forEach((gameQueueEntry, gameQueueId) -> {
+            gameQueueEntryRepository.deleteAllByGameQueueIdAndSpot(gameQueueId, gameQueueEntry.getSpot());
+        });
+
+        List<GameQueueEntryRow> gameQueueEntryRowsToSave = new ArrayList<>();
+        gameQueueEdit.getSavedGameQueueEntries().forEach((gameQueueEntry, gameQueueId) ->
+            gameQueueEntryRowsToSave.add(createGameQueueEntryRow(gameQueueId, gameQueueEntry))
+        );
+        gameQueueEntryRepository.saveAll(gameQueueEntryRowsToSave);
+    }
+
+    private GameQueueRow createGameQueueRow(final GameQueue gameQueue) {
+        GameQueueRow gameQueueRow = gameQueueRepository.findById(gameQueue.getId());
+        gameQueueRow.setState(gameQueue.getState());
+        gameQueueRow.setCurrentPlayerId(gameQueue.getCurrentPlayerId());
+        gameQueueRow.setNext(gameQueue.getNext());
+        if (!gameQueue.getName().equals(gameQueueRow.getName())) {
+            gameQueueRow.setName(gameQueue.getName());
+        }
+        return gameQueueRow;
+    }
+
+    public GameQueueEntryRow createGameQueueEntryRow(final int gameQueueId, final GameQueueEntry gameQueueEntry) {
+        GameQueueEntryRow gameQueueEntryRow = new GameQueueEntryRow();
+        gameQueueEntryRow.setGameQueueId(gameQueueId);
+        gameQueueEntryRow.setSpot(gameQueueEntry.getSpot());
+        gameQueueEntryRow.setUserId(gameQueueEntry.getUserId());
+
+        return gameQueueEntryRow;
     }
 }

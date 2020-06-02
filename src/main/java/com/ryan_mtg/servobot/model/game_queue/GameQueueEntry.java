@@ -1,16 +1,11 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.game_queue;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
+@Getter @AllArgsConstructor
 public class GameQueueEntry {
-    @Getter
     private int userId;
-
-    @Getter
     private int spot;
-
-    @Getter
     private int position;
 }

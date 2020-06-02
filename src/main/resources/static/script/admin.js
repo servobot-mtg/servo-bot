@@ -92,3 +92,47 @@ async function postDeleteArenaUsername(userId) {
         setElementValue(label + '-arena-username-delete-icon', '');
     }
 }
+
+const sendMessageParameterData = [
+    {id: 'user', label: 'User', name: 'receiverId', type: 'integer'},
+    {id: 'service', label: 'Service', name: 'serviceType', type: 'integer'},
+    {id: 'text', label: 'Message', name: 'message', type: 'string'},
+];
+
+async function sendMessage() {
+    let parameters = {};
+    for (let i = 0; i < sendMessageParameterData.length; i++) {
+        addFormParameter('send-message', parameters, sendMessageParameterData[i]);
+    }
+
+    let response = await makePost('/admin/send_message', parameters, [],
+        false);
+    if (response.ok) {
+    }
+}
+
+function addFormParameter(label, parameters, parameterData) {
+    const name = parameterData.name;
+    let inputElement = document.getElementById(label + '-' + parameterData.id + '-input');
+    switch (parameterData.id) {
+        case 'checkbox':
+            parameters[name] = inputElement.checked;
+            return;
+        case 'long':
+            parameters[name] = parseInt(inputElement.value);
+            return;
+        case 'time':
+            const hmsSplit = inputElement.value.split(':');
+            if (hmsSplit == '') {
+                const message = 'Invalid ' + parameterData.label;
+                showErrorMessage(message);
+                throw message;
+            }
+            parameters[name] = (+hmsSplit[0] * 60 + +hmsSplit[1]) * 60 + (+hmsSplit[2] || 0);
+            return;
+        default:
+            parameters[name] = inputElement.value;
+            return;
+    }
+}
+

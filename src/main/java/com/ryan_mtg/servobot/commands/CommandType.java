@@ -23,6 +23,7 @@ public enum CommandType {
     MESSAGE_CHANNEL_COMMAND_TYPE(4, "Message Channel Command"),
     REMOVE_FROM_GAME_QUEUE_COMMAND_TYPE(10, "Remove From Game Queue Command"),
     REQUEST_PRIZE_COMMAND_TYPE(28, "Request Prize Command"),
+    SCORE_COMMAND_TYPE(33, "Score Command"),
     SCRYFALL_SEARCH_COMMAND_TYPE(31, "Scryfall Search Command"),
     SELECT_WINNER_COMMAND_TYPE(23, "Select Raffle Winner Command"),
     SET_ARENA_USERNAME_COMMAND_TYPE(11, "Set Arena Username Command"),

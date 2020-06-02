@@ -15,6 +15,8 @@ public interface UserRepository extends CrudRepository<UserRow, Integer> {
 
     List<UserRow> findByArenaUsernameIsNotNull();
 
+    void deleteAllById(Iterable<Integer> userIds);
+
     @Query(value = "SELECT id FROM UserRow")
     Iterable<Integer> getAllIds();
 }

@@ -32,6 +32,8 @@ import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.books.BookTableEdit;
 import com.ryan_mtg.servobot.model.books.Statement;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueEntry;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
@@ -66,7 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.ryan_mtg.servobot.model.GameQueue.EMPTY_QUEUE;
+import static com.ryan_mtg.servobot.model.game_queue.GameQueue.EMPTY_QUEUE;
 
 public class HomeEditor {
     private static Logger LOGGER = LoggerFactory.getLogger(HomeEditor.class);
@@ -112,6 +114,10 @@ public class HomeEditor {
         BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
         botHomeRow.setTimeZone(timeZone);
         botHomeRepository.save(botHomeRow);
+    }
+
+    public HomedUser getUserById(final int userId) throws BotErrorException {
+        return botHome.getHomedUserTable().getById(userId);
     }
 
     public HomedUser getUserByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
@@ -173,7 +179,7 @@ public class HomeEditor {
 
         CommandTable commandTable = botHome.getCommandTable();
         CommandTableEdit commandTableEdit = commandTable.addCommand(command);
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
 
         return new CommandDescriptor(command);
     }
@@ -184,7 +190,7 @@ public class HomeEditor {
 
         CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
         boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
         return added;
     }
 
@@ -205,7 +211,7 @@ public class HomeEditor {
 
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandName);
 
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -216,7 +222,7 @@ public class HomeEditor {
         if (commandTableEdit.getDeletedCommands().isEmpty()) {
             throw new BotErrorException(String.format("Command '%d' not found.", commandId));
         }
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
     }
 
 
@@ -226,7 +232,7 @@ public class HomeEditor {
 
         CommandTableEdit commandTableEdit = commandTable.addAlias(newAlias, existingAlias);
         boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
         return added;
     }
 
@@ -239,7 +245,7 @@ public class HomeEditor {
             throw new BotErrorException(String.format("Trigger '%s' not added.", text));
         }
 
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
         Trigger trigger = commandTableEdit.getSavedTriggers().keySet().iterator().next();
         List<Trigger> response = new ArrayList<>();
         response.add(trigger);
@@ -258,7 +264,7 @@ public class HomeEditor {
         if (commandTableEdit.getDeletedTriggers().isEmpty()) {
             throw new BotErrorException(String.format("Trigger '%d' not found.", triggerId));
         }
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -331,7 +337,7 @@ public class HomeEditor {
         alertGenerator.setTimeZone(botHome.getTimeZone());
 
         CommandTableEdit commandTableEdit = botHome.getCommandTable().addAlertGenerator(alertGenerator);
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
         botHome.registerAlertGenerator(alertGenerator);
         return alertGenerator;
     }
@@ -339,7 +345,7 @@ public class HomeEditor {
     @Transactional(rollbackOn = BotErrorException.class)
     public void deleteAlert(final int alertGeneratorId) {
         CommandTableEdit commandTableEdit = botHome.getCommandTable().deleteAlertGenerator(alertGeneratorId);
-        serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+        serializers.getCommandTableSerializer().commit(commandTableEdit);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -392,6 +398,11 @@ public class HomeEditor {
         return storageValue;
     }
 
+    public List<StorageValue> getAllUsersStorageValues(final String name) throws BotErrorException {
+        StorageValue.validateName(name);
+        return botHome.getStorageTable().getAllUsersStorage(name);
+    }
+
     public IntegerStorageValue getStorageValue(final int userId, final String name, final int defaultValue)
             throws BotErrorException {
         StorageValue.validateName(name);
@@ -428,9 +439,17 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public void remoteStorageVariables(final String name) {
+    public void removeStorageVariables(final String name) {
         botHome.getStorageTable().removeVariables(name);
         serializers.getStorageTableSerializer().removeVariables(name, botHome.getId());
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void removeStorageVariable(final int userId, final String name) {
+        StorageValue storageValue = botHome.getStorageTable().removeVariable(userId, name);
+        if (storageValue != null) {
+            serializers.getStorageValueRepository().deleteById(storageValue.getId());
+        }
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -446,10 +465,16 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public IntegerStorageValue incrementStorageValue(final int userId, final String name, final int defaultVariable)
+    public IntegerStorageValue incrementStorageValue(final int userId, final String name, final int defaultValue)
             throws BotErrorException {
-        IntegerStorageValue value = getStorageValue(userId, name, defaultVariable);
-        value.setValue(value.getValue() + 1);
+        return increaseStorageValue(userId, name, 1, defaultValue);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public IntegerStorageValue increaseStorageValue(final int userId, final String name, final int amount,
+            final int defaultValue) throws BotErrorException {
+        IntegerStorageValue value = getStorageValue(userId, name, defaultValue);
+        value.setValue(value.getValue() + amount);
         serializers.getStorageValueSerializer().save(value, botHome.getId());
         return value;
     }
@@ -692,7 +717,7 @@ public class HomeEditor {
         raffleSettings.validateOnSave(previousSettings, commandTable);
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
-        giveawayEdit.addGiveaway(giveaway);
+        giveawayEdit.addGiveaway(botHome.getId(), giveaway);
 
         if (!startRaffle.equals(previousSettings.getStartRaffle())) {
             Command oldCommand = giveaway.getStartRaffleCommand();
@@ -708,7 +733,7 @@ public class HomeEditor {
         }
 
         giveaway.setRaffleSettings(raffleSettings);
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
 
         return giveaway;
     }
@@ -718,8 +743,8 @@ public class HomeEditor {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         CommandTable commandTable = botHome.getCommandTable();
-        GiveawayEdit giveawayEdit = giveaway.start(commandTable);
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        GiveawayEdit giveawayEdit = giveaway.start(botHome.getId(), commandTable);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
 
         return giveaway;
     }
@@ -733,8 +758,8 @@ public class HomeEditor {
         giveaway.addPrize(prize);
 
         GiveawayEdit giveawayEdit = new GiveawayEdit();
-        giveawayEdit.addPrize(giveaway.getId(), prize);
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        giveawayEdit.savePrize(giveaway.getId(), prize);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
 
         return prize;
     }
@@ -751,12 +776,12 @@ public class HomeEditor {
             if (!reward.isEmpty()) {
                 Prize prize = new Prize(Prize.UNREGISTERED_ID, reward, Strings.trim(description));
                 prizes.add(prize);
-                giveawayEdit.addPrize(giveaway.getId(), prize);
+                giveawayEdit.savePrize(giveaway.getId(), prize);
             }
         }
         prizes.forEach(giveaway::addPrize);
 
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
         return prizes;
     }
 
@@ -766,7 +791,7 @@ public class HomeEditor {
 
         GiveawayEdit giveawayEdit = giveaway.requestPrize(requester);
         Prize prize = giveawayEdit.getSavedPrizes().keySet().iterator().next();
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
 
         return prize;
     }
@@ -836,12 +861,12 @@ public class HomeEditor {
                 raffleStatusCommand, selectWinnerCommand, alertCommands, prizes, stopTime);
         giveaway.addRaffle(raffle);
 
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
         // TODO: make it so this can go with the previous commit
         for (Map.Entry<String, Command> entry : tokenMap.entrySet()) {
             CommandTableEdit commandTableEdit =
                     commandTable.addTrigger(entry.getValue().getId(), CommandAlert.TYPE, entry.getKey());
-            serializers.getCommandTableSerializer().commit(botHome.getId(), commandTableEdit);
+            serializers.getCommandTableSerializer().commit(commandTableEdit);
         }
 
         for (Alert alert : alerts) {
@@ -878,7 +903,7 @@ public class HomeEditor {
                 prize.bestowTo(winner);
             }
         }
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
 
         return winners;
     }
@@ -888,13 +913,13 @@ public class HomeEditor {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         GiveawayEdit giveawayEdit = giveaway.bestowPrize(prizeId);
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
         return true;
     }
 
     public void deletePrize(final int giveawayId, final int prizeId) throws BotErrorException {
         GiveawayEdit giveawayEdit = botHome.getGiveaway(giveawayId).deletePrize(prizeId);
-        serializers.getGiveawaySerializer().commit(botHome.getId(), giveawayEdit);
+        serializers.getGiveawaySerializer().commit(giveawayEdit);
     }
 
     public String getTwitchChannelName() {

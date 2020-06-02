@@ -23,9 +23,9 @@
 
         <h2 th:if="${!botHome.gameQueues.empty}">Game Queues</h2>
         <th:block th:each="queue : ${botHome.gameQueues}">
-            <div th:if="${queue.state != T(com.ryan_mtg.servobot.model.GameQueue.State).IDLE}">
+            <div th:if="${queue.state != T(com.ryan_mtg.servobot.model.game_queue.GameQueue.State).IDLE}">
                 <h3 th:text="${queue.name} + ': ' + ${queue.state}"/>
-                <div th:text="'Current Player: ' + ${userTable.getById(queue.currentPlayerId).twitchUsername}"/>
+                <div th:text="'Current Player: ' + ${userTable.getById(queue.currentPlayerId).name}"/>
                 <br>
                 <div th:if="${queue.fullQueue.empty}">The queue is empty.</div>
 

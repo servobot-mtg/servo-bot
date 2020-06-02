@@ -1,11 +1,15 @@
 package com.ryan_mtg.servobot.discord.event;
 
+import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.discord.model.DiscordUser;
 import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserTable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -24,22 +28,35 @@ import java.util.Map;
 public class DiscordEventAdapter extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordEventAdapter.class);
 
-    private EventListener listener;
-    private Map<Long, BotHome> homeMap;
-    private StreamStartRegulator streamStartRegulator;
+    private final EventListener listener;
+    private final Map<Long, BotHome> homeMap;
+    private final StreamStartRegulator streamStartRegulator;
+    private final UserTable userTable;
+    private final LoggedMessageSerializer loggedMessageSerializer;
 
     public DiscordEventAdapter(final EventListener listener, final Map<Long, BotHome> homeMap,
-                               final StreamStartRegulator streamStartRegulator) {
+            final StreamStartRegulator streamStartRegulator, final UserTable userTable,
+            final LoggedMessageSerializer loggedMessageSerializer) {
         this.listener = listener;
         this.homeMap = homeMap;
         this.streamStartRegulator = streamStartRegulator;
+        this.userTable = userTable;
+        this.loggedMessageSerializer = loggedMessageSerializer;
     }
 
     @Override
     public void onPrivateMessageReceived(@Nonnull final PrivateMessageReceivedEvent event) {
-        LOGGER.info("Got event with message: {} ", event.getMessage().getContentRaw());
-        LOGGER.info("Got event with channel: {} ", event.getMessage().getChannel().getName());
-        LOGGER.info("Got event with user: {} ", event.getAuthor().getName());
+        try {
+            net.dv8tion.jda.api.entities.User author = event.getAuthor();
+            if (event.getAuthor().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
+                return;
+            }
+
+            User sender = userTable.getByDiscordId(author.getIdLong(), author.getName());
+            loggedMessageSerializer.logReceivedMessage(sender, event.getMessage().getContentRaw(), DiscordService.TYPE);
+        } catch (BotErrorException e) {
+            LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        }
     }
 
     @Override

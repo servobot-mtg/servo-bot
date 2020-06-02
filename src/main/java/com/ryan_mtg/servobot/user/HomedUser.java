@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.user;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
 import lombok.Getter;
 
 public class HomedUser {
@@ -9,7 +8,7 @@ public class HomedUser {
     @Getter
     private UserStatus userStatus;
 
-    public HomedUser(final User user, final UserStatus userStatus) throws BotErrorException {
+    public HomedUser(final User user, final UserStatus userStatus) {
         this.user = user;
         this.userStatus = userStatus;
     }

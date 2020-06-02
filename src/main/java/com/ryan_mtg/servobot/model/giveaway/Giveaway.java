@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.utility.Validation;
 
 import java.util.ArrayList;
@@ -174,7 +175,7 @@ public class Giveaway {
         throw new BotErrorException("There is no raffle currently in progress.");
     }
 
-    public GiveawayEdit start(final CommandTable commandTable) throws BotErrorException {
+    public GiveawayEdit start(final int botHomeId, final CommandTable commandTable) throws BotErrorException {
         GiveawayEdit giveawayEdit = new GiveawayEdit();
         switch (state) {
             case ACTIVE:
@@ -199,7 +200,7 @@ public class Giveaway {
             CommandTableEdit commandTableEdit = commandTable.addCommand(requestPrizeCommandName, requestPrizeCommand);
             giveawayEdit.merge(commandTableEdit);
         }
-        giveawayEdit.addGiveaway(this);
+        giveawayEdit.addGiveaway(botHomeId, this);
         return giveawayEdit;
     }
 
@@ -214,7 +215,7 @@ public class Giveaway {
                 .orElseThrow(() -> new BotErrorException("No prizes left :("));
 
         prize.bestowTo(requester);
-        giveawayEdit.addPrize(getId(), prize);
+        giveawayEdit.savePrize(getId(), prize);
         return giveawayEdit;
     }
 
@@ -234,7 +235,7 @@ public class Giveaway {
 
         for (Prize prize : reservedPrizes) {
             prize.setStatus(Prize.Status.RESERVED);
-            giveawayEdit.addPrize(getId(), prize);
+            giveawayEdit.savePrize(getId(), prize);
         }
         return giveawayEdit;
     }
@@ -248,7 +249,7 @@ public class Giveaway {
 
         prize.setStatus(Prize.Status.BESTOWED);
         GiveawayEdit giveawayEdit = new GiveawayEdit();
-        giveawayEdit.addPrize(getId(), prize);
+        giveawayEdit.savePrize(getId(), prize);
         return giveawayEdit;
     }
 
@@ -267,6 +268,18 @@ public class Giveaway {
         return giveawayEdit;
     }
 
+    public GiveawayEdit mergeUser(final HomedUserTable homedUserTable, final int newUserId,
+            final List<Integer> oldUserIds) throws BotErrorException {
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        for (Prize prize : prizes) {
+            if (prize.getWinner() != null && oldUserIds.contains(prize.getWinner().getId())) {
+                prize.setWinner(homedUserTable.getById(newUserId));
+                giveawayEdit.savePrize(id, prize);
+            }
+        }
+        return giveawayEdit;
+    }
+
     private Prize getPrize(final int prizeId) throws BotErrorException {
         for (Prize prize : prizes) {
             if (prize.getId() == prizeId) {
@@ -275,4 +288,5 @@ public class Giveaway {
         }
         throw new BotErrorException(String.format("No prize with id %d", prizeId));
     }
+
 }

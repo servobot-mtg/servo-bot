@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GiveawayRepository extends CrudRepository<GiveawayRow, Integer> {
-    Iterable<GiveawayRow> findAllByBotHomeId(int botHomeId);
     GiveawayRow findById(int id);
+    Iterable<GiveawayRow> findAllByIdIn(Iterable<Integer> ids);
+    Iterable<GiveawayRow> findAllByBotHomeId(int botHomeId);
+
 }

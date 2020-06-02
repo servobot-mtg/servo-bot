@@ -11,6 +11,7 @@ import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.user.UserTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -34,17 +35,19 @@ import java.util.stream.Collectors;
 public class DiscordService implements Service {
     public static final int TYPE = 2;
 
-    private String token;
     private JDA jda;
+    private final String token;
 
     // guildId -> home
-    private Map<Long, BotHome> homeMap = new HashMap<>();
+    private final Map<Long, BotHome> homeMap = new HashMap<>();
+    private final UserTable userTable;
+    private final LoggedMessageSerializer loggedMessageSerializer;
     private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
-    private LoggedMessageSerializer loggedMessageSerializer;
 
-    public DiscordService(final String token, final LoggedMessageSerializer loggedMessageSerializer)
-            throws BotErrorException {
+    public DiscordService(final String token, final UserTable userTable,
+            final LoggedMessageSerializer loggedMessageSerializer) throws BotErrorException {
         this.token = token;
+        this.userTable = userTable;
         this.loggedMessageSerializer = loggedMessageSerializer;
 
         Validation.validateStringLength(token, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "Token");
@@ -91,8 +94,8 @@ public class DiscordService implements Service {
         JDABuilder builder = new JDABuilder(token);
         builder.setActivity(Activity.playing("Beta: " + now()));
 
-        builder.addEventListeners(
-                new DiscordEventAdapter(eventListener, homeMap, streamStartRegulator));
+        builder.addEventListeners(new DiscordEventAdapter(eventListener, homeMap, streamStartRegulator,
+                userTable, loggedMessageSerializer));
         jda = builder.build();
         jda.awaitReady();
         homeMap.forEach(

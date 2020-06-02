@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.model;
+package com.ryan_mtg.servobot.model.game_queue;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -100,25 +100,54 @@ public class GameQueue {
         nextSpot = Math.max(spot + 1, nextSpot);
     }
 
+    public GameQueueEdit mergeUser(final int newUserId, final List<Integer> oldUserIds) {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        if (oldUserIds.contains(currentPlayerId)) {
+            currentPlayerId = newUserId;
+            gameQueueEdit.save(this);
+        }
+
+        Entry entry = null;
+        for (int oldUserId : oldUserIds) {
+            if (userMap.containsKey(oldUserId)) {
+                Entry oldEntry = userMap.get(oldUserId);
+                if (entry == null) {
+                    entry = oldEntry;
+                } else {
+                    if (oldEntry.getSpot() < entry.getSpot()) {
+                        Entry temp = oldEntry;
+                        oldEntry = entry;
+                        entry = temp;
+                    }
+
+                    gameQueueEdit.delete(id, new GameQueueEntry(oldEntry.getUserId(), oldEntry.getSpot(), 0));
+                }
+            }
+        }
+
+        if (entry != null) {
+            entry.setUserId(newUserId);
+            userMap.put(newUserId, entry);
+            gameQueueEdit.save(id, new GameQueueEntry(newUserId, entry.getSpot(), 0));
+        }
+
+        oldUserIds.forEach(oldUserId -> userMap.remove(oldUserId));
+
+        return gameQueueEdit;
+    }
+
     public boolean contains(final int userId) {
         return currentPlayerId == userId || userMap.containsKey(userId);
     }
 
+    @Getter @Setter
     private static final class Entry {
         private int userId;
         private int spot;
 
-        public Entry(final int userId, final int spot) {
+        Entry(final int userId, final int spot) {
             this.userId = userId;
             this.spot = spot;
-        }
-
-        public int getUserId() {
-            return userId;
-        }
-
-        public int getSpot() {
-            return spot;
         }
     }
 }

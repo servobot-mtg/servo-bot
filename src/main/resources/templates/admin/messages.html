@@ -8,7 +8,7 @@
 <div th:include="fragments :: header"/>
 <div class="content">
     <h2>Send Message</h2>
-    <form class="message-form">
+    <form class="message-form" th:onsubmit="'sendMessage(); return false;'">
         <div>
             <label>User</label><br>
             <datalist id="user-list">
@@ -22,7 +22,7 @@
             <label>Service</label><br>
             <select id="send-message-service-input">
                 <th:block th:each="serviceEntry : ${bot.services}" th:object="${serviceEntry.value}">
-                    <option th:value="*{type}" th:text="*{name}"/>
+                    <option th:value="*{type}" th:text="*{name}" th:selected="*{name=='Discord'}"/>
                 </th:block>
             </select>
         </div><br>

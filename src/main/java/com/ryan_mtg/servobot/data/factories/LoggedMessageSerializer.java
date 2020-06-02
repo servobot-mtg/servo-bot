@@ -50,16 +50,16 @@ public class LoggedMessageSerializer {
 
         List<LoggedMessage> messages = new ArrayList<>();
         for (LoggedMessageRow loggedMessageRow : loggedMessageRows) {
-            Instant sentTime = Instant.ofEpochMilli(loggedMessageRow.getSentTime());
+            Instant sentTime = Instant.ofEpochSecond(loggedMessageRow.getSentTime());
             messages.add(new LoggedMessage(userMap.get(loggedMessageRow.getUserId()), loggedMessageRow.getDirection(),
                     loggedMessageRow.getMessage(), loggedMessageRow.getServiceType(), sentTime));
         }
         return messages;
     }
 
-    private void logMessage(final User receiver, final String message, final int serviceType, final int direction) {
+    private void logMessage(final User user, final String message, final int serviceType, final int direction) {
         LoggedMessageRow loggedMessageRow = new LoggedMessageRow();
-        loggedMessageRow.setUserId(receiver.getId());
+        loggedMessageRow.setUserId(user.getId());
         loggedMessageRow.setMessage(message);
         loggedMessageRow.setServiceType(serviceType);
         loggedMessageRow.setSentTime(Instant.now().getEpochSecond());

@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.user;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
+import com.ryan_mtg.servobot.data.repositories.UserRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import org.springframework.stereotype.Component;
 
@@ -16,12 +17,13 @@ import java.util.function.Predicate;
 @Component
 public class UserTable {
     private final UserSerializer userSerializer;
+    private final UserRepository userRepository;
+    private final Map<Integer, WeakReference<User>> userMap = new HashMap<>();
 
-    public UserTable(final UserSerializer userSerializer) {
+    public UserTable(final UserSerializer userSerializer, final UserRepository userRepository) {
         this.userSerializer = userSerializer;
+        this.userRepository = userRepository;
     }
-
-    private Map<Integer, WeakReference<User>> userMap = new HashMap<>();
 
     public void save(final User user) {
         userSerializer.saveUser(user);
@@ -97,6 +99,15 @@ public class UserTable {
         }
 
         return store(userSerializer.lookupByDiscordId(discordId, discordUsername));
+    }
+
+    public void purge(final List<Integer> usersToDelete) {
+        usersToDelete.forEach(userMap::remove);
+        userRepository.deleteAllById(usersToDelete);
+    }
+
+    public void update(final User user) {
+        userSerializer.saveUser(store(user));
     }
 
     private User getUser(final int userId) {

@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Strings;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -127,7 +128,7 @@ public class DiscordHome implements Home {
 
     @Override
     public boolean hasUser(final String userName) {
-        if (userName == null) {
+        if (Strings.isBlank(userName)) {
             return false;
         }
 

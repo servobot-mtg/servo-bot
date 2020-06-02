@@ -12,7 +12,7 @@ import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.model.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.scope.Scope;
@@ -82,7 +82,8 @@ public class BotFactory {
         Map<Integer, Book> bookMap = bookTable.getBookMap();
 
         LOGGER.info("------ Creating CommandTable: {} ", botHomeRow.getHomeName());
-        CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
+        CommandTable commandTable =
+                serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
         LOGGER.info("------ Creating ReactionTable: {} ", botHomeRow.getHomeName());
         ReactionTable reactionTable =
                 serializers.getReactionTableSerializer().createReactionTable(botHomeId, commandTable);
@@ -114,9 +115,10 @@ public class BotFactory {
         }
 
         LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
-        HomedUserTable homedUserTable = new HomedUserTable(serializers.getUserSerializer(), serializers.getUserTable(),
-                botHomeId);
-        List<Giveaway> giveaways = serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
+        HomedUserTable homedUserTable =
+                new HomedUserTable(serializers.getUserSerializer(), serializers.getUserTable(), botHomeId);
+        List<Giveaway> giveaways =
+                serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
         BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, bookTable, commandTable,
                 reactionTable, storageTable, serviceHomes, gameQueues, giveaways);

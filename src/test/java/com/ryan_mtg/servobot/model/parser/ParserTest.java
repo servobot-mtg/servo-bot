@@ -44,6 +44,11 @@ public class ParserTest {
     }
 
     @Test
+    public void testStringLiteralExpression() throws ParseException {
+        assertEquals("hi", parser.parse("'hi'").evaluate());
+    }
+
+    @Test
     public void testParenthesisExpression() throws ParseException {
         assertEquals("2", parser.parse("(2)").evaluate());
     }
@@ -56,6 +61,16 @@ public class ParserTest {
     @Test
     public void testMultiplicationExpression() throws ParseException {
         assertEquals("6", parser.parse("2*3").evaluate());
+    }
+
+    @Test
+    public void testConditionalExpressionWithTrue() throws ParseException {
+        assertEquals("1", parser.parse("true?1:2").evaluate());
+    }
+
+    @Test
+    public void testConditionalExpressionWithFalse() throws ParseException {
+        assertEquals("1", parser.parse("true?1:2").evaluate());
     }
 
     @Test

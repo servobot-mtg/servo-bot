@@ -2,14 +2,17 @@ package com.ryan_mtg.servobot.model.storage;
 
 import com.ryan_mtg.servobot.model.scope.SymbolTable;
 import com.sun.istack.NotNull;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StorageTable implements Iterable<StorageValue>, SymbolTable {
     private Map<StorageKey, StorageValue> storageMap = new HashMap<>();
@@ -24,6 +27,11 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
 
     public StorageValue getStorage(final String name) {
         return storageMap.get(new StorageKey(StorageValue.GLOBAL_USER, name));
+    }
+
+    public List<StorageValue> getAllUsersStorage(final String name) {
+        return storageMap.values().stream().filter(storageValue -> storageValue.getName().equals(name))
+                .collect(Collectors.toList());
     }
 
     public Collection<StorageValue> getValues() {
@@ -45,6 +53,11 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
         return getStorage(name);
     }
 
+    public StorageValue removeVariable(final int userId, final String name) {
+        StorageKey keyToRemove = new StorageKey(userId, name);
+        return storageMap.remove(keyToRemove);
+    }
+
     public void removeVariables(final String name) {
         Set<StorageKey> keysToRemove = new HashSet<>();
         storageMap.keySet().stream()
@@ -52,8 +65,23 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
         keysToRemove.forEach(key -> storageMap.remove(key));
     }
 
-    private class StorageKey {
+    public StorageTableEdit mergeUser(final int botHomeId, final int newUserId, final List<StorageKey> keys) {
+        StorageTableEdit storageTableEdit = new StorageTableEdit();
+        for(StorageKey oldKey : keys) {
+            StorageValue storageValue = storageMap.get(oldKey);
+            StorageKey newKey = new StorageKey(newUserId, oldKey.getName());
+            storageValue.setUserId(newUserId);
+            storageMap.remove(oldKey);
+            storageMap.put(newKey, storageValue);
+            storageTableEdit.save(botHomeId, storageValue);
+        }
+        return storageTableEdit;
+    }
+
+    @EqualsAndHashCode
+    public static class StorageKey {
         private final int userId;
+        @Getter
         private final String name;
 
         public StorageKey(final int userId, final String name) {
@@ -63,27 +91,6 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
 
         public StorageKey(final StorageValue storageValue) {
             this(storageValue.getUserId(), storageValue.getName());
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o){
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()){
-                return false;
-            }
-            StorageKey that = (StorageKey) o;
-            return userId == that.userId && name.equals(that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(userId, name);
         }
     }
 }

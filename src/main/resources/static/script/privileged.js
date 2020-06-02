@@ -678,6 +678,7 @@ const commandData = [
             {id: 'text-2', name: 'Response message'}]}, //30
     {name: 'Scryfall Search Command', parameters: []}, //31
     {name: 'Card Search Command', parameters: []}, //32
+    {name: 'Score Command', parameters: [{id: 'text', name: 'Game Name'}, {id: 'text-2', name: 'Variable Name'}]}, //33
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

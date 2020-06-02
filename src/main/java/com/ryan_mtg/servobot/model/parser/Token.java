@@ -12,6 +12,10 @@ public class Token {
         INCREMENT,
         ADD,
         MULTIPLY,
+        CONDITIONAL,
+        CONDITIONAL_ELSE,
+        STRING_LITERAL,
+        ;
     }
 
     @Getter
