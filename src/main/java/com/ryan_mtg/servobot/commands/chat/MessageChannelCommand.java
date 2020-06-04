@@ -52,7 +52,7 @@ public class MessageChannelCommand extends HomeCommand {
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("commandCount", "");
         Scope commandScope = new Scope(homeEvent.getScope(), symbolTable);
-        Command.say(channel, homeEvent, commandScope, message);
+        homeEvent.say(channel, commandScope, message);
     }
 
     @Override

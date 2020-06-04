@@ -6,8 +6,6 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import org.junit.Test;
@@ -30,29 +28,27 @@ public class DeleteCommandTest {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
-        Channel channel = mockChannel();
         User sender = mockUser("name");
         String commandLine = String.format("!%s", COMMAND_NAME);
-        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, channel, sender, commandLine);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, sender, commandLine);
 
         command.perform(event);
 
         verify(commandTableEditor).deleteCommand(sender, COMMAND_NAME);
-        verify(channel).say(String.format("Command %s deleted.", COMMAND_NAME));
+        verify(event).say(String.format("Command %s deleted.", COMMAND_NAME));
     }
 
     @Test(expected = BotErrorException.class)
     public void testThrowsExceptionWhenCommandDoesNotStartWithExclamationMark() throws BotErrorException {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
-        Channel channel = mockChannel();
         String commandLine = String.format("%s", COMMAND_NAME);
-        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandLine);
 
         try {
             command.perform(event);
         } finally {
-            verify(channel, never()).say(anyString());
+            verify(event, never()).say(anyString());
         }
     }
 
@@ -60,14 +56,13 @@ public class DeleteCommandTest {
     public void testThrowsExceptionWhenCommandNameIsEmpty() throws BotErrorException {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
-        Channel channel = mockChannel();
         String commandLine = String.format("!%s", "");
-        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandLine);
 
         try {
             command.perform(event);
         } finally {
-            verify(channel, never()).say(anyString());
+            verify(event, never()).say(anyString());
         }
     }
 
@@ -75,14 +70,13 @@ public class DeleteCommandTest {
     public void testThrowsExceptionWhenPassedNoArguments() throws BotErrorException {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
-        Channel channel = mockChannel();
         String commandLine = "";
-        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandLine);
 
         try {
             command.perform(event);
         } finally {
-            verify(channel, never()).say(anyString());
+            verify(event, never()).say(anyString());
         }
     }
 
@@ -91,17 +85,16 @@ public class DeleteCommandTest {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
-        Channel channel = mockChannel();
         User sender = mockUser("name");
         String commandLine = String.format("!%s", COMMAND_NAME);
-        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, channel, sender, commandLine);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, sender, commandLine);
 
         doThrow(BotErrorException.class).when(commandTableEditor).deleteCommand(sender, COMMAND_NAME);
 
         try {
             command.perform(event);
         } finally {
-            verify(channel, never()).say(anyString());
+            verify(event, never()).say(anyString());
         }
     }
 }

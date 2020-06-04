@@ -7,14 +7,12 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
-import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.mockChannel;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockCommandInvokedHomeEvent;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockHome;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockMessage;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockUser;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,14 +31,13 @@ public class TierCommandTest {
         TierCommand command = new TierCommand(ID, COMMAND_SETTINGS);
 
         Home home = mockHome();
-        Channel channel = mockChannel();
         User user = mockUser(USER_NAME);
-        CommandInvokedHomeEvent event = mockCommandInvokedHomeEvent(home, channel, user, SERVICE_TYPE, ARGUMENTS);
+        CommandInvokedHomeEvent event = mockCommandInvokedHomeEvent(home, user, SERVICE_TYPE, ARGUMENTS);
 
         when(home.getRole(user, SERVICE_TYPE)).thenReturn(ROLE);
 
         command.perform(event);
 
-        verify(channel).say(String.format("Hello, %s, your friendship tier is %s.", USER_NAME, ROLE));
+        verify(event).say(String.format("Hello, %s, your friendship tier is %s.", USER_NAME, ROLE));
     }
 }

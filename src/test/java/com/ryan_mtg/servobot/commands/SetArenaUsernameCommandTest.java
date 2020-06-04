@@ -5,14 +5,11 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.BotEditor;
-import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.User;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.mockBotEditor;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockChannel;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockCommandInvokedEvent;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockUser;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -32,14 +29,13 @@ public class SetArenaUsernameCommandTest {
         SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, COMMAND_SETTINGS);
 
         BotEditor botEditor = mockBotEditor();
-        Channel channel = mockChannel();
         User user = mockUser(USER_ID);
-        CommandInvokedEvent event = mockCommandInvokedEvent(botEditor, channel, user, ARENA_NAME);
+        CommandInvokedEvent event = mockCommandInvokedEvent(botEditor, user, ARENA_NAME);
 
         command.perform(event);
 
         verify(botEditor).setArenaUsername(USER_ID, ARENA_NAME);
-        verify(channel).say("Username added.");
+        verify(event).say("Username added.");
     }
 
     @Test(expected = BotErrorException.class)
@@ -47,14 +43,13 @@ public class SetArenaUsernameCommandTest {
         SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, COMMAND_SETTINGS);
 
         BotEditor botEditor = mockBotEditor();
-        Channel channel = mockChannel();
-        CommandInvokedEvent event = mockCommandInvokedEvent(botEditor, channel, "This is a really long username#12345");
+        CommandInvokedEvent event = mockCommandInvokedEvent(botEditor, "This is a really long username#12345");
 
         try {
             command.perform(event);
         } finally {
             verify(botEditor, never()).setArenaUsername(anyInt(), anyString());
-            verify(channel, never()).say(anyString());
+            verify(event, never()).say(anyString());
         }
     }
 
@@ -64,14 +59,13 @@ public class SetArenaUsernameCommandTest {
         SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, COMMAND_SETTINGS);
 
         BotEditor botEditor = mockBotEditor();
-        Channel channel = mockChannel();
-        CommandInvokedEvent event = mockCommandInvokedEvent(botEditor, channel, "name");
+        CommandInvokedEvent event = mockCommandInvokedEvent(botEditor, "name");
 
         try {
             command.perform(event);
         } finally {
             verify(botEditor, never()).setArenaUsername(anyInt(), anyString());
-            verify(channel, never()).say(anyString());
+            verify(event, never()).say(anyString());
         }
     }
 }

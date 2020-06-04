@@ -61,12 +61,12 @@ public class SelectWinnerCommand extends HomeCommand {
         }
 
         if (Flags.hasFlag(getFlags(), DISCORD_FLAG) && discordChannel != null && !discordChannel.isEmpty()) {
-            Command.say(home.getChannel(discordChannel, DiscordService.TYPE), homeEvent, scope, message);
+            homeEvent.say(home.getChannel(discordChannel, DiscordService.TYPE), scope, message);
         }
 
         if (Flags.hasFlag(getFlags(), TWITCH_FLAG)) {
             String twitchChannel = homeEditor.getTwitchChannelName();
-            Command.say(home.getChannel(twitchChannel, TwitchService.TYPE), homeEvent, scope, message);
+            homeEvent.say(home.getChannel(twitchChannel, TwitchService.TYPE), scope, message);
         }
     }
 

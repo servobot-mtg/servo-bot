@@ -41,8 +41,17 @@ public class ObjectMother {
         return mock(Message.class);
     }
 
+    public static CommandInvokedEvent mockCommandInvokedEvent(final String arguments) {
+        return mockCommandInvokedEvent(mock(Channel.class), arguments);
+    }
+
     public static CommandInvokedEvent mockCommandInvokedEvent(final Channel channel, final String arguments) {
         return mockCommandInvokedEvent(mock(CommandTableEditor.class), channel, arguments);
+    }
+
+    public static CommandInvokedEvent mockCommandInvokedEvent(final CommandTableEditor commandTableEditor,
+            final String arguments) {
+        return mockCommandInvokedEvent(commandTableEditor, mock(Channel.class), mockUser(), arguments);
     }
 
     public static CommandInvokedEvent mockCommandInvokedEvent(final CommandTableEditor commandTableEditor,
@@ -50,9 +59,13 @@ public class ObjectMother {
         return mockCommandInvokedEvent(commandTableEditor, channel, mockUser(), arguments);
     }
 
-    public static CommandInvokedEvent mockCommandInvokedEvent(final Channel channel, final User sender,
-            final String arguments) {
-        return mockCommandInvokedEvent(mock(CommandTableEditor.class), channel, sender, arguments);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final User sender, final String arguments) {
+        return mockCommandInvokedEvent(mock(CommandTableEditor.class), mock(Channel.class), sender, arguments);
+    }
+
+    public static CommandInvokedEvent mockCommandInvokedEvent(final CommandTableEditor commandTableEditor,
+            final User sender, final String arguments) {
+        return mockCommandInvokedEvent(commandTableEditor, mock(Channel.class), sender, arguments);
     }
 
     public static CommandInvokedEvent mockCommandInvokedEvent(final CommandTableEditor commandTableEditor,
@@ -60,20 +73,19 @@ public class ObjectMother {
         return mockCommandInvokedEvent(mock(Scope.class), commandTableEditor, channel, sender, arguments);
     }
 
-    public static CommandInvokedEvent mockCommandInvokedEvent(final BotEditor botEditor, final Channel channel,
-            final String arguments) {
-        return mockCommandInvokedEvent(botEditor, channel, mockUser(), arguments);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final BotEditor botEditor, final String arguments) {
+        return mockCommandInvokedEvent(botEditor, mockUser(), arguments);
     }
 
-    public static CommandInvokedEvent mockCommandInvokedEvent(final BotEditor botEditor, final Channel channel,
-            final User sender, final String arguments) {
-        return mockCommandInvokedEvent(botEditor, mock(Scope.class), mock(CommandTableEditor.class), channel, sender,
+    public static CommandInvokedEvent mockCommandInvokedEvent(final BotEditor botEditor, final User sender,
+            final String arguments) {
+        return mockCommandInvokedEvent(botEditor, mock(Scope.class), mock(CommandTableEditor.class),
+                mock(Channel.class), sender, arguments);
+    }
+
+    public static CommandInvokedEvent mockCommandInvokedEvent(final Scope scope, final String arguments) {
+        return mockCommandInvokedEvent(scope, mock(CommandTableEditor.class), mock(Channel.class), mockUser(),
                 arguments);
-    }
-
-    public static CommandInvokedEvent mockCommandInvokedEvent(final Scope scope, final Channel channel,
-            final String arguments) {
-        return mockCommandInvokedEvent(scope, mock(CommandTableEditor.class), channel, mockUser(), arguments);
     }
 
     public static CommandInvokedEvent mockCommandInvokedEvent(final Scope scope,
@@ -95,11 +107,10 @@ public class ObjectMother {
         return event;
     }
 
-    public static CommandInvokedHomeEvent mockCommandInvokedHomeEvent(final Home home, final Channel channel,
-            final User sender, final int serviceType, final String arguments) {
+    public static CommandInvokedHomeEvent mockCommandInvokedHomeEvent(final Home home, final User sender,
+            final int serviceType, final String arguments) {
         CommandInvokedHomeEvent event = mock(CommandInvokedHomeEvent.class);
         when(event.getHome()).thenReturn(home);
-        when(event.getChannel()).thenReturn(channel);
         when(event.getSender()).thenReturn(sender);
         when(event.getArguments()).thenReturn(arguments);
         when(event.getServiceType()).thenReturn(serviceType);

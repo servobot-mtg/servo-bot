@@ -9,12 +9,15 @@ import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.mockChannel;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockHome;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockHomeEvent;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,10 +45,11 @@ public class MessageChannelCommandTest {
     @Test
     public void testPerformOnSameService() throws BotErrorException {
         when(home.getChannel(CHANNEL_NAME, SERVICE_TYPE)).thenReturn(channel);
+        HomeEvent homeEvent = mockHomeEvent(home, SERVICE_TYPE);
 
-        command.perform(mockHomeEvent(home, SERVICE_TYPE));
+        command.perform(homeEvent);
 
-        verify(channel).say(MESSAGE);
+        verify(homeEvent).say(eq(channel), any(Scope.class), eq(MESSAGE));
     }
 
     @Test
@@ -58,6 +62,6 @@ public class MessageChannelCommandTest {
 
         command.perform(homeEvent);
 
-        verify(channel).say(MESSAGE);
+        verify(homeEvent).say(eq(channel), any(Scope.class), eq(MESSAGE));
     }
 }

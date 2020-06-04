@@ -131,9 +131,4 @@ public abstract class Command {
     private void setFlag(final int flag, final boolean value) {
         commandSettings.setFlags(Flags.setFlag(commandSettings.getFlags(), flag, value));
     }
-
-    protected static void say(final Channel channel, final Event event, final Scope scope, final String text)
-            throws BotErrorException {
-        event.say(channel, scope, text);
-    }
 }
