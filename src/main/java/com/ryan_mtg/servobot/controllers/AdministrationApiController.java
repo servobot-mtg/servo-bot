@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotRegistrar;
@@ -7,7 +8,10 @@ import com.ryan_mtg.servobot.model.SystemEditor;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,5 +79,17 @@ public class AdministrationApiController {
         private int receiverId;
         private String message;
         private int serviceType;
+    }
+
+    @ExceptionHandler(BotErrorException.class)
+    public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
+        exception.printStackTrace();
+        return new ResponseEntity<>(new BotError(exception.getErrorMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BotError> botErrorHandler(final Exception exception) {
+        exception.printStackTrace();
+        return new ResponseEntity<>(new BotError(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
