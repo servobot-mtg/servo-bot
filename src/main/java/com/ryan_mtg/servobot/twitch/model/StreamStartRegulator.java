@@ -59,31 +59,38 @@ public class StreamStartRegulator implements Runnable {
 
     @Override
     public void run() {
-        List<Long> allIds;
-        synchronized (this) {
-            allIds = new ArrayList<>(isStreamingMap.keySet());
-        }
-
-        Set<Long> streamingIds = twitchService.getChannelsStreaming(allIds);
-
-        for (long id : allIds) {
-            boolean isStreaming = streamingIds.contains(id);
-            boolean wasStreaming;
+        try {
+            List<Long> allIds;
             synchronized (this) {
-                if (!isStreamingMap.containsKey(id)) {
-                    continue;
-                }
-                wasStreaming = isStreamingMap.get(id);
-                isStreamingMap.put(id, isStreaming);
+                allIds = new ArrayList<>(isStreamingMap.keySet());
             }
 
-            if (!wasStreaming && isStreaming) {
-                String channelName =
-                        ((TwitchServiceHome)homeMap.get(id).getServiceHome(TwitchService.TYPE)).getChannelName();
-                LOGGER.info("Stream is starting for {}", channelName);
-                eventListener.onStreamStart(
-                        new TwitchStreamStartEvent(client, homeMap.get(id), channelName));
+            Set<Long> streamingIds = twitchService.getChannelsStreaming(allIds);
+
+            LOGGER.trace("Checking streams for starting");
+            for (long id : allIds) {
+                boolean isStreaming = streamingIds.contains(id);
+                boolean wasStreaming;
+                synchronized (this) {
+                    if (!isStreamingMap.containsKey(id)) {
+                        continue;
+                    }
+                    wasStreaming = isStreamingMap.get(id);
+                    isStreamingMap.put(id, isStreaming);
+                }
+                LOGGER.trace("  > stream {} wasStreaming: {}, isStreaming: {}", id, wasStreaming, isStreaming);
+
+                if (!wasStreaming && isStreaming) {
+                    String channelName =
+                            ((TwitchServiceHome) homeMap.get(id).getServiceHome(TwitchService.TYPE)).getChannelName();
+                    LOGGER.info("Stream is starting for {}", channelName);
+                    eventListener.onStreamStart(
+                            new TwitchStreamStartEvent(client, homeMap.get(id), channelName));
+                }
             }
+        } catch (Exception e) {
+            LOGGER.error("Caught exception while regulating stream starts: ", e);
+            e.printStackTrace();
         }
     }
 

@@ -43,7 +43,7 @@ public class CommandPerformer {
 
     public void perform(final CommandInvokedHomeEvent event, final Command command) {
         wrapForInvokedErrorHandling(event, command, () -> {
-            dynamicPerform((CommandInvokedEvent) event, command);
+            dynamicPerform(event, command);
         });
     }
 

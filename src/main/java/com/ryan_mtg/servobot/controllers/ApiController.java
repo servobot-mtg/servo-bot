@@ -558,7 +558,6 @@ public class ApiController {
         return botRegistrar.getHomeEditor(botHomeId);
     }
 
-
     @ExceptionHandler(BotErrorException.class)
     public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
         exception.printStackTrace();
