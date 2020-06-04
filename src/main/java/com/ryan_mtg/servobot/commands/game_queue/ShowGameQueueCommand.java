@@ -3,12 +3,12 @@ package com.ryan_mtg.servobot.commands.game_queue;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import lombok.Getter;
 
-public class ShowGameQueueCommand extends MessageCommand {
+public class ShowGameQueueCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.SHOW_GAME_QUEUE_COMMAND_TYPE;
 
     @Getter
@@ -20,9 +20,9 @@ public class ShowGameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
         String response = event.getHomeEditor().showGameQueue(gameQueueId);
-        MessageCommand.say(event, response);
+        event.say(response);
     }
 
     @Override

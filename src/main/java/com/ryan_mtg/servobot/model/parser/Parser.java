@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.model.parser;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotThrowingFunction;
-import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
@@ -30,12 +30,12 @@ import static com.ryan_mtg.servobot.model.parser.Token.Type.OPEN_PARENTHESIS;
 public class Parser {
     private Lexer lexer;
     private Scope scope;
-    private HomeEditor homeEditor;
+    private StorageValueEditor storageValueEditor;
     private Map<String, Object> constants = new HashMap<>();
 
-    public Parser(final Scope scope, final HomeEditor homeEditor) {
+    public Parser(final Scope scope, final StorageValueEditor storageValueEditor) {
         this.scope = scope;
-        this.homeEditor = homeEditor;
+        this.storageValueEditor = storageValueEditor;
         constants.put("true", true);
         constants.put("false", false);
     }
@@ -133,7 +133,7 @@ public class Parser {
                     throw new ParseException("Invalid expression to increment");
                 }
                 try {
-                    result = homeEditor.incrementStorageValue(((IntegerStorageValue) result).getName());
+                    result = storageValueEditor.incrementStorageValue(((IntegerStorageValue) result).getName());
                 } catch (BotErrorException e) {
                     throw new ParseException(e.getErrorMessage());
                 }
@@ -154,7 +154,7 @@ public class Parser {
             IntegerStorageValue value = (IntegerStorageValue) result;
             result = value.getValue();
             try {
-                homeEditor.incrementStorageValue(value.getName());
+                storageValueEditor.incrementStorageValue(value.getName());
             } catch (BotErrorException e) {
                 throw new ParseException(e.getErrorMessage());
             }

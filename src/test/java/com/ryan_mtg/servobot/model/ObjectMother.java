@@ -1,8 +1,11 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.events.HomeEvent;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.user.HomedUser;
 
 import static org.mockito.Mockito.mock;
@@ -35,65 +38,71 @@ public class ObjectMother {
     }
 
     public static Message mockMessage() {
-        return mockMessage(0);
+        return mock(Message.class);
     }
 
-    public static Message mockMessage(final int serviceType) {
-        Message message = mock(Message.class);
-        when(message.getServiceType()).thenReturn(serviceType);
-        return message;
+    public static CommandInvokedEvent mockCommandInvokedEvent(final Channel channel, final String arguments) {
+        return mockCommandInvokedEvent(mock(CommandTableEditor.class), channel, arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final Channel channel) {
-        return mockMessageSentEvent(mockHomeEditor(), channel);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final CommandTableEditor commandTableEditor,
+            final Channel channel, final String arguments) {
+        return mockCommandInvokedEvent(commandTableEditor, channel, mockUser(), arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final BotEditor botEditor, final Channel channel) {
-        return mockMessageSentEvent(botEditor, mockHomeEditor(), channel);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final Channel channel, final User sender,
+            final String arguments) {
+        return mockCommandInvokedEvent(mock(CommandTableEditor.class), channel, sender, arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final HomeEditor homeEditor, final Channel channel) {
-        return mockMessageSentEvent(mockBotEditor(), homeEditor, channel);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final CommandTableEditor commandTableEditor,
+            final Channel channel, final User sender, final String arguments) {
+        return mockCommandInvokedEvent(mock(Scope.class), commandTableEditor, channel, sender, arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final Channel channel, final User sender) {
-        return mockMessageSentEvent(mockHomeEditor(), channel, sender);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final BotEditor botEditor, final Channel channel,
+            final String arguments) {
+        return mockCommandInvokedEvent(botEditor, channel, mockUser(), arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final HomeEditor homeEditor, final Channel channel,
-                                                        final User sender) {
-        return mockMessageSentEvent(mockBotEditor(), homeEditor, channel, sender);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final BotEditor botEditor, final Channel channel,
+            final User sender, final String arguments) {
+        return mockCommandInvokedEvent(botEditor, mock(Scope.class), mock(CommandTableEditor.class), channel, sender,
+                arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final BotEditor botEditor, final HomeEditor homeEditor,
-                                                        final Channel channel) {
-        return mockMessageSentEvent(botEditor, homeEditor, channel, mockUser());
+    public static CommandInvokedEvent mockCommandInvokedEvent(final Scope scope, final Channel channel,
+            final String arguments) {
+        return mockCommandInvokedEvent(scope, mock(CommandTableEditor.class), channel, mockUser(), arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final Home home, final Channel channel, final User sender,
-                                                        final Message message) {
-        return mockMessageSentEvent(mockBotEditor(), home, mockHomeEditor(), channel, sender, message);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final Scope scope,
+            final CommandTableEditor commandTableEditor, final Channel channel, final User sender,
+            final String arguments) {
+        return mockCommandInvokedEvent(mock(BotEditor.class), scope, commandTableEditor, channel, sender, arguments);
     }
 
-    public static MessageSentEvent mockMessageSentEvent(final BotEditor botEditor, final Channel channel,
-                                                        final User sender) {
-        return mockMessageSentEvent(botEditor, mockHomeEditor(), channel, sender);
-    }
-
-    public static MessageSentEvent mockMessageSentEvent(final BotEditor botEditor, final HomeEditor homeEditor,
-                                                        final Channel channel, final User sender) {
-        return mockMessageSentEvent(botEditor, mockHome(), homeEditor, channel, sender, mockMessage());
-    }
-
-    public static MessageSentEvent mockMessageSentEvent(final BotEditor botEditor, final Home home,
-            final HomeEditor homeEditor, final Channel channel, final User sender, final Message message) {
-        MessageSentEvent event = mock(MessageSentEvent.class);
-        when(event.getBotEditor()).thenReturn(botEditor);
-        when(event.getHome()).thenReturn(home);
-        when(event.getHomeEditor()).thenReturn(homeEditor);
+    public static CommandInvokedEvent mockCommandInvokedEvent(final BotEditor botEditor, final Scope scope,
+            final CommandTableEditor commandTableEditor, final Channel channel, final User sender,
+            final String arguments) {
+        CommandInvokedEvent event = mock(CommandInvokedEvent.class);
+        when(event.getCommandTableEditor()).thenReturn(commandTableEditor);
         when(event.getChannel()).thenReturn(channel);
         when(event.getSender()).thenReturn(sender);
-        when(event.getMessage()).thenReturn(message);
+        when(event.getScope()).thenReturn(scope);
+        when(event.getArguments()).thenReturn(arguments);
+        when(event.getBotEditor()).thenReturn(botEditor);
+        return event;
+    }
+
+    public static CommandInvokedHomeEvent mockCommandInvokedHomeEvent(final Home home, final Channel channel,
+            final User sender, final int serviceType, final String arguments) {
+        CommandInvokedHomeEvent event = mock(CommandInvokedHomeEvent.class);
+        when(event.getHome()).thenReturn(home);
+        when(event.getChannel()).thenReturn(channel);
+        when(event.getSender()).thenReturn(sender);
+        when(event.getArguments()).thenReturn(arguments);
+        when(event.getServiceType()).thenReturn(serviceType);
         return event;
     }
 

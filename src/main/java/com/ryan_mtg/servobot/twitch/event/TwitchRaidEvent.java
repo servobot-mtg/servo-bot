@@ -2,12 +2,12 @@ package com.ryan_mtg.servobot.twitch.event;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.events.channel.RaidEvent;
-import com.ryan_mtg.servobot.events.UserEvent;
+import com.ryan_mtg.servobot.events.UserHomeEvent;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 
-public class TwitchRaidEvent extends TwitchHomeEvent implements UserEvent {
+public class TwitchRaidEvent extends TwitchHomeEvent implements UserHomeEvent {
     private TwitchUser raider;
 
     public TwitchRaidEvent(final TwitchClient client, final RaidEvent event, final BotHome botHome,

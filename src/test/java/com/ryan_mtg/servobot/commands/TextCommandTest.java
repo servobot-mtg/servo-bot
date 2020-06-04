@@ -5,9 +5,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
@@ -15,11 +14,9 @@ import com.ryan_mtg.servobot.model.storage.StorageValue;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.mockChannel;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockHomeEditor;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockMessageSentEvent;
+import static com.ryan_mtg.servobot.model.ObjectMother.mockCommandInvokedEvent;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockUser;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class TextCommandTest {
     private static final int ID = 1;
@@ -33,9 +30,9 @@ public class TextCommandTest {
         TextCommand command = new TextCommand(ID, COMMAND_SETTINGS, TEXT);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, ARGUMENTS);
 
-        command.perform(event, ARGUMENTS);
+        command.perform(event);
 
         verify(channel).say(TEXT);
     }
@@ -45,9 +42,9 @@ public class TextCommandTest {
         TextCommand command = new TextCommand(ID, COMMAND_SETTINGS, "Hello, %sender%!");
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel, mockUser("name"));
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, mockUser("name"), ARGUMENTS);
 
-        command.perform(event, ARGUMENTS);
+        command.perform(event);
 
         verify(channel).say("Hello, name!");
     }
@@ -57,16 +54,14 @@ public class TextCommandTest {
         TextCommand command = new TextCommand(ID, COMMAND_SETTINGS, "Value: %value%");
 
         Channel channel = mockChannel();
-        HomeEditor homeEditor = mockHomeEditor();
-        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
 
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
-        Scope botHomeScope = new Scope(null, symbolTable);
+        Scope scope = new Scope(null, symbolTable);
         symbolTable.addValue("value", new IntegerStorageValue(
                 StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "value", 1));
-        when(homeEditor.getScope()).thenReturn(botHomeScope);
+        CommandInvokedEvent event = mockCommandInvokedEvent(scope, channel, ARGUMENTS);
 
-        command.perform(event, ARGUMENTS);
+        command.perform(event);
 
         verify(channel).say("Value: 1");
     }

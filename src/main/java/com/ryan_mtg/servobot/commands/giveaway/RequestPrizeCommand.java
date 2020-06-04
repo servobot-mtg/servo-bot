@@ -3,9 +3,9 @@ package com.ryan_mtg.servobot.commands.giveaway;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
@@ -14,7 +14,7 @@ import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Getter;
 
-public class RequestPrizeCommand extends MessageCommand {
+public class RequestPrizeCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.REQUEST_PRIZE_COMMAND_TYPE;
 
     @Getter
@@ -26,7 +26,7 @@ public class RequestPrizeCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent messageSentEvent, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent messageSentEvent) throws BotErrorException {
         HomeEditor homeEditor = messageSentEvent.getHomeEditor();
         User sender = messageSentEvent.getSender();
         HomedUser homedSender = sender.getHomedUser();

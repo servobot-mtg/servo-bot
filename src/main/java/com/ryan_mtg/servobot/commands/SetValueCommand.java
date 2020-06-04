@@ -1,15 +1,15 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
+import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 
 import java.util.Scanner;
 
-public class SetValueCommand extends MessageCommand {
+public class SetValueCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.SET_VALUE_COMMAND_TYPE;
 
     public SetValueCommand(final int id, final CommandSettings commandSettings) {
@@ -17,8 +17,8 @@ public class SetValueCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        Scanner scanner = new Scanner(arguments);
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        Scanner scanner = new Scanner(event.getArguments());
 
         String name = scanner.next();
         StorageValue.validateName(name);
@@ -35,11 +35,11 @@ public class SetValueCommand extends MessageCommand {
             throw new BotErrorException("No value to set!");
         }
 
-        HomeEditor homeEditor = event.getHomeEditor();
-        StorageValue storageValue = homeEditor.setStorageValue(name, value);
+        StorageValueEditor storageValueEditor = event.getStorageValueEditor();
+        StorageValue storageValue = storageValueEditor.setStorageValue(name, value);
 
         String response = String.format("%s set to %s.", storageValue.getName(), storageValue.getValue());
-        MessageCommand.say(event, response);
+        event.say(response);
     }
 
     @Override

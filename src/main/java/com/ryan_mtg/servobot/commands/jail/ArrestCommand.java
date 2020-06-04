@@ -3,16 +3,16 @@ package com.ryan_mtg.servobot.commands.jail;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
-public class ArrestCommand extends MessageCommand {
+public class ArrestCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.ARREST_COMMAND_TYPE;
 
     @Getter
@@ -43,34 +43,35 @@ public class ArrestCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
         Home home = event.getHome();
         User cop  = event.getSender();
 
         if (JailUtility.isInAnyJail(home, cop, prisonRole)) {
-            MessageCommand.say(event, "You can't arrest someone while in jail!");
+            event.say("You can't arrest someone while in jail!");
             return;
         }
 
+        String arguments = event.getArguments();
         if (!home.hasUser(arguments)) {
             if (home.hasRole(arguments)) {
                 home.setRole(cop, prisonRole);
-                MessageCommand.say(event, "No one is above the law! %sender% is going to the clink.");
+                event.say("No one is above the law! %sender% is going to the clink.");
                 return;
             }
-            MessageCommand.say(event, String.format("No user with name %s.", arguments));
+            event.say(String.format("No user with name %s.", arguments));
             return;
         }
 
         User criminal = home.getUser(arguments);
         if (home.isHigherRanked(criminal, cop)) {
             home.setRole(event.getSender(), prisonRole);
-            MessageCommand.say(event, "I see through your tricks! I'm checking %sender% into the greybar hotel.");
+            event.say("I see through your tricks! I'm checking %sender% into the greybar hotel.");
             return;
         }
 
         if (JailUtility.isInAnyJail(home, criminal, prisonRole)) {
-            MessageCommand.say(event, String.format("%s is already in jail!", criminal.getName()));
+            event.say(String.format("%s is already in jail!", criminal.getName()));
             return;
         }
 
@@ -82,6 +83,6 @@ public class ArrestCommand extends MessageCommand {
         symbolTable.addValue("cop", cop.getName());
         symbolTable.addValue("role", prisonRole);
 
-        MessageCommand.say(event, symbolTable, message);
+        event.say(symbolTable, message);
     }
 }

@@ -5,9 +5,8 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 
-public interface HomeEvent extends Event {
+public interface HomeEvent extends BotHomeEvent {
     Home getHome();
-    int getServiceType();
 
     default Scope getScope() {
         HomeEditor homeEditor = getHomeEditor();

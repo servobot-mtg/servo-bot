@@ -3,14 +3,14 @@ package com.ryan_mtg.servobot.commands.chat;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
-public class TextCommand extends MessageCommand {
+public class TextCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.TEXT_COMMAND_TYPE;
 
     @Getter
@@ -25,11 +25,11 @@ public class TextCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
-        String input = arguments != null ? arguments : "";
+        String input = event.getArguments() != null ? event.getArguments() : "";
         symbolTable.addValue("input", input);
-        MessageCommand.say(event, symbolTable, text);
+        event.say(symbolTable, text);
     }
 
     @Override

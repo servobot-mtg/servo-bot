@@ -2,8 +2,8 @@ package com.ryan_mtg.servobot.model.parser;
 
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.books.Statement;
+import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
@@ -18,9 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.ryan_mtg.servobot.model.ObjectMother.mockHomeEditor;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 public class ParserTest {
     private static final String TEXT = "string text";
@@ -28,14 +28,14 @@ public class ParserTest {
     private Parser parser;
     private Scope scope;
     private SimpleSymbolTable simpleSymbolTable;
-    private HomeEditor homeEditor;
+    private StorageValueEditor storageValueEditor;
 
     @Before
     public void setUp() {
         simpleSymbolTable = new SimpleSymbolTable();
         scope = new Scope(null, simpleSymbolTable);
-        homeEditor = mockHomeEditor();
-        parser = new Parser(scope, homeEditor);
+        storageValueEditor = mock(StorageValueEditor.class);
+        parser = new Parser(scope, storageValueEditor);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class ParserTest {
         doAnswer((invocationOnMock) -> {
             value.setValue(6);
             return value;
-        }).when(homeEditor).incrementStorageValue("variable");
+        }).when(storageValueEditor).incrementStorageValue("variable");
 
         assertEquals("6", parser.parse("++variable").evaluate());
     }
@@ -114,7 +114,7 @@ public class ParserTest {
         doAnswer((invocationOnMock) -> {
             value.setValue(6);
             return value;
-        }).when(homeEditor).incrementStorageValue("variable");
+        }).when(storageValueEditor).incrementStorageValue("variable");
 
         assertEquals("5", parser.parse("variable++").evaluate());
     }

@@ -9,7 +9,6 @@ import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
@@ -32,6 +31,9 @@ import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.books.BookTableEdit;
 import com.ryan_mtg.servobot.model.books.Statement;
+import com.ryan_mtg.servobot.model.editors.BookTableEditor;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEntry;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
@@ -55,6 +57,7 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +79,27 @@ public class HomeEditor {
     private BotHome botHome;
     private SerializerContainer serializers;
 
+    @Getter
+    private CommandTableEditor commandTableEditor;
+
+    @Getter
+    private BookTableEditor bookTableEditor;
+
+    @Getter
+    private StorageValueEditor storageValueEditor;
+
     private static final String REQUEST_PRIZE_DESCRIPTION = "Request prize command name";
 
     public HomeEditor(final Bot bot, final BotHome botHome) {
         this.bot = bot;
         this.botHome = botHome;
         this.serializers = bot.getSerializers();
+        this.commandTableEditor =
+                new CommandTableEditor(botHome.getCommandTable(), serializers.getCommandTableSerializer());
+        this.bookTableEditor =
+                new BookTableEditor(botHome.getId(), botHome.getBookTable(), serializers.getBookSerializer());
+        this.storageValueEditor =new StorageValueEditor(botHome.getId(), botHome.getStorageTable(),
+                serializers.getStorageValueSerializer());
     }
 
     public Scope getScope() {
@@ -185,36 +203,6 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public boolean addCommand(final String alias, final MessageCommand command) throws BotErrorException {
-        CommandTable commandTable = botHome.getCommandTable();
-
-        CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
-        boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
-        serializers.getCommandTableSerializer().commit(commandTableEdit);
-        return added;
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteCommand(final com.ryan_mtg.servobot.model.User deleter, final String commandName)
-            throws BotErrorException {
-        CommandTable commandTable = botHome.getCommandTable();
-        Command command = commandTable.getCommand(commandName);
-
-        if (command == null) {
-            throw new BotErrorException(String.format("No command named '%s.'", commandName));
-        }
-
-        if (!command.hasPermissions(deleter)) {
-            throw new BotErrorException(
-                    String.format("%s is not allowed to delete '%s.'", deleter.getName(), commandName));
-        }
-
-        CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandName);
-
-        serializers.getCommandTableSerializer().commit(commandTableEdit);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
     public void deleteCommand(final int commandId) throws BotErrorException {
         CommandTable commandTable = botHome.getCommandTable();
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandId);
@@ -223,17 +211,6 @@ public class HomeEditor {
             throw new BotErrorException(String.format("Command '%d' not found.", commandId));
         }
         serializers.getCommandTableSerializer().commit(commandTableEdit);
-    }
-
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public boolean aliasCommand(final String newAlias, final String existingAlias) throws BotErrorException {
-        CommandTable commandTable = botHome.getCommandTable();
-
-        CommandTableEdit commandTableEdit = commandTable.addAlias(newAlias, existingAlias);
-        boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
-        serializers.getCommandTableSerializer().commit(commandTableEdit);
-        return added;
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

@@ -1,7 +1,8 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
@@ -66,11 +67,13 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit addCommand(final String alias, final MessageCommand newCommand) throws BotErrorException {
-        CommandTableEdit commandTableEdit = deleteCommand(alias);
-        CommandAlias commandAlias = createAlias(newCommand, alias);
-        commandTableEdit.save(botHomeId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
-        return commandTableEdit;
+    public CommandTableEdit addCommand(final String alias, final InvokedHomedCommand newCommand)
+            throws BotErrorException {
+        return addCommand(alias, (Command) newCommand);
+    }
+
+    public CommandTableEdit addCommand(final String alias, final InvokedCommand newCommand) throws BotErrorException {
+        return addCommand(alias, (Command) newCommand);
     }
 
     public CommandTableEdit addAlias(final String newAlias, final String existingAlias) throws BotErrorException {
@@ -80,11 +83,8 @@ public class CommandTable {
         CommandTableEdit commandTableEdit = deleteCommand(newAlias);
 
         Command command = getCommand(existingAlias);
-        if (!(command instanceof MessageCommand)) {
-            throw new BotErrorException(String.format("%s command does not exist.", existingAlias));
-        }
 
-        CommandAlias commandAlias = createAlias((MessageCommand) command, newAlias);
+        CommandAlias commandAlias = createAlias(command, newAlias);
         commandTableEdit.save(command.getId(), commandAlias, this::triggerSaved);
         return commandTableEdit;
     }
@@ -229,7 +229,14 @@ public class CommandTable {
         return isCaseSensitive ? token : token.toLowerCase();
     }
 
-    private CommandAlias createAlias(final MessageCommand newCommand, final String text) throws BotErrorException {
+    private CommandTableEdit addCommand(final String alias, final Command newCommand) throws BotErrorException {
+        CommandTableEdit commandTableEdit = deleteCommand(alias);
+        CommandAlias commandAlias = createAlias(newCommand, alias);
+        commandTableEdit.save(botHomeId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
+        return commandTableEdit;
+    }
+
+    private CommandAlias createAlias(final Command newCommand, final String text) throws BotErrorException {
         String canonicalAlias=canonicalize(text);
         commandMap.put(canonicalAlias, newCommand);
         CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, text);

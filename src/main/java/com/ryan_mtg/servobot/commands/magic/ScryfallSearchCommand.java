@@ -3,10 +3,10 @@ package com.ryan_mtg.servobot.commands.magic;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.scryfall.Card;
 import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
 import com.ryan_mtg.servobot.scryfall.ScryfallQueryException;
@@ -14,7 +14,7 @@ import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.List;
 
-public class ScryfallSearchCommand extends MessageCommand {
+public class ScryfallSearchCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.SCRYFALL_SEARCH_COMMAND_TYPE;
 
     private ScryfallQuerier scryfallQuerier;
@@ -26,17 +26,18 @@ public class ScryfallSearchCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        if (Strings.isBlank(arguments)) {
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        String query = event.getArguments();
+        if (Strings.isBlank(query)) {
             throw new BotErrorException("No search term provided.");
         }
 
         try {
-            List<Card> cards = scryfallQuerier.searchForCards(arguments);
+            List<Card> cards = scryfallQuerier.searchForCards(query);
             String response = CardUtil.respondToCardSearch(cards, event.getServiceType() == DiscordService.TYPE);
-            MessageCommand.say(event, response);
+            event.say(response);
         } catch (ScryfallQueryException e) {
-            MessageCommand.say(event, e.getDetails());
+            event.say(e.getDetails());
         }
     }
 

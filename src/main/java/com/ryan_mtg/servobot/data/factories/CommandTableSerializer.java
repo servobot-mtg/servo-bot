@@ -9,22 +9,18 @@ import com.ryan_mtg.servobot.data.repositories.AlertGeneratorRepository;
 import com.ryan_mtg.servobot.data.repositories.CommandRepository;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
-import com.ryan_mtg.servobot.user.HomedUserTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class CommandTableSerializer {
@@ -75,19 +71,6 @@ public class CommandTableSerializer {
         commandTable.addAlertGenerators(alertGenerators);
 
         return commandTable;
-    }
-
-    public void saveCommandTable(final CommandTable commandTable, final int botHomeId) {
-        Set<MessageCommand> aliasedCommands = new HashSet<>();
-
-        for(Command command : commandTable.getCommands()) {
-            commandSerializer.saveCommand(botHomeId, command);
-        }
-
-        for(Trigger trigger : commandTable.getTriggers()) {
-            Command command = commandTable.getCommand(trigger);
-            commandSerializer.saveTrigger(command.getId(), trigger);
-        }
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

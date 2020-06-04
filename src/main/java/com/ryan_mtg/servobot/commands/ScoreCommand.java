@@ -1,9 +1,9 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ScoreCommand extends MessageCommand {
+public class ScoreCommand extends InvokedHomedCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreCommand.class);
     private static final Pattern COMMAND_PATTERN = Pattern.compile("\\w+");
     private static final Pattern UPDATE_ARGUMENTS_PATTERN = Pattern.compile("(.*) ((\\+|-)?\\d+)");
@@ -52,7 +52,8 @@ public class ScoreCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+        String arguments = event.getArguments();
         if (Strings.isBlank(arguments)) {
             printScores(event);
             return;
@@ -99,7 +100,7 @@ public class ScoreCommand extends MessageCommand {
         }
     }
 
-    void printScores(final MessageSentEvent event) throws BotErrorException {
+    void printScores(final CommandInvokedHomeEvent event) throws BotErrorException {
         Home home = event.getHome();
         HomeEditor homeEditor = home.getHomeEditor();
         List<StorageValue> storageValues = homeEditor.getAllUsersStorageValues(scoreVariable);
@@ -115,18 +116,18 @@ public class ScoreCommand extends MessageCommand {
             message.append("There are no scores currently.");
         }
 
-        MessageCommand.say(event, message.toString());
+        event.say(message.toString());
     }
 
-    void printScore(final MessageSentEvent event) throws BotErrorException {
+    void printScore(final CommandInvokedHomeEvent event) throws BotErrorException {
         HomeEditor homeEditor = event.getHome().getHomeEditor();
         User sender = event.getSender();
         StorageValue storageValue = homeEditor.getStorageValue(sender.getHomedUser().getId(), scoreVariable, 0);
 
-        MessageCommand.say(event, String.format("%s's score is %s.", sender.getName(), storageValue.getValue()));
+        event.say(String.format("%s's score is %s.", sender.getName(), storageValue.getValue()));
     }
 
-    void updateScore(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    void updateScore(final CommandInvokedHomeEvent event, final String arguments) throws BotErrorException {
         Matcher argumentsMatcher = UPDATE_ARGUMENTS_PATTERN.matcher(arguments);
 
         if (!argumentsMatcher.matches()) {
@@ -142,20 +143,20 @@ public class ScoreCommand extends MessageCommand {
         StorageValue storageValue =
                 homeEditor.increaseStorageValue(user.getHomedUser().getId(), scoreVariable, score, 0);
 
-        MessageCommand.say(event, String.format("%s's score is %s.", user.getName(), storageValue.getValue()));
+        event.say(String.format("%s's score is %s.", user.getName(), storageValue.getValue()));
     }
 
-    void resetScores(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    void resetScores(final CommandInvokedHomeEvent event, final String arguments) throws BotErrorException {
         Home home = event.getHome();
         HomeEditor homeEditor = home.getHomeEditor();
         if (Strings.isBlank(arguments)) {
             homeEditor.removeStorageVariables(scoreVariable);
-            MessageCommand.say(event, String.format("All %s scores reset.", gameName));
+            event.say(String.format("All %s scores reset.", gameName));
             return;
         }
 
         User user = home.getUser(arguments);
         homeEditor.removeStorageVariable(user.getHomedUser().getId(), scoreVariable);
-        MessageCommand.say(event, String.format("%s score for %s reset.", gameName, user.getName()));
+        event.say(String.format("%s score for %s reset.", gameName, user.getName()));
     }
 }

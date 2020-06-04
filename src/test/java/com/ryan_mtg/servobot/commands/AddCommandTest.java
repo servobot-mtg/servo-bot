@@ -3,12 +3,12 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -16,11 +16,11 @@ import org.mockito.Mockito;
 import static com.ryan_mtg.servobot.model.ObjectMother.isACommand;
 import static com.ryan_mtg.servobot.model.ObjectMother.isATextCommand;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockChannel;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockMessageSentEvent;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockHomeEditor;
+import static com.ryan_mtg.servobot.model.ObjectMother.mockCommandInvokedEvent;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,18 +36,19 @@ public class AddCommandTest {
     public void testPerform() throws BotErrorException {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
-        HomeEditor homeEditor = mockHomeEditor();
+        CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
-        when(homeEditor.addCommand(eq(COMMAND_NAME), Mockito.any(MessageCommand.class))).thenReturn(true);
+        String commmandLine = String.format("!%s %s", COMMAND_NAME, ARGUMENTS);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, channel, commmandLine);
+        when(commandTableEditor.addCommand(eq(COMMAND_NAME), Mockito.any(InvokedCommand.class))).thenReturn(true);
 
-        command.perform(event, String.format("!%s %s", COMMAND_NAME, ARGUMENTS));
+        command.perform(event);
 
         verify(channel).say(String.format("Command %s added.", COMMAND_NAME));
-        ArgumentCaptor<MessageCommand> commandCaptor = ArgumentCaptor.forClass(MessageCommand.class);
-        verify(homeEditor).addCommand(eq(COMMAND_NAME), commandCaptor.capture());
+        ArgumentCaptor<InvokedCommand> commandCaptor = ArgumentCaptor.forClass(InvokedCommand.class);
+        verify(commandTableEditor).addCommand(eq(COMMAND_NAME), commandCaptor.capture());
 
-        MessageCommand capturedCommand = commandCaptor.getValue();
+        InvokedCommand capturedCommand = commandCaptor.getValue();
 
         assertThat(capturedCommand, isACommand(false, Permission.ANYONE));
         assertThat(capturedCommand, isATextCommand(ARGUMENTS));
@@ -57,18 +58,19 @@ public class AddCommandTest {
     public void testPerformWhenCommandAlreadyExists() throws BotErrorException {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
-        HomeEditor homeEditor = mockHomeEditor();
+        CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel);
-        when(homeEditor.addCommand(eq(COMMAND_NAME), Mockito.any(MessageCommand.class))).thenReturn(false);
+        String commandLine = String.format("!%s %s", COMMAND_NAME, ARGUMENTS);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, channel, commandLine);
+        when(commandTableEditor.addCommand(eq(COMMAND_NAME), Mockito.any(InvokedCommand.class))).thenReturn(false);
 
-        command.perform(event, String.format("!%s %s", COMMAND_NAME, ARGUMENTS));
+        command.perform(event);
 
         verify(channel).say(String.format("Command %s modified.", COMMAND_NAME));
-        ArgumentCaptor<MessageCommand> commandCaptor = ArgumentCaptor.forClass(MessageCommand.class);
-        verify(homeEditor).addCommand(eq(COMMAND_NAME), commandCaptor.capture());
+        ArgumentCaptor<InvokedCommand> commandCaptor = ArgumentCaptor.forClass(InvokedCommand.class);
+        verify(commandTableEditor).addCommand(eq(COMMAND_NAME), commandCaptor.capture());
 
-        MessageCommand capturedCommand = commandCaptor.getValue();
+        InvokedCommand capturedCommand = commandCaptor.getValue();
 
         assertThat(capturedCommand, isACommand(false, Permission.ANYONE));
         assertThat(capturedCommand, isATextCommand(ARGUMENTS));
@@ -79,10 +81,11 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        String commandLine = String.format("%s %s", COMMAND_NAME, ARGUMENTS);
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
 
         try {
-            command.perform(event, String.format("%s %s", COMMAND_NAME, ARGUMENTS));
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -93,10 +96,11 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        String commandLine = String.format("!%s %s", "", ARGUMENTS);
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
 
         try {
-            command.perform(event, String.format("!%s %s", "", ARGUMENTS));
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -107,10 +111,11 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        String commandLine = String.format("!%s%s", COMMAND_NAME, "");
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
 
         try {
-            command.perform(event, String.format("!%s%s", COMMAND_NAME, ""));
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -121,10 +126,11 @@ public class AddCommandTest {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        String commandLine = String.format("!%s %s", COMMAND_NAME, " ");
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
 
         try {
-            command.perform(event, String.format("!%s %s", COMMAND_NAME, " "));
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }

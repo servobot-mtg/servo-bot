@@ -3,7 +3,6 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.discord.event.DiscordMessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -27,16 +26,6 @@ public class DiscordMessage implements Message {
     @Override
     public Channel getChannel() {
         return new DiscordChannel(new DiscordHome(message.getGuild(), homeEditor), message.getChannel());
-    }
-
-    @Override
-    public int getServiceType() {
-        return DiscordService.TYPE;
-    }
-
-    @Override
-    public Home getHome() {
-        return new DiscordHome(message.getGuild(), homeEditor);
     }
 
     @Override

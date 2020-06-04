@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.model.ServiceHome;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class AbstractHomedEvent implements Event {
+public abstract class AbstractHomedEvent implements BotHomeEvent {
     @Getter @Setter
     private BotEditor botEditor;
 

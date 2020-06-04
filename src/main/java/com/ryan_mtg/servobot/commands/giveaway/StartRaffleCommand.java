@@ -3,16 +3,16 @@ package com.ryan_mtg.servobot.commands.giveaway;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
-public class StartRaffleCommand extends MessageCommand {
+public class StartRaffleCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.START_RAFFLE_COMMAND_TYPE;
 
     @Getter
@@ -31,13 +31,13 @@ public class StartRaffleCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
         HomeEditor homeEditor = event.getHomeEditor();
         Raffle raffle = homeEditor.startRaffle(giveawayId);
 
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("raffle", raffle);
-        MessageCommand.say(event, symbolTable, message);
+        event.say(symbolTable, message);
     }
 
     @Override

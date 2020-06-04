@@ -3,15 +3,15 @@ package com.ryan_mtg.servobot.commands.jail;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
-public class JailCommand extends MessageCommand {
+public class JailCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.JAIL_COMMAND_TYPE;
 
     @Getter
@@ -45,7 +45,7 @@ public class JailCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
         User sender = event.getSender();
 
         if (JailUtility.isInJail(event.getHome(), sender, prisonRole)) {
@@ -58,6 +58,6 @@ public class JailCommand extends MessageCommand {
         symbolTable.addValue("role", prisonRole);
 
         event.getHome().setRole(sender, prisonRole);
-        MessageCommand.say(event, symbolTable, "%criminal%, I'm throwing the book at you!");
+        event.say(symbolTable, "%criminal%, I'm throwing the book at you!");
     }
 }

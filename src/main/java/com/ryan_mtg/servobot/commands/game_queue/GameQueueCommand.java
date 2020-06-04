@@ -3,16 +3,16 @@ package com.ryan_mtg.servobot.commands.game_queue;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.user.User;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GameQueueCommand extends MessageCommand {
+public class GameQueueCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.GAME_QUEUE_COMMAND_TYPE;
 
     private static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
@@ -36,9 +36,10 @@ public class GameQueueCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
         HomeEditor homeEditor = event.getHomeEditor();
-        //TODO: Check for errors in arguments format
+        String arguments = event.getArguments();
+        //TODO: Change to use command parser
 
         switch (arguments.toLowerCase()) {
             case "name":
@@ -47,32 +48,32 @@ public class GameQueueCommand extends MessageCommand {
             case "start":
                 String responseMessage = homeEditor.startGameQueue(gameQueueId, null);
                 if (responseMessage != null) {
-                    MessageCommand.say(event, responseMessage);
+                    event.say(responseMessage);
                 }
                 return;
             case "pop":
             case "next":
                 User nextPlayer = homeEditor.popGameQueue(gameQueueId);
                 String response = String.format("The next player is %s ", nextPlayer.getTwitchUsername());
-                MessageCommand.say(event, response);
+                event.say(response);
                 return;
             case "peek":
             case "playing":
             case "current":
                 User currentPlayer = homeEditor.peekGameQueue(gameQueueId);
                 response = String.format("The current player is %s ", currentPlayer.getTwitchUsername());
-                MessageCommand.say(event, response);
+                event.say(response);
                 return;
             case "close":
                 responseMessage = homeEditor.closeGameQueue(gameQueueId);
                 if (responseMessage != null) {
-                    MessageCommand.say(event, responseMessage);
+                    event.say(responseMessage);
                 }
                 return;
             case "stop":
                 responseMessage = homeEditor.stopGameQueue(gameQueueId);
                 if (responseMessage != null) {
-                    MessageCommand.say(event, responseMessage);
+                    event.say(responseMessage);
                 }
                 return;
             default:

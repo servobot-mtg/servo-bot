@@ -1,13 +1,13 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 
 import java.util.regex.Pattern;
 
-public class SetArenaUsernameCommand extends MessageCommand {
+public class SetArenaUsernameCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.SET_ARENA_USERNAME_COMMAND_TYPE;
     private static final Pattern NAME_PATTERN = Pattern.compile(".+#\\d{5}");
 
@@ -16,7 +16,8 @@ public class SetArenaUsernameCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        String arguments = event.getArguments();
         if (arguments.length() > 23 + 1 + 5) {
             throw new BotErrorException("The Arena Username is too long");
         }
@@ -27,7 +28,7 @@ public class SetArenaUsernameCommand extends MessageCommand {
 
         event.getBotEditor().setArenaUsername(event.getSender().getHomedUser().getId(), arguments);
 
-        MessageCommand.say(event, "Username added.");
+        event.say("Username added.");
     }
 
     @Override

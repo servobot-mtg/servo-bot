@@ -2,18 +2,18 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.books.Book;
+import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class AddStatementCommand extends MessageCommand {
+public class AddStatementCommand extends InvokedCommand {
     private static final Pattern BOOK_PATTERN = Pattern.compile("\\w+");
     private static final CommandParser COMMAND_PARSER = new CommandParser(BOOK_PATTERN);
 
@@ -32,8 +32,8 @@ public class AddStatementCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(arguments);
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(event.getArguments());
 
         String bookName = parseResult.getCommand();
         switch (parseResult.getStatus()) {
@@ -48,16 +48,16 @@ public class AddStatementCommand extends MessageCommand {
             throw new BotErrorException("No statement to add.");
         }
 
-        HomeEditor homeEditor = event.getHomeEditor();
-        Optional<Book> book = homeEditor.getBook(bookName);
+        BookTableEditor bookTableEditor = event.getBookTableEditor();
+        Optional<Book> book = bookTableEditor.getBook(bookName);
         if (book.isPresent()) {
-            homeEditor.addStatement(book.get().getId(), text);
-            MessageCommand.say(event, String.format("Statement added to %s.", book));
+            bookTableEditor.addStatement(book.get().getId(), text);
+            event.say(String.format("Statement added to %s.", book));
         } else if (Command.hasPermissions(event.getSender(), Permission.MOD)){
-            homeEditor.addBook(bookName, text);
-            MessageCommand.say(event, String.format("%s created with the statement.", bookName));
+            bookTableEditor.addBook(bookName, text);
+            event.say(String.format("%s created with the statement.", bookName));
         } else {
-            MessageCommand.say(event, String.format("No book with name %s.", bookName));
+            event.say(String.format("No book with name %s.", bookName));
         }
     }
 }

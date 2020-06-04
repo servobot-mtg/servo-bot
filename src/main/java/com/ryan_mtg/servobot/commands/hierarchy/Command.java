@@ -8,15 +8,12 @@ import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.Event;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.User;
-import com.ryan_mtg.servobot.model.parser.ParseException;
-import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class Command {
@@ -131,43 +128,12 @@ public abstract class Command {
         return false;
     }
 
-    protected static void say(final Channel channel, final Event event, final Scope scope, final String text)
-            throws BotErrorException {
-        channel.say(evaluate(event, scope, text, 0));
-    }
-
     private void setFlag(final int flag, final boolean value) {
         commandSettings.setFlags(Flags.setFlag(commandSettings.getFlags(), flag, value));
     }
 
-    private static String evaluate(final Event event, final Scope scope, final String text, final int recursionLevel)
+    protected static void say(final Channel channel, final Event event, final Scope scope, final String text)
             throws BotErrorException {
-        if (recursionLevel >= 10) {
-            throw new BotErrorException("Too much recursion!");
-        }
-
-        StringBuilder result = new StringBuilder();
-        Matcher matcher = REPLACEMENT_PATTERN.matcher(text);
-        int currentIndex = 0;
-
-        Parser parser = new Parser(scope, event.getHomeEditor());
-
-        while (matcher.find()) {
-            result.append(text, currentIndex, matcher.start());
-            String expression = matcher.group(1);
-
-            try {
-                String evaluation = parser.parse(expression).evaluate();
-                String recursiveEvaluation = evaluate(event, scope, evaluation, recursionLevel + 1);
-                result.append(recursiveEvaluation);
-            } catch (ParseException e) {
-                throw new BotErrorException(String.format("Failed to parse %%%s%%: %s", expression, e.getMessage()));
-            }
-
-            currentIndex = matcher.end();
-        }
-
-        result.append(text.substring(currentIndex));
-        return result.toString();
+        event.say(channel, scope, text);
     }
 }

@@ -63,9 +63,6 @@ public class BotHome {
     private CommandTable commandTable;
 
     @Getter
-    private RateLimiter rateLimiter;
-
-    @Getter
     private BookTable bookTable;
 
     @Getter
@@ -101,7 +98,6 @@ public class BotHome {
         this.homedUserTable = homedUserTable;
         this.bookTable = bookTable;
         this.commandTable = commandTable;
-        this.rateLimiter = new RateLimiter();
         this.reactionTable = reactionTable;
         this.storageTable = storageTable;
         this.serviceHomes = serviceHomes;
@@ -114,10 +110,10 @@ public class BotHome {
 
         reactionTable.setTimeZone(timeZone);
         commandTable.setTimeZone(timeZone);
-        CommandPerformer commandPerformer = new CommandPerformer(rateLimiter);
+        CommandPerformer commandPerformer = new CommandPerformer(new RateLimiter());
         eventListener =
                 new MultiDelegatingListener(new CommandListener(commandPerformer, commandTable),
-                        new ReactionListener(reactionTable, rateLimiter));
+                        new ReactionListener(reactionTable, commandPerformer));
     }
 
     public void setBot(final Bot bot) {

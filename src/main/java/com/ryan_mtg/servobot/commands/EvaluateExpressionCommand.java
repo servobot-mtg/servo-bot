@@ -1,12 +1,12 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
+import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Emote;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
-public class EvaluateExpressionCommand extends MessageCommand {
+public class EvaluateExpressionCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.EVALUATE_EXPRESSION_COMMAND_TYPE;
     public static final Pattern gabyEasterEggPattern = Pattern.compile("2\\s*\\+\\s*2");
 
@@ -28,34 +28,33 @@ public class EvaluateExpressionCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        if (arguments == null) {
-            throw new BotErrorException("No argument provided.");
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        String expression = event.getArguments();
+        if (expression == null) {
+            throw new BotErrorException("No expression provided.");
         }
 
-        if (gabyEasterEgg && gabyEasterEggPattern.matcher(arguments).matches()) {
-            int serviceType = event.getMessage().getServiceType();
+        if (gabyEasterEgg && gabyEasterEggPattern.matcher(expression).matches()) {
+            int serviceType = event.getServiceType();
             if (serviceType == TwitchService.TYPE) {
-                MessageCommand.say(event, "gabyMath");
+                event.say("gabyMath");
                 return;
-            } else if (serviceType == DiscordService.TYPE) {
-                LOGGER.info("Wants to gabyMath");
-                Emote emote = event.getHome().getEmote("gabyMath");
+            } else if (serviceType == DiscordService.TYPE && event instanceof HomeEvent) {
+                Emote emote = ((HomeEvent) event).getHome().getEmote("gabyMath");
                 if (emote != null) {
                     LOGGER.info("Got an emote!");
-                    MessageCommand.say(event, emote.getMessageText());
+                    event.say(emote.getMessageText());
                 }
                 return;
             }
         }
 
-        HomeEditor homeEditor = event.getHomeEditor();
-        Parser parser = new Parser(getMessageScope(event), homeEditor);
+        Parser parser = new Parser(event.getScope(), event.getStorageValueEditor());
 
         try {
-            MessageCommand.sayRaw(event, parser.parse(arguments).evaluate());
+            event.sayRaw(parser.parse(expression).evaluate());
         } catch (ParseException e) {
-            throw new BotErrorException(String.format("Failed to parse %s: %s", arguments, e.getMessage()));
+            throw new BotErrorException(String.format("Failed to parse %s: %s", expression, e.getMessage()));
         }
     }
 

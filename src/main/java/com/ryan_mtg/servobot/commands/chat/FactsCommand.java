@@ -3,14 +3,14 @@ package com.ryan_mtg.servobot.commands.chat;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.books.Book;
 import lombok.Getter;
 import lombok.Setter;
 
-public class FactsCommand extends MessageCommand {
+public class FactsCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.FACTS_COMMAND_TYPE;
 
     @Getter @Setter
@@ -32,7 +32,7 @@ public class FactsCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        MessageCommand.say(event, book.getRandomLine());
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        event.say(book.getRandomLine());
     }
 }

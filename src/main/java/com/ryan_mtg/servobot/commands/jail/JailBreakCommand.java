@@ -3,9 +3,9 @@ package com.ryan_mtg.servobot.commands.jail;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -14,7 +14,7 @@ import lombok.Getter;
 
 import java.util.List;
 
-public class JailBreakCommand extends MessageCommand {
+public class JailBreakCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.JAIL_BREAK_COMMAND_TYPE;
 
     @Getter
@@ -45,7 +45,7 @@ public class JailBreakCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
         User sender = event.getSender();
 
         List<String> inmates = event.getHome().clearRole(prisonRole);
@@ -57,7 +57,6 @@ public class JailBreakCommand extends MessageCommand {
             return;
         }
 
-        MessageCommand.say(event,
-                String.format("%s broke %s out of %s!", sender.getName(), Strings.join(inmates),prisonRole));
+        event.say(String.format("%s broke %s out of %s!", sender.getName(), Strings.join(inmates),prisonRole));
     }
 }

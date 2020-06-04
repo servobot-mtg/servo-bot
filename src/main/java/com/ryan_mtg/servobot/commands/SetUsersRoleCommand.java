@@ -1,16 +1,16 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
-public class SetUsersRoleCommand extends MessageCommand {
+public class SetUsersRoleCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.SET_USERS_ROLE_COMMAND_TYPE;
 
     @Getter
@@ -19,7 +19,7 @@ public class SetUsersRoleCommand extends MessageCommand {
     @Getter
     private String message;
 
-    public SetUsersRoleCommand(final  int id, final CommandSettings commandSettings, final String role,
+    public SetUsersRoleCommand(final int id, final CommandSettings commandSettings, final String role,
                                final String message) throws BotErrorException {
         super(id, commandSettings);
         this.role = role;
@@ -29,7 +29,8 @@ public class SetUsersRoleCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+        String arguments = event.getArguments();
         Home home = event.getHome();
         User user = home.getUser(arguments);
 
@@ -41,7 +42,7 @@ public class SetUsersRoleCommand extends MessageCommand {
             symbolTable.addValue("user", user.getName());
             symbolTable.addValue("role", role);
 
-            MessageCommand.say(event, symbolTable, message);
+            event.say(symbolTable, message);
         }
     }
 

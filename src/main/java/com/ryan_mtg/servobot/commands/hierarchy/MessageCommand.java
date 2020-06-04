@@ -9,12 +9,11 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.scope.SymbolTable;
 
 public abstract class MessageCommand extends Command {
-
-    abstract public void perform(MessageSentEvent event, String arguments) throws BotErrorException;
-
     public MessageCommand(final int id, final CommandSettings commandSettings) {
         super(id, commandSettings);
     }
+
+    abstract public void perform(MessageSentEvent event, String arguments) throws BotErrorException;
 
     protected static Scope getMessageScope(final MessageSentEvent event) {
         HomeEditor homeEditor = event.getHomeEditor();

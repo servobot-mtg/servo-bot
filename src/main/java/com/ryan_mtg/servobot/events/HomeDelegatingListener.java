@@ -30,10 +30,10 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onMessage(final MessageSentEvent messageSentEvent) throws BotErrorException {
-        EventListener listener = getListener(messageSentEvent);
+    public void onMessage(final MessageHomeEvent messageHomeEvent) throws BotErrorException {
+        EventListener listener = getListener(messageHomeEvent);
         if (listener != null) {
-            listener.onMessage(messageSentEvent);
+            listener.onMessage(messageHomeEvent);
         }
     }
 
@@ -46,7 +46,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onNewUser(final UserEvent newUserEvent) throws BotErrorException {
+    public void onNewUser(final UserHomeEvent newUserEvent) throws BotErrorException {
         EventListener listener = getListener(newUserEvent);
         if (listener != null) {
             listener.onNewUser(newUserEvent);
@@ -54,7 +54,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onRaid(final UserEvent raidEvent) throws BotErrorException {
+    public void onRaid(final UserHomeEvent raidEvent) throws BotErrorException {
         EventListener listener = getListener(raidEvent);
         if (listener != null) {
             listener.onRaid(raidEvent);
@@ -62,7 +62,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onSubscribe(final UserEvent subscribeEvent) throws BotErrorException {
+    public void onSubscribe(final UserHomeEvent subscribeEvent) throws BotErrorException {
         EventListener listener = getListener(subscribeEvent);
         if (listener != null) {
             listener.onRaid(subscribeEvent);
@@ -77,7 +77,7 @@ public class HomeDelegatingListener implements EventListener {
         }
     }
 
-    private EventListener getListener(final Event event) {
+    private EventListener getListener(final BotHomeEvent event) {
         int homeId = event.getHomeId();
         event.setBotEditor(botEditor);
         event.setHomeEditor(homeEditorMap.get(homeId));

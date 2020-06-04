@@ -4,14 +4,14 @@ import com.ryan_mtg.servobot.discord.model.DiscordChannel;
 import com.ryan_mtg.servobot.discord.model.DiscordHome;
 import com.ryan_mtg.servobot.discord.model.DiscordMessage;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.MessageHomeEvent;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-public class DiscordMessageSentEvent extends DiscordEvent implements MessageSentEvent {
+public class DiscordMessageSentEvent extends DiscordBotHomeEvent implements MessageHomeEvent {
     private GuildMessageReceivedEvent event;
     private User sender;
 

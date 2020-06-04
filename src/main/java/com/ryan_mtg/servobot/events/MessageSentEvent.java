@@ -1,16 +1,12 @@
 package com.ryan_mtg.servobot.events;
 
-import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Message;
-import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 
-public interface MessageSentEvent extends HomeEvent {
-    Channel getChannel();
+public interface MessageSentEvent extends HomeEvent, MessageEvent {
     Message getMessage();
-    User getSender();
 
     @Override
     default Scope getScope() {
@@ -21,5 +17,4 @@ public interface MessageSentEvent extends HomeEvent {
 
         return new Scope(homeEditor.getScope(), messageSymbolTable);
     }
-
 }

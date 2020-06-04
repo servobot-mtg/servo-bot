@@ -1,11 +1,10 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.UserHomedCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
-import com.ryan_mtg.servobot.commands.hierarchy.UserCommand;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.utility.CommandParser;
@@ -28,9 +27,9 @@ public class CommandListener implements EventListener {
     }
 
     @Override
-    public void onMessage(final MessageSentEvent messageSentEvent) {
-        Message message = messageSentEvent.getMessage();
-        User sender = messageSentEvent.getSender();
+    public void onMessage(final MessageHomeEvent event) {
+        Message message = event.getMessage();
+        User sender = event.getSender();
         if (sender.isBot()) {
             return;
         }
@@ -49,13 +48,13 @@ public class CommandListener implements EventListener {
 
         Command command = commandTable.getCommand(commandString);
 
-        if (command instanceof MessageCommand) {
-            MessageCommand messageCommand = (MessageCommand) command;
-            commandPerformer.perform(commandString, arguments, messageSentEvent, messageCommand);
-        } else if (command == null) {
-            messageSentEvent.getHomeEditor().addSuggestion(commandString);
-            LOGGER.warn("Unknown command " + commandString + " for " + messageSentEvent.getSender().getName()
-                    + " with arguments " + arguments);
+        if (command == null) {
+            event.getHomeEditor().addSuggestion(commandString);
+            LOGGER.warn("Unknown command {} for {} with arguments '{}'.", commandString, sender.getName(), arguments);
+        } else {
+            CommandInvokedHomeEvent commandInvokedEvent =
+                    new MessageInvokedHomeEvent(event, commandString, arguments);
+            commandPerformer.perform(commandInvokedEvent, command);
         }
     }
 
@@ -67,22 +66,22 @@ public class CommandListener implements EventListener {
     }
 
     @Override
-    public void onNewUser(final UserEvent newUserEvent) {
-        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.NEW_USER, UserCommand.class)) {
+    public void onNewUser(final UserHomeEvent newUserEvent) {
+        for (UserHomedCommand command : commandTable.getCommands(CommandEvent.Type.NEW_USER, UserHomedCommand.class)) {
             commandPerformer.perform(newUserEvent, command);
         }
     }
 
     @Override
-    public void onRaid(final UserEvent raidEvent) {
-        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.RAID, UserCommand.class)) {
+    public void onRaid(final UserHomeEvent raidEvent) {
+        for (UserHomedCommand  command : commandTable.getCommands(CommandEvent.Type.RAID, UserHomedCommand.class)) {
             commandPerformer.perform(raidEvent,command);
         }
     }
 
     @Override
-    public void onSubscribe(final UserEvent subscribeEvent) {
-        for (UserCommand command : commandTable.getCommands(CommandEvent.Type.SUBSCRIBE, UserCommand.class)) {
+    public void onSubscribe(final UserHomeEvent subscribeEvent) {
+        for (UserHomedCommand command : commandTable.getCommands(CommandEvent.Type.SUBSCRIBE, UserHomedCommand.class)) {
             commandPerformer.perform(subscribeEvent, command);
         }
     }

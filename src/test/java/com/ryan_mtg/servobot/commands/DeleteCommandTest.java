@@ -5,15 +5,17 @@ import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -27,14 +29,15 @@ public class DeleteCommandTest {
     public void testPerform() throws BotErrorException {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
-        HomeEditor homeEditor = mockHomeEditor();
+        CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
         Channel channel = mockChannel();
         User sender = mockUser("name");
-        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel, sender);
+        String commandLine = String.format("!%s", COMMAND_NAME);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, channel, sender, commandLine);
 
-        command.perform(event, String.format("!%s", COMMAND_NAME));
+        command.perform(event);
 
-        verify(homeEditor).deleteCommand(sender, COMMAND_NAME);
+        verify(commandTableEditor).deleteCommand(sender, COMMAND_NAME);
         verify(channel).say(String.format("Command %s deleted.", COMMAND_NAME));
     }
 
@@ -43,10 +46,11 @@ public class DeleteCommandTest {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        String commandLine = String.format("%s", COMMAND_NAME);
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
 
         try {
-            command.perform(event, String.format("%s", COMMAND_NAME));
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -57,10 +61,11 @@ public class DeleteCommandTest {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        String commandLine = String.format("!%s", "");
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
 
         try {
-            command.perform(event, String.format("!%s", ""));
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -71,10 +76,11 @@ public class DeleteCommandTest {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        String commandLine = "";
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, commandLine);
 
         try {
-            command.perform(event, "");
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }
@@ -84,15 +90,16 @@ public class DeleteCommandTest {
     public void testDoesNotSayAnythingWhenHomeEditorThrows() throws BotErrorException {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
-        HomeEditor homeEditor = mockHomeEditor();
+        CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
         Channel channel = mockChannel();
         User sender = mockUser("name");
-        MessageSentEvent event = mockMessageSentEvent(homeEditor, channel, sender);
+        String commandLine = String.format("!%s", COMMAND_NAME);
+        CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, channel, sender, commandLine);
 
-        doThrow(BotErrorException.class).when(homeEditor).deleteCommand(sender, COMMAND_NAME);
+        doThrow(BotErrorException.class).when(commandTableEditor).deleteCommand(sender, COMMAND_NAME);
 
         try {
-            command.perform(event, String.format("!%s", COMMAND_NAME));
+            command.perform(event);
         } finally {
             verify(channel, never()).say(anyString());
         }

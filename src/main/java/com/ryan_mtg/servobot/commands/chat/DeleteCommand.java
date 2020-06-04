@@ -3,12 +3,13 @@ package com.ryan_mtg.servobot.commands.chat;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.utility.Strings;
 
-public class DeleteCommand extends MessageCommand {
+public class DeleteCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.DELETE_COMMAND_TYPE;
 
     public DeleteCommand(final int id, final CommandSettings commandSettings) {
@@ -16,10 +17,9 @@ public class DeleteCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        HomeEditor homeEditor = event.getHomeEditor();
-
-        if (arguments.isEmpty()) {
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        String arguments = event.getArguments();
+        if (Strings.isBlank(arguments)) {
             throw new BotErrorException("Missing command name.");
         }
 
@@ -33,9 +33,10 @@ public class DeleteCommand extends MessageCommand {
             throw new BotErrorException("Missing command name.");
         }
 
-        homeEditor.deleteCommand(event.getSender(), commandName);
+        CommandTableEditor commandTableEditor = event.getCommandTableEditor();
+        commandTableEditor.deleteCommand(event.getSender(), commandName);
 
-        MessageCommand.say(event, String.format("Command %s deleted.", commandName));
+        event.say(String.format("Command %s deleted.", commandName));
     }
 
     @Override

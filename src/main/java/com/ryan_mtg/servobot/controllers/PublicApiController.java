@@ -48,7 +48,7 @@ public class PublicApiController {
         }
 
         try {
-            Parser parser = new Parser(scope, homeEditor);
+            Parser parser = new Parser(scope, homeEditor.getStorageValueEditor());
             return parser.parse(expression).evaluate();
         } catch (ParseException e) {
             throw new BotErrorException(String.format("Failed to parse %s: %s", expression, e.getMessage()));

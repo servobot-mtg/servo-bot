@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.twitch.event;
 
 import com.github.twitch4j.TwitchClient;
-import com.ryan_mtg.servobot.events.Event;
+import com.ryan_mtg.servobot.events.BotHomeEvent;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class TwitchEvent implements Event {
+public abstract class TwitchEvent implements BotHomeEvent {
     @Getter(value = AccessLevel.PROTECTED)
     private TwitchClient client;
 

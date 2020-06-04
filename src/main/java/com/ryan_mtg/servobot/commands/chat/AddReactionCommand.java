@@ -3,15 +3,15 @@ package com.ryan_mtg.servobot.commands.chat;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.MessagedHomeCommand;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
+import com.ryan_mtg.servobot.events.MessageHomeEvent;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
-public class AddReactionCommand extends MessageCommand {
+public class AddReactionCommand extends MessagedHomeCommand {
     @Getter
     private String emoteName;
 
@@ -34,7 +34,7 @@ public class AddReactionCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
+    public void perform(final MessageHomeEvent event) throws BotErrorException {
         Message message = event.getMessage();
         if (!message.canEmote()) {
             return;

@@ -5,11 +5,11 @@ import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
-import com.ryan_mtg.servobot.commands.hierarchy.MessageCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.MessageSentEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -17,7 +17,7 @@ import com.ryan_mtg.servobot.utility.Strings;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class AddCommand extends MessageCommand {
+public class AddCommand extends InvokedCommand {
     private static final Pattern COMMAND_PATTERN = Pattern.compile("!\\w+");
     private static final Pattern FLAG_PATTERN = Pattern.compile("(@|=|\\+|-|->)\\w+");
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN, FLAG_PATTERN);
@@ -37,8 +37,8 @@ public class AddCommand extends MessageCommand {
     }
 
     @Override
-    public void perform(final MessageSentEvent event, final String arguments) throws BotErrorException {
-        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(arguments);
+    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(event.getArguments());
 
         String command = parseResult.getCommand();
         switch (parseResult.getStatus()) {
@@ -54,7 +54,7 @@ public class AddCommand extends MessageCommand {
 
         int commandFlags = DEFAULT_FLAGS;
         Permission permission = Permission.ANYONE;
-        HomeEditor homeEditor = event.getHomeEditor();
+        CommandTableEditor commandTableEditor = event.getCommandTableEditor();
         String input = parseResult.getInput();
         List<String> flags = parseResult.getFlags();
         if (!flags.isEmpty()) {
@@ -111,12 +111,12 @@ public class AddCommand extends MessageCommand {
                     throw new BotErrorException("Aliased command can't have text");
                 }
 
-                boolean added = homeEditor.aliasCommand(command, alias);
+                boolean added = commandTableEditor.aliasCommand(command, alias);
 
                 if (added) {
-                    MessageCommand.say(event, String.format("Command %s added.", command));
+                    event.say(String.format("Command %s added.", command));
                 } else {
-                    MessageCommand.say(event, String.format("Command %s modified.", command));
+                    event.say(String.format("Command %s modified.", command));
                 }
                 return;
             }
@@ -126,13 +126,13 @@ public class AddCommand extends MessageCommand {
             throw new BotErrorException(String.format("%s doesn't do anything.", command));
         }
 
-        boolean added = homeEditor.addCommand(command, new TextCommand(Command.UNREGISTERED_ID,
+        boolean added = commandTableEditor.addCommand(command, new TextCommand(Command.UNREGISTERED_ID,
                 new CommandSettings(commandFlags, permission, new RateLimit()), input));
 
         if (added) {
-            MessageCommand.say(event, String.format("Command %s added.", command));
+            event.say(String.format("Command %s added.", command));
         } else {
-            MessageCommand.say(event, String.format("Command %s modified.", command));
+            event.say(String.format("Command %s modified.", command));
         }
     }
 }

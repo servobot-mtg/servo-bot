@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.events.MessageSentEvent;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Channel;
@@ -30,9 +31,9 @@ public class FactsCommandTest {
         FactsCommand command = new FactsCommand(ID, COMMAND_SETTINGS, book);
 
         Channel channel = mockChannel();
-        MessageSentEvent event = mockMessageSentEvent(channel);
+        CommandInvokedEvent event = mockCommandInvokedEvent(channel, ARGUMENTS);
 
-        command.perform(event, ARGUMENTS);
+        command.perform(event);
 
         verify(channel).say(LINE);
     }
