@@ -4,22 +4,15 @@ import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.Event;
-import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.User;
-import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.regex.Pattern;
-
 public abstract class Command {
     public static final int UNREGISTERED_ID = 0;
-
-    private static Pattern REPLACEMENT_PATTERN = Pattern.compile("%([^%]*)%");
 
     public static final int SECURE_FLAG = 1 << 0;
     public static final int TWITCH_FLAG = 1 << TwitchService.TYPE;
@@ -101,7 +94,15 @@ public abstract class Command {
         return hasPermissions(user, getPermission());
     }
 
+    public boolean hasPermissions(final HomedUser homedUser) {
+        return hasPermissions(homedUser, getPermission());
+    }
+
     public static boolean hasPermissions(final User user, final Permission permission) {
+        return hasPermissions(user.getHomedUser(), permission);
+    }
+
+    public static boolean hasPermissions(final HomedUser user, final Permission permission) {
         switch (permission) {
             case ANYONE:
                 return true;
@@ -114,7 +115,7 @@ public abstract class Command {
                     return true;
                 }
             case STREAMER:
-                if (user.getHomedUser().isStreamer()) {
+                if (user.isStreamer()) {
                     return true;
                 }
             case ADMIN:

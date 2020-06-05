@@ -334,8 +334,13 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public Permission setCommandPermission(final int commandId, final Permission permission) {
+    public Permission setCommandPermission(final int userId, final int commandId, final Permission permission)
+            throws BotErrorException {
         Command command = botHome.getCommandTable().getCommand(commandId);
+        HomedUser homedUser = botHome.getHomedUserTable().getById(userId);
+        if (!command.hasPermissions(homedUser)) {
+            throw new BotErrorException("You do not have permission to change the command's permission");
+        }
         command.setPermission(permission);
         serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
         return command.getPermission();

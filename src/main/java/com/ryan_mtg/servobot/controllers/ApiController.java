@@ -34,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -158,9 +159,11 @@ public class ApiController {
     }
 
     @PostMapping(value = "/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Permission setCommandPermission(@RequestBody final SetPermissionRequest request) {
+    public Permission setCommandPermission(final Model model, @RequestBody final SetPermissionRequest request)
+            throws BotErrorException {
+        WebsiteUser user = (WebsiteUser) model.asMap().get("user");
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.setCommandPermission(request.getCommandId(), request.getPermission());
+        return homeEditor.setCommandPermission(user.getUserId(), request.getCommandId(), request.getPermission());
     }
 
     @Getter
