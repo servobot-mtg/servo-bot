@@ -4,9 +4,9 @@ import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.Getter;
 import lombok.Setter;
@@ -90,6 +90,10 @@ public abstract class Command {
     public abstract CommandType getType();
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
 
+    public boolean hasPermissions(final com.ryan_mtg.servobot.model.User user) {
+        return hasPermissions(user.getUser());
+    }
+
     public boolean hasPermissions(final User user) {
         return hasPermissions(user, getPermission());
     }
@@ -98,8 +102,8 @@ public abstract class Command {
         return hasPermissions(homedUser, getPermission());
     }
 
-    public static boolean hasPermissions(final User user, final Permission permission) {
-        return hasPermissions(user.getHomedUser(), permission);
+    public static boolean hasPermissions(final com.ryan_mtg.servobot.model.User user, final Permission permission) {
+        return hasPermissions(user.getUser(), permission);
     }
 
     public static boolean hasPermissions(final HomedUser user, final Permission permission) {
@@ -118,6 +122,25 @@ public abstract class Command {
                 if (user.isStreamer()) {
                     return true;
                 }
+            case ADMIN:
+                if (user.isAdmin()) {
+                    return true;
+                }
+                break;
+            default:
+                throw new IllegalStateException("Unhandled permission: " + permission);
+        }
+        return false;
+    }
+
+    public static boolean hasPermissions(final User user, final Permission permission) {
+        switch (permission) {
+            case ANYONE:
+                return true;
+            case SUB:
+            case MOD:
+            case STREAMER:
+                return false;
             case ADMIN:
                 if (user.isAdmin()) {
                     return true;

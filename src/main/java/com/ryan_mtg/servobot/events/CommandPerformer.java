@@ -10,22 +10,32 @@ import com.ryan_mtg.servobot.commands.hierarchy.UserCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.UserHomedCommand;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.utility.CommandParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.regex.Pattern;
 
 import static com.ryan_mtg.servobot.user.User.UNREGISTERED_ID;
 
 public class CommandPerformer {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandPerformer.class);
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("!\\w+");
+    private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
+
     private RateLimiter rateLimiter;
 
     public CommandPerformer(final RateLimiter rateLimiter) {
         this.rateLimiter = rateLimiter;
     }
 
+    public CommandParser getCommandParser() {
+        return COMMAND_PARSER;
+    }
+
     public void perform(final UserHomeEvent userEvent, final UserHomedCommand command) {
         wrapForErrorHandling(() -> {
-            if (shouldPerform(userEvent.getUser().getHomedUser().getId(), command, userEvent)) {
+            if (shouldPerform(userEvent.getUser().getId(), command, userEvent)) {
                 LOGGER.info("Performing {} at {}", command.getId(), userEvent.getHome().getName());
                 command.perform(userEvent);
             }
@@ -133,8 +143,8 @@ public class CommandPerformer {
                 LOGGER.info("Performing {} for {} with arguments '{}'.", event.getCommand(), sender.getName(),
                         event.getArguments());
 
-                if (shouldPerform(sender.getHomedUser().getId(), command, event)) {
-                    if (command.hasPermissions(sender)) {
+                if (shouldPerform(sender.getId(), command, event)) {
+                    if (command.hasPermissions(sender.getUser())) {
                         function.apply();
                     } else {
                         event.say(String.format("%s is not allowed to %s.", sender.getName(), event.getCommand()));

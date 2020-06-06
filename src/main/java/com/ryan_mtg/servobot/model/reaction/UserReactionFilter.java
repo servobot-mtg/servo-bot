@@ -21,6 +21,6 @@ public class UserReactionFilter implements ReactionFilter {
 
     @Override
     public boolean shouldReact(final User sender) {
-        return sender.getHomedUser().getId() == userId;
+        return sender.getId() == userId;
     }
 }

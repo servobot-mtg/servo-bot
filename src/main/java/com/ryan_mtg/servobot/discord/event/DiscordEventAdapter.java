@@ -28,15 +28,17 @@ import java.util.Map;
 public class DiscordEventAdapter extends ListenerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordEventAdapter.class);
 
+    private final DiscordService discordService;
     private final EventListener listener;
     private final Map<Long, BotHome> homeMap;
     private final StreamStartRegulator streamStartRegulator;
     private final UserTable userTable;
     private final LoggedMessageSerializer loggedMessageSerializer;
 
-    public DiscordEventAdapter(final EventListener listener, final Map<Long, BotHome> homeMap,
-            final StreamStartRegulator streamStartRegulator, final UserTable userTable,
-            final LoggedMessageSerializer loggedMessageSerializer) {
+    public DiscordEventAdapter(final DiscordService discordService, final EventListener listener,
+            final Map<Long, BotHome> homeMap, final StreamStartRegulator streamStartRegulator,
+            final UserTable userTable, final LoggedMessageSerializer loggedMessageSerializer) {
+        this.discordService = discordService;
         this.listener = listener;
         this.homeMap = homeMap;
         this.streamStartRegulator = streamStartRegulator;
@@ -54,6 +56,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
             User sender = userTable.getByDiscordId(author.getIdLong(), author.getName());
             loggedMessageSerializer.logReceivedMessage(sender, event.getMessage().getContentRaw(), DiscordService.TYPE);
+
+            DiscordGlobalUser discordSender = new DiscordGlobalUser(author, sender);
+            listener.onPrivateMessage(new DiscordPrivateMessageEvent(discordService, event, discordSender));
         } catch (BotErrorException e) {
             LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
         }

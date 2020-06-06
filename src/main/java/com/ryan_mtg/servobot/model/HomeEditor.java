@@ -535,7 +535,7 @@ public class HomeEditor {
             throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
-        int playerId = player.getHomedUser().getId();
+        int playerId = player.getId();
 
         if (gameQueue.contains(playerId)) {
             throw new BotErrorException(String.format("%s is already in the queue.", player.getName()));
@@ -560,7 +560,7 @@ public class HomeEditor {
             throws BotErrorException {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
-        int playerId = player.getHomedUser().getId();
+        int playerId = player.getId();
 
         if (gameQueue.getState() == GameQueue.State.IDLE) {
             throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
@@ -909,7 +909,8 @@ public class HomeEditor {
     }
 
     private void whisperMessage(final int serviceType, final HomedUser user, final String message) {
-        botHome.getServiceHome(serviceType).getHome().getUser(user).whisper(message);
+        ServiceHome serviceHome = botHome.getServiceHome(serviceType);
+        serviceHome.getService().whisper(user.getUser(), message);
     }
 
     public List<User> getArenaUsers() throws BotErrorException {

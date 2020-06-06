@@ -23,8 +23,18 @@ public class TwitchUser implements User {
     }
 
     @Override
+    public int getId() {
+        return user.getId();
+    }
+
+    @Override
     public HomedUser getHomedUser() {
         return user;
+    }
+
+    @Override
+    public com.ryan_mtg.servobot.user.User getUser() {
+        return user.getUser();
     }
 
     @Override
@@ -45,13 +55,5 @@ public class TwitchUser implements User {
     @Override
     public boolean isSubscriber() {
         return user.isSubscriber();
-    }
-
-    @Override
-    public void whisper(final String message) {
-        LOGGER.info("Trying to whisper to: " + user.getTwitchUsername());
-        chat.sendPrivateMessage(user.getTwitchUsername(), message);
-
-        LOGGER.info("Done trying to whisper to: " + user.getTwitchUsername());
     }
 }

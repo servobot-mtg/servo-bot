@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.twitch.model;
 
-import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -16,11 +15,6 @@ public class TwitchMessage implements Message {
     @Override
     public String getContent() {
         return messageSentEvent.getContent();
-    }
-
-    @Override
-    public Channel getChannel() {
-        return messageSentEvent.getChannel();
     }
 
     @Override

@@ -26,9 +26,9 @@ public class RequestPrizeCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent messageSentEvent) throws BotErrorException {
-        HomeEditor homeEditor = messageSentEvent.getHomeEditor();
-        User sender = messageSentEvent.getSender();
+    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+        HomeEditor homeEditor = event.getHomeEditor();
+        User sender = event.getSender();
         HomedUser homedSender = sender.getHomedUser();
         Giveaway giveaway = homeEditor.getGiveaway(giveawayId);
 
@@ -48,7 +48,7 @@ public class RequestPrizeCommand extends InvokedHomedCommand {
 
         Prize prize = homeEditor.requestPrize(giveawayId, homedSender);
         String message = String.format("Congratulations %s, your code is: %s", sender.getName(), prize.getReward());
-        sender.whisper(message);
+        event.getServiceHome(event.getServiceType()).getService().whisper(sender.getUser(), message);
     }
 
     @Override

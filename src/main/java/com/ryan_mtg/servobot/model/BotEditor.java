@@ -16,11 +16,17 @@ import com.ryan_mtg.servobot.controllers.ApiController.TextCommandRequest;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
+import com.ryan_mtg.servobot.data.models.SuggestionRow;
+import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.editors.BookTableEditor;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
@@ -30,6 +36,7 @@ import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,9 +53,30 @@ public class BotEditor {
     private Bot bot;
     private SerializerContainer serializers;
 
+    @Getter
+    private CommandTableEditor commandTableEditor;
+
+    @Getter
+    private BookTableEditor bookTableEditor;
+
+    @Getter
+    private StorageValueEditor storageValueEditor;
+
     public BotEditor(final Bot bot) {
         this.bot = bot;
         this.serializers = bot.getSerializers();
+        this.commandTableEditor =
+                new CommandTableEditor(bot.getCommandTable(), serializers.getCommandTableSerializer());
+
+        this.bookTableEditor =
+                new BookTableEditor(-bot.getId(), bot.getBookTable(), serializers.getBookSerializer());
+
+        this.storageValueEditor =
+                new StorageValueEditor(-bot.getId(), bot.getStorageTable(), serializers.getStorageValueSerializer());
+    }
+
+    public Scope getScope() {
+        return bot.getBotScope();
     }
 
     public void setArenaUsername(final int userId, final String username) throws BotErrorException {
@@ -166,6 +194,23 @@ public class BotEditor {
         BotHome botHome = this.serializers.getBotFactory().createBotHome(botHomeId);
         bot.addHome(botHome);
         botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void addSuggestion(final String command) {
+        String alias = command.toLowerCase();
+        if (alias.length() > Validation.MAX_TRIGGER_LENGTH) {
+            return; //ignore suggestions that are absurd
+        }
+
+        SuggestionRepository suggestionRepository = serializers.getSuggestionRepository();
+        SuggestionRow suggestionRow = suggestionRepository.findByAlias(alias);
+        if (suggestionRow == null) {
+            suggestionRow = new SuggestionRow(alias, 1);
+        } else {
+            suggestionRow.setCount(suggestionRow.getCount() + 1);
+        }
+        suggestionRepository.save(suggestionRow);
     }
 
     private void validateNewCommandName(final Set<String> commandNames, final String commandName)

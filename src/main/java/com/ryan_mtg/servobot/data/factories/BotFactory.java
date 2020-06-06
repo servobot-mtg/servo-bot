@@ -56,11 +56,16 @@ public class BotFactory {
 
         int botId = botRow.getId();
 
-        BookTable bookTable = serializers.getBookSerializer().createBookTable(-botId);
-        Map<Integer, Book> bookMap = bookTable.getBookMap();
-        CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(-botId, bookMap);
+        int contextId = -botId;
 
-        Bot bot = new Bot(botId, botRow.getName(), globalScope, services, serializers, commandTable, bookTable);
+        BookTable bookTable = serializers.getBookSerializer().createBookTable(contextId);
+        Map<Integer, Book> bookMap = bookTable.getBookMap();
+        CommandTable commandTable = serializers.getCommandTableSerializer().createCommandTable(contextId, bookMap);
+
+        StorageTable storageTable = serializers.getStorageTableSerializer().createStorageTable(contextId);
+
+        Bot bot = new Bot(botId, botRow.getName(), globalScope, services, serializers, commandTable, bookTable,
+                storageTable);
         for (BotHomeRow botHomeRow : serializers.getBotHomeRepository().findAll()) {
             bot.addHome(createBotHome(botHomeRow));
         }

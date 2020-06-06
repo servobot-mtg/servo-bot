@@ -46,6 +46,9 @@ public class ReactionListener implements EventListener {
     }
 
     @Override
+    public void onPrivateMessage(final MessageEvent messageEvent) {}
+
+    @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {}
 
     @Override

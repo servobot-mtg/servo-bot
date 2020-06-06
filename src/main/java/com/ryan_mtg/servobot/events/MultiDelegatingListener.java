@@ -19,13 +19,16 @@ public class MultiDelegatingListener implements EventListener {
     }
 
     @Override
+    public void onPrivateMessage(final MessageEvent messageEvent) {}
+
+    @Override
     public void onMessage(final MessageHomeEvent messageHomeEvent) {
         try {
             for (EventListener listener : getListeners()) {
                 listener.onMessage(messageHomeEvent);
             }
         } catch (BotErrorException e) {
-            messageHomeEvent.getMessage().getChannel().say(e.getErrorMessage());
+            messageHomeEvent.getChannel().say(e.getErrorMessage());
         }
     }
 

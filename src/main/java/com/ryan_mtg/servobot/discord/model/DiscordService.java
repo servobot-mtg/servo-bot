@@ -94,18 +94,22 @@ public class DiscordService implements Service {
         JDABuilder builder = new JDABuilder(token);
         builder.setActivity(Activity.playing("Beta: " + now()));
 
-        builder.addEventListeners(new DiscordEventAdapter(eventListener, homeMap, streamStartRegulator,
-                userTable, loggedMessageSerializer));
+        builder.addEventListeners(new DiscordEventAdapter(this, eventListener, homeMap,
+                streamStartRegulator, userTable, loggedMessageSerializer));
         jda = builder.build();
         jda.awaitReady();
         homeMap.forEach(
                 (guildId, home) -> streamStartRegulator.setIsStreaming(home.getId(), computeIsStreaming(guildId)));
     }
 
+    public void logSendMessage(final com.ryan_mtg.servobot.user.User user, final String message) {
+        loggedMessageSerializer.logSentMessage(user, message, DiscordService.TYPE);
+    }
+
     @Override
     public void whisper(final com.ryan_mtg.servobot.user.User user, final String message) {
+        logSendMessage(user, message);
         User discordUser = jda.getUserById(user.getDiscordId());
-        loggedMessageSerializer.logSentMessage(user, message, DiscordService.TYPE);
         discordUser.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
     }
 

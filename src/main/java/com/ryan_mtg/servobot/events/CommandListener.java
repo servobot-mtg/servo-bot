@@ -11,12 +11,8 @@ import com.ryan_mtg.servobot.utility.CommandParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.regex.Pattern;
-
 public class CommandListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
-    private static final Pattern COMMAND_PATTERN = Pattern.compile("!\\w+");
-    private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
 
     private CommandPerformer commandPerformer;
     private CommandTable commandTable;
@@ -25,6 +21,9 @@ public class CommandListener implements EventListener {
         this.commandPerformer = commandPerformer;
         this.commandTable = commandTable;
     }
+
+    @Override
+    public void onPrivateMessage(final MessageEvent messageEvent) {}
 
     @Override
     public void onMessage(final MessageHomeEvent event) {
@@ -36,7 +35,7 @@ public class CommandListener implements EventListener {
 
         LOGGER.trace("seeing event for " + message.getContent());
 
-        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(message.getContent());
+        CommandParser.ParseResult parseResult = commandPerformer.getCommandParser().parse(message.getContent());
         switch (parseResult.getStatus()) {
             case NO_COMMAND:
             case COMMAND_MISMATCH:

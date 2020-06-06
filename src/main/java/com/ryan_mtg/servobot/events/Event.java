@@ -15,7 +15,9 @@ public interface Event {
     BotEditor getBotEditor();
     void setBotEditor(BotEditor botEditor);
 
-    StorageValueEditor getStorageValueEditor();
+    default StorageValueEditor getStorageValueEditor() {
+        return getBotEditor().getStorageValueEditor();
+    }
 
     int getServiceType();
     Scope getScope();

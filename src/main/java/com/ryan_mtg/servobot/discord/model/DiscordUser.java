@@ -23,6 +23,16 @@ public class DiscordUser implements User {
     }
 
     @Override
+    public int getId() {
+        return homedUser.getId();
+    }
+
+    @Override
+    public com.ryan_mtg.servobot.user.User getUser() {
+        return homedUser.getUser();
+    }
+
+    @Override
     public boolean isBot() {
         return member.getUser().isBot();
     }
@@ -40,11 +50,6 @@ public class DiscordUser implements User {
     @Override
     public boolean isSubscriber() {
         return homedUser.isSubscriber();
-    }
-
-    @Override
-    public void whisper(final String message) {
-        member.getUser().openPrivateChannel().complete().sendMessage(message).queue();
     }
 
     public long getDiscordId() {

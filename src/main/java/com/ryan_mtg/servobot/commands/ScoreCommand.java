@@ -122,7 +122,7 @@ public class ScoreCommand extends InvokedHomedCommand {
     void printScore(final CommandInvokedHomeEvent event) throws BotErrorException {
         HomeEditor homeEditor = event.getHome().getHomeEditor();
         User sender = event.getSender();
-        StorageValue storageValue = homeEditor.getStorageValue(sender.getHomedUser().getId(), scoreVariable, 0);
+        StorageValue storageValue = homeEditor.getStorageValue(sender.getId(), scoreVariable, 0);
 
         event.say(String.format("%s's score is %s.", sender.getName(), storageValue.getValue()));
     }
@@ -141,7 +141,7 @@ public class ScoreCommand extends InvokedHomedCommand {
         HomeEditor homeEditor = home.getHomeEditor();
         User user = home.getUser(userName);
         StorageValue storageValue =
-                homeEditor.increaseStorageValue(user.getHomedUser().getId(), scoreVariable, score, 0);
+                homeEditor.increaseStorageValue(user.getId(), scoreVariable, score, 0);
 
         event.say(String.format("%s's score is %s.", user.getName(), storageValue.getValue()));
     }
@@ -156,7 +156,7 @@ public class ScoreCommand extends InvokedHomedCommand {
         }
 
         User user = home.getUser(arguments);
-        homeEditor.removeStorageVariable(user.getHomedUser().getId(), scoreVariable);
+        homeEditor.removeStorageVariable(user.getId(), scoreVariable);
         event.say(String.format("%s score for %s reset.", gameName, user.getName()));
     }
 }
