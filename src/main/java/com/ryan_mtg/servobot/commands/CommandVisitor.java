@@ -23,6 +23,7 @@ import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
 
 public interface CommandVisitor {
+    void visitAddBookedStatementCommand(AddBookedStatementCommand addBookedStatementCommand);
     void visitAddCommand(AddCommand addCommand);
     void visitAddReactionCommand(AddReactionCommand addReactionCommand);
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);

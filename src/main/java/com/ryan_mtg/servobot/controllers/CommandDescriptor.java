@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.commands.AddBookedStatementCommand;
 import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
@@ -127,6 +128,12 @@ public class CommandDescriptor {
 
         public String getEdit() {
             return edit;
+        }
+
+        @Override
+        public void visitAddBookedStatementCommand(final AddBookedStatementCommand addBookedStatementCommand) {
+            description = String.format("Used to add new statements to the %s book and responsed with '%s'",
+                    addBookedStatementCommand.getBook().getName(), addBookedStatementCommand.getResponse());
         }
 
         @Override

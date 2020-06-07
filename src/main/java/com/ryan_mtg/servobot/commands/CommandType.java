@@ -4,9 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum CommandType {
+    ADD_BOOKED_STATEMENT_COMMAND_TYPE(34,"Add Statement Command"),
     ADD_COMMAND_TYPE(5, "Add Command"),
     ADD_REACTION_COMMAND_TYPE(24, "Add Reaction Command"),
-    ADD_STATEMENT_COMMAND_TYPE(15, "Add Statement Command"),
+    ADD_STATEMENT_COMMAND_TYPE(15, "Add Statement by Book Command"),
     ARREST_COMMAND_TYPE(30, "Arrest Command"),
     CARD_SEARCH_COMMAND_TYPE(32, "Card Search Command"),
     DELAYED_ALERT_COMMAND_TYPE(16, "Delayed Alert Command"),

@@ -656,7 +656,7 @@ const commandData = [
     {name: 'Show Arena Usernames Command', parameters: []}, //12
     {name: 'Set Role Command', parameters: [{id: 'role', name: 'Role Name'}]}, //13
     {name: 'Set Status Command', parameters: [{id: 'book', name: 'Book'}]}, //14
-    {name: 'Add Statement Command', parameters: []}, //15
+    {name: 'Add Statement by Book Command', parameters: []}, //15
     {name: 'Delayed Alert Command',
         parameters: [{id: 'text', name: 'Alert Token'}, {id: 'integer', name: 'Delay (seconds)'}]}, //16
     {name: 'Show Value Command', parameters: []}, //17
@@ -679,6 +679,7 @@ const commandData = [
     {name: 'Scryfall Search Command', parameters: []}, //31
     {name: 'Card Search Command', parameters: []}, //32
     {name: 'Score Command', parameters: [{id: 'text', name: 'Game Name'}, {id: 'text-2', name: 'Variable Name'}]}, //33
+    {name: 'Add Statement Command', parameters: [{id: 'book', name: 'Book'}, {id: 'text', name: 'Response'}]}, //34
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

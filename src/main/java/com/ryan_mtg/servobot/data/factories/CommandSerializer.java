@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.data.factories;
 
+import com.ryan_mtg.servobot.commands.AddBookedStatementCommand;
 import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
@@ -87,6 +88,10 @@ public class CommandSerializer {
                 new CommandSettings(commandRow.getFlags(), commandRow.getPermission(), rateLimit);
         CommandType commandType = CommandType.getFromValue(commandRow.getType());
         switch (commandType) {
+            case ADD_BOOKED_STATEMENT_COMMAND_TYPE:
+                int bookId = (int) (long) commandRow.getLongParameter();
+                return new AddBookedStatementCommand(id, commandSettings, bookMap.get(bookId),
+                        Strings.trim(commandRow.getStringParameter()));
             case ADD_COMMAND_TYPE:
                 return new AddCommand(id, commandSettings);
             case ADD_REACTION_COMMAND_TYPE:
@@ -111,7 +116,7 @@ public class CommandSerializer {
                 boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
                 return new EvaluateExpressionCommand(id, commandSettings, gabyEasterEgg);
             case FACTS_COMMAND_TYPE:
-                int bookId = (int) (long) commandRow.getLongParameter();
+                bookId = (int) (long) commandRow.getLongParameter();
                 return new FactsCommand(id, commandSettings, bookMap.get(bookId));
             case GAME_QUEUE_COMMAND_TYPE:
                 int gameQueueId = (int) (long) commandRow.getLongParameter();
@@ -259,6 +264,14 @@ public class CommandSerializer {
 
         public CommandRow getCommandRow() {
             return commandRow;
+        }
+
+        @Override
+        public void visitAddBookedStatementCommand(final AddBookedStatementCommand addBookedStatementCommand) {
+            saveCommand(addBookedStatementCommand, commandRow -> {
+                commandRow.setLongParameter(addBookedStatementCommand.getBook().getId());
+                commandRow.setStringParameter(addBookedStatementCommand.getResponse());
+            });
         }
 
         @Override
