@@ -53,7 +53,7 @@
     </div>
 
     <!-- commands -->
-    <div th:fragment="commands">
+    <div th:fragment="commands (container, contextId)">
         <h2>Commands</h2>
         <table id="command-table" class="command data-table">
             <thead><tr>
@@ -81,7 +81,7 @@
                                     <tr>
                                         <td th:text="${alias.alias}"/>
                                         <td class="pseudo-link alias-delete"
-                                            th:onclick="'deleteTrigger(' + ${botHome.id} + ',' + ${alias.id} + ')'">x</td>
+                                            th:onclick="'deleteTrigger(' + ${contextId} + ',' + ${alias.id} + ')'">x</td>
                                     </tr>
                                 </table>
                             </th:block>
@@ -95,7 +95,7 @@
                                     <tr>
                                         <td th:text="${event.eventType}"/>
                                         <td class="pseudo-link event-delete"
-                                            th:onclick="'deleteTrigger(' + ${botHome.id} + ',' + ${event.id} + ')'">x</td>
+                                            th:onclick="'deleteTrigger(' + ${contextId} + ',' + ${event.id} + ')'">x</td>
                                     </tr>
                                 </table>
                             </th:block>
@@ -109,7 +109,7 @@
                                     <tr>
                                         <td th:text="${alert.alertToken}"/>
                                         <td class="pseudo-link alert-delete"
-                                            th:onclick="'deleteTrigger(' + ${botHome.id} + ',' + ${alert.id} + ')'">x</td>
+                                            th:onclick="'deleteTrigger(' + ${contextId} + ',' + ${alert.id} + ')'">x</td>
                                     </tr>
                                 </table>
                             </th:block>
@@ -121,7 +121,7 @@
                                 +
                             </div>
                             <form th:id="${label} + '-form'" class="add-trigger-form hidden"
-                                  th:onsubmit="'addTrigger(' + ${botHome.id} + ', ' + ${command.id} + '); return false;'">
+                                  th:onsubmit="'addTrigger(' + ${contexId} + ', ' + ${command.id} + '); return false;'">
                                 <input th:id="${label} + '-text-input'" type="text" name="trigger" size="9">
                                 <select th:id="${label} + '-event-input'" hidden>
                                     <th:block th:each="event : ${events}">
@@ -142,29 +142,29 @@
 
                     <td class="icon-cell">
                         <span th:id="${label} + '-secured'" th:if="${privileged}" class="pseudo-link"
-                              th:onclick="'secureCommand(' + ${botHome.id} + ', ' + ${command.id} + ')'"
+                              th:onclick="'secureCommand(' + ${contexId} + ', ' + ${command.id} + ')'"
                               th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
-                        <span th:id="${label} + '-secure-response'"/>
+                        <span th:id="${label} + '-secure-response'"></span>
 
                         <span th:id="${label} + '-while-streaming'" th:if="${privileged}" class="pseudo-link"
-                              th:onclick="'setOnlyWhileStreaming(' + ${botHome.id} + ', ' + ${command.id} + ')'"
+                              th:onclick="'setOnlyWhileStreaming(' + ${contextId} + ', ' + ${command.id} + ')'"
                               th:title="${command.onlyWhileStreaming ? 'Allow only while streaming' : 'Allow anytime'}"
-                              th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"/>
-                        <span th:id="${label} + '-while-streaming-response'"/>
+                              th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"></span>
+                        <span th:id="${label} + '-while-streaming-response'"></span>
                         <span th:if="${!privileged}" class="icon"
-                              th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"/>
+                              th:text="${command.onlyWhileStreaming ? '&#x1F4FA;' : '&#x1F570;&#xFE0F;'}"></span>
 
                         <span th:id="${label} + '-twitch'" th:if="${privileged}" class="pseudo-link"
-                              th:onclick="'toggleCommandTwitch(' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                              th:onclick="'toggleCommandTwitch(' + ${contextId} + ', ' + ${command.id} + ')'">
                             <img th:id="${label} + '-twitch-img'" class="icon" title="Toggle Twitch use"
                                  th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
-                            <span th:id="${label} + '-twitch-response'"/>
+                            <span th:id="${label} + '-twitch-response'"></span>
                         </span>
                         <img th:if="${!privileged}" class="icon"
                              th:src="${command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
 
                         <span th:id="${label} + '-discord'" th:if="${privileged}" class="pseudo-link"
-                              th:onclick="'toggleCommandDiscord(' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                              th:onclick="'toggleCommandDiscord(' + ${contextId} + ', ' + ${command.id} + ')'">
                             <img th:id="${label} + '-discord-img'" class="icon" title="Toggle Discord use"
                                  th:src="${command.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
                             <span th:id="${label} + '-discord-response'"></span>
@@ -175,17 +175,17 @@
 
                     <td th:if="${!privileged}" th:text="${command.permission}"></td>
                     <td th:if="${privileged}">
-                        <select th:onchange="'updateCommandPermission(event, ' + ${botHome.id} + ', ' + ${command.id} + ')'">
+                        <select th:onchange="'updateCommandPermission(event, ' + ${contextId} + ', ' + ${command.id} + ')'">
                             <th:block th:each="permission : ${permissions}">
                                 <option th:value="${permission}" th:text="${permission}"
                                         th:selected="${permission == command.permission}"/>
                             </th:block>
                         </select>
-                        <span th:id="${label}+ '-permission-updated'"/>
+                        <span th:id="${label}+ '-permission-updated'"></span>
                     </td>
 
                     <td th:if="${privileged}" class="pseudo-link"
-                        th:onclick="'deleteCommand(' + ${botHome.id} + ',' + ${command.id} + ')'">
+                        th:onclick="'deleteCommand(' + ${contextId} + ',' + ${command.id} + ')'">
                         &#x1F5D1;&#xFE0F;
                     </td>
                 </tr>
@@ -196,25 +196,25 @@
             <div id="add-command-button" class="pseudo-link add-button" onclick="showAddCommandForm()"
                  title="Add a command">+</div>
             <form id="add-command-form" class="add-form hidden"
-                  th:onsubmit="'addCommand(' + ${botHome.id} + '); return false;'">
+                  th:onsubmit="'addCommand(' + ${contextId} + '); return false;'">
                 <div id="add-command-type-div">
                     <label>Command Type</label><br>
                     <select id='add-command-type-input' onchange="changeAddCommandType(this)">
                         <option value="1" selected>Respond Command</option>
-                        <option value="2" th:if="${!botHome.bookTable.empty}">Random Statement Command</option>
+                        <option value="2" th:if="${!container.bookTable.empty}">Random Statement Command</option>
                         <option value="4">Message Channel Command</option>
                         <option value="5">Add Command</option>
                         <option value="6">Delete Command</option>
                         <option value="15">Add Statement Command</option>
                         <option value="19">Math Command</option>
                         <option value="33">Score Command</option>
-                        <option value="17" th:if="${!botHome.storageTable.empty}">Show Value Command</option>
-                        <option value="18" th:if="${!botHome.storageTable.empty}">Set Value Command</option>
+                        <option value="17" th:if="${!container.storageTable.empty}">Show Value Command</option>
+                        <option value="18" th:if="${!container.storageTable.empty}">Set Value Command</option>
                         <option value="16">Delayed Alert Command</option>
-                        <option value="7" th:if="${!botHome.gameQueues.empty}">Game Queue Command</option>
-                        <option value="9" th:if="${!botHome.gameQueues.empty}">Show Game Queue Command</option>
-                        <option value="8" th:if="${!botHome.gameQueues.empty}">Join Game Queue Command</option>
-                        <option value="10" th:if="${!botHome.gameQueues.empty}">Remove From Game Queue Command</option>
+                        <option value="7" th:if="${contextId > 0 && !container.gameQueues.empty}">Game Queue Command</option>
+                        <option value="9" th:if="${contextId > 0 && !container.gameQueues.empty}">Show Game Queue Command</option>
+                        <option value="8" th:if="${contextId > 0 && !container.gameQueues.empty}">Join Game Queue Command</option>
+                        <option value="10" th:if="${contextId > 0 && !container.gameQueues.empty}">Remove From Game Queue Command</option>
                         <option value="32">Card Search Command</option>
                         <option value="31">Scryfall Search Command</option>
                         <option value="11">Set Arena Username Command</option>
@@ -262,7 +262,7 @@
                 <div id="add-command-book-div" class="hidden">
                     <label id="add-command-book-label">Book</label><br>
                     <select id="add-command-book-input">
-                        <th:block th:each="book : ${botHome.bookTable}">
+                        <th:block th:each="book : ${container.bookTable}">
                             <option th:value="${book.id}" th:text="${book.name}"/>
                         </th:block>
                     </select><br>
@@ -286,7 +286,7 @@
                 <div id="add-command-game-queue-div" class="hidden">
                     <label id="add-command-game-queue-label">Game Queue</label><br>
                     <select id="add-command-game-queue-input">
-                        <th:block th:each="queue : ${botHome.gameQueues}">
+                        <th:block th:each="queue : ${container.gameQueues}">
                             <option th:value="${queue.id}" th:text="${queue.name}"/>
                         </th:block>
                     </select><br>
@@ -294,8 +294,8 @@
                 <div id="add-command-service-div" class="hidden">
                     <label id="add-command-service-label">Service</label><br>
                     <select id="add-command-service-input">
-                        <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}" th:object="${serviceHomeEntry.value}">
-                            <option th:value="*{service.type}" th:text="*{service.name}"/>
+                        <th:block th:each="service : ${container.services}">
+                            <option th:value="${service.type}" th:text="${service.name}"/>
                         </th:block>
                     </select>
                 </div>

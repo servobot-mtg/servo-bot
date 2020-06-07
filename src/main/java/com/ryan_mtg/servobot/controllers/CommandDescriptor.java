@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
@@ -43,7 +44,11 @@ import com.ryan_mtg.servobot.commands.trigger.TriggerVisitor;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Getter
 public class CommandDescriptor {
@@ -70,6 +75,29 @@ public class CommandDescriptor {
 
     public void addTrigger(final Trigger trigger) {
         trigger.acceptVisitor(new TriggerAddingVisitor());
+    }
+
+    public static List<CommandDescriptor> getCommandDescriptors(final CommandMapping commandMapping) {
+        List<CommandDescriptor> commands = new ArrayList<>();
+        Map<Command, CommandDescriptor> commandMap = new HashMap<>();
+
+        Function<Command, CommandDescriptor> createCommandDescriptor = command -> {
+            CommandDescriptor newDescriptor = new CommandDescriptor(command);
+            commands.add(newDescriptor);
+            return newDescriptor;
+        };
+
+        for (Map.Entry<Integer, Command> entry : commandMapping.getIdToCommandMap().entrySet()) {
+            commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
+        }
+
+        for (Map.Entry<Trigger, Command> entry : commandMapping.getTriggerCommandMap().entrySet()) {
+            CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
+            descriptor.addTrigger(entry.getKey());
+        }
+
+        commands.sort(new CommandDescriptorIdComparer());
+        return commands;
     }
 
     private class TriggerAddingVisitor implements TriggerVisitor {
@@ -280,6 +308,13 @@ public class CommandDescriptor {
         @Override
         public void visitTierCommand(final TierCommand tierCommand) {
             description = "Gives the user's friendship tier";
+        }
+    }
+
+    private static class CommandDescriptorIdComparer implements Comparator<CommandDescriptor> {
+        @Override
+        public int compare(final CommandDescriptor first, final CommandDescriptor second) {
+            return first.getCommand().getId() - second.getCommand().getId();
         }
     }
 }

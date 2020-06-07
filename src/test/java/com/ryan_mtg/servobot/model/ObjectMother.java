@@ -23,16 +23,17 @@ public class ObjectMother {
     }
 
     public static User mockUser(final int userId) {
-        return mockUser("mocked_user", mockHomedUser(userId));
+        return mockUser("mocked_user", userId, mockHomedUser(userId));
     }
 
     public static User mockUser(final String name) {
-        return mockUser(name, mock(HomedUser.class));
+        return mockUser(name, 999999999, mock(HomedUser.class));
     }
 
-    public static User mockUser(final String name, final HomedUser homedUser) {
+    public static User mockUser(final String name, final int userId, final HomedUser homedUser) {
         User user = mock(User.class);
         when(user.getName()).thenReturn(name);
+        when(user.getId()).thenReturn(userId);
         when(user.getHomedUser()).thenReturn(homedUser);
         return user;
     }

@@ -2,20 +2,45 @@ package com.ryan_mtg.servobot.model.editors;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
+import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
+import com.ryan_mtg.servobot.commands.trigger.Trigger;
+import com.ryan_mtg.servobot.controllers.CommandDescriptor;
+import com.ryan_mtg.servobot.data.factories.CommandSerializer;
 import com.ryan_mtg.servobot.data.factories.CommandTableSerializer;
+import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.User;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandTableEditor {
-    private CommandTable commandTable;
-    private CommandTableSerializer commandTableSerializer;
+    private final BookTable bookTable;
+    private final CommandTable commandTable;
+    private final CommandSerializer commandSerializer;
+    private final CommandTableSerializer commandTableSerializer;
 
-    public CommandTableEditor(final CommandTable commandTable, final CommandTableSerializer commandTableSerializer) {
+    public CommandTableEditor(final BookTable bookTable, final CommandTable commandTable,
+            final CommandSerializer commandSerializer, final CommandTableSerializer commandTableSerializer) {
+        this.bookTable = bookTable;
         this.commandTable = commandTable;
+        this.commandSerializer = commandSerializer;
         this.commandTableSerializer = commandTableSerializer;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public CommandDescriptor addCommand(final CommandRow commandRow) throws BotErrorException {
+        Command command = commandSerializer.createCommand(commandRow, bookTable.getBookMap());
+
+        CommandTableEdit commandTableEdit = commandTable.addCommand(command);
+        commandTableSerializer.commit(commandTableEdit);
+
+        return new CommandDescriptor(command);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -49,6 +74,98 @@ public class CommandTableEditor {
         }
 
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandName);
+        commandTableSerializer.commit(commandTableEdit);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void deleteCommand(final int commandId) throws BotErrorException {
+        CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandId);
+        if (commandTableEdit.getDeletedCommands().isEmpty()) {
+            throw new BotErrorException(String.format("Command '%d' not found.", commandId));
+        }
+        commandTableSerializer.commit(commandTableEdit);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean secureCommand(final int commandId, final boolean secure) {
+        Command command = commandTable.secureCommand(commandId, secure);
+        saveCommand(command);
+        return command.isSecure();
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean setCommandService(final int commandId, final int serivceType, final boolean value) {
+        Command command = commandTable.getCommand(commandId);
+        command.setService(serivceType, value);
+        saveCommand(command);
+        return command.getService(serivceType);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Permission setCommandPermission(final HomedUser homedUser, final int commandId, final Permission permission)
+            throws BotErrorException {
+        Command command = commandTable.getCommand(commandId);
+        if (!command.hasPermissions(homedUser)) {
+            throw new BotErrorException("You do not have permission to change the command's permission");
+        }
+        command.setPermission(permission);
+        saveCommand(command);
+        return command.getPermission();
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public Permission setCommandPermission(final User user, final int commandId, final Permission permission)
+            throws BotErrorException {
+        Command command = commandTable.getCommand(commandId);
+        if (!command.hasPermissions(user)) {
+            throw new BotErrorException("You do not have permission to change the command's permission");
+        }
+        command.setPermission(permission);
+        saveCommand(command);
+        return command.getPermission();
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public boolean setCommandOnlyWhileStreaming(final int commandId, final boolean isOnlyWhileStreaming) {
+        Command command = commandTable.getCommand(commandId);
+        command.setOnlyWhileStreaming(isOnlyWhileStreaming);
+        saveCommand(command);
+        return command.isOnlyWhileStreaming();
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public List<Trigger> addTrigger(final int commandId, final int triggerType, final String text)
+            throws BotErrorException {
+        CommandTableEdit commandTableEdit = commandTable.addTrigger(commandId, triggerType, text);
+
+        if (commandTableEdit.getSavedTriggers().size() != 1) {
+            throw new BotErrorException(String.format("Trigger '%s' not added.", text));
+        }
+
+        commandTableSerializer.commit(commandTableEdit);
+        Trigger trigger = commandTableEdit.getSavedTriggers().keySet().iterator().next();
+        List<Trigger> response = new ArrayList<>();
+        response.add(trigger);
+        if (!commandTableEdit.getDeletedTriggers().isEmpty()) {
+            Trigger deletedTrigger = commandTableEdit.getDeletedTriggers().get(0);
+            response.add(deletedTrigger);
+        }
+        return response;
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void deleteTrigger(final int triggerId) throws BotErrorException {
+        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(triggerId);
+
+        if (commandTableEdit.getDeletedTriggers().isEmpty()) {
+            throw new BotErrorException(String.format("Trigger '%d' not found.", triggerId));
+        }
+        commandTableSerializer.commit(commandTableEdit);
+    }
+
+    private void saveCommand(final Command command) {
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        commandTableEdit.save(commandTable.getContextId(), command);
         commandTableSerializer.commit(commandTableEdit);
     }
 }

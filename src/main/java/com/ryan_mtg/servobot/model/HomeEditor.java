@@ -94,8 +94,8 @@ public class HomeEditor {
         this.bot = bot;
         this.botHome = botHome;
         this.serializers = bot.getSerializers();
-        this.commandTableEditor =
-                new CommandTableEditor(botHome.getCommandTable(), serializers.getCommandTableSerializer());
+        this.commandTableEditor = new CommandTableEditor(botHome.getBookTable(), botHome.getCommandTable(),
+                serializers.getCommandSerializer(), serializers.getCommandTableSerializer());
         this.bookTableEditor =
                 new BookTableEditor(botHome.getId(), botHome.getBookTable(), serializers.getBookSerializer());
         this.storageValueEditor =new StorageValueEditor(botHome.getId(), botHome.getStorageTable(),
@@ -147,13 +147,6 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
-    public boolean secureCommand(final int commandId, final boolean secure) {
-        Command command = botHome.getCommandTable().secureCommand(commandId, secure);
-        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
-        return command.isSecure();
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
     public Reaction addReaction(final String emote, final boolean secure) throws BotErrorException {
         Reaction  reaction = new Reaction(Reaction.UNREGISTERED_ID, emote, secure, new AlwaysReact(), new ArrayList<>(),
                 new ArrayList<>());
@@ -187,61 +180,6 @@ public class HomeEditor {
     public void deletePattern(final int reactionId, final int patternId) {
         ReactionTableEdit reactionTableEdit = botHome.getReactionTable().deletePattern(reactionId, patternId);
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public CommandDescriptor addCommand(final CommandRow commandRow) throws BotErrorException {
-        Map<Integer, Book> bookMap = botHome.getBookTable().getBookMap();
-
-        Command command = serializers.getCommandSerializer().createCommand(commandRow, bookMap);
-
-        CommandTable commandTable = botHome.getCommandTable();
-        CommandTableEdit commandTableEdit = commandTable.addCommand(command);
-        serializers.getCommandTableSerializer().commit(commandTableEdit);
-
-        return new CommandDescriptor(command);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteCommand(final int commandId) throws BotErrorException {
-        CommandTable commandTable = botHome.getCommandTable();
-        CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandId);
-
-        if (commandTableEdit.getDeletedCommands().isEmpty()) {
-            throw new BotErrorException(String.format("Command '%d' not found.", commandId));
-        }
-        serializers.getCommandTableSerializer().commit(commandTableEdit);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public List<Trigger> addTrigger(final int commandId, final int triggerType, final String text) throws BotErrorException {
-        CommandTable commandTable = botHome.getCommandTable();
-        CommandTableEdit commandTableEdit = commandTable.addTrigger(commandId, triggerType, text);
-
-        if (commandTableEdit.getSavedTriggers().size() != 1) {
-            throw new BotErrorException(String.format("Trigger '%s' not added.", text));
-        }
-
-        serializers.getCommandTableSerializer().commit(commandTableEdit);
-        Trigger trigger = commandTableEdit.getSavedTriggers().keySet().iterator().next();
-        List<Trigger> response = new ArrayList<>();
-        response.add(trigger);
-        if (!commandTableEdit.getDeletedTriggers().isEmpty()) {
-            Trigger deletedTrigger = commandTableEdit.getDeletedTriggers().get(0);
-            response.add(deletedTrigger);
-        }
-        return response;
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteTrigger(final int triggerId) throws BotErrorException {
-        CommandTable commandTable = botHome.getCommandTable();
-        CommandTableEdit commandTableEdit = commandTable.deleteTrigger(triggerId);
-
-        if (commandTableEdit.getDeletedTriggers().isEmpty()) {
-            throw new BotErrorException(String.format("Trigger '%d' not found.", triggerId));
-        }
-        serializers.getCommandTableSerializer().commit(commandTableEdit);
     }
 
     @Transactional(rollbackOn = BotErrorException.class)
@@ -323,35 +261,6 @@ public class HomeEditor {
     public void deleteAlert(final int alertGeneratorId) {
         CommandTableEdit commandTableEdit = botHome.getCommandTable().deleteAlertGenerator(alertGeneratorId);
         serializers.getCommandTableSerializer().commit(commandTableEdit);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public boolean setCommandService(final int commandId, final int serivceType, final boolean value) {
-        Command command = botHome.getCommandTable().getCommand(commandId);
-        command.setService(serivceType, value);
-        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
-        return command.getService(serivceType);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Permission setCommandPermission(final int userId, final int commandId, final Permission permission)
-            throws BotErrorException {
-        Command command = botHome.getCommandTable().getCommand(commandId);
-        HomedUser homedUser = botHome.getHomedUserTable().getById(userId);
-        if (!command.hasPermissions(homedUser)) {
-            throw new BotErrorException("You do not have permission to change the command's permission");
-        }
-        command.setPermission(permission);
-        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
-        return command.getPermission();
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public boolean setCommandOnlyWhileStreaming(final int commandId, final boolean isOnlyWhileStreaming) {
-        Command command = botHome.getCommandTable().getCommand(commandId);
-        command.setOnlyWhileStreaming(isOnlyWhileStreaming);
-        serializers.getCommandSerializer().saveCommand(botHome.getId(), command);
-        return command.isOnlyWhileStreaming();
     }
 
     @Transactional(rollbackOn = BotErrorException.class)

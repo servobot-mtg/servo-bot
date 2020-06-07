@@ -1,8 +1,12 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.google.common.collect.Lists;
+import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -40,6 +45,19 @@ public class AdministrationController {
         addUsers(model);
         model.addAttribute("suggestions", suggestionRepository.findAllByOrderByCountDescAliasAsc());
         return "admin/admin";
+    }
+
+    @GetMapping("/bot/{bot}")
+    public String showBot(final Model model, @PathVariable("bot") final String botName) throws BotErrorException {
+        Bot bot = botRegistrar.getBot(botName);
+        model.addAttribute("page", "bot");
+
+        if (bot == null) {
+            throw new ResourceNotFoundException(String.format("No bot home with name %s", botName));
+        }
+
+        addBot(model, bot);
+        return "admin/bot";
     }
 
     @GetMapping("/users")
@@ -72,6 +90,13 @@ public class AdministrationController {
         model.addAttribute("users", userTable.getAllUsers());
     }
 
+    private void addBot(final Model model, final Bot bot) {
+        model.addAttribute("bot", bot);
+        model.addAttribute("commandDescriptors",
+                CommandDescriptor.getCommandDescriptors(bot.getCommandTable().getCommandMapping()));
+        model.addAttribute("userTable", userTable);
+    }
+
     @ModelAttribute
     private void addMemory(final Model model) {
         long totalMemory = Runtime.getRuntime().totalMemory();
@@ -79,6 +104,13 @@ public class AdministrationController {
         model.addAttribute("total_memory", formatMemory(totalMemory));
         model.addAttribute("free_memory", formatMemory(freeMemory));
         model.addAttribute("used_memory", formatMemory(totalMemory-freeMemory));
+    }
+
+    @ModelAttribute
+    private void addAttributes(final Model model) {
+        model.addAttribute("permissions", Lists.newArrayList(
+                Permission.ADMIN, Permission.ANYONE));
+        model.addAttribute("events", Lists.newArrayList());
     }
 
     private String formatMemory(final long amount) {

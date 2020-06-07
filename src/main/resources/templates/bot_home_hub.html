@@ -37,7 +37,7 @@
 
         <div th:include="bot_home_fragments :: services"/>
 
-        <div th:include="bot_home_fragments :: commands"/>
+        <div th:include="bot_home_fragments :: commands (container=${botHome}, contextId=${botHome.id})"/>
 
         <div th:include="bot_home_fragments :: reactions"/>
 

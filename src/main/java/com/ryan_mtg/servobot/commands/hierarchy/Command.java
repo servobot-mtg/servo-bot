@@ -91,7 +91,7 @@ public abstract class Command {
     public abstract void acceptVisitor(CommandVisitor commandVisitor);
 
     public boolean hasPermissions(final com.ryan_mtg.servobot.model.User user) {
-        return hasPermissions(user.getUser());
+        return hasPermissions(user, getPermission());
     }
 
     public boolean hasPermissions(final User user) {
@@ -103,6 +103,9 @@ public abstract class Command {
     }
 
     public static boolean hasPermissions(final com.ryan_mtg.servobot.model.User user, final Permission permission) {
+        if (user.getHomedUser() != null) {
+            return hasPermissions(user.getHomedUser(), permission);
+        }
         return hasPermissions(user.getUser(), permission);
     }
 

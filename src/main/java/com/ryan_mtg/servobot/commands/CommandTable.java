@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 public class CommandTable {
     private static Logger LOGGER = LoggerFactory.getLogger(CommandTable.class);
 
-    private final int botHomeId;
+    @Getter
+    private final int contextId;
     private final boolean isCaseSensitive;
 
     private Map<Integer, Command> idToCommandMap = new HashMap<>();
@@ -44,8 +45,8 @@ public class CommandTable {
 
     private List<AlertGenerator> alertGenerators = new ArrayList<>();
 
-    public CommandTable(final int botHomeId, final boolean isCaseSensitive) {
-        this.botHomeId = botHomeId;
+    public CommandTable(final int contextId, final boolean isCaseSensitive) {
+        this.contextId = contextId;
         this.isCaseSensitive = isCaseSensitive;
     }
 
@@ -63,7 +64,7 @@ public class CommandTable {
 
     public CommandTableEdit addCommand(Command command) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
-        commandTableEdit.save(botHomeId, command, this::registerCommand);
+        commandTableEdit.save(contextId, command, this::registerCommand);
         return commandTableEdit;
     }
 
@@ -148,7 +149,7 @@ public class CommandTable {
     public CommandTableEdit addAlertGenerator(final AlertGenerator alertGenerator) {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
         alertGenerators.add(alertGenerator);
-        commandTableEdit.save(botHomeId, alertGenerator);
+        commandTableEdit.save(contextId, alertGenerator);
         return commandTableEdit;
     }
 
@@ -232,7 +233,7 @@ public class CommandTable {
     private CommandTableEdit addCommand(final String alias, final Command newCommand) throws BotErrorException {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
-        commandTableEdit.save(botHomeId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
+        commandTableEdit.save(contextId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
         return commandTableEdit;
     }
 

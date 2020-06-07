@@ -14,6 +14,7 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
@@ -23,6 +24,7 @@ import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -98,6 +100,11 @@ public class ApiController {
     }
 
     @Getter
+    public static class ContextRequest {
+        private int contextId;
+    }
+
+    @Getter
     public static class BotHomeRequest {
         private int botHomeId;
     }
@@ -120,30 +127,30 @@ public class ApiController {
 
     @PostMapping(value = "/secure_command", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean secureCommand(@RequestBody final SecureRequest request) {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.secureCommand(request.getObjectId(), request.isSecure());
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
+        return commandTableEditor.secureCommand(request.getObjectId(), request.isSecure());
     }
 
     @PostMapping(value = "/secure_reaction", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean secureReaction(@RequestBody final SecureRequest request) {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        HomeEditor homeEditor = getHomeEditor(request.getContextId());
         return homeEditor.secureReaction(request.getObjectId(), request.isSecure());
     }
 
     @Getter
-    public static class SecureRequest extends BotHomeRequest {
+    public static class SecureRequest extends ContextRequest {
         private int objectId;
         private boolean secure;
     }
 
     @PostMapping(value = "/set_command_service", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean setCommandService(@RequestBody final SetCommandServiceRequest request) {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.setCommandService(request.getCommandId(), request.getServiceType(), request.getValue());
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
+        return commandTableEditor.setCommandService(request.getCommandId(), request.getServiceType(), request.getValue());
     }
 
     @Getter
-    public static abstract class CommandRequest extends BotHomeRequest {
+    public static abstract class CommandRequest extends ContextRequest {
         private int commandId;
     }
 
@@ -161,9 +168,15 @@ public class ApiController {
     @PostMapping(value = "/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Permission setCommandPermission(final Model model, @RequestBody final SetPermissionRequest request)
             throws BotErrorException {
-        WebsiteUser user = (WebsiteUser) model.asMap().get("user");
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.setCommandPermission(user.getUserId(), request.getCommandId(), request.getPermission());
+        WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
+        if (request.getContextId() > 0) {
+            HomedUser homedUser = getHomeEditor(request.getContextId()).getUserById(websiteUser.getUserId());
+            return commandTableEditor.setCommandPermission(homedUser, request.getCommandId(), request.getPermission());
+        } else {
+            User user = getBotEditor(request.getContextId()).getUserById(websiteUser.getUserId());
+            return commandTableEditor.setCommandPermission(user, request.getCommandId(), request.getPermission());
+        }
     }
 
     @Getter
@@ -173,8 +186,8 @@ public class ApiController {
 
     @PostMapping(value = "/set_command_only_while_streaming", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean setIsOnlyWhileStreaming(@RequestBody final SetCommandOnlyWhileStreamingRequest request) {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.setCommandOnlyWhileStreaming(request.getCommandId(), request.isOnlyWhileStreaming());
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
+        return commandTableEditor.setCommandOnlyWhileStreaming(request.getCommandId(), request.isOnlyWhileStreaming());
     }
 
     @Getter
@@ -240,8 +253,8 @@ public class ApiController {
     @PostMapping(value = "/add_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public AddTriggerResponse addTrigger(@RequestBody final AddTriggerRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        List<Trigger> a = homeEditor.addTrigger(request.getCommandId(), request.getTriggerType(), request.getText());
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
+        List<Trigger> a = commandTableEditor.addTrigger(request.getCommandId(), request.getTriggerType(), request.getText());
         return new AddTriggerResponse(a.get(0), a.size() > 1 ? a.get(1): null);
     }
 
@@ -275,7 +288,7 @@ public class ApiController {
     @PostMapping(value = "/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
         CommandRow commandRow = new CommandRow();
         commandRow.setType(request.getType());
         commandRow.setPermission(request.getPermission());
@@ -283,11 +296,11 @@ public class ApiController {
         commandRow.setStringParameter(request.getStringParameter());
         commandRow.setStringParameter2(request.getStringParameter2());
         commandRow.setLongParameter(request.getLongParameter());
-        return homeEditor.addCommand(commandRow);
+        return commandTableEditor.addCommand(commandRow);
     }
 
     @Getter
-    public static class AddCommandRequest extends BotHomeRequest {
+    public static class AddCommandRequest extends ContextRequest {
         private int type;
         private Permission permission;
         private int flags;
@@ -300,8 +313,8 @@ public class ApiController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteCommand(@RequestBody final DeleteObjectRequest request) {
         return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteCommand(request.getObjectId());
+            CommandTableEditor commandTableEditor = getCommandTableEditor(request.getBotHomeId());
+            commandTableEditor.deleteCommand(request.getObjectId());
         });
     }
 
@@ -309,8 +322,8 @@ public class ApiController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteTrigger(@RequestBody final DeleteObjectRequest request) {
         return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteTrigger(request.getObjectId());
+            CommandTableEditor commandTableEditor = getCommandTableEditor(request.getBotHomeId());
+            commandTableEditor.deleteTrigger(request.getObjectId());
         });
     }
 
@@ -559,6 +572,17 @@ public class ApiController {
 
     private HomeEditor getHomeEditor(final int botHomeId) {
         return botRegistrar.getHomeEditor(botHomeId);
+    }
+
+    private BotEditor getBotEditor(final int contextId) {
+        return botRegistrar.getBotEditor(contextId);
+    }
+
+    private CommandTableEditor getCommandTableEditor(final int contextId) {
+        if (contextId > 0) {
+            return botRegistrar.getHomeEditor(contextId).getCommandTableEditor();
+        }
+        return botRegistrar.getBotEditor(contextId).getCommandTableEditor();
     }
 
     @ExceptionHandler(BotErrorException.class)

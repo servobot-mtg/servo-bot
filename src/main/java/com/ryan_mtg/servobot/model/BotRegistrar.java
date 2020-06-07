@@ -19,12 +19,19 @@ public class BotRegistrar {
         return Collections.singletonList(bot);
     }
 
-    public BotEditor getBotEditor(final int botHomeId) {
+    public BotEditor getBotEditor(final int contextId) {
         return bot.getBotEditor();
     }
 
+    public Bot getBot(final String botName) {
+        if (bot.getName().equalsIgnoreCase(botName)) {
+            return bot;
+        }
+        return null;
+    }
+
     public BotEditor getBotEditor(final String botName) {
-        return bot.getBotEditor();
+        return getBot(botName).getBotEditor();
     }
 
     public BotHome getBotHome(final String botHomeName) {

@@ -94,7 +94,6 @@ public class BotController {
         return String.format("help/%s", page);
     }
 
-
     @GetMapping("/home/{home}")
     public String showHome(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
         model.addAttribute("page", "home");
@@ -192,7 +191,7 @@ public class BotController {
     private void addBotHome(final Model model, final BotHome botHome) {
         model.addAttribute("botHome", botHome);
         model.addAttribute("commandDescriptors",
-                getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
+                CommandDescriptor.getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
         model.addAttribute("userTable", serializers.getUserTable());
 
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
@@ -225,38 +224,8 @@ public class BotController {
         }
     }
 
-    private List<CommandDescriptor> getCommandDescriptors(final CommandMapping commandMapping) {
-        List<CommandDescriptor> commands = new ArrayList<>();
-        Map<Command, CommandDescriptor> commandMap = new HashMap<>();
-
-        Function<Command, CommandDescriptor> createCommandDescriptor = command -> {
-            CommandDescriptor newDescriptor = new CommandDescriptor(command);
-            commands.add(newDescriptor);
-            return newDescriptor;
-        };
-
-        for (Map.Entry<Integer, Command> entry : commandMapping.getIdToCommandMap().entrySet()) {
-            commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
-        }
-
-        for (Map.Entry<Trigger, Command> entry : commandMapping.getTriggerCommandMap().entrySet()) {
-            CommandDescriptor descriptor = commandMap.computeIfAbsent(entry.getValue(), createCommandDescriptor);
-            descriptor.addTrigger(entry.getKey());
-        }
-
-        commands.sort(new CommandDescriptorIdComparer());
-        return commands;
-    }
-
     private boolean isPrivledged(final Model model, final BotHome botHome) {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
         return websiteUser.isPrivileged(botHome);
-    }
-
-    private class CommandDescriptorIdComparer implements Comparator<CommandDescriptor> {
-        @Override
-        public int compare(final CommandDescriptor first, final CommandDescriptor second) {
-            return first.getCommand().getId() - second.getCommand().getId();
-        }
     }
 }

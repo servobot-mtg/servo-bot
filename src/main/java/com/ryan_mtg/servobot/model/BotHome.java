@@ -30,11 +30,13 @@ import org.slf4j.LoggerFactory;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class BotHome {
+public class BotHome implements Context {
     private static final Logger LOGGER = LoggerFactory.getLogger(BotHome.class);
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("H:mm");
 
@@ -114,6 +116,16 @@ public class BotHome {
         eventListener =
                 new MultiDelegatingListener(new CommandListener(commandPerformer, commandTable),
                         new ReactionListener(reactionTable, commandPerformer));
+    }
+
+    @Override
+    public int getContextId() {
+        return id;
+    }
+
+    @Override
+    public Collection<Service> getServices() {
+        return serviceHomes.values().stream().map(ServiceHome::getService).collect(Collectors.toList());
     }
 
     public void setBot(final Bot bot) {

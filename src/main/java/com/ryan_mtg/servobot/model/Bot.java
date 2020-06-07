@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -18,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class Bot {
+public class Bot implements Context {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
     @Getter
@@ -41,8 +44,6 @@ public class Bot {
     private BotEditor botEditor;
     private List<BotHome> homes = new ArrayList<>();
     private HomeDelegatingListener listener;
-
-    @Getter
     private Map<Integer, Service> services;
     private Map<Integer, HomeEditor> homeEditorMap = new HashMap<>();
 
@@ -82,6 +83,21 @@ public class Bot {
 
     public Service getService(final int serviceType) {
         return services.get(serviceType);
+    }
+
+    @Override
+    public int getContextId() {
+        return -id;
+    }
+
+    @Override
+    public Collection<Service> getServices() {
+        return services.values();
+    }
+
+    @Override
+    public Collection<GameQueue> getGameQueues() {
+        return Collections.emptyList();
     }
 
     public void addHome(final BotHome home) {

@@ -65,8 +65,8 @@ public class BotEditor {
     public BotEditor(final Bot bot) {
         this.bot = bot;
         this.serializers = bot.getSerializers();
-        this.commandTableEditor =
-                new CommandTableEditor(bot.getCommandTable(), serializers.getCommandTableSerializer());
+        this.commandTableEditor = new CommandTableEditor(bot.getBookTable(), bot.getCommandTable(),
+                serializers.getCommandSerializer(), serializers.getCommandTableSerializer());
 
         this.bookTableEditor =
                 new BookTableEditor(-bot.getId(), bot.getBookTable(), serializers.getBookSerializer());
@@ -77,6 +77,10 @@ public class BotEditor {
 
     public Scope getScope() {
         return bot.getBotScope();
+    }
+
+    public User getUserById(final int userId) throws BotErrorException {
+        return serializers.getUserTable().getById(userId);
     }
 
     public void setArenaUsername(final int userId, final String username) throws BotErrorException {

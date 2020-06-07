@@ -48,7 +48,7 @@
 
         <div th:include="bot_home_fragments :: users (title='Moderators')"/>
 
-        <div th:include="bot_home_fragments :: commands"/>
+        <div th:include="bot_home_fragments :: commands (container=${botHome}, contextId=${botHome.id})"/>
     </div>
     <div th:include="fragments :: footer" />
 </body>

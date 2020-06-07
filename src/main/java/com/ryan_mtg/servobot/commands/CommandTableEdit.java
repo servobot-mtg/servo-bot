@@ -39,8 +39,12 @@ public class CommandTableEdit {
         deletedCommands.add(command);
     }
 
-    public void save(final int botHomeId, final Command command, final Consumer<Command> commandSaveCallback) {
-        savedCommands.put(command, botHomeId);
+    public void save(final int contextId, final Command command) {
+        savedCommands.put(command, contextId);
+    }
+
+    public void save(final int contextId, final Command command, final Consumer<Command> commandSaveCallback) {
+        save(contextId, command);
         commandSaveCallbackMap.put(command, commandSaveCallback);
     }
 
@@ -62,7 +66,9 @@ public class CommandTableEdit {
         if (savedCommandToTriggerMap.containsKey(command)) {
             savedTriggers.put(savedCommandToTriggerMap.get(command), command.getId());
         }
-        commandSaveCallbackMap.get(command).accept(command);
+        if (commandSaveCallbackMap.containsKey(command)) {
+            commandSaveCallbackMap.get(command).accept(command);
+        }
     }
 
     public void triggerSaved(final Trigger trigger) {

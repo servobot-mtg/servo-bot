@@ -234,26 +234,26 @@ function resetBotName() {
     showElementById('bot-name-display');
 }
 
-function secureCommand(botHomeId, commandId) {
-    postSecureCommand(botHomeId, commandId, 'command-' + commandId);
+function secureCommand(contextId, commandId) {
+    postSecureCommand(contextId, commandId, 'command-' + commandId);
 }
 
-async function postSecureCommand(botHomeId, commandId, label) {
-    return postSecureObject('/api/secure_command', botHomeId, commandId, label);
+async function postSecureCommand(contextId, commandId, label) {
+    return postSecureObject('/api/secure_command', contextId, commandId, label);
 }
 
 function secureReaction(botHomeId, reactionId) {
     postSecureReaction(botHomeId, reactionId);
 }
 
-async function postSecureReaction(botHomeId, reactionId) {
-    return postSecureObject('/api/secure_reaction', botHomeId, reactionId, 'reaction-' + reactionId);
+async function postSecureReaction(contextId, reactionId) {
+    return postSecureObject('/api/secure_reaction', contextId, reactionId, 'reaction-' + reactionId);
 }
 
-async function postSecureObject(endPoint, botHomeId, objectId, label) {
+async function postSecureObject(endPoint, contextId, objectId, label) {
     let valueElement = document.getElementById(label + '-secured');
     const secure = valueElement.innerText != decodedLockedIcon;
-    const parameters = {botHomeId: botHomeId, objectId: objectId, secure: secure};
+    const parameters = {contextId: contextId, objectId: objectId, secure: secure};
     const responseElement = document.getElementById(label + '-secure-response');
     let response = await makePost(endPoint, parameters, [responseElement], false);
     if (response.ok) {
@@ -271,15 +271,15 @@ function setSecure(rowElement, iconElement, secure) {
     }
 }
 
-function setOnlyWhileStreaming(botHomeId, commandId) {
-    postSetOnlyWhileStreaming(botHomeId, commandId);
+function setOnlyWhileStreaming(contextId, commandId) {
+    postSetOnlyWhileStreaming(contextId, commandId);
 }
 
-async function postSetOnlyWhileStreaming(botHomeId, commandId) {
+async function postSetOnlyWhileStreaming(contextId, commandId) {
     const elementId = 'command-' + commandId + '-while-streaming';
     let valueElement = document.getElementById(elementId);
     const onlyWhileStreamingValue = valueElement.innerText != decodedTvIcon;
-    const parameters = {botHomeId: botHomeId, commandId: commandId, onlyWhileStreaming: onlyWhileStreamingValue};
+    const parameters = {contextId: contextId, commandId: commandId, onlyWhileStreaming: onlyWhileStreamingValue};
     let response = await makePost('/api/set_command_only_while_streaming', parameters, [], false);
     if (response.ok) {
         if (onlyWhileStreamingValue) {
@@ -292,18 +292,18 @@ async function postSetOnlyWhileStreaming(botHomeId, commandId) {
     }
 }
 
-function toggleCommandTwitch(botHomeId, commandId) {
-    postSetCommandService(botHomeId, commandId, 'command-' + commandId, 'twitch', 1);
+function toggleCommandTwitch(contextId, commandId) {
+    postSetCommandService(contextId, commandId, 'command-' + commandId, 'twitch', 1);
 }
 
-function toggleCommandDiscord(botHomeId, commandId) {
-    postSetCommandService(botHomeId, commandId, 'command-' + commandId, 'discord', 2);
+function toggleCommandDiscord(contextId, commandId) {
+    postSetCommandService(contextId, commandId, 'command-' + commandId, 'discord', 2);
 }
 
-async function postSetCommandService(botHomeId, commandId, label, service, serviceType) {
+async function postSetCommandService(contextId, commandId, label, service, serviceType) {
     let imgElement = document.getElementById(label + '-' + service + '-img');
     const serviceValue = imgElement.src.endsWith('/images/' + service + '.ico');
-    const parameters = {botHomeId: botHomeId, commandId: commandId, serviceType: serviceType, value: !serviceValue};
+    const parameters = {contextId: contextId, commandId: commandId, serviceType: serviceType, value: !serviceValue};
     const responseElement = document.getElementById(label + '-' + service + '-response');
     let response =
         await makePost('/api/set_command_service', parameters, [responseElement], false);
@@ -316,13 +316,13 @@ async function postSetCommandService(botHomeId, commandId, label, service, servi
     }
 }
 
-function updateCommandPermission(event, botHomeId, commandId) {
-    postUpdateCommandPermission(botHomeId, commandId, event.target.value,
+function updateCommandPermission(event, contextId, commandId) {
+    postUpdateCommandPermission(contextId, commandId, event.target.value,
         document.getElementById('command-' + commandId + '-permission-updated'));
 }
 
-async function postUpdateCommandPermission(botHomeId, commandId, permission, responseElement) {
-    const parameters = {botHomeId: botHomeId, commandId: commandId, permission: permission};
+async function postUpdateCommandPermission(contextId, commandId, permission, responseElement) {
+    const parameters = {contextId: contextId, commandId: commandId, permission: permission};
     makePost('/api/set_command_permission', parameters, [responseElement], true);
 }
 
@@ -482,19 +482,19 @@ function updateAddTriggerType(commandId) {
     }
 }
 
-function addTrigger(botHomeId, commandId) {
+function addTrigger(contextId, commandId) {
     const label = 'add-trigger-' + commandId;
     let text = document.getElementById(label + '-text-input').value;
     const triggerType = parseInt(document.getElementById(label + '-type-input').value);
     if (triggerType == 2) {
         text = document.getElementById(label + '-event-input').value;
     }
-    postAddTrigger(botHomeId, commandId, text, triggerType);
+    postAddTrigger(contextId, commandId, text, triggerType);
 }
 
-async function postAddTrigger(botHomeId, commandId, text, triggerType) {
+async function postAddTrigger(contextId, commandId, text, triggerType) {
     const label = 'add-trigger-' + commandId;
-    const parameters = {botHomeId: botHomeId, commandId: commandId, text: text, triggerType: triggerType};
+    const parameters = {contextId: contextId, commandId: commandId, text: text, triggerType: triggerType};
     let response = await makePost('/api/add_trigger', parameters, [], false);
 
     if (response.ok) {
@@ -502,17 +502,17 @@ async function postAddTrigger(botHomeId, commandId, text, triggerType) {
         showElementInlineById(label + '-button');
 
         let addTriggerResponse = await response.json();
-        addTriggerTable(addTriggerResponse.addedTrigger, botHomeId, commandId, text);
+        addTriggerTable(addTriggerResponse.addedTrigger, contextId, commandId, text);
     }
 }
 
-function addTriggerTable(trigger, botHomeId, commandId, text) {
+function addTriggerTable(trigger, contextId, commandId, text) {
     const triggerTypeArray = ['', 'alias', 'event', 'alert'];
     let triggerType = triggerTypeArray[trigger.type];
 
     let triggersSpan = document.getElementById(triggerType + '-triggers-' + commandId);
     let triggerTable = createLabelTable('trigger-' + trigger.id, triggerType, text, function () {
-        deleteTrigger(botHomeId, trigger.id);
+        deleteTrigger(contextId, trigger.id);
     });
     triggersSpan.appendChild(triggerTable);
 }
@@ -606,8 +606,8 @@ function getAddCommandFlags() {
     return defaultCommandFlags + secure;
 }
 
-function addCommand(botHomeId) {
-    const parameters = {botHomeId: botHomeId};
+function addCommand(contextId) {
+    const parameters = {contextId: contextId};
     const commandType = parseInt(document.getElementById('add-command-type-input').value);
     addAddCommandParameter(parameters, 'type', 'type');
     addAddCommandParameter(parameters, 'permissions', 'permission');
@@ -635,7 +635,7 @@ async function postAddCommand(parameters) {
 
         let commandDescriptor = await response.json();
 
-        addCommandRow(commandDescriptor, parameters.botHomeId);
+        addCommandRow(commandDescriptor, parameters.contextId);
     }
 }
 
@@ -781,7 +781,7 @@ function showOrHideElement(show, elementId) {
     }
 }
 
-function addCommandRow(commandDescriptor, botHomeId) {
+function addCommandRow(commandDescriptor, contextId) {
     let commandTable = document.getElementById('command-table');
     let row = commandTable.insertRow();
 
@@ -813,7 +813,7 @@ function addCommandRow(commandDescriptor, botHomeId) {
     addTriggerForm.id = addTriggerLabel + '-form';
     addTriggerForm.classList.add('add-trigger-form', 'hidden');
     addTriggerForm.onsubmit = function () {
-        addTrigger(botHomeId, commandDescriptor.command.id);
+        addTrigger(contextId, commandDescriptor.command.id);
         return false;
     };
 
@@ -851,7 +851,7 @@ function addCommandRow(commandDescriptor, botHomeId) {
     let secureIcon = commandDescriptor.command.secure ? lockedIcon : unlockedIcon;
     let secureIconSpan = createSpan({id: label + '-secured', classType: 'pseudo-link', value: secureIcon,
         clickFunction: function () {
-            secureCommand(botHomeId, commandDescriptor.command.id);
+            secureCommand(contextId, commandDescriptor.command.id);
         }});
     iconCell.appendChild(secureIconSpan);
     iconCell.appendChild(createSpan({id: label + '-secure-response'}));
@@ -859,13 +859,13 @@ function addCommandRow(commandDescriptor, botHomeId) {
     let onlyWhileStreamingIcon = commandDescriptor.command.onlyWhileStreaming ? tvIcon : clockIcon;
     let onlyWhileStreamingIconSpan = createSpan({id: label + '-while-streaming', classType: 'pseudo-link',
         value: onlyWhileStreamingIcon, clickFunction: function () {
-            setOnlyWhileStreaming(botHomeId, commandDescriptor.command.id);
+            setOnlyWhileStreaming(contextId, commandDescriptor.command.id);
         }});
     iconCell.appendChild(onlyWhileStreamingIconSpan);
 
     let twitchIconSpan = createSpan({id: label + '-twitch', classType: 'pseudo-link',
         clickFunction: function () {
-            toggleCommandTwitch(botHomeId, commandDescriptor.command.id);
+            toggleCommandTwitch(contextId, commandDescriptor.command.id);
         }});
     let twitchImgSrc = commandDescriptor.command.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico';
     let twitchImg = createImg({id: label + '-twitch-img', classType: 'icon', title: 'Toggle Twitch use',
@@ -876,7 +876,7 @@ function addCommandRow(commandDescriptor, botHomeId) {
 
     let discordIconSpan = createSpan({id: label + '-discord', classType: 'pseudo-link',
         clickFunction: function () {
-            toggleCommandDiscord(botHomeId, commandDescriptor.command.id);
+            toggleCommandDiscord(contextId, commandDescriptor.command.id);
         }});
     let discordImgSrc = commandDescriptor.command.discord ? '/images/discord.ico' : '/images/no-discord.ico';
     let discordImg = createImg({id: label + '-discord-img', classType: 'icon', title: 'Toggle Discord use',
@@ -888,7 +888,7 @@ function addCommandRow(commandDescriptor, botHomeId) {
     let permissionsCell = row.insertCell();
     let permissionsSelect = document.createElement('select');
     permissionsSelect.onchange = function (event) {
-        updateCommandPermission(event, botHomeId, commandDescriptor.command.id);
+        updateCommandPermission(event, contextId, commandDescriptor.command.id);
     };
     for (let i = 0; i < permissions.length; i++) {
         permissionsSelect.add(
@@ -898,7 +898,7 @@ function addCommandRow(commandDescriptor, botHomeId) {
     permissionsCell.appendChild(createSpan({id: label + '-permission-updated'}));
 
     addDeleteCell(row, trashcanIcon, function () {
-        deleteCommand(botHomeId, commandDescriptor.command.id);
+        deleteCommand(contextId, commandDescriptor.command.id);
     });
 }
 
