@@ -144,7 +144,7 @@ public class CommandPerformer {
                         event.getArguments());
 
                 if (shouldPerform(sender.getId(), command, event)) {
-                    if (command.hasPermissions(sender.getUser())) {
+                    if (command.hasPermissions(sender)) {
                         function.apply();
                     } else {
                         event.say(String.format("%s is not allowed to %s.", sender.getName(), event.getCommand()));
