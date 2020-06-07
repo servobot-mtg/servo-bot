@@ -21,8 +21,8 @@
         <div>
             <label>Service</label><br>
             <select id="send-message-service-input">
-                <th:block th:each="serviceEntry : ${bot.services}" th:object="${serviceEntry.value}">
-                    <option th:value="*{type}" th:text="*{name}" th:selected="*{name=='Discord'}"/>
+                <th:block th:each="service : ${bot.services}">
+                    <option th:value="${service.type}" th:text="${service.name}" th:selected="${service.name=='Discord'}"/>
                 </th:block>
             </select>
         </div><br>
