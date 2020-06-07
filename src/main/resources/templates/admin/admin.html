@@ -9,6 +9,17 @@
         <div class="content">
             <h1>Admin</h1>
 
+            <h2>Bots</h2>
+            <ul>
+                <th:block th:each="bot : ${bots}" th:with="url='/admin/bot/' + ${bot.name} + '/hub'">
+                    <span th:if="${bot.imageUrl != null}">
+                        <a href="${url}"><img class="user-image" th:src="${bot.imageUrl}"></a>
+                    </span>
+                    <a th:href="${url}" th:text="${bot.name}"></a></li>
+                </th:block>
+            </ul>
+
+            <h2>Links</h2>
             <ul>
                 <li><a href="/admin/users">Users</a></li>
                 <li><a href="/admin/messages">Messages</a></li>
@@ -16,6 +27,13 @@
 
             <h2>Operations</h2>
             <button onclick="runAdminTask()">Run Task</button><span id="run-task-response"/>
+
+            <h2>Memory</h2>
+            <ul>
+                <li th:text="'Total: ' + ${total_memory}"/>
+                <li th:text="'used: ' + ${used_memory}"/>
+                <li th:text="'free: ' + ${free_memory}"/>
+            </ul>
 
             <h2>Command Suggestions</h2>
             <table class="data-table">
@@ -30,13 +48,6 @@
                     </tr>
                 </th:block>
             </table>
-
-            <h2>Memory</h2>
-            <ul>
-                <li th:text="'Total: ' + ${total_memory}"/>
-                <li th:text="'used: ' + ${used_memory}"/>
-                <li th:text="'free: ' + ${free_memory}"/>
-            </ul>
         </div>
         <div th:include="fragments :: footer"/>
     </body>

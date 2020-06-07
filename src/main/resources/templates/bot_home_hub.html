@@ -45,7 +45,7 @@
 
         <div th:include="bot_home_fragments :: storage_values"/>
 
-        <div th:include="bot_home_fragments :: books"/>
+        <div th:include="bot_home_fragments :: books (container=${botHome})"/>
     </div>
     <div th:include="fragments :: footer" />
 </body>

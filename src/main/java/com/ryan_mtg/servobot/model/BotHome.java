@@ -142,6 +142,7 @@ public class BotHome implements Context {
         getServiceHome(DiscordService.TYPE).setName(botName);
     }
 
+    @Override
     public String getImageUrl() {
         return getServiceHome(TwitchService.TYPE).getImageUrl();
     }

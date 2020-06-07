@@ -7,7 +7,9 @@ import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
+import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
+import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.Optional;
 
 @Controller()
 @RequestMapping("/admin")
@@ -47,18 +51,39 @@ public class AdministrationController {
         return "admin/admin";
     }
 
-    @GetMapping("/bot/{bot}")
+    @GetMapping("/bot/{bot}/hub")
     public String showBot(final Model model, @PathVariable("bot") final String botName) throws BotErrorException {
         Bot bot = botRegistrar.getBot(botName);
         model.addAttribute("page", "bot");
 
         if (bot == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with name %s", botName));
+            throw new ResourceNotFoundException(String.format("No bot with name %s", botName));
         }
 
         addBot(model, bot);
         return "admin/bot";
     }
+
+    @GetMapping("/bot/{bot}/book/{book}")
+    public String showBook(final Model model, @PathVariable("bot") final String botName,
+                           @PathVariable("book") final String bookName) {
+        model.addAttribute("page", "book");
+
+        Bot bot = botRegistrar.getBot(botName);
+        if (bot == null) {
+            throw new ResourceNotFoundException(String.format("No bot with name %s", botName));
+        }
+        model.addAttribute("contextId", bot.getContextId());
+
+        Optional<Book> book = bot.getBookTable().getBook(bookName);
+        if (!book.isPresent()) {
+            throw new ResourceNotFoundException(String.format("No book home with name %s", bookName));
+        }
+        model.addAttribute("book", book.get());
+
+        return "book";
+    }
+
 
     @GetMapping("/users")
     public String users(final Model model) throws BotErrorException {

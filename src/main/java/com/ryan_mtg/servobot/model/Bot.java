@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -93,6 +94,11 @@ public class Bot implements Context {
     @Override
     public Collection<Service> getServices() {
         return services.values();
+    }
+
+    @Override
+    public String getImageUrl() {
+        return getService(TwitchService.TYPE).getImageUrl();
     }
 
     @Override

@@ -45,4 +45,20 @@ public class BookTableEditor {
         bookSerializer.commit(contextId, bookTableEdit);
         return statement;
     }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void deleteStatement(final int bookId, final int statementId) throws BotErrorException {
+        BookTableEdit bookTableEdit = bookTable.deleteStatement(bookId, statementId);
+        bookSerializer.commit(contextId, bookTableEdit);
+    }
+
+    @Transactional(rollbackOn = BotErrorException.class)
+    public void modifyStatement(final int bookId, final int statementId, final String text) throws BotErrorException {
+        BookTableEdit bookTableEdit = new BookTableEdit();
+        Book book = bookTable.getBook(bookId);
+        Statement statement = book.getStatement(statementId);
+        statement.setText(text);
+        bookTableEdit.save(bookId, statement);
+        bookSerializer.commit(contextId, bookTableEdit);
+    }
 }

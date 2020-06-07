@@ -366,8 +366,8 @@ function deletePattern(botHomeId, reactionId, patternId) {
     postDelete('/api/delete_pattern', parameters, 'pattern-' + patternId);
 }
 
-function deleteStatement(botHomeId, bookId, statementId) {
-    const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId};
+function deleteStatement(contextId, bookId, statementId) {
+    const parameters = {contextId: contextId, bookId: bookId, statementId: statementId};
     postDelete('/api/delete_statement', parameters, 'statement-' + statementId + '-row');
 }
 
@@ -376,13 +376,13 @@ function editStatement(statementId) {
     showElementById('statement-' + statementId + '-edit');
 }
 
-function modifyStatement(botHomeId, bookId, statementId) {
+function modifyStatement(contextId, bookId, statementId) {
     let inputElement = document.getElementById('statement-' + statementId + '-input');
 
     let valueElement = document.getElementById('statement-' + statementId + '-value');
 
     if (valueElement.innerText != inputElement.value) {
-        postModifyStatement(botHomeId, bookId, statementId, inputElement.value);
+        postModifyStatement(contextId, bookId, statementId, inputElement.value);
     } else {
         resetStatement(statementId);
     }
@@ -393,8 +393,8 @@ function resetStatement(statementId) {
     showElementById('statement-' + statementId + '-display');
 }
 
-async function postModifyStatement(botHomeId, bookId, statementId, text) {
-    const parameters = {botHomeId: botHomeId, bookId: bookId, statementId: statementId, text: text};
+async function postModifyStatement(contextId, bookId, statementId, text) {
+    const parameters = {contextId: contextId, bookId: bookId, statementId: statementId, text: text};
     let response = await makePost('/api/modify_statement', parameters, [], false);
     if (response.ok) {
         let valueElement = document.getElementById('statement-' + statementId + '-value');
@@ -532,13 +532,13 @@ function showAddStatementForm() {
     showForm('add-statement', addStatementFormData);
 }
 
-function addStatement(botHomeId, bookId) {
+function addStatement(contextId, bookId) {
     const text = document.getElementById('add-statement-text-input').value;
-    postAddStatement(botHomeId, bookId, text);
+    postAddStatement(contextId, bookId, text);
 }
 
-async function postAddStatement(botHomeId, bookId, text) {
-    const parameters = {botHomeId: botHomeId, bookId: bookId, text: text};
+async function postAddStatement(contextId, bookId, text) {
+    const parameters = {contextId: contextId, bookId: bookId, text: text};
     let response = await makePost('/api/add_statement', parameters, [], false);
 
     if (response.ok) {
@@ -547,11 +547,11 @@ async function postAddStatement(botHomeId, bookId, text) {
 
         let statement = await response.json();
 
-        addStatementRow(statement, botHomeId, bookId);
+        addStatementRow(statement, contextId, bookId);
     }
 }
 
-function addStatementRow(statement, botHomeId, bookId) {
+function addStatementRow(statement, contextId, bookId) {
     let statementTable = document.getElementById('book-' + bookId + '-table');
     let row = statementTable.insertRow();
 
@@ -561,11 +561,11 @@ function addStatementRow(statement, botHomeId, bookId) {
     addEditableDiv(row.insertCell(), label, statement.text, function() {
         editStatement(statement.id);
     }, function() {
-        modifyStatement(botHomeId, bookId, statement.id);
+        modifyStatement(contextId, bookId, statement.id);
     });
 
     addDeleteCell(row, trashcanIcon, function () {
-        deleteStatement(botHomeId, bookId, statement.id);
+        deleteStatement(contextId, bookId, statement.id);
     });
 }
 
@@ -1094,15 +1094,15 @@ function showAddBookForm() {
     showForm('add-book', addBookFormData);
 }
 
-function addBook(botHomeId) {
+function addBook(contextId) {
     const name = document.getElementById('add-book-name-input').value;
     const statement = document.getElementById('add-book-statement-input').value;
-    postAddBook(botHomeId, name, statement);
+    postAddBook(contextId, name, statement);
 }
 
-async function postAddBook(botHomeId, name, statement) {
+async function postAddBook(contextId, name, statement) {
     const label = 'add-book';
-    const parameters = {botHomeId: botHomeId, name: name, statement: statement};
+    const parameters = {contextId: contextId, name: name, statement: statement};
     let response = await makePost('/api/add_book', parameters, [], false);
 
     if (response.ok) {
@@ -1110,11 +1110,11 @@ async function postAddBook(botHomeId, name, statement) {
         showElementInlineById(label + '-button');
 
         let book = await response.json();
-        addBookItem(book, botHomeId);
+        addBookItem(book, contextId);
     }
 }
 
-function addBookItem(book, botHomeId) {
+function addBookItem(book, contextId) {
     let bookList = document.getElementById('book-list');
     let listItem = document.createElement('li');
     let link = document.createElement('a');

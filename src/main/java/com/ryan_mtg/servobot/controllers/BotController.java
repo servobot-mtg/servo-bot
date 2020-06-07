@@ -1,11 +1,8 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.google.common.collect.Lists;
-import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
-import com.ryan_mtg.servobot.commands.CommandMapping;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
@@ -167,7 +164,7 @@ public class BotController {
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
         }
-        model.addAttribute("botHome", botHome);
+        model.addAttribute("contextId", botHome.getContextId());
 
         Optional<Book> book = botHome.getBookTable().getBook(bookName);
         if (!book.isPresent()) {

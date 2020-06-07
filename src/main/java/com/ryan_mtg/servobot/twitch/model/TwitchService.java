@@ -77,6 +77,11 @@ public class TwitchService implements Service {
         return getUserInfo(authToken).getUsername();
     }
 
+    @Override
+    public String getImageUrl() {
+        return getChannelImageUrl(getUserInfo(authToken).getId());
+    }
+
     public TwitchUserInfo getUserInfo(final String auth) {
         com.github.twitch4j.helix.domain.User user =
                 client.getHelix().getUsers(auth, null, null).execute().getUsers().get(0);

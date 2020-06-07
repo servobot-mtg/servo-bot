@@ -182,47 +182,6 @@ public class HomeEditor {
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Book addBook(final String name, final String text) throws BotErrorException {
-        Book book = new Book(Book.UNREGISTERED_ID, name);
-        BookTable bookTable = botHome.getBookTable();
-        BookTableEdit bookTableEdit = bookTable.addBook(book);
-        if (!Strings.isBlank(text)) {
-            Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
-            bookTableEdit.merge(bookTable.addStatement(book, statement));
-        }
-        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
-        return book;
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Statement addStatement(final int bookId, final String text) throws BotErrorException {
-        Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
-        BookTableEdit bookTableEdit = botHome.getBookTable().addStatement(bookId, statement);
-        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
-        return statement;
-    }
-
-    public Optional<Book> getBook(final String bookName) {
-        return botHome.getBookTable().getBook(bookName);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteStatement(final int bookId, final int statementId) throws BotErrorException {
-        BookTableEdit bookTableEdit = botHome.getBookTable().deleteStatement(bookId, statementId);
-        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void modifyStatement(final int bookId, final int statementId, final String text) throws BotErrorException {
-        BookTableEdit bookTableEdit = new BookTableEdit();
-        Book book = botHome.getBookTable().getBook(bookId);
-        Statement statement = book.getStatement(statementId);
-        statement.setText(text);
-        bookTableEdit.save(bookId, statement);
-        serializers.getBookSerializer().commit(botHome.getId(), bookTableEdit);
-    }
-
     public void scheduleAlert(final Alert alert) {
         bot.getAlertQueue().scheduleAlert(botHome, alert);
     }

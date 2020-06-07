@@ -14,6 +14,7 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
@@ -198,12 +199,12 @@ public class ApiController {
     @PostMapping(value = "/add_book", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Book addBook(@RequestBody final AddBookRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.addBook(request.getName(), request.getStatement());
+        BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
+        return bookTableEditor.addBook(request.getName(), request.getStatement());
     }
 
     @Getter
-    public static class AddBookRequest extends BotHomeRequest {
+    public static class AddBookRequest extends ContextRequest {
         private String name;
         private String statement;
     }
@@ -211,12 +212,12 @@ public class ApiController {
     @PostMapping(value = "/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Statement addStatement(@RequestBody final AddStatementRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.addStatement(request.getBookId(), request.getText());
+        BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
+        return bookTableEditor.addStatement(request.getBookId(), request.getText());
     }
 
     @Getter
-    public static class BookRequest extends BotHomeRequest {
+    public static class BookRequest extends ContextRequest {
         private int bookId;
     }
 
@@ -227,8 +228,8 @@ public class ApiController {
 
     @PostMapping(value = "/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        homeEditor.deleteStatement(request.getBookId(), request.getStatementId());
+        BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
+        bookTableEditor.deleteStatement(request.getBookId(), request.getStatementId());
         return true;
     }
 
@@ -239,8 +240,8 @@ public class ApiController {
 
     @PostMapping(value = "/modify_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        homeEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
+        BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
+        bookTableEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
         return true;
     }
 
@@ -584,6 +585,14 @@ public class ApiController {
         }
         return botRegistrar.getBotEditor(contextId).getCommandTableEditor();
     }
+
+    private BookTableEditor getBookTableEditor(final int contextId) {
+        if (contextId > 0) {
+            return botRegistrar.getHomeEditor(contextId).getBookTableEditor();
+        }
+        return botRegistrar.getBotEditor(contextId).getBookTableEditor();
+    }
+
 
     @ExceptionHandler(BotErrorException.class)
     public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {

@@ -8,4 +8,5 @@ public interface Context {
     int getContextId();
     Collection<Service> getServices();
     Collection<GameQueue> getGameQueues();
+    String getImageUrl();
 }

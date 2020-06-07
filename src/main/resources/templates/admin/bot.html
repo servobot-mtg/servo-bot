@@ -11,6 +11,8 @@
     <h1 th:text="${bot.name}" />
 
     <div th:include="bot_home_fragments :: commands (container=${bot}, contextId=${bot.contextId})"/>
+
+    <div th:include="bot_home_fragments :: books (container=${bot})"/>
 </div>
 <div th:include="fragments :: footer" />
 </body>

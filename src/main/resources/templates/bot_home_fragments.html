@@ -462,10 +462,10 @@
     </div>
 
     <!-- books -->
-    <div th:fragment="books">
+    <div th:fragment="books (container)">
         <h2>Books</h2>
         <ul id="book-list">
-            <th:block th:each="book : ${botHome.bookTable}">
+            <th:block th:each="book : ${container.bookTable}">
                 <li><a th:href="'book/' + ${book.name}" th:text="${book.name}"/></li>
             </th:block>
         </ul>
@@ -473,7 +473,7 @@
             <div id="add-book-button" class="pseudo-link add-button" onclick="showAddBookForm()"
                  title="Add a book">+</div>
             <form id="add-book-form" class="add-form hidden"
-                  th:onsubmit="'addBook(' + ${botHome.id} + '); return false;'">
+                  th:onsubmit="'addBook(' + ${container.contextId} + '); return false;'">
                 <div id="add-book-name-div">
                     <label>Name</label><br>
                     <input type="text" id="add-book-name-input" class="name"><br>

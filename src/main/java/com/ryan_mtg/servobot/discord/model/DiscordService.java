@@ -69,6 +69,11 @@ public class DiscordService implements Service {
     }
 
     @Override
+    public String getImageUrl() {
+        return null;
+    }
+
+    @Override
     public void register(final BotHome botHome) {
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {
