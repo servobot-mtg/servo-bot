@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="${botHome.name}"/>
-    <div th:include="fragments :: includes" />
+    <div th:replace="fragments :: includes" />
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
             type="text/javascript" src="/script/privileged.js"></script>
 </head>

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="${bot.name}"/>
-    <div th:include="fragments :: includes"/>
+    <div th:replace="fragments :: includes"/>
     <script th:if="${user.admin}" type="text/javascript" src="/script/privileged.js"></script>
 </head>
 <body th:with="privileged=${user.admin}">

@@ -121,7 +121,7 @@
                                 +
                             </div>
                             <form th:id="${label} + '-form'" class="add-trigger-form hidden"
-                                  th:onsubmit="'addTrigger(' + ${contexId} + ', ' + ${command.id} + '); return false;'">
+                                  th:onsubmit="'addTrigger(' + ${contextId} + ', ' + ${command.id} + '); return false;'">
                                 <input th:id="${label} + '-text-input'" type="text" name="trigger" size="9">
                                 <select th:id="${label} + '-event-input'" hidden>
                                     <th:block th:each="event : ${events}">
@@ -142,7 +142,7 @@
 
                     <td class="icon-cell">
                         <span th:id="${label} + '-secured'" th:if="${privileged}" class="pseudo-link"
-                              th:onclick="'secureCommand(' + ${contexId} + ', ' + ${command.id} + ')'"
+                              th:onclick="'secureCommand(' + ${contextId} + ', ' + ${command.id} + ')'"
                               th:text="${command.secure ? '&#x1F512;' : '&#x1F511;'}"/>
                         <span th:id="${label} + '-secure-response'"></span>
 

@@ -113,12 +113,17 @@
     </div>
 
     <!-- includes -->
-    <div th:fragment="includes">
+    <div th:fragment="includes" th:remove="tag">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <link href="/style/main.css" rel="stylesheet" type="text/css">
         <script type="text/javascript" src="/script/main.js"> </script>
-        <script th:if="${user.admin}" type="text/javascript" src="/script/admin.js"> </script>
+        <script th:if="${user.admin}" type="text/javascript" src="/script/admin.js"></script>
         <link rel="shortcut icon" type="image/png" href="/images/favicon.ico"/>
+
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:site" content="MoosersBot">
+        <meta name="twitter:description" content="The ServoBot website">
+        <meta name="twitter:image" content="/images/MoosersBot.png">
     </div>
 </body>
 </html>

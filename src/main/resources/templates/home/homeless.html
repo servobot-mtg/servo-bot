@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>User</title>
-    <div th:include="fragments :: includes" />
+    <div th:replace="fragments :: includes" />
 </head>
 <body th:with="privledged=${user.admin}">
 <div th:include="fragments :: header" />

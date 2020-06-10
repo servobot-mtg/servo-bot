@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <title>ServoBot</title>
-        <div th:include="fragments :: includes"/>
+        <div th:replace="fragments :: includes"/>
+        <meta name="hi" content="foo">
     </head>
     <body>
         <div th:include="fragments :: header"/>

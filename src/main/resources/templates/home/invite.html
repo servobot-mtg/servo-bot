@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Invite Bot</title>
-    <div th:include="fragments :: includes" />
+    <div th:replace="fragments :: includes" />
     <script type="text/javascript" src="/script/invite.js"></script>
 </head>
 <body th:with="privledged=true">
