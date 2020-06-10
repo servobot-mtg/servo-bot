@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.LoggedMessageRow;
 import com.ryan_mtg.servobot.data.repositories.LoggedMessageRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.LoggedMessage;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
@@ -35,7 +34,7 @@ public class LoggedMessageSerializer {
         logMessage(receiver, message, serviceType, FROM_BOT);
     }
 
-    public List<LoggedMessage> getLoggedMessages() throws BotErrorException {
+    public List<LoggedMessage> getLoggedMessages() {
         Iterable<LoggedMessageRow> loggedMessageRows = loggedMessageRepository.findAll();
 
         List<Integer> userIds = new ArrayList<>();

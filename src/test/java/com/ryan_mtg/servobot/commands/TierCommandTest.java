@@ -3,14 +3,12 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
 import org.junit.Test;
 
-import static com.ryan_mtg.servobot.model.ObjectMother.mockChannel;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockCommandInvokedHomeEvent;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockHome;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockUser;
@@ -27,7 +25,7 @@ public class TierCommandTest {
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
-    public void testPerform() throws BotErrorException {
+    public void testPerform() throws BotHomeError {
         TierCommand command = new TierCommand(ID, COMMAND_SETTINGS);
 
         Home home = mockHome();

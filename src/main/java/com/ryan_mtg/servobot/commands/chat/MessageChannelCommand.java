@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
@@ -25,7 +26,7 @@ public class MessageChannelCommand extends HomeCommand {
     private final String message;
 
     public MessageChannelCommand(final int id, final CommandSettings commandSettings, final int serviceType,
-                                 final String channelName, final String message) throws BotErrorException {
+            final String channelName, final String message) throws UserError {
         super(id, commandSettings);
         this.serviceType = serviceType;
         this.channelName = channelName;
@@ -41,7 +42,7 @@ public class MessageChannelCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final HomeEvent homeEvent) throws BotErrorException {
+    public void perform(final HomeEvent homeEvent) throws BotHomeError, UserError {
         Channel channel;
         if (serviceType != homeEvent.getServiceType()) {
             channel = homeEvent.getServiceHome(serviceType).getChannel(channelName);

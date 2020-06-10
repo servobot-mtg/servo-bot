@@ -4,7 +4,7 @@ import com.ryan_mtg.servobot.commands.chat.FactsCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.books.Book;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class FactsCommandTest {
     private static final String LINE = "line";
 
     @Test
-    public void testPerform() throws BotErrorException {
+    public void testPerform() throws BotHomeError {
         Book book = mock(Book.class);
         when(book.getRandomLine()).thenReturn(LINE);
 

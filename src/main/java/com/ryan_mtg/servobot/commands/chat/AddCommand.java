@@ -7,7 +7,8 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.utility.CommandParser;
@@ -37,18 +38,18 @@ public class AddCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError, UserError {
         CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(event.getArguments());
 
         String command = parseResult.getCommand();
         switch (parseResult.getStatus()) {
             case NO_COMMAND:
-                throw new BotErrorException("No command to add.");
+                throw new UserError("No command to add.");
             case COMMAND_MISMATCH:
                 if (!command.startsWith("!")) {
-                    throw new BotErrorException("Commands must start with a '!'.");
+                    throw new UserError("Commands must start with a '!'.");
                 }
-                throw new BotErrorException(String.format("%s doesn't look like a command.", command));
+                throw new UserError("%s doesn't look like a command.", command);
         }
         command = command.substring(1);
 
@@ -63,7 +64,7 @@ public class AddCommand extends InvokedCommand {
             for (String flag : flags) {
                 if (flag.startsWith("->")) {
                     if (alias != null) {
-                        throw new BotErrorException("Only one alias is allowed");
+                        throw new UserError("Only one alias is allowed");
                     }
                     alias = flag.substring(2);
                 } else switch (flag) {
@@ -102,13 +103,13 @@ public class AddCommand extends InvokedCommand {
                         commandFlags = Flags.setFlag(commandFlags, Command.DISCORD_FLAG, false);
                         break;
                     default:
-                        throw new BotErrorException(String.format("Unknown flag %s", flag));
+                        throw new UserError(String.format("Unknown flag %s", flag));
                 }
             }
 
             if (alias != null) {
                 if (input != null) {
-                    throw new BotErrorException("Aliased command can't have text");
+                    throw new UserError("Aliased command can't have text");
                 }
 
                 boolean added = commandTableEditor.aliasCommand(command, alias);
@@ -123,7 +124,7 @@ public class AddCommand extends InvokedCommand {
         }
 
         if (Strings.isBlank(input)) {
-            throw new BotErrorException(String.format("%s doesn't do anything.", command));
+            throw new UserError("%s doesn't do anything.", command);
         }
 
         boolean added = commandTableEditor.addCommand(command, new TextCommand(Command.UNREGISTERED_ID,

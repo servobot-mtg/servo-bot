@@ -5,9 +5,7 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.Bot;
-import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.user.UserTable;
@@ -43,7 +41,7 @@ public class AdministrationController {
     }
 
     @GetMapping
-    public String admin(final Model model) throws BotErrorException {
+    public String admin(final Model model) {
         model.addAttribute("bots", botRegistrar.getBots());
         model.addAttribute("page", "admin");
         addUsers(model);
@@ -52,7 +50,7 @@ public class AdministrationController {
     }
 
     @GetMapping("/bot/{bot}/hub")
-    public String showBot(final Model model, @PathVariable("bot") final String botName) throws BotErrorException {
+    public String showBot(final Model model, @PathVariable("bot") final String botName) {
         Bot bot = botRegistrar.getBot(botName);
         model.addAttribute("page", "bot");
 
@@ -86,14 +84,14 @@ public class AdministrationController {
 
 
     @GetMapping("/users")
-    public String users(final Model model) throws BotErrorException {
+    public String users(final Model model) {
         model.addAttribute("page", "users");
         addUsers(model);
         return "admin/users";
     }
 
     @GetMapping("/messages")
-    public String messages(final Model model) throws BotErrorException {
+    public String messages(final Model model) {
         model.addAttribute("page", "messages");
         model.addAttribute("bot", botRegistrar.getDefaultBot());
         model.addAttribute("messages", loggedMessageSerializer.getLoggedMessages());
@@ -111,7 +109,7 @@ public class AdministrationController {
         }
     }
 
-    private void addUsers(final Model model) throws BotErrorException {
+    private void addUsers(final Model model) {
         model.addAttribute("users", userTable.getAllUsers());
     }
 

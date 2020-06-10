@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.List;
@@ -16,14 +16,14 @@ public interface Home {
     String getRole(User user, int serviceType);
     boolean hasRole(User user, String role);
     boolean hasRole(String role);
-    void clearRole(User user, String role) throws BotErrorException;
-    void setRole(User user, String role) throws BotErrorException;
+    void clearRole(User user, String role) throws UserError;
+    void setRole(User user, String role) throws UserError;
 
-    List<String> clearRole(String role) throws BotErrorException;
-    boolean isHigherRanked(User user, User otherUser) throws BotErrorException;
+    List<String> clearRole(String role) throws UserError;
+    boolean isHigherRanked(User user, User otherUser) throws UserError;
 
     boolean hasUser(String userName);
-    User getUser(String userName) throws BotErrorException;
+    User getUser(String userName) throws UserError;
 
     Emote getEmote(String emoteName);
 

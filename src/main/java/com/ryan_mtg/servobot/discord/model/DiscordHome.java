@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.discord.model;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
@@ -97,18 +97,18 @@ public class DiscordHome implements Home {
     }
 
     @Override
-    public void clearRole(final User user, final String roleName) throws BotErrorException {
+    public void clearRole(final User user, final String roleName) throws UserError {
         Member member = getMember(user);
         guild.removeRoleFromMember(member, getRole(roleName)).queue();
     }
 
     @Override
-    public void setRole(final User user, final String roleName) throws BotErrorException {
+    public void setRole(final User user, final String roleName) throws UserError {
         guild.addRoleToMember(getMember(user), getRole(roleName)).queue();
     }
 
     @Override
-    public List<String> clearRole(final String roleName) throws BotErrorException {
+    public List<String> clearRole(final String roleName) throws UserError {
         Role role = getRole(roleName);
         List<Member> members = guild.getMembersWithRoles(role);
         List<String> names = new ArrayList<>();
@@ -136,7 +136,7 @@ public class DiscordHome implements Home {
     }
 
     @Override
-    public User getUser(final String userName) throws BotErrorException {
+    public User getUser(final String userName) throws UserError {
         Member member = getMember(userName);
         HomedUser homedUser = getHomeEditor().getUserByDiscordId(member.getIdLong(), member.getEffectiveName());
         return new DiscordUser(homedUser , member);
@@ -186,14 +186,14 @@ public class DiscordHome implements Home {
         return guild;
     }
 
-    private Member getMember(final String username) throws BotErrorException {
+    private Member getMember(final String username) throws UserError {
         if (username == null) {
-            throw new BotErrorException("No one specified.");
+            throw new UserError("No one specified.");
         }
 
         List<Member> members = guild.getMembersByEffectiveName(deamp(username), true);
         if (members.isEmpty()) {
-            throw new BotErrorException(String.format("No user named '%s'.", deamp(username)));
+            throw new UserError(String.format("No user named '%s'.", deamp(username)));
         }
         return members.get(0);
     }
@@ -208,10 +208,10 @@ public class DiscordHome implements Home {
         return position;
     }
 
-    private Role getRole(final String roleName) throws BotErrorException {
+    private Role getRole(final String roleName) throws UserError {
         List<Role> roles = guild.getRolesByName(deamp(roleName), false);
         if (roles.isEmpty()) {
-            throw new BotErrorException(String.format("'%s' is not a valid role.", roleName));
+            throw new UserError(String.format("'%s' is not a valid role.", roleName));
         }
         return roles.get(0);
     }

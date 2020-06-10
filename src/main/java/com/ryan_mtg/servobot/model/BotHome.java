@@ -3,7 +3,8 @@ package com.ryan_mtg.servobot.model;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandListener;
 import com.ryan_mtg.servobot.events.CommandPerformer;
 import com.ryan_mtg.servobot.events.MultiDelegatingListener;
@@ -92,7 +93,7 @@ public class BotHome implements Context {
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
                    final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<GameQueue> gameQueues,
-                   final List<Giveaway> giveaways) throws BotErrorException {
+                   final List<Giveaway> giveaways) throws UserError {
         this.id = id;
         this.name = name;
         this.botName = botName;
@@ -225,16 +226,13 @@ public class BotHome implements Context {
     }
 
     private HomedUser findUser(final String userName) {
-        try {
-            for (ServiceHome serviceHome : serviceHomes.values()) {
-                Home home = serviceHome.getHome();
-                if (home.hasUser(userName)) {
-                    return home.getUser(userName).getHomedUser();
-                }
+        for (ServiceHome serviceHome : serviceHomes.values()) {
+            Home home = serviceHome.getHome();
+            if (home.hasUser(userName)) {
+                return SystemError.filter(() -> home.getUser(userName).getHomedUser());
             }
-        } catch (BotErrorException e) {
-            LOGGER.error(String.format("Problem finding user %s", userName), e);
         }
+        LOGGER.warn("Problem finding user {}", userName);
         return null;
     }
 }

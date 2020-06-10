@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.controllers.error.BotError;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
@@ -33,9 +33,8 @@ public class PublicApiController {
     }
 
     @GetMapping("/evaluate")
-    public String evaluateExpression(@RequestParam final String expression, @RequestParam(required = false) String home)
-            throws BotErrorException {
-
+    public String evaluateExpression(@RequestParam final String expression,
+            @RequestParam(required = false) String home) throws UserError {
         Bot bot = botRegistrar.getDefaultBot();
         Scope scope = bot.getBotScope();
         HomeEditor homeEditor = null;
@@ -51,14 +50,13 @@ public class PublicApiController {
             Parser parser = new Parser(scope, homeEditor.getStorageValueEditor());
             return parser.parse(expression).evaluate();
         } catch (ParseException e) {
-            throw new BotErrorException(String.format("Failed to parse %s: %s", expression, e.getMessage()));
+            throw new UserError(e, "Failed to parse %s: %s", expression, e.getMessage());
         }
     }
 
     @GetMapping("/cfb")
     public String evaluateCfbExpression(@RequestParam final String query,
-            @RequestParam(required = false) final String arenaName, final MfoInformer informer)
-            throws BotErrorException {
+            @RequestParam(required = false) final String arenaName, final MfoInformer informer) {
         //Bot bot = botRegistrar.getDefaultBot();
         //Scope scope = bot.getBotScope();
 
@@ -89,12 +87,6 @@ public class PublicApiController {
             default:
                 return String.format("Unknown query %s", query);
         }
-    }
-
-    @ExceptionHandler(BotErrorException.class)
-    public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
-        exception.printStackTrace();
-        return new ResponseEntity<>(new BotError(exception.getErrorMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

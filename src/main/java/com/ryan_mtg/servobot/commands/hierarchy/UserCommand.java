@@ -1,6 +1,9 @@
 package com.ryan_mtg.servobot.commands.hierarchy;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotError;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.UserEvent;
 
 public abstract class UserCommand extends Command {
@@ -8,5 +11,5 @@ public abstract class UserCommand extends Command {
         super(id, commandSettings);
     }
 
-    public abstract void perform(UserEvent userEvent) throws BotErrorException;
+    public abstract void perform(UserEvent userEvent) throws BotError, BotHomeError, UserError, SystemError;
 }

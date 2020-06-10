@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -17,20 +18,20 @@ public class DeleteCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError, UserError {
         String arguments = event.getArguments();
         if (Strings.isBlank(arguments)) {
-            throw new BotErrorException("Missing command name.");
+            throw new UserError("Missing command name.");
         }
 
         if (arguments.charAt(0) != '!') {
-            throw new BotErrorException("Commands must start with '!'");
+            throw new UserError("Commands must start with '!'");
         }
 
         String commandName = arguments.substring(1);
 
         if (commandName.isEmpty()) {
-            throw new BotErrorException("Missing command name.");
+            throw new UserError("Missing command name.");
         }
 
         CommandTableEditor commandTableEditor = event.getCommandTableEditor();

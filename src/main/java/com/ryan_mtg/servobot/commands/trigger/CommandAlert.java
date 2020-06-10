@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.commands.trigger;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
@@ -14,13 +14,9 @@ public class CommandAlert extends Trigger {
     @Getter
     private String alertToken;
 
-    public CommandAlert(final int id, final String alertToken) throws BotErrorException {
+    public CommandAlert(final int id, final String alertToken) throws UserError {
         super(id);
         this.alertToken = alertToken;
-
-        if (!ALERT_PATTERN.matcher(alertToken).matches()) {
-            throw new IllegalArgumentException("Invalid alert token: " + alertToken);
-        }
 
         Validation.validateStringValue(alertToken, Validation.MAX_TRIGGER_LENGTH, "Alert token", ALERT_PATTERN);
     }

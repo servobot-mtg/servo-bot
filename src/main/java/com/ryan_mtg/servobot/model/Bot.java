@@ -3,7 +3,7 @@ package com.ryan_mtg.servobot.model;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandPerformer;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.model.alerts.Alert;
@@ -65,7 +65,7 @@ public class Bot implements Context {
 
     public Bot(final int id, final String name, final Scope globalScope, final Map<Integer, Service> services,
             final SerializerContainer serializers, final CommandTable commandTable, final BookTable bookTable,
-            final StorageTable storageTable) throws BotErrorException {
+            final StorageTable storageTable) throws UserError {
         this.id = id;
         this.name = name;
         this.services = services;

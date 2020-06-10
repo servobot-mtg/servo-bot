@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.user;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class HomedUserTable {
         userSerializer.saveHomedStatus(botHomeId, homedUser);
     }
 
-    public HomedUser getByUser(final User user) throws BotErrorException {
+    public HomedUser getByUser(final User user) {
         HomedUser homedUser = getUser(user.getId());
         if (homedUser != null) {
             return homedUser;
@@ -44,7 +43,7 @@ public class HomedUserTable {
         return store(userSerializer.lookup(botHomeId, user));
     }
 
-    public HomedUser getById(final int userId) throws BotErrorException {
+    public HomedUser getById(final int userId) {
         HomedUser homedUser = findUser(user -> user.getId() == userId);
         if (homedUser == null) {
             User user = userTable.getById(userId);
@@ -53,15 +52,15 @@ public class HomedUserTable {
         return homedUser;
     }
 
-    public Iterable<HomedUser> getHomedUsers() throws BotErrorException {
+    public Iterable<HomedUser> getHomedUsers() {
         return getHomedUsers(userSerializer.getAllHomedUserIds(botHomeId));
     }
 
-    public Iterable<HomedUser> getModerators() throws BotErrorException {
+    public Iterable<HomedUser> getModerators() {
         return getHomedUsers(userSerializer.getModeratorUserIds(botHomeId));
     }
 
-    public Iterable<HomedUser> getHomedUsers(final Iterable<Integer> userIds) throws BotErrorException {
+    public Iterable<HomedUser> getHomedUsers(final Iterable<Integer> userIds) {
         List<HomedUser> users = new ArrayList<>();
         List<Integer> usersToLoad = new ArrayList<>();
         for (int userId : userIds) {
@@ -79,13 +78,13 @@ public class HomedUserTable {
     }
 
     public HomedUser getByTwitchId(final int twitchId, final String twitchUsername,
-                                    final TwitchUserStatus twitchUserStatus) throws BotErrorException {
+            final TwitchUserStatus twitchUserStatus) {
         HomedUser homedUser = getByTwitchId(twitchId, twitchUsername);
         updateStatus(homedUser, userStatus -> userStatus.update(twitchUserStatus));
         return homedUser;
     }
 
-    public HomedUser getByTwitchId(final int twitchId, final String twitchUsername) throws BotErrorException {
+    public HomedUser getByTwitchId(final int twitchId, final String twitchUsername) {
         HomedUser homedUser = findUser(user -> user.getTwitchId() == twitchId);
         if (homedUser != null) {
             if (!twitchUsername.equals(homedUser.getTwitchUsername())) {
@@ -99,13 +98,13 @@ public class HomedUserTable {
     }
 
     public HomedUser getByDiscordId(final long discordId, final String discordUsername,
-                                    final DiscordUserStatus discordUserStatus) throws BotErrorException {
+                                    final DiscordUserStatus discordUserStatus) {
         HomedUser homedUser = getByDiscordId(discordId, discordUsername);
         updateStatus(homedUser, userStatus -> userStatus.update(discordUserStatus));
         return homedUser;
     }
 
-    public HomedUser getByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
+    public HomedUser getByDiscordId(final long discordId, final String discordUsername) {
         HomedUser homedUser = findUser(user -> user.getDiscordId() == discordId);
         if (homedUser != null) {
             if (!discordUsername.equals(homedUser.getDiscordUsername())) {

@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.game_queue;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +39,7 @@ public class GameQueue {
     }
 
     public GameQueue(final int id, final String name, final State state, final int nextSpot,
-                     final int currentPlayerId) throws BotErrorException {
+                     final int currentPlayerId) throws UserError {
         this.id = id;
         this.name = name;
         this.state = state;

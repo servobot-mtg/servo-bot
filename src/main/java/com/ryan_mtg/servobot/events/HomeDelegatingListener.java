@@ -72,7 +72,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onMessage(final MessageHomeEvent messageHomeEvent) throws BotErrorException {
+    public void onMessage(final MessageHomeEvent messageHomeEvent) {
         EventListener listener = getListener(messageHomeEvent);
         if (listener != null) {
             listener.onMessage(messageHomeEvent);
@@ -88,7 +88,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onNewUser(final UserHomeEvent newUserEvent) throws BotErrorException {
+    public void onNewUser(final UserHomeEvent newUserEvent) {
         EventListener listener = getListener(newUserEvent);
         if (listener != null) {
             listener.onNewUser(newUserEvent);
@@ -96,7 +96,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onRaid(final UserHomeEvent raidEvent) throws BotErrorException {
+    public void onRaid(final UserHomeEvent raidEvent) {
         EventListener listener = getListener(raidEvent);
         if (listener != null) {
             listener.onRaid(raidEvent);
@@ -104,7 +104,7 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onSubscribe(final UserHomeEvent subscribeEvent) throws BotErrorException {
+    public void onSubscribe(final UserHomeEvent subscribeEvent) {
         EventListener listener = getListener(subscribeEvent);
         if (listener != null) {
             listener.onRaid(subscribeEvent);

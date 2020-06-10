@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.parser;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
@@ -85,14 +85,14 @@ public class ParserTest {
     }
 
     @Test
-    public void testEvaluateStorageVariable() throws ParseException, BotErrorException {
+    public void testEvaluateStorageVariable() throws ParseException, UserError {
         simpleSymbolTable.addValue("variable", new IntegerStorageValue(
                 StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5));
         assertEquals("5", parser.parse("variable").evaluate());
     }
 
     @Test
-    public void testPreIncrementStorageVariable() throws ParseException, BotErrorException {
+    public void testPreIncrementStorageVariable() throws ParseException, UserError {
         IntegerStorageValue value =
                 new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5);
         simpleSymbolTable.addValue("variable", value);
@@ -106,7 +106,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testPostIncrementStorageVariable() throws ParseException, BotErrorException {
+    public void testPostIncrementStorageVariable() throws ParseException, UserError {
         IntegerStorageValue value =
                 new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, "variable", 5);
         simpleSymbolTable.addValue("variable", value);
@@ -125,7 +125,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testBookExpression() throws ParseException, BotErrorException {
+    public void testBookExpression() throws ParseException, UserError {
         List<Statement> statements = Collections.singletonList(new Statement(Statement.UNREGISTERED_ID, TEXT));
         Book book = new Book(Book.UNREGISTERED_ID, "name", statements);
         simpleSymbolTable.addFunctor("variable", () -> book);

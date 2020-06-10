@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.giveaway;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class Prize {
     @Getter
     private String description;
 
-    public Prize(final int id, final String reward, final String description) throws BotErrorException {
+    public Prize(final int id, final String reward, final String description) throws UserError {
         this.id = id;
         this.status = Status.AVAILABLE;
         this.reward = reward;

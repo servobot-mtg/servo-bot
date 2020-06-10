@@ -2,7 +2,8 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
@@ -20,7 +21,7 @@ public class SetUsersRoleCommand extends InvokedHomedCommand {
     private String message;
 
     public SetUsersRoleCommand(final int id, final CommandSettings commandSettings, final String role,
-                               final String message) throws BotErrorException {
+            final String message) throws UserError {
         super(id, commandSettings);
         this.role = role;
         this.message = message;
@@ -29,7 +30,7 @@ public class SetUsersRoleCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         String arguments = event.getArguments();
         Home home = event.getHome();
         User user = home.getUser(arguments);

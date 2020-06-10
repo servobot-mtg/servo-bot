@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.user.User;
 
@@ -16,7 +16,7 @@ public class ShowArenaUsernamesCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError {
         List<User> users = event.getHomeEditor().getArenaUsers();
         StringBuilder stringBuilder = new StringBuilder();
         for (User user : users) {

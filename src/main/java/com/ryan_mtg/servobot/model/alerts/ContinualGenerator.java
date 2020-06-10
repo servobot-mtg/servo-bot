@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.alerts;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Time;
 import lombok.Getter;
 
@@ -15,7 +15,7 @@ public class ContinualGenerator extends AlertGenerator {
 
     private Instant goal;
 
-    public ContinualGenerator(final int id, final String alertToken, final Duration duration) throws BotErrorException {
+    public ContinualGenerator(final int id, final String alertToken, final Duration duration) throws UserError {
         super(id, alertToken);
 
         this.duration = duration;

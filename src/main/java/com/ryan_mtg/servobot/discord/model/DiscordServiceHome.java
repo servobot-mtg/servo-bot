@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.discord.model;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
@@ -68,7 +68,7 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public Channel getChannel(final String channelName) throws BotErrorException {
+    public Channel getChannel(final String channelName) throws UserError {
         return discordService.getChannel(guildId, channelName);
     }
 

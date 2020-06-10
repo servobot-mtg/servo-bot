@@ -7,7 +7,10 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.data.models.CommandRow;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.LibraryError;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -62,8 +65,8 @@ public class ApiController {
     }
 
     @PostMapping(value = "/create_bot_home", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CreateBotHomeResponse createBotHome(final Authentication authentication, @RequestBody final CreateBotHomeRequest request)
-            throws BotErrorException {
+    public CreateBotHomeResponse createBotHome(final Authentication authentication,
+            @RequestBody final CreateBotHomeRequest request) throws UserError {
         WebsiteUser websiteUser = websiteUserFactory.createWebsiteUser(authentication);
         BotEditor botEditor = botRegistrar.getBotEditor(request.getBotName());
         BotHome botHome = botEditor.createBotHome(websiteUser.getUserId(), request);
@@ -168,7 +171,7 @@ public class ApiController {
 
     @PostMapping(value = "/set_command_permission", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Permission setCommandPermission(final Model model, @RequestBody final SetPermissionRequest request)
-            throws BotErrorException {
+            throws UserError {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
         CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
         if (request.getContextId() > 0) {
@@ -198,7 +201,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_book", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Book addBook(@RequestBody final AddBookRequest request) throws BotErrorException {
+    public Book addBook(@RequestBody final AddBookRequest request) throws UserError {
         BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
         return bookTableEditor.addBook(request.getName(), request.getStatement());
     }
@@ -211,9 +214,13 @@ public class ApiController {
 
     @PostMapping(value = "/add_statement", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Statement addStatement(@RequestBody final AddStatementRequest request) throws BotErrorException {
+    public Statement addStatement(@RequestBody final AddStatementRequest request) throws UserError {
         BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
-        return bookTableEditor.addStatement(request.getBookId(), request.getText());
+        try {
+            return bookTableEditor.addStatement(request.getBookId(), request.getText());
+        } catch (LibraryError e) {
+           throw new SystemError(e.getMessage(), e);
+        }
     }
 
     @Getter
@@ -227,10 +234,12 @@ public class ApiController {
     }
 
     @PostMapping(value = "/delete_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) throws BotErrorException {
-        BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
-        bookTableEditor.deleteStatement(request.getBookId(), request.getStatementId());
-        return true;
+    public boolean deleteStatement(@RequestBody final DeleteStatementRequest request) {
+        return SystemError.filter(() -> {
+            BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
+            bookTableEditor.deleteStatement(request.getBookId(), request.getStatementId());
+            return true;
+        });
     }
 
     @Getter
@@ -239,10 +248,14 @@ public class ApiController {
     }
 
     @PostMapping(value = "/modify_statement", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) throws BotErrorException {
-        BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
-        bookTableEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
-        return true;
+    public boolean modifyStatement(@RequestBody final ModifyStatementRequest request) {
+        try {
+            BookTableEditor bookTableEditor = getBookTableEditor(request.getContextId());
+            bookTableEditor.modifyStatement(request.getBookId(), request.getStatementId(), request.getText());
+            return true;
+        } catch (LibraryError e) {
+            throw new SystemError(e.getMessage(), e);
+        }
     }
 
     @Getter
@@ -253,7 +266,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public AddTriggerResponse addTrigger(@RequestBody final AddTriggerRequest request) throws BotErrorException {
+    public AddTriggerResponse addTrigger(@RequestBody final AddTriggerRequest request) throws UserError {
         CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
         List<Trigger> a = commandTableEditor.addTrigger(request.getCommandId(), request.getTriggerType(), request.getText());
         return new AddTriggerResponse(a.get(0), a.size() > 1 ? a.get(1): null);
@@ -275,10 +288,9 @@ public class ApiController {
     @PostMapping(value = "/trigger_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean triggerAlert(@RequestBody final TriggerAlertRequest request) {
-        return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.alert(request.getAlertToken());
-        });
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.alert(request.getAlertToken());
+        return true;
     }
 
     @Getter
@@ -288,7 +300,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) throws BotErrorException {
+    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) {
         CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
         CommandRow commandRow = new CommandRow();
         commandRow.setType(request.getType());
@@ -313,19 +325,19 @@ public class ApiController {
     @PostMapping(value = "/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteCommand(@RequestBody final DeleteObjectRequest request) {
-        return wrapCall(() -> {
+        return SystemError.filter(() -> {
             CommandTableEditor commandTableEditor = getCommandTableEditor(request.getBotHomeId());
             commandTableEditor.deleteCommand(request.getObjectId());
+            return true;
         });
     }
 
     @PostMapping(value = "/delete_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteTrigger(@RequestBody final DeleteObjectRequest request) {
-        return wrapCall(() -> {
-            CommandTableEditor commandTableEditor = getCommandTableEditor(request.getBotHomeId());
-            commandTableEditor.deleteTrigger(request.getObjectId());
-        });
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getBotHomeId());
+        commandTableEditor.deleteTrigger(request.getObjectId());
+        return true;
     }
 
     @Getter
@@ -335,7 +347,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Reaction addReaction(@RequestBody final AddReactionRequest request) throws BotErrorException {
+    public Reaction addReaction(@RequestBody final AddReactionRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.addReaction(request.getEmote(), request.isSecure());
     }
@@ -348,7 +360,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Pattern addPattern(@RequestBody final AddPatternRequest request) throws BotErrorException {
+    public Pattern addPattern(@RequestBody final AddPatternRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.addPattern(request.getReactionId(), request.getPattern());
     }
@@ -362,19 +374,17 @@ public class ApiController {
     @PostMapping(value = "/delete_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteReaction(@RequestBody final DeleteObjectRequest request) {
-        return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteReaction(request.getObjectId());
-        });
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.deleteReaction(request.getObjectId());
+        return true;
     }
 
     @PostMapping(value = "/delete_pattern", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteReaction(@RequestBody final DeletePatternRequest request) {
-        return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deletePattern(request.getReactionId(), request.getPatternId());
-        });
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.deletePattern(request.getReactionId(), request.getPatternId());
+        return true;
     }
 
     @Getter
@@ -385,7 +395,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public AlertGenerator addAlert(@RequestBody final AddAlertRequest request) throws BotErrorException {
+    public AlertGenerator addAlert(@RequestBody final AddAlertRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.addAlert(request.getType(), request.getKeyword(), request.getTime());
     }
@@ -400,25 +410,26 @@ public class ApiController {
     @PostMapping(value = "/delete_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteAlert(@RequestBody final DeleteObjectRequest request) {
-        return wrapCall(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deleteAlert(request.getObjectId());
-        });
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.deleteAlert(request.getObjectId());
+        return true;
     }
 
     @PostMapping(value = "/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean stopHome(@RequestBody final BotHomeRequest request) {
-        return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).stopHome(request.getBotHomeId()));
+        botRegistrar.getBotEditor(request.getBotHomeId()).stopHome(request.getBotHomeId());
+        return true;
     }
 
     @PostMapping(value = "/start_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean restartHome(@RequestBody final BotHomeRequest request) {
-        return wrapCall(() -> botRegistrar.getBotEditor(request.getBotHomeId()).restartHome(request.getBotHomeId()));
+        botRegistrar.getBotEditor(request.getBotHomeId()).restartHome(request.getBotHomeId());
+        return true;
     }
 
     @PostMapping(value = "/add_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Giveaway addGiveaway(@RequestBody final AddGiveawayRequest request) throws BotErrorException {
+    public Giveaway addGiveaway(@RequestBody final AddGiveawayRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.addGiveaway(request.getName(), request.isSelfService(), request.isRaffle());
     }
@@ -432,8 +443,7 @@ public class ApiController {
 
     @PostMapping(value = "/save_giveaway_self_service", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Giveaway saveGiveawaySelfService(@RequestBody final SaveSelfServiceRequest request)
-            throws BotErrorException {
+    public Giveaway saveGiveawaySelfService(@RequestBody final SaveSelfServiceRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.saveGiveawaySelfService(request.getGiveawayId(), request.getRequestPrizeCommandName(),
                 request.getPrizeRequestLimit(), request.getPrizeRequestUserLimit());
@@ -453,8 +463,7 @@ public class ApiController {
 
     @PostMapping(value = "/save_giveaway_raffle_settings", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Giveaway saveGiveawaySelfService(@RequestBody final SaveRaffleSettingsRequest request)
-            throws BotErrorException {
+    public Giveaway saveGiveawaySelfService(@RequestBody final SaveRaffleSettingsRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
                 Duration.of(request.getDuration(), ChronoUnit.MINUTES), request.getWinnerCount(),
@@ -491,14 +500,14 @@ public class ApiController {
 
     @PostMapping(value = "/start_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Giveaway startGiveaway(@RequestBody final GiveawayRequest request) throws BotErrorException {
+    public Giveaway startGiveaway(@RequestBody final GiveawayRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.startGiveaway(request.getGiveawayId());
     }
 
     @PostMapping(value = "/add_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Prize addPrize(@RequestBody final AddPrizeRequest request) throws BotErrorException {
+    public Prize addPrize(@RequestBody final AddPrizeRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.addPrize(request.getGiveawayId(), request.getReward(), request.getDescription());
     }
@@ -511,7 +520,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_prizes", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Prize> addPrizes(@RequestBody final AddPrizesRequest request) throws BotErrorException {
+    public List<Prize> addPrizes(@RequestBody final AddPrizesRequest request) throws UserError {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         return homeEditor.addPrizes(request.getGiveawayId(), request.getRewards(), request.getDescription());
     }
@@ -524,7 +533,7 @@ public class ApiController {
 
     @PostMapping(value = "/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public HomedUser awardReward(@RequestBody final PrizeRequest request) throws BotErrorException {
+    public HomedUser awardReward(@RequestBody final PrizeRequest request) {
         //HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         //return homeEditor.awardReward(request.getGiveawayId(), request.getRewardId());
         return null;
@@ -532,9 +541,11 @@ public class ApiController {
 
     @PostMapping(value = "/bestow_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean bestowPrize(@RequestBody final PrizeRequest request) throws BotErrorException {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.bestowPrize(request.getGiveawayId(), request.getPrizeId());
+    public boolean bestowPrize(@RequestBody final PrizeRequest request) {
+        return SystemError.filter(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+            return homeEditor.bestowPrize(request.getGiveawayId(), request.getPrizeId());
+        });
     }
 
     @Getter
@@ -545,30 +556,16 @@ public class ApiController {
     @PostMapping(value = "/delete_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteReward(@RequestBody final DeleteGiveawayObjectRequest request) {
-        return wrapCall(() -> {
+        return SystemError.filter(() -> {
             HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
             homeEditor.deletePrize(request.getGiveawayId(), request.getObjectId());
+            return true;
         });
     }
 
     @Getter
     public static class DeleteGiveawayObjectRequest extends DeleteObjectRequest {
         private int giveawayId;
-    }
-
-    private interface ApiCall {
-        void call() throws BotErrorException;
-    }
-
-    private boolean wrapCall(final ApiCall operation) {
-        try {
-            operation.call();
-            return true;
-        } catch (BotErrorException e) {
-            LOGGER.warn("Oops" ,e);
-            e.printStackTrace();
-            return false;
-        }
     }
 
     private HomeEditor getHomeEditor(final int botHomeId) {
@@ -594,10 +591,10 @@ public class ApiController {
     }
 
 
-    @ExceptionHandler(BotErrorException.class)
-    public ResponseEntity<BotError> botErrorExceptionHandler(final BotErrorException exception) {
-        exception.printStackTrace();
-        return new ResponseEntity<>(new BotError(exception.getErrorMessage()), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(BotHomeError.class)
+    public ResponseEntity<BotError> botErrorExceptionHandler(final BotHomeError botHomeError) {
+        botHomeError.printStackTrace();
+        return new ResponseEntity<>(new BotError(botHomeError.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

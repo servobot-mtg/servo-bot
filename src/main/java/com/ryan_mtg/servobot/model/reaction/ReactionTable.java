@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.reaction;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class ReactionTable implements Iterable<Reaction> {
         return reactionTableEdit;
     }
 
-    public ReactionTableEdit addPattern(final int reactionId, final String patternString) throws BotErrorException {
+    public ReactionTableEdit addPattern(final int reactionId, final String patternString) throws UserError {
         ReactionTableEdit reactionTableEdit = new ReactionTableEdit();
         for(Reaction reaction : reactions) {
             if (reaction.getId() == reactionId) {

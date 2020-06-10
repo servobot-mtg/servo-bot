@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.user;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class User {
     private String arenaUsername;
 
     public User(final int id, final int flags, final int twitchId, final String twitchUsername, final long discordId,
-            final String discordUsername, final String arenaUsername) throws BotErrorException {
+            final String discordUsername, final String arenaUsername) throws UserError {
         this.id = id;
         this.flags = flags;
         this.twitchId = twitchId;

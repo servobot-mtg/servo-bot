@@ -3,7 +3,7 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.discord.event.DiscordEventAdapter;
 import com.ryan_mtg.servobot.discord.event.StreamStartRegulator;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
@@ -45,7 +45,7 @@ public class DiscordService implements Service {
     private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
 
     public DiscordService(final String token, final UserTable userTable,
-            final LoggedMessageSerializer loggedMessageSerializer) throws BotErrorException {
+            final LoggedMessageSerializer loggedMessageSerializer) throws UserError {
         this.token = token;
         this.userTable = userTable;
         this.loggedMessageSerializer = loggedMessageSerializer;
@@ -153,13 +153,12 @@ public class DiscordService implements Service {
         return guild.getTextChannels().stream().map(GuildChannel::getName).collect(Collectors.toList());
     }
 
-    public Channel getChannel(final long guildId, final String channelName)
-            throws BotErrorException {
+    public Channel getChannel(final long guildId, final String channelName) throws UserError {
         Guild guild = jda.getGuildById(guildId);
 
         TextChannel textChannel = guild.getTextChannels().stream().filter(channel -> channel.getName()
                 .equals(channelName)).findFirst()
-                .orElseThrow(() -> new BotErrorException(String.format("No channel with name %s.", channelName)));
+                .orElseThrow(() -> new UserError("No channel with name %s.", channelName));
         return new DiscordChannel(null, textChannel);
     }
 

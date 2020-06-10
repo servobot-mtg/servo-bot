@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.model.reaction;
 
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class Reaction {
     private List<ReactionCommand> commands;
 
     public Reaction(final int id, final String emoteName, final boolean secure, final ReactionFilter filter,
-                    final List<Pattern> patterns, final List<ReactionCommand> commands) throws BotErrorException {
+                    final List<Pattern> patterns, final List<ReactionCommand> commands) throws UserError {
         this.id = id;
         this.emoteName = emoteName;
         this.secure = secure;

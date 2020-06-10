@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.MessagedHomeCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.MessageHomeEvent;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
@@ -16,7 +17,7 @@ public class AddReactionCommand extends MessagedHomeCommand {
     private String emoteName;
 
     public AddReactionCommand(final int id, final CommandSettings commandSettings, final String emoteName)
-            throws BotErrorException {
+            throws UserError {
         super(id, commandSettings);
         this.emoteName = emoteName;
 
@@ -34,7 +35,7 @@ public class AddReactionCommand extends MessagedHomeCommand {
     }
 
     @Override
-    public void perform(final MessageHomeEvent event) throws BotErrorException {
+    public void perform(final MessageHomeEvent event) throws BotHomeError {
         Message message = event.getMessage();
         if (!message.canEmote()) {
             return;
@@ -42,7 +43,7 @@ public class AddReactionCommand extends MessagedHomeCommand {
 
         Emote emote = event.getHome().getEmote(emoteName);
         if (emote == null) {
-            throw new BotErrorException(String.format("No emote named %s" , emoteName));
+            throw new BotHomeError(String.format("No emote named %s" , emoteName));
         }
         message.addEmote(emote);
     }

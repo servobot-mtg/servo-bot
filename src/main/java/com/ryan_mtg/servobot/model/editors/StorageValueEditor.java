@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.model.editors;
 
 import com.ryan_mtg.servobot.data.factories.StorageValueSerializer;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
@@ -19,17 +19,17 @@ public class StorageValueEditor {
         this.storageValueSerializer = storageValueSerializer;
     }
 
-    public StorageValue getStorageValue(final String name) throws BotErrorException {
+    public StorageValue getStorageValue(final String name) throws UserError {
         StorageValue.validateName(name);
         StorageValue storageValue = storageTable.getStorage(name);
         if (storageValue == null) {
-            throw new BotErrorException(String.format("No value with name %s.", name));
+            throw new UserError(String.format("No value with name %s.", name));
         }
         return storageValue;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public IntegerStorageValue incrementStorageValue(final String name) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public IntegerStorageValue incrementStorageValue(final String name) throws UserError {
         StorageValue value = getStorageValue(name);
         if (value instanceof IntegerStorageValue) {
             IntegerStorageValue integerValue = (IntegerStorageValue) value;
@@ -37,22 +37,22 @@ public class StorageValueEditor {
             storageValueSerializer.save(integerValue, contextId);
             return integerValue;
         }
-        throw new BotErrorException(String.format("%s is not a number", name));
+        throw new UserError("%s is not a number", name);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public StorageValue setStorageValue(final String name, final String value) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public StorageValue setStorageValue(final String name, final String value) throws UserError {
         StorageValue storageValue = getStorageValue(name);
         if (storageValue instanceof IntegerStorageValue) {
             IntegerStorageValue integerValue = (IntegerStorageValue) storageValue;
             try {
                 integerValue.setValue(Integer.parseInt(value));
             } catch (Exception e) {
-                throw new BotErrorException(String.format("Invalid value %s.", value));
+                throw new UserError("Invalid value %s.", value);
             }
             storageValueSerializer.save(integerValue, contextId);
         } else {
-            throw new BotErrorException(String.format("%s has an unknown type of value.", storageValue.getName()));
+            throw new UserError("%s has an unknown type of value.", storageValue.getName());
         }
         return storageValue;
     }

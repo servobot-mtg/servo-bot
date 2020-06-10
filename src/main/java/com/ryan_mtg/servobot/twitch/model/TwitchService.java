@@ -5,7 +5,7 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.StreamList;
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
@@ -48,7 +48,7 @@ public class TwitchService implements Service {
 
     public TwitchService(final String clientId, final String secret, final String oauthToken,
             final ScheduledExecutorService executorService, final LoggedMessageSerializer loggedMessageSerializer)
-            throws BotErrorException {
+            throws UserError {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;

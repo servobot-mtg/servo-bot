@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.model.parser;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
-import com.ryan_mtg.servobot.events.BotThrowingFunction;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
@@ -134,8 +133,8 @@ public class Parser {
                 }
                 try {
                     result = storageValueEditor.incrementStorageValue(((IntegerStorageValue) result).getName());
-                } catch (BotErrorException e) {
-                    throw new ParseException(e.getErrorMessage());
+                } catch (UserError e) {
+                    throw new ParseException(e.getMessage(), e);
                 }
                 break;
             case OPEN_PARENTHESIS:
@@ -155,8 +154,8 @@ public class Parser {
             result = value.getValue();
             try {
                 storageValueEditor.incrementStorageValue(value.getName());
-            } catch (BotErrorException e) {
-                throw new ParseException(e.getErrorMessage());
+            } catch (UserError e) {
+                throw new ParseException(e.getMessage(), e);
             }
         }
 
@@ -201,9 +200,6 @@ public class Parser {
         try {
             if (function instanceof Function) {
                 return ((Function<Object, Object>)function).apply(argument);
-            }
-            if (function instanceof BotThrowingFunction) {
-                return ((BotThrowingFunction<Object, Object>)function).apply(argument);
             }
             throw new ParseException(String.format("Expected '%s' to be a function", functionToken.getLexeme()));
         } catch (Exception e) {

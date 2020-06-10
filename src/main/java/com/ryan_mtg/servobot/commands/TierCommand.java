@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
@@ -15,7 +15,7 @@ public class TierCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError {
         User sender = event.getSender();
         String tier = getTier(event);
         String text = String.format("Hello, %s, your friendship tier is %s.", sender.getName(), tier);

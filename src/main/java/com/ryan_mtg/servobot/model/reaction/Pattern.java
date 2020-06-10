@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.reaction;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ public class Pattern {
 
     private java.util.regex.Pattern pattern;
 
-    public Pattern(final int id, final String patternString) throws BotErrorException {
+    public Pattern(final int id, final String patternString) throws UserError {
         this.id = id;
         this.patternString = patternString;
         this.pattern = createPattern(patternString);

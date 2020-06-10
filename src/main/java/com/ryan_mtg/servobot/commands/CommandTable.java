@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.commands.trigger.TriggerVisitor;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -68,18 +68,17 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit addCommand(final String alias, final InvokedHomedCommand newCommand)
-            throws BotErrorException {
+    public CommandTableEdit addCommand(final String alias, final InvokedHomedCommand newCommand) throws UserError {
         return addCommand(alias, (Command) newCommand);
     }
 
-    public CommandTableEdit addCommand(final String alias, final InvokedCommand newCommand) throws BotErrorException {
+    public CommandTableEdit addCommand(final String alias, final InvokedCommand newCommand) throws UserError  {
         return addCommand(alias, (Command) newCommand);
     }
 
-    public CommandTableEdit addAlias(final String newAlias, final String existingAlias) throws BotErrorException {
+    public CommandTableEdit addAlias(final String newAlias, final String existingAlias) throws UserError {
         if (newAlias.equals(existingAlias)) {
-            throw new BotErrorException("Command can't alias itself.");
+            throw new UserError("Command can't alias itself.");
         }
         CommandTableEdit commandTableEdit = deleteCommand(newAlias);
 
@@ -112,8 +111,7 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text)
-            throws BotErrorException {
+    public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text) throws UserError {
         Command command = idToCommandMap.get(commandId);
         CommandTableEdit commandTableEdit;
         Trigger trigger;
@@ -230,14 +228,14 @@ public class CommandTable {
         return isCaseSensitive ? token : token.toLowerCase();
     }
 
-    private CommandTableEdit addCommand(final String alias, final Command newCommand) throws BotErrorException {
+    private CommandTableEdit addCommand(final String alias, final Command newCommand) throws UserError {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
         commandTableEdit.save(contextId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
         return commandTableEdit;
     }
 
-    private CommandAlias createAlias(final Command newCommand, final String text) throws BotErrorException {
+    private CommandAlias createAlias(final Command newCommand, final String text) throws UserError {
         String canonicalAlias=canonicalize(text);
         commandMap.put(canonicalAlias, newCommand);
         CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, text);

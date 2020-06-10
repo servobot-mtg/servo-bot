@@ -5,7 +5,9 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemBadError;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Entrant;
 import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Getter;
@@ -74,9 +76,9 @@ public class Raffle {
     }
 
     public List<HomedUser> selectWinners(final Giveaway giveaway, final CommandTable commandTable,
-                                  final GiveawayEdit giveawayEdit) throws BotErrorException {
+                                  final GiveawayEdit giveawayEdit) {
         if (!getTimeLeft().isZero()) {
-            throw new BotErrorException("Selecting, but the raffle isn't over!");
+            throw new SystemError("Selecting, but the raffle isn't over!");
         }
 
         setStatus(Raffle.Status.CONCLUDED);
@@ -108,13 +110,13 @@ public class Raffle {
         return winners;
     }
 
-    public void enter(final HomedUser user) throws BotErrorException {
+    public void enter(final HomedUser user) throws UserError {
         if (status != Status.IN_PROGRESS) {
-            throw new BotErrorException("Cannot enter raffle, it is no longer in progress.");
+            throw new UserError("Cannot enter raffle, it is no longer in progress.");
         }
         for (Entrant entrant : entrants) {
             if (entrant.getUser().getId() == user.getId()) {
-                throw new BotErrorException(String.format("%s has already entered the raffle.", user.getName()));
+                throw new UserError("%s has already entered the raffle.", user.getName());
             }
         }
         Entrant entrant = new Entrant(user);

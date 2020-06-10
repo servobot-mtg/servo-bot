@@ -10,7 +10,10 @@ import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.CommandSerializer;
 import com.ryan_mtg.servobot.data.factories.CommandTableSerializer;
 import com.ryan_mtg.servobot.data.models.CommandRow;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.LibraryError;
+import com.ryan_mtg.servobot.error.SystemBadError;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
@@ -33,8 +36,8 @@ public class CommandTableEditor {
         this.commandTableSerializer = commandTableSerializer;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public CommandDescriptor addCommand(final CommandRow commandRow) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public CommandDescriptor addCommand(final CommandRow commandRow) {
         Command command = commandSerializer.createCommand(commandRow, bookTable.getBookMap());
 
         CommandTableEdit commandTableEdit = commandTable.addCommand(command);
@@ -43,57 +46,56 @@ public class CommandTableEditor {
         return new CommandDescriptor(command);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public boolean addCommand(final String alias, final InvokedCommand command) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public boolean addCommand(final String alias, final InvokedCommand command) throws UserError {
         CommandTableEdit commandTableEdit = commandTable.addCommand(alias, command);
         boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
         commandTableSerializer.commit(commandTableEdit);
         return added;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public boolean aliasCommand(final String newAlias, final String existingAlias) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public boolean aliasCommand(final String newAlias, final String existingAlias) throws UserError {
         CommandTableEdit commandTableEdit = commandTable.addAlias(newAlias, existingAlias);
         boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
         commandTableSerializer.commit(commandTableEdit);
         return added;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void deleteCommand(final com.ryan_mtg.servobot.model.User deleter, final String commandName)
-            throws BotErrorException {
+            throws UserError {
         Command command = commandTable.getCommand(commandName);
 
         if (command == null) {
-            throw new BotErrorException(String.format("No command named '%s.'", commandName));
+            throw new UserError("No command named '%s.'", commandName);
         }
 
         if (!command.hasPermissions(deleter)) {
-            throw new BotErrorException(
-                    String.format("%s is not allowed to delete '%s.'", deleter.getName(), commandName));
+            throw new UserError("%s is not allowed to delete '%s.'", deleter.getName(), commandName);
         }
 
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandName);
         commandTableSerializer.commit(commandTableEdit);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteCommand(final int commandId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteCommand(final int commandId) throws LibraryError {
         CommandTableEdit commandTableEdit = commandTable.deleteCommand(commandId);
         if (commandTableEdit.getDeletedCommands().isEmpty()) {
-            throw new BotErrorException(String.format("Command '%d' not found.", commandId));
+            throw new LibraryError("Command '%d' not found.", commandId);
         }
         commandTableSerializer.commit(commandTableEdit);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public boolean secureCommand(final int commandId, final boolean secure) {
         Command command = commandTable.secureCommand(commandId, secure);
         saveCommand(command);
         return command.isSecure();
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public boolean setCommandService(final int commandId, final int serivceType, final boolean value) {
         Command command = commandTable.getCommand(commandId);
         command.setService(serivceType, value);
@@ -101,31 +103,31 @@ public class CommandTableEditor {
         return command.getService(serivceType);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public Permission setCommandPermission(final HomedUser homedUser, final int commandId, final Permission permission)
-            throws BotErrorException {
+            throws UserError {
         Command command = commandTable.getCommand(commandId);
         if (!command.hasPermissions(homedUser)) {
-            throw new BotErrorException("You do not have permission to change the command's permission");
+            throw new UserError("You do not have permission to change the command's permission");
         }
         command.setPermission(permission);
         saveCommand(command);
         return command.getPermission();
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public Permission setCommandPermission(final User user, final int commandId, final Permission permission)
-            throws BotErrorException {
+            throws UserError {
         Command command = commandTable.getCommand(commandId);
         if (!command.hasPermissions(user)) {
-            throw new BotErrorException("You do not have permission to change the command's permission");
+            throw new UserError("You do not have permission to change the command's permission");
         }
         command.setPermission(permission);
         saveCommand(command);
         return command.getPermission();
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public boolean setCommandOnlyWhileStreaming(final int commandId, final boolean isOnlyWhileStreaming) {
         Command command = commandTable.getCommand(commandId);
         command.setOnlyWhileStreaming(isOnlyWhileStreaming);
@@ -133,13 +135,12 @@ public class CommandTableEditor {
         return command.isOnlyWhileStreaming();
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public List<Trigger> addTrigger(final int commandId, final int triggerType, final String text)
-            throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public List<Trigger> addTrigger(final int commandId, final int triggerType, final String text) throws UserError {
         CommandTableEdit commandTableEdit = commandTable.addTrigger(commandId, triggerType, text);
 
         if (commandTableEdit.getSavedTriggers().size() != 1) {
-            throw new BotErrorException(String.format("Trigger '%s' not added.", text));
+            throw new SystemError("Trigger '%s' not added.", text);
         }
 
         commandTableSerializer.commit(commandTableEdit);
@@ -153,12 +154,12 @@ public class CommandTableEditor {
         return response;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteTrigger(final int triggerId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteTrigger(final int triggerId) {
         CommandTableEdit commandTableEdit = commandTable.deleteTrigger(triggerId);
 
         if (commandTableEdit.getDeletedTriggers().isEmpty()) {
-            throw new BotErrorException(String.format("Trigger '%d' not found.", triggerId));
+            throw new SystemError("Trigger with id '%d' not found.", triggerId);
         }
         commandTableSerializer.commit(commandTableEdit);
     }

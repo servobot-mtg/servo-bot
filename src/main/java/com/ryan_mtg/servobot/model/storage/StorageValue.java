@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.storage;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +21,7 @@ public abstract class StorageValue implements Evaluatable {
     @Getter
     private String name;
 
-    public StorageValue(final int id, final int userId, final String name) throws BotErrorException {
+    public StorageValue(final int id, final int userId, final String name) throws UserError {
         this.id = id;
         this.userId = userId;
         this.name = name;
@@ -29,7 +29,7 @@ public abstract class StorageValue implements Evaluatable {
         validateName(name);
     }
 
-    public static void validateName(final String name) throws BotErrorException {
+    public static void validateName(final String name) throws UserError {
         Validation.validateStringValue(name, Validation.MAX_NAME_LENGTH, "Name", STORAGE_VALUE_NAME_PATTERN);
     }
 

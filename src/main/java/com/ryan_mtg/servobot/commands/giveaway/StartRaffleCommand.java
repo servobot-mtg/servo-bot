@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
@@ -22,7 +23,7 @@ public class StartRaffleCommand extends InvokedHomedCommand {
     private String message;
 
     public StartRaffleCommand(final int id, final CommandSettings commandSettings, final int giveawayId,
-                              final String message) throws BotErrorException {
+            final String message) throws UserError {
         super(id, commandSettings);
         this.giveawayId = giveawayId;
         this.message = message;
@@ -31,7 +32,7 @@ public class StartRaffleCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         HomeEditor homeEditor = event.getHomeEditor();
         Raffle raffle = homeEditor.startRaffle(giveawayId);
 

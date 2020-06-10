@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
@@ -24,7 +25,7 @@ public class JailCommand extends InvokedHomedCommand {
     private String variableName;
 
     public JailCommand(final int id, final CommandSettings commandSettings, final String prisonRole,
-                       final int threshold, final String variableName) throws BotErrorException {
+            final int threshold, final String variableName) throws UserError {
         super(id, commandSettings);
         this.threshold = threshold;
         this.prisonRole = prisonRole;
@@ -45,7 +46,7 @@ public class JailCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         User sender = event.getSender();
 
         if (JailUtility.isInJail(event.getHome(), sender, prisonRole)) {

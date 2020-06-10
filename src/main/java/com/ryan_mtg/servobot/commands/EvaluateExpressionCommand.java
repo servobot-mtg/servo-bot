@@ -3,7 +3,8 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Emote;
@@ -28,10 +29,10 @@ public class EvaluateExpressionCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError, UserError {
         String expression = event.getArguments();
         if (expression == null) {
-            throw new BotErrorException("No expression provided.");
+            throw new UserError("No expression provided.");
         }
 
         if (gabyEasterEgg && gabyEasterEggPattern.matcher(expression).matches()) {
@@ -54,7 +55,7 @@ public class EvaluateExpressionCommand extends InvokedCommand {
         try {
             event.sayRaw(parser.parse(expression).evaluate());
         } catch (ParseException e) {
-            throw new BotErrorException(String.format("Failed to parse %s: %s", expression, e.getMessage()));
+            throw new UserError("Failed to parse %s: %s", expression, e.getMessage());
         }
     }
 

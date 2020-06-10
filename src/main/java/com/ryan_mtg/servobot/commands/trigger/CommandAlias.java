@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.commands.trigger;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
@@ -14,14 +14,14 @@ public class CommandAlias extends Trigger {
     @Getter
     private String alias;
 
-    public CommandAlias(final int id, final String alias) throws BotErrorException {
+    public CommandAlias(final int id, final String alias) throws UserError {
         super(id);
         this.alias = alias;
 
         validateAlias(alias);
     }
 
-    public static void validateAlias(final String alias) throws BotErrorException {
+    public static void validateAlias(final String alias) throws UserError {
         Validation.validateStringValue(alias, Validation.MAX_TRIGGER_LENGTH, "Command alias", ALIAS_PATTERN);
     }
 

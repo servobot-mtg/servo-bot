@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.events;
 
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
@@ -22,13 +23,13 @@ public interface Event {
     int getServiceType();
     Scope getScope();
 
-    default void say(final Channel channel, final Scope scope, final String text) throws BotErrorException {
+    default void say(final Channel channel, final Scope scope, final String text) throws BotHomeError {
         channel.say(evaluate(scope, text, 0));
     }
 
-    default String evaluate(final Scope scope, final String text, final int recursionLevel) throws BotErrorException {
+    default String evaluate(final Scope scope, final String text, final int recursionLevel) throws BotHomeError {
         if (recursionLevel >= 10) {
-            throw new BotErrorException("Too much recursion!");
+            throw new BotHomeError("Too much recursion!");
         }
 
         StringBuilder result = new StringBuilder();
@@ -46,7 +47,7 @@ public interface Event {
                 String recursiveEvaluation = evaluate(scope, evaluation, recursionLevel + 1);
                 result.append(recursiveEvaluation);
             } catch (ParseException e) {
-                throw new BotErrorException(String.format("Failed to parse %%%s%%: %s", expression, e.getMessage()));
+                throw new BotHomeError("Failed to parse %%%s%%: %s", expression, e.getMessage());
             }
 
             currentIndex = matcher.end();

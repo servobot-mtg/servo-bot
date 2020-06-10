@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.user;
 
 import com.ryan_mtg.servobot.data.factories.UserSerializer;
 import com.ryan_mtg.servobot.data.repositories.UserRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import org.springframework.stereotype.Component;
 
 import java.lang.ref.WeakReference;
@@ -29,7 +28,7 @@ public class UserTable {
         userSerializer.saveUser(user);
     }
 
-    public User getById(final int id) throws BotErrorException {
+    public User getById(final int id) {
         User user = getUser(id);
         if (user != null) {
             return user;
@@ -38,20 +37,20 @@ public class UserTable {
         return store(userSerializer.lookupById(id));
     }
 
-    public void modifyUser(final User user, final Consumer<User> modifier) throws BotErrorException {
+    public void modifyUser(final User user, final Consumer<User> modifier) {
         modifier.accept(user);
         save(user);
     }
 
-    public void modifyUser(final int userId, final Consumer<User> modifier) throws BotErrorException {
+    public void modifyUser(final int userId, final Consumer<User> modifier) {
         modifyUser(getById(userId), modifier);
     }
 
-    public Iterable<User> getAllUsers() throws BotErrorException {
+    public Iterable<User> getAllUsers() {
         return getUsers(userSerializer.getAllUserIds());
     }
 
-    public Iterable<User> getUsers(final Iterable<Integer> userIds) throws BotErrorException {
+    public Iterable<User> getUsers(final Iterable<Integer> userIds) {
         List<User> users = new ArrayList<>();
         List<Integer> usersToLoad = new ArrayList<>();
         for (int userId : userIds) {
@@ -75,7 +74,7 @@ public class UserTable {
         return userSerializer.getHomesModerated(userId);
     }
 
-    public User getByTwitchId(final int twitchId, final String twitchUserName) throws BotErrorException {
+    public User getByTwitchId(final int twitchId, final String twitchUserName) {
         User user = findUser(u -> twitchId == u.getTwitchId());
         if (user != null) {
             if (!twitchUserName.equals(user.getTwitchUsername())) {
@@ -88,7 +87,7 @@ public class UserTable {
         return store(userSerializer.lookupByTwitchId(twitchId, twitchUserName));
     }
 
-    public User getByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
+    public User getByDiscordId(final long discordId, final String discordUsername) {
         User user = findUser(u -> discordId == u.getDiscordId());
         if (user != null) {
             if (!discordUsername.equals(user.getDiscordUsername())) {

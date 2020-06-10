@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.security;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserInfo;
 import com.ryan_mtg.servobot.user.User;
@@ -34,13 +33,7 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
         Map<String, Object> attributes = new HashMap<>();
 
         TwitchUserInfo twitchUserInfo = twitchService.getUserInfo(userRequest.getAccessToken().getTokenValue());
-        User user;
-        try {
-            user = userTable.getByTwitchId(twitchUserInfo.getId(), twitchUserInfo.getUsername());
-        } catch (BotErrorException e) {
-            e.printStackTrace();
-            throw new OAuth2AuthenticationException(new OAuth2Error("oops"), e);
-        }
+        User user = userTable.getByTwitchId(twitchUserInfo.getId(), twitchUserInfo.getUsername());
 
         List<GrantedAuthority> authorityList =
                 AuthorityUtils.createAuthorityList("ROLE_USER", String.format("ROLE_ID:%d", user.getId()));

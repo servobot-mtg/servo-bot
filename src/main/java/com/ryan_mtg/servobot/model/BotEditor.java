@@ -18,7 +18,8 @@ import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemBadError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
@@ -79,11 +80,11 @@ public class BotEditor {
         return bot.getBotScope();
     }
 
-    public User getUserById(final int userId) throws BotErrorException {
+    public User getUserById(final int userId) {
         return serializers.getUserTable().getById(userId);
     }
 
-    public void setArenaUsername(final int userId, final String username) throws BotErrorException {
+    public void setArenaUsername(final int userId, final String username) throws UserError {
         Validation.validateStringLength(username, Validation.MAX_USERNAME_LENGTH, "Arena username");
         serializers.getUserTable().modifyUser(userId, user -> user.setArenaUsername(username));
     }
@@ -92,18 +93,18 @@ public class BotEditor {
         bot.getService(serviceType).whisper(receiver, message);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public BotHome createBotHome(final int userId, final CreateBotHomeRequest request) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public BotHome createBotHome(final int userId, final CreateBotHomeRequest request) throws UserError {
         try {
             UserTable userTable = serializers.getUserTable();
             User user = userTable.getById(userId);
 
             if (!user.hasInvite()) {
-                throw new BotErrorException(String.format("%s can't create home without an invite.", user.getName()));
+                throw new UserError("%s can't create home without an invite.", user.getName());
             }
 
             if (!userTable.getHomesStreamed(userId).isEmpty()) {
-                throw new BotErrorException(String.format("%s already has a home.", user.getName()));
+                throw new UserError("%s already has a home.", user.getName());
             }
 
             Set<String> commandNames = new HashSet<>();
@@ -192,7 +193,7 @@ public class BotEditor {
         bot.getHome(botHomeId).stop(bot.getAlertQueue());
     }
 
-    public void restartHome(final int botHomeId) throws BotErrorException {
+    public void restartHome(final int botHomeId) {
         bot.removeHome(bot.getHome(botHomeId));
 
         BotHome botHome = this.serializers.getBotFactory().createBotHome(botHomeId);
@@ -200,7 +201,7 @@ public class BotEditor {
         botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void addSuggestion(final String command) {
         String alias = command.toLowerCase();
         if (alias.length() > Validation.MAX_TRIGGER_LENGTH) {
@@ -218,12 +219,11 @@ public class BotEditor {
     }
 
     private void validateNewCommandName(final Set<String> commandNames, final String commandName)
-            throws BotErrorException {
+            throws UserError {
         if (commandName != null) {
             CommandAlias.validateAlias(commandName);
             if (commandNames.contains(commandName)) {
-                throw new BotErrorException(
-                        String.format("%s is a duplicated command name.", commandName));
+                throw new UserError("%s is a duplicated command name.", commandName);
             }
             commandNames.add(commandName);
         }

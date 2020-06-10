@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.scope.SymbolTable;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class TextCommandTest {
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
-    public void testPerform() throws BotErrorException {
+    public void testPerform() throws BotHomeError, UserError {
         TextCommand command = new TextCommand(ID, COMMAND_SETTINGS, TEXT);
         CommandInvokedEvent event = mockCommandInvokedEvent(ARGUMENTS);
 

@@ -12,25 +12,20 @@ import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
-import com.ryan_mtg.servobot.commands.trigger.Trigger;
-import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.data.models.AlertGeneratorRow;
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
-import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.LibraryError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.AlertEvent;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
-import com.ryan_mtg.servobot.model.books.Book;
-import com.ryan_mtg.servobot.model.books.BookTable;
-import com.ryan_mtg.servobot.model.books.BookTableEdit;
-import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
@@ -69,7 +64,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.ryan_mtg.servobot.model.game_queue.GameQueue.EMPTY_QUEUE;
 
@@ -110,7 +104,7 @@ public class HomeEditor {
         return bot.getService(serviceType);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void modifyBotName(final String botName) {
         botHome.setBotName(botName);
 
@@ -120,7 +114,7 @@ public class HomeEditor {
         botHomeRepository.save(botHomeRow);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void setTimeZone(final String timeZone) {
         botHome.setTimeZone(timeZone);
         botHome.getReactionTable().setTimeZone(timeZone);
@@ -134,20 +128,20 @@ public class HomeEditor {
         botHomeRepository.save(botHomeRow);
     }
 
-    public HomedUser getUserById(final int userId) throws BotErrorException {
+    public HomedUser getUserById(final int userId) {
         return botHome.getHomedUserTable().getById(userId);
     }
 
-    public HomedUser getUserByDiscordId(final long discordId, final String discordUsername) throws BotErrorException {
+    public HomedUser getUserByDiscordId(final long discordId, final String discordUsername) {
         return botHome.getHomedUserTable().getByDiscordId(discordId, discordUsername);
     }
 
-    public HomedUser getUserByTwitchId(final int twitchId, final String twitchUsername) throws BotErrorException {
+    public HomedUser getUserByTwitchId(final int twitchId, final String twitchUsername) {
         return botHome.getHomedUserTable().getByTwitchId(twitchId, twitchUsername);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Reaction addReaction(final String emote, final boolean secure) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Reaction addReaction(final String emote, final boolean secure) throws UserError {
         Reaction  reaction = new Reaction(Reaction.UNREGISTERED_ID, emote, secure, new AlwaysReact(), new ArrayList<>(),
                 new ArrayList<>());
         ReactionTable reactionTable = botHome.getReactionTable();
@@ -156,27 +150,27 @@ public class HomeEditor {
         return reaction;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public boolean secureReaction(final int reactionId, final boolean secure) {
         Reaction reaction = botHome.getReactionTable().secureReaction(reactionId, secure);
         serializers.getReactionSerializer().saveReaction(botHome.getId(), reaction);
         return reaction.isSecure();
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void deleteReaction(final int reactionId) {
         ReactionTableEdit reactionTableEdit = botHome.getReactionTable().deleteReaction(reactionId);
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Pattern addPattern(final int reactionId, final String pattern) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Pattern addPattern(final int reactionId, final String pattern) throws UserError {
         ReactionTableEdit reactionTableEdit = botHome.getReactionTable().addPattern(reactionId, pattern);
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
         return reactionTableEdit.getSavedPatterns().keySet().iterator().next();
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void deletePattern(final int reactionId, final int patternId) {
         ReactionTableEdit reactionTableEdit = botHome.getReactionTable().deletePattern(reactionId, patternId);
         serializers.getReactionTableSerializer().commit(botHome.getId(), reactionTableEdit);
@@ -192,8 +186,8 @@ public class HomeEditor {
         botHome.getEventListener().onAlert(alertEvent);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public AlertGenerator addAlert(final int type, final String keyword, final int time) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public AlertGenerator addAlert(final int type, final String keyword, final int time) throws UserError {
         Validation.validateStringValue(keyword, Validation.MAX_TRIGGER_LENGTH, "Alert Keyword",
                 Validation.NAME_PATTERN);
 
@@ -216,13 +210,13 @@ public class HomeEditor {
         return alertGenerator;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void deleteAlert(final int alertGeneratorId) {
         CommandTableEdit commandTableEdit = botHome.getCommandTable().deleteAlertGenerator(alertGeneratorId);
         serializers.getCommandTableSerializer().commit(commandTableEdit);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void addSuggestion(final String command) {
         String alias = command.toLowerCase();
         if (alias.length() > Validation.MAX_TRIGGER_LENGTH) {
@@ -239,22 +233,22 @@ public class HomeEditor {
         suggestionRepository.save(suggestionRow);
     }
 
-    public StorageValue getStorageValue(final String name) throws BotErrorException {
+    public StorageValue getStorageValue(final String name) throws UserError {
         StorageValue.validateName(name);
         StorageValue storageValue = botHome.getStorageTable().getStorage(name);
         if (storageValue == null) {
-            throw new BotErrorException(String.format("No value with name %s.", name));
+            throw new UserError("No value with name %s.", name);
         }
         return storageValue;
     }
 
-    public List<StorageValue> getAllUsersStorageValues(final String name) throws BotErrorException {
+    public List<StorageValue> getAllUsersStorageValues(final String name) throws UserError {
         StorageValue.validateName(name);
         return botHome.getStorageTable().getAllUsersStorage(name);
     }
 
     public IntegerStorageValue getStorageValue(final int userId, final String name, final int defaultValue)
-            throws BotErrorException {
+            throws UserError {
         StorageValue.validateName(name);
         StorageTable storageTable = botHome.getStorageTable();
         StorageValue storageValue = storageTable.getStorage(userId, name);
@@ -268,33 +262,33 @@ public class HomeEditor {
             return (IntegerStorageValue) storageValue;
         }
 
-        throw new BotErrorException(String.format("%s is not a number", name));
+        throw new UserError("%s is not a number", name);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public StorageValue setStorageValue(final String name, final String value) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public StorageValue setStorageValue(final String name, final String value) throws UserError {
         StorageValue storageValue = getStorageValue(name);
         if (storageValue instanceof IntegerStorageValue) {
             IntegerStorageValue integerValue = (IntegerStorageValue) storageValue;
             try {
                 integerValue.setValue(Integer.parseInt(value));
             } catch (Exception e) {
-                throw new BotErrorException(String.format("Invalid value %s.", value));
+                throw new UserError("Invalid value %s.", value);
             }
             serializers.getStorageValueSerializer().save(integerValue, botHome.getId());
         } else {
-            throw new BotErrorException(String.format("%s has an unknown type of value.", storageValue.getName()));
+            throw new UserError("%s has an unknown type of value.", storageValue.getName());
         }
         return storageValue;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void removeStorageVariables(final String name) {
         botHome.getStorageTable().removeVariables(name);
         serializers.getStorageTableSerializer().removeVariables(name, botHome.getId());
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void removeStorageVariable(final int userId, final String name) {
         StorageValue storageValue = botHome.getStorageTable().removeVariable(userId, name);
         if (storageValue != null) {
@@ -302,35 +296,23 @@ public class HomeEditor {
         }
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public IntegerStorageValue incrementStorageValue(final String name) throws BotErrorException {
-        StorageValue value = getStorageValue(name);
-        if (value instanceof IntegerStorageValue) {
-            IntegerStorageValue integerValue = (IntegerStorageValue) value;
-            integerValue.setValue(integerValue.getValue() + 1);
-            serializers.getStorageValueSerializer().save(integerValue, botHome.getId());
-            return integerValue;
-        }
-        throw new BotErrorException(String.format("%s is not a number", name));
-    }
-
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public IntegerStorageValue incrementStorageValue(final int userId, final String name, final int defaultValue)
-            throws BotErrorException {
+            throws UserError {
         return increaseStorageValue(userId, name, 1, defaultValue);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public IntegerStorageValue increaseStorageValue(final int userId, final String name, final int amount,
-            final int defaultValue) throws BotErrorException {
+            final int defaultValue) throws UserError {
         IntegerStorageValue value = getStorageValue(userId, name, defaultValue);
         value.setValue(value.getValue() + amount);
         serializers.getStorageValueSerializer().save(value, botHome.getId());
         return value;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public String startGameQueue(final int gameQueueId, final String name) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public String startGameQueue(final int gameQueueId, final String name) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         if (gameQueue.getState() == GameQueue.State.PLAYING) {
@@ -338,7 +320,7 @@ public class HomeEditor {
                 setGameQueueName(gameQueueId, name);
                 return String.format("Game queue name changed to '%s.'", name);
             }
-            throw new  BotErrorException(String.format("Game queue '%s' already started.", gameQueue.getName()));
+            throw new  UserError("Game queue '%s' already started.", gameQueue.getName());
         }
 
         gameQueue.setState(GameQueue.State.PLAYING);
@@ -350,16 +332,16 @@ public class HomeEditor {
         return String.format("Game queue '%s' started.", gameQueue.getName());
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public String closeGameQueue(final int gameQueueId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public String closeGameQueue(final int gameQueueId) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         if (gameQueue.getState() == GameQueue.State.CLOSED) {
-            throw new BotErrorException(String.format("Game queue '%s' is already closed.", gameQueue.getName()));
+            throw new UserError("Game queue '%s' is already closed.", gameQueue.getName());
         }
 
         if (gameQueue.getState() != GameQueue.State.PLAYING) {
-            throw new BotErrorException(String.format("Game queue '%s' is not open.", gameQueue.getName()));
+            throw new UserError("Game queue '%s' is not open.", gameQueue.getName());
         }
 
         gameQueue.setState(GameQueue.State.CLOSED);
@@ -368,53 +350,51 @@ public class HomeEditor {
         return String.format("Queue '%s' is now closed.", gameQueue.getName());
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public User popGameQueue(final int gameQueueId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public User popGameQueue(final int gameQueueId) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
         }
 
         int nextPlayer = gameQueue.pop();
         if (nextPlayer == EMPTY_QUEUE) {
-            throw new BotErrorException("No players in the queue.");
+            throw new UserError("No players in the queue.");
         }
 
         serializers.getGameQueueSerializer().removeEntry(gameQueue, nextPlayer);
         return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
     }
 
-    public User peekGameQueue(final int gameQueueId) throws BotErrorException {
+    public User peekGameQueue(final int gameQueueId) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
         }
 
         int nextPlayer = gameQueue.getCurrentPlayerId();
         if (nextPlayer == EMPTY_QUEUE) {
-            throw new BotErrorException("No players in the queue.");
+            throw new UserError("No players in the queue.");
         }
 
         return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public int joinGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
-            throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public int joinGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         int playerId = player.getId();
 
         if (gameQueue.contains(playerId)) {
-            throw new BotErrorException(String.format("%s is already in the queue.", player.getName()));
+            throw new UserError("%s is already in the queue.", player.getName());
         }
 
         if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
         }
         if (gameQueue.getState() == GameQueue.State.CLOSED) {
-            throw new BotErrorException(String.format("Game queue '%s' is not allowing new players.",
-                    gameQueue.getName()));
+            throw new UserError("Game queue '%s' is not allowing new players.", gameQueue.getName());
         }
 
         GameQueueEntry gameQueueEntry = gameQueue.enqueue(playerId);
@@ -423,31 +403,31 @@ public class HomeEditor {
         return gameQueueEntry.getPosition();
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void removeFromGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
-            throws BotErrorException {
+            throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         int playerId = player.getId();
 
         if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new BotErrorException(String.format("Game queue '%s' is not active.", gameQueue.getName()));
+            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
         }
 
         if (gameQueue.getCurrentPlayerId() == playerId) {
-            throw new BotErrorException(String.format("%s is currently playing.", player.getName()));
+            throw new UserError("%s is currently playing.", player.getName());
         }
 
         if (!gameQueue.contains(playerId)) {
-            throw new BotErrorException(String.format("%s is not in the queue.", player.getName()));
+            throw new UserError("%s is not in the queue.", player.getName());
         }
 
         gameQueue.remove(playerId);
         serializers.getGameQueueSerializer().removeEntry(gameQueue, playerId);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void setGameQueueName(final int gameQueueId, final String name) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public void setGameQueueName(final int gameQueueId, final String name) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         if (name.equals(gameQueue.getName())) {
@@ -459,12 +439,11 @@ public class HomeEditor {
         serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public String stopGameQueue(int gameQueueId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public String stopGameQueue(int gameQueueId) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new BotErrorException(String.format("Game queue '%s' has already been stopped.",
-                    gameQueue.getName()));
+            throw new UserError("Game queue '%s' has already been stopped.", gameQueue.getName());
         }
 
         gameQueue.setState(GameQueue.State.IDLE);
@@ -473,8 +452,8 @@ public class HomeEditor {
         return String.format("Game queue '%s' stopped.", gameQueue.getName());
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public String showGameQueue(final int gameQueueId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public String showGameQueue(final int gameQueueId) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         if (gameQueue.getState() == GameQueue.State.IDLE) {
@@ -514,22 +493,20 @@ public class HomeEditor {
         return botHome.getGiveaway(giveawayId);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Giveaway addGiveaway(final String name, final boolean selfService, final boolean raffle)
-            throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Giveaway addGiveaway(final String name, final boolean selfService, final boolean raffle) throws UserError {
         Giveaway giveaway = new Giveaway(Giveaway.UNREGISTERED_ID, name, selfService, raffle);
         serializers.getGiveawaySerializer().saveGiveaway(botHome.getId(), giveaway);
         botHome.addGiveaway(giveaway);
-
         return giveaway;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public Giveaway saveGiveawaySelfService(final int giveawayId, final String requestPrizeCommandName,
-            final int prizeRequestLimit, final int prizeRequestUserLimit) throws BotErrorException {
+            final int prizeRequestLimit, final int prizeRequestUserLimit) throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
         if (giveaway.getState() != Giveaway.State.CONFIGURING) {
-            throw new BotErrorException("Can only save configuration when giveaway in in configuring state");
+            throw new UserError("Can only save configuration when giveaway in in configuring state");
         }
 
         CommandTable commandTable = botHome.getCommandTable();
@@ -548,15 +525,15 @@ public class HomeEditor {
         return giveaway;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
             final int winnerCount, final GiveawayCommandSettings startRaffle, final GiveawayCommandSettings enterRaffle,
             final GiveawayCommandSettings raffleStatus, final String winnerResponse, final String discordChannel)
-            throws BotErrorException {
+            throws UserError {
 
         Giveaway giveaway = getGiveaway(giveawayId);
         if (giveaway.getState() != Giveaway.State.CONFIGURING) {
-            throw new BotErrorException("Can only save configuration when giveaway in in configuring state");
+            throw new UserError("Can only save configuration when giveaway in in configuring state");
         }
         RaffleSettings previousSettings = giveaway.getRaffleSettings();
 
@@ -588,8 +565,8 @@ public class HomeEditor {
         return giveaway;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Giveaway startGiveaway(final int giveawayId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Giveaway startGiveaway(final int giveawayId) throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         CommandTable commandTable = botHome.getCommandTable();
@@ -599,9 +576,8 @@ public class HomeEditor {
         return giveaway;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Prize addPrize(final int giveawayId, final String reward, final String description)
-            throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Prize addPrize(final int giveawayId, final String reward, final String description) throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         Prize prize = new Prize(Prize.UNREGISTERED_ID, Strings.trim(reward), Strings.trim(description));
@@ -614,9 +590,9 @@ public class HomeEditor {
         return prize;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public List<Prize> addPrizes(final int giveawayId, final String rewards, final String description)
-            throws BotErrorException {
+            throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
         List<Prize> prizes = new ArrayList<>();
 
@@ -635,8 +611,8 @@ public class HomeEditor {
         return prizes;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Prize requestPrize(final int giveawayId, final HomedUser requester) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Prize requestPrize(final int giveawayId, final HomedUser requester) throws BotHomeError, UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         GiveawayEdit giveawayEdit = giveaway.requestPrize(requester);
@@ -646,8 +622,8 @@ public class HomeEditor {
         return prize;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Raffle startRaffle(final int giveawayId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Raffle startRaffle(final int giveawayId) throws BotHomeError, UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         RaffleSettings raffleSettings = giveaway.getRaffleSettings();
@@ -726,8 +702,8 @@ public class HomeEditor {
         return raffle;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void enterRaffle(final HomedUser entrant, final int giveawayId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public void enterRaffle(final HomedUser entrant, final int giveawayId) throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         Raffle raffle = giveaway.retrieveCurrentRaffle();
@@ -735,8 +711,8 @@ public class HomeEditor {
     }
 
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public List<HomedUser> selectRaffleWinners(int giveawayId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public List<HomedUser> selectRaffleWinners(int giveawayId) throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
         Raffle raffle = giveaway.retrieveCurrentRaffle();
 
@@ -758,8 +734,8 @@ public class HomeEditor {
         return winners;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public boolean bestowPrize(int giveawayId, int prizeId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public boolean bestowPrize(int giveawayId, int prizeId) throws LibraryError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         GiveawayEdit giveawayEdit = giveaway.bestowPrize(prizeId);
@@ -767,7 +743,7 @@ public class HomeEditor {
         return true;
     }
 
-    public void deletePrize(final int giveawayId, final int prizeId) throws BotErrorException {
+    public void deletePrize(final int giveawayId, final int prizeId) throws LibraryError {
         GiveawayEdit giveawayEdit = botHome.getGiveaway(giveawayId).deletePrize(prizeId);
         serializers.getGiveawaySerializer().commit(giveawayEdit);
     }
@@ -781,19 +757,19 @@ public class HomeEditor {
         serviceHome.getService().whisper(user.getUser(), message);
     }
 
-    public List<User> getArenaUsers() throws BotErrorException {
+    public List<User> getArenaUsers() {
         return serializers.getUserSerializer().getArenaUsers(botHome.getId());
     }
 
-    private GameQueue getGameQueue(final int gameQueueId) throws BotErrorException {
+    private GameQueue getGameQueue(final int gameQueueId) throws UserError {
         GameQueue gameQueue = botHome.getGameQueue(gameQueueId);
         if (gameQueue == null) {
-            throw new BotErrorException("No Game Queue");
+            throw new UserError("No Game Queue");
         }
         return gameQueue;
     }
 
-    private String describePlayer(final int userId) throws BotErrorException {
+    private String describePlayer(final int userId) {
         User user = serializers.getUserTable().getById(userId);
         if (user.getTwitchUsername() != null) {
             return user.getTwitchUsername();

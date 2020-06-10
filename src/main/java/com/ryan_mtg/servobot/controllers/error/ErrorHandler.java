@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.controllers.error;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -24,14 +26,19 @@ public class ErrorHandler {
         this.websiteUserFactory = websiteUserFactory;
     }
 
-    @ExceptionHandler(BotErrorException.class)
-    public ModelAndView renderBotError(final BotErrorException botError) {
-        botError.printStackTrace();
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setStatus(HttpStatus.BAD_REQUEST);
-        modelAndView.setView(new MappingJackson2JsonView());
-        modelAndView.addObject("message", botError.getErrorMessage());
-        return modelAndView;
+    @ExceptionHandler(BotHomeError.class)
+    public ModelAndView renderBotHomeError(final BotHomeError botHomeError) {
+        return renderException(botHomeError);
+    }
+
+    @ExceptionHandler(SystemError.class)
+    public ModelAndView renderSystemError(final SystemError systemError) {
+        return renderException(systemError);
+    }
+
+    @ExceptionHandler(UserError.class)
+    public ModelAndView renderUserError(final UserError userError) {
+        return renderException(userError);
     }
 
     @ExceptionHandler(Throwable.class)
@@ -70,6 +77,15 @@ public class ErrorHandler {
                                             final OAuth2AuthenticationToken oAuth2AuthenticationToken) {
         return setupModelAndView("error/access_denied",
                 exception.getStatus(), exception, oAuth2AuthenticationToken);
+    }
+
+    public ModelAndView renderException(final Exception exception) {
+        exception.printStackTrace();
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setStatus(HttpStatus.BAD_REQUEST);
+        modelAndView.setView(new MappingJackson2JsonView());
+        modelAndView.addObject("message", exception.getMessage());
+        return modelAndView;
     }
 
     private ModelAndView setupModelAndView(final String viewName, final HttpStatus status, final Throwable exception,

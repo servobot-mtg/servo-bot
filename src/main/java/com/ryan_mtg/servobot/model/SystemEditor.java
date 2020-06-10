@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.data.models.PrizeRow;
 import com.ryan_mtg.servobot.data.models.StorageValueRow;
 import com.ryan_mtg.servobot.data.models.UserHomeRow;
 import com.ryan_mtg.servobot.data.repositories.UserHomeRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
@@ -43,8 +43,8 @@ public class SystemEditor {
         this.serializers = serializers;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public User mergeUsers(final List<Integer> userIds) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public User mergeUsers(final List<Integer> userIds) throws UserError {
         UserTable userTable = serializers.getUserTable();
         Iterable<User> users = userTable.getUsers(userIds);
 
@@ -68,7 +68,7 @@ public class SystemEditor {
         return merge.getMergedUser();
     }
 
-    private UserMerge attemptUserMerge(final Iterable<User> users) throws BotErrorException {
+    private UserMerge attemptUserMerge(final Iterable<User> users) throws UserError {
         List<Integer> usersToDelete = new ArrayList<>();
 
         int id = users.iterator().next().getId(), flags = 0, twitchId = 0;
@@ -163,7 +163,7 @@ public class SystemEditor {
         return storageTableEdit;
     }
 
-    private GiveawayEdit mergeGiveawayUser(final UserMerge merge) throws BotErrorException {
+    private GiveawayEdit mergeGiveawayUser(final UserMerge merge) {
         Iterable<PrizeRow> prizeRows = serializers.getPrizeRepository().findAllByWinnerId(merge.getUsersToDelete());
         List<Integer> giveawayIds = StreamSupport.stream(prizeRows.spliterator(), false)
                 .map(PrizeRow::getGiveawayId).collect(Collectors.toList());
@@ -193,13 +193,13 @@ public class SystemEditor {
     }
 
     private <FieldType> FieldType updateMergedUserField(final FieldType mergedField, final FieldType newField,
-            final FieldType nullValue, final String fieldDescription) throws BotErrorException {
+            final FieldType nullValue, final String fieldDescription) throws UserError {
         if (mergedField == nullValue) {
             return newField;
         } else if (newField == nullValue) {
             return mergedField;
         } else if (!mergedField.equals(newField)) {
-            throw new BotErrorException(String.format("%s do not match", fieldDescription));
+            throw new UserError("%s do not match", fieldDescription);
         }
         return mergedField;
     }

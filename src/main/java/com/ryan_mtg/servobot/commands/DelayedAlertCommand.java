@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -14,7 +14,7 @@ public class DelayedAlertCommand extends HomeCommand {
     private Alert alert;
 
     public DelayedAlertCommand(final int id, final CommandSettings commandSettings, final Duration delay,
-                               final String alertToken) throws BotErrorException {
+            final String alertToken) throws UserError {
         super(id, commandSettings);
         alert = new Alert(delay, alertToken);
 

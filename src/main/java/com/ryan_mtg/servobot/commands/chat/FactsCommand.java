@@ -4,7 +4,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.books.Book;
 import lombok.Getter;
@@ -32,7 +32,7 @@ public class FactsCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError {
         event.say(book.getRandomLine());
     }
 }

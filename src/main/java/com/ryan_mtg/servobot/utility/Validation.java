@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.utility;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 
 import java.util.regex.Pattern;
@@ -27,16 +27,16 @@ public class Validation {
     private Validation(){}
 
     public static void validateStringLength(final String string, final int maxLength, final String name)
-            throws BotErrorException {
+            throws UserError {
         if (string != null && string.length() > maxLength) {
-            throw new BotErrorException(String.format("%s too long (max %d): %s", name, maxLength, string));
+            throw new UserError("%s too long (max %d): %s", name, maxLength, string);
         }
     }
 
     public static void validateStringValue(final String value, final int maxLength, final String name,
-            final Pattern valuePattern) throws BotErrorException {
+            final Pattern valuePattern) throws UserError {
         if (value != null && !valuePattern.matcher(value).matches()) {
-            throw new BotErrorException(String.format("%s is not a valid %s", value, name));
+            throw new UserError("%s is not a valid %s", value, name);
         }
 
         Validation.validateStringLength(value, maxLength, name);
@@ -44,10 +44,10 @@ public class Validation {
 
     public static void validateSetTemporaryCommandName(final String newCommandName, final String savedCommandName,
             final CommandTable commandTable, final boolean required, final String commandDescription)
-            throws BotErrorException {
+            throws UserError {
         if (required) {
             if (newCommandName == null || newCommandName.isEmpty()) {
-                throw new BotErrorException(String.format("%s must not be empty", commandDescription));
+                throw new UserError("%s must not be empty", commandDescription);
             }
         }
 
@@ -61,14 +61,14 @@ public class Validation {
 
         validateStringValue(newCommandName, MAX_NAME_LENGTH, commandDescription, NAME_PATTERN);
         if (commandTable.getCommand(newCommandName) != null) {
-            throw new BotErrorException(String.format("There is already a '%s' command.", newCommandName));
+            throw new UserError("There is already a '%s' command.", newCommandName);
         }
     }
 
     public static void validateNotSame(final String string, final String otherString, final String description,
-                                       final String otherDescription) throws BotErrorException {
+            final String otherDescription) throws UserError {
         if(string.equals(otherString)) {
-            throw new BotErrorException(String.format("%s cannot be the same as %s", description, otherDescription));
+            throw new UserError("%s cannot be the same as %s", description, otherDescription);
         }
     }
 
@@ -78,21 +78,20 @@ public class Validation {
      * @param description A human understandable name of the value
      * @param lowerBound The lowest acceptable value
      * @param upperBound The highest acceptable value
-     * @throws BotErrorException when the value is not in the acceptable range
+     * @throws UserError when the value is not in the acceptable range
      */
     public static void validateRange(final int value, final String description, final int lowerBound,
-                                     final int upperBound) throws BotErrorException {
+            final int upperBound) throws UserError {
         if (value < lowerBound) {
-            throw new BotErrorException(String.format("%s (%d) is less than the lower bound (%d) ",
-                    description, value, lowerBound));
+            throw new UserError("%s (%d) is less than the lower bound (%d) ", description, value, lowerBound);
         } else if (upperBound < value) {
-            throw new BotErrorException(String.format("%s (%d) is greater than the upper bound (%d) ",
-                    description, value, upperBound));
+            throw new UserError("%s (%d) is greater than the upper bound (%d) ", description, value, upperBound);
         }
     }
 
-    public static void validateCommandSettings(final GiveawayCommandSettings settings, final GiveawayCommandSettings previousSettings,
-                                               final CommandTable commandTable, final boolean required, final String description) throws BotErrorException {
+    public static void validateCommandSettings(final GiveawayCommandSettings settings,
+            final GiveawayCommandSettings previousSettings, final CommandTable commandTable,
+            final boolean required, final String description) throws UserError {
         Validation.validateSetTemporaryCommandName(settings.getCommandName(), previousSettings.getCommandName(),
                 commandTable, required, description);
     }

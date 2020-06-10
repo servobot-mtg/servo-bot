@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.model.books;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.LibraryError;
+import com.ryan_mtg.servobot.error.SystemBadError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -26,11 +28,11 @@ public class Book implements Evaluatable, Function<Integer, String> {
     @Getter
     private List<Statement> statements;
 
-    public Book(final int id, final String name) throws BotErrorException {
+    public Book(final int id, final String name) throws UserError {
         this(id, name, new ArrayList<>());
     }
 
-    public Book(final int id, final String name, final List<Statement> statements) throws BotErrorException {
+    public Book(final int id, final String name, final List<Statement> statements) throws UserError {
         this.id = id;
         this.name = name;
         this.statements = statements;
@@ -38,12 +40,12 @@ public class Book implements Evaluatable, Function<Integer, String> {
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
     }
 
-    public Statement getStatement(final int statementId) throws BotErrorException {
+    public Statement getStatement(final int statementId) throws LibraryError {
         Optional<Statement> statement = statements.stream().filter(s -> s.getId() == statementId).findFirst();
         if (statement.isPresent()) {
             return statement.get();
         }
-        throw new BotErrorException(String.format("No statement with id %d", statementId));
+        throw new LibraryError("No statement with id %d", statementId);
     }
 
     public String getRandomLine() {
@@ -57,7 +59,7 @@ public class Book implements Evaluatable, Function<Integer, String> {
         statements.add(statement);
     }
 
-    public Statement deleteStatement(final int statementId) throws BotErrorException {
+    public Statement deleteStatement(final int statementId) throws LibraryError {
         Statement statement = getStatement(statementId);
         statements.remove(statement);
         return statement;

@@ -5,7 +5,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import org.junit.Test;
@@ -31,7 +32,7 @@ public class AddCommandTest {
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
-    public void testPerform() throws BotErrorException {
+    public void testPerform() throws BotHomeError, UserError {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
@@ -52,7 +53,7 @@ public class AddCommandTest {
     }
 
     @Test
-    public void testPerformWhenCommandAlreadyExists() throws BotErrorException {
+    public void testPerformWhenCommandAlreadyExists() throws BotHomeError, UserError {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
@@ -72,8 +73,8 @@ public class AddCommandTest {
         assertThat(capturedCommand, isATextCommand(ARGUMENTS));
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsExceptionWhenCommandDoesNotStartWithExclamationMark() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsExceptionWhenCommandDoesNotStartWithExclamationMark() throws BotHomeError, UserError {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         String commandLine = String.format("%s %s", COMMAND_NAME, ARGUMENTS);
@@ -86,8 +87,8 @@ public class AddCommandTest {
         }
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsExceptionWhenCommandNameIsEmpty() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsExceptionWhenCommandNameIsEmpty() throws BotHomeError, UserError {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         String commandLine = String.format("!%s %s", "", ARGUMENTS);
@@ -100,8 +101,8 @@ public class AddCommandTest {
         }
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsExceptionWhenPassedNoArguments() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsExceptionWhenPassedNoArguments() throws BotHomeError, UserError {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         String commandLine = String.format("!%s%s", COMMAND_NAME, "");
@@ -114,8 +115,8 @@ public class AddCommandTest {
         }
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsExceptionWhenPassedWhitespaceAsArguments() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsExceptionWhenPassedWhitespaceAsArguments() throws BotHomeError, UserError {
         AddCommand command = new AddCommand(ID, COMMAND_SETTINGS);
 
         String commandLine = String.format("!%s %s", COMMAND_NAME, " ");

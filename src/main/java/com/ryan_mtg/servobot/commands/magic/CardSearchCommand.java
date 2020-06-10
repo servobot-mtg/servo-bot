@@ -5,7 +5,8 @@ import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.scryfall.Card;
 import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
@@ -24,10 +25,10 @@ public class CardSearchCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError, UserError {
         String query = event.getArguments();
         if (Strings.isBlank(query)) {
-            throw new BotErrorException("No search term provided.");
+            throw new UserError("No search term provided.");
         }
 
         String lower = query.toLowerCase();

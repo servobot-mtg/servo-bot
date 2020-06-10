@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.User;
@@ -26,7 +27,7 @@ public class RequestPrizeCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         HomeEditor homeEditor = event.getHomeEditor();
         User sender = event.getSender();
         HomedUser homedSender = sender.getHomedUser();
@@ -36,14 +37,14 @@ public class RequestPrizeCommand extends InvokedHomedCommand {
         IntegerStorageValue userRequestCount =
                 homeEditor.incrementStorageValue(homedSender.getId(), userRequestVariableName, 0);
         if (userRequestCount.getValue() > giveaway.getPrizeRequestUserLimit()) {
-            throw new BotErrorException(String.format("%s has sent too many requests!", sender.getName()));
+            throw new UserError("%s has sent too many requests!", sender.getName());
         }
 
         String requestVariableName = String.format("#total_redemptions_%d", giveawayId);
         IntegerStorageValue requestCount =
                 homeEditor.incrementStorageValue(homedSender.getId(), requestVariableName, 0);
         if (requestCount.getValue() > giveaway.getPrizeRequestLimit()) {
-            throw new BotErrorException(String.format("Sorry %s, the prize barrel is empty.", sender.getName()));
+            throw new UserError("Sorry %s, the prize barrel is empty.", sender.getName());
         }
 
         Prize prize = homeEditor.requestPrize(giveawayId, homedSender);

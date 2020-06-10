@@ -1,7 +1,8 @@
 package com.ryan_mtg.servobot.model.editors;
 
 import com.ryan_mtg.servobot.data.factories.BookSerializer;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.LibraryError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.books.BookTableEdit;
@@ -26,8 +27,8 @@ public class BookTableEditor {
         return bookTable.getBook(bookName);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Book addBook(final String name, final String text) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Book addBook(final String name, final String text) throws UserError {
         Book book = new Book(Book.UNREGISTERED_ID, name);
         BookTableEdit bookTableEdit = bookTable.addBook(book);
         if (!Strings.isBlank(text)) {
@@ -38,22 +39,22 @@ public class BookTableEditor {
         return book;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public Statement addStatement(final int bookId, final String text) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public Statement addStatement(final int bookId, final String text) throws LibraryError, UserError {
         Statement statement = new Statement(Statement.UNREGISTERED_ID, text);
         BookTableEdit bookTableEdit = bookTable.addStatement(bookId, statement);
         bookSerializer.commit(contextId, bookTableEdit);
         return statement;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void deleteStatement(final int bookId, final int statementId) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteStatement(final int bookId, final int statementId) throws LibraryError {
         BookTableEdit bookTableEdit = bookTable.deleteStatement(bookId, statementId);
         bookSerializer.commit(contextId, bookTableEdit);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
-    public void modifyStatement(final int bookId, final int statementId, final String text) throws BotErrorException {
+    @Transactional(rollbackOn = Exception.class)
+    public void modifyStatement(final int bookId, final int statementId, final String text) throws LibraryError {
         BookTableEdit bookTableEdit = new BookTableEdit();
         Book book = bookTable.getBook(bookId);
         Statement statement = book.getStatement(statementId);

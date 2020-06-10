@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.data.models.BookRow;
 import com.ryan_mtg.servobot.data.models.StatementRow;
 import com.ryan_mtg.servobot.data.repositories.BookRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.books.BookTableEdit;
@@ -26,7 +27,7 @@ public class BookSerializer {
         this.statementRepository = statementRepository;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void saveBook(final int botHomeId, final Book book) {
         BookRow bookRow = new BookRow(book.getId(), botHomeId, book.getName());
         bookRepository.save(bookRow);
@@ -38,7 +39,7 @@ public class BookSerializer {
         }
     }
 
-    public BookTable createBookTable(int botHomeId) throws BotErrorException {
+    public BookTable createBookTable(int botHomeId) {
         List<Book> books = new ArrayList<>();
 
         Iterable<BookRow> bookRows = bookRepository.findAllByBotHomeId(botHomeId);
@@ -47,14 +48,16 @@ public class BookSerializer {
         Map<Integer, List<StatementRow>> statementRowMap = SerializationSupport.getIdMapping(
             statementRepository.findAllByBookIdIn(bookIds), bookIds, StatementRow::getBookId);
 
-        for(BookRow bookRow : bookRepository.findAllByBotHomeId(botHomeId)) {
-            List<Statement> statements = new ArrayList<>();
-            for (StatementRow statementRow : statementRowMap.get(bookRow.getId())) {
-                statements.add(new Statement(statementRow.getId(), statementRow.getText()));
+        return SystemError.filter(() -> {
+            for(BookRow bookRow : bookRepository.findAllByBotHomeId(botHomeId)) {
+                List<Statement> statements = new ArrayList<>();
+                for (StatementRow statementRow : statementRowMap.get(bookRow.getId())) {
+                    statements.add(new Statement(statementRow.getId(), statementRow.getText()));
+                }
+                books.add(new Book(bookRow.getId(), bookRow.getName(), statements));
             }
-            books.add(new Book(bookRow.getId(), bookRow.getName(), statements));
-        }
-        return new BookTable(books);
+            return new BookTable(books);
+        });
     }
 
     public void saveStatement(final int bookId, final Statement statement) {

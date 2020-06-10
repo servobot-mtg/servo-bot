@@ -2,11 +2,12 @@ package com.ryan_mtg.servobot.commands.giveaway;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
-import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.SystemBadError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -42,7 +43,7 @@ public class SelectWinnerCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final HomeEvent homeEvent) throws BotErrorException {
+    public void perform(final HomeEvent homeEvent) throws BotHomeError, UserError {
         HomeEditor homeEditor = homeEvent.getHomeEditor();
         Home home = homeEvent.getHome();
         Scope scope = homeEditor.getScope();

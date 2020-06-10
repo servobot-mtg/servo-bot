@@ -4,7 +4,8 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.helix.domain.StreamList;
 import com.github.twitch4j.helix.domain.UserList;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Home;
@@ -93,13 +94,13 @@ public class TwitchChannel implements Channel, Home {
     public void clearRole(final User user, final String role) {}
 
     @Override
-    public void setRole(final User user, final String role) throws BotErrorException {
-        throw new BotErrorException("Twitch doesn't have roles");
+    public void setRole(final User user, final String role) {
+        throw new SystemError("Twitch doesn't have roles");
     }
 
     @Override
-    public List<String> clearRole(final String role) throws BotErrorException {
-        throw new BotErrorException("Twitch doesn't have roles");
+    public List<String> clearRole(final String role) {
+        throw new SystemError("Twitch doesn't have roles");
     }
 
     @Override
@@ -113,11 +114,11 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
-    public User getUser(final String userName) throws BotErrorException {
+    public User getUser(final String userName) throws UserError {
         UserList userList = twitchClient.getHelix().
                 getUsers(null, null, Collections.singletonList(userName)).execute();
         if (userList.getUsers().isEmpty()) {
-            throw new BotErrorException(String.format("No user %s", userName));
+            throw new UserError("No user %s", userName);
         }
         com.github.twitch4j.helix.domain.User user = userList.getUsers().get(0);
         HomedUser homedUser = homeEditor.getUserByTwitchId(Integer.parseInt(user.getId()), user.getLogin());

@@ -4,7 +4,7 @@ import com.ryan_mtg.servobot.data.models.ReactionPatternRow;
 import com.ryan_mtg.servobot.data.models.ReactionRow;
 import com.ryan_mtg.servobot.data.repositories.ReactionPatternRepository;
 import com.ryan_mtg.servobot.data.repositories.ReactionRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.reaction.AlwaysReact;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
@@ -28,9 +28,9 @@ public class ReactionSerializer {
     }
 
     public Reaction createReaction(final ReactionRow reactionRow, final List<Pattern> patterns,
-                                   final List<ReactionCommand> commands) throws BotErrorException {
-        return new Reaction(reactionRow.getId(), reactionRow.getEmote(), reactionRow.isSecure(),
-                getFilter(reactionRow.getFilter(), reactionRow.getFilterValue()), patterns, commands);
+                                   final List<ReactionCommand> commands) {
+        return SystemError.filter(() -> new Reaction(reactionRow.getId(), reactionRow.getEmote(), reactionRow.isSecure(),
+                getFilter(reactionRow.getFilter(), reactionRow.getFilterValue()), patterns, commands));
     }
 
     public void saveReaction(final int botHomeId, final Reaction reaction) {
@@ -56,8 +56,8 @@ public class ReactionSerializer {
         throw new IllegalArgumentException("Unsupported type: " + filterType);
     }
 
-    public Pattern createPattern(final ReactionPatternRow reactionPatternRow) throws BotErrorException {
-        return new Pattern(reactionPatternRow.getId(), reactionPatternRow.getPattern());
+    public Pattern createPattern(final ReactionPatternRow reactionPatternRow) {
+        return SystemError.filter(() -> new Pattern(reactionPatternRow.getId(), reactionPatternRow.getPattern()));
     }
 
     public void savePattern(final int reactionId, final Pattern pattern) {

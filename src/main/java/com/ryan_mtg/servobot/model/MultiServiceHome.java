@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.model;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Getter;
@@ -97,7 +96,7 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
-    public User getUser(final String userName) throws BotErrorException {
+    public User getUser(final String userName) {
         return null;
     }
 

@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.data.models.GiveawayRow;
 import com.ryan_mtg.servobot.data.models.PrizeRow;
 import com.ryan_mtg.servobot.data.repositories.GiveawayRepository;
 import com.ryan_mtg.servobot.data.repositories.PrizeRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
@@ -45,7 +45,7 @@ public class GiveawaySerializer {
         this.commandTableSerializer = commandTableSerializer;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void commit(final GiveawayEdit giveawayEdit) {
         commandTableSerializer.commit(giveawayEdit.getCommandTableEdit());
 
@@ -54,7 +54,7 @@ public class GiveawaySerializer {
         giveawayEdit.getDeletedPrizes().forEach(prize -> prizeRepository.deleteById(prize.getId()));
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void saveGiveaway(final int botHomeId, final Giveaway giveaway) {
         GiveawayRow giveawayRow = new GiveawayRow();
         giveawayRow.setId(giveaway.getId());
@@ -99,7 +99,7 @@ public class GiveawaySerializer {
         giveaway.setId(giveawayRow.getId());
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void savePrize(final int giveawayId, final Prize prize) {
         PrizeRow prizeRow = new PrizeRow();
         prizeRow.setGiveawayId(giveawayId);
@@ -115,7 +115,7 @@ public class GiveawaySerializer {
     }
 
     public List<Giveaway> createGiveaways(final int botHomeId, final HomedUserTable homedUserTable,
-            final CommandTable commandTable) throws BotErrorException {
+            final CommandTable commandTable) {
         Iterable<GiveawayRow> giveawayRows = giveawayRepository.findAllByBotHomeId(botHomeId);
         Iterable<Integer> giveawayIds = SerializationSupport.getIds(giveawayRows, GiveawayRow::getId);
 
@@ -142,7 +142,7 @@ public class GiveawaySerializer {
     }
 
     private Map<Integer, List<Prize>> createPrizes(final int botHomeId, final Map<Integer, List<PrizeRow>> prizeRowMap,
-            final Map<Integer, HomedUser> homedUserMap) throws BotErrorException {
+            final Map<Integer, HomedUser> homedUserMap) {
         Map<Integer, List<Prize>> prizeMap = new HashMap<>();
         for(Map.Entry<Integer, List<PrizeRow>> entry : prizeRowMap.entrySet()) {
             List<Prize> prizes = new ArrayList<>();
@@ -156,66 +156,70 @@ public class GiveawaySerializer {
         return prizeMap;
     }
 
-    private Prize createPrize(final int botHomeId, final PrizeRow prizeRow, final Map<Integer, HomedUser> homedUserMap)
-            throws BotErrorException {
-        Prize prize = new Prize(prizeRow.getId(), prizeRow.getReward(), prizeRow.getDescription());
-        prize.setStatus(prizeRow.getStatus());
-        if (prizeRow.getWinnerId() != User.UNREGISTERED_ID) {
-            prize.setWinner(homedUserMap.get(prizeRow.getWinnerId()));
-        }
-        return prize;
+    private Prize createPrize(final int botHomeId, final PrizeRow prizeRow,
+            final Map<Integer, HomedUser> homedUserMap) {
+        return SystemError.filter(() -> {
+            Prize prize = new Prize(prizeRow.getId(), prizeRow.getReward(), prizeRow.getDescription());
+            prize.setStatus(prizeRow.getStatus());
+            if (prizeRow.getWinnerId() != User.UNREGISTERED_ID) {
+                prize.setWinner(homedUserMap.get(prizeRow.getWinnerId()));
+            }
+            return prize;
+        });
     }
 
     private Giveaway createGiveaway(final GiveawayRow giveawayRow, final CommandTable commandTable,
-            final Map<Integer, List<Prize>> prizeMap) throws BotErrorException {
-        int flags = giveawayRow.getFlags();
-        Giveaway giveaway = new Giveaway(giveawayRow.getId(), giveawayRow.getName(),
-                Flags.hasFlag(flags, SELF_SERVICE_FLAG), Flags.hasFlag(flags, RAFFLE_FLAG));
-        giveaway.setState(giveawayRow.getState());
+            final Map<Integer, List<Prize>> prizeMap) {
+        return SystemError.filter(() -> {
+            int flags = giveawayRow.getFlags();
+            Giveaway giveaway = new Giveaway(giveawayRow.getId(), giveawayRow.getName(),
+                    Flags.hasFlag(flags, SELF_SERVICE_FLAG), Flags.hasFlag(flags, RAFFLE_FLAG));
+            giveaway.setState(giveawayRow.getState());
 
-        for (Prize prize : prizeMap.get(giveawayRow.getId())) {
-            giveaway.addPrize(prize);
-        }
-
-        if (giveaway.isSelfService()) {
-            giveaway.setRequestPrizeCommandName(giveawayRow.getRequestPrizeCommandName());
-            giveaway.setPrizeRequestLimit(giveawayRow.getPrizeRequestLimit());
-            giveaway.setPrizeRequestUserLimit(giveawayRow.getPrizeRequestUserLimit());
-
-            if (giveawayRow.getRequestPrizeCommandId() != Command.UNREGISTERED_ID) {
-                RequestPrizeCommand requestPrizeCommand =
-                        (RequestPrizeCommand) commandTable.getCommand(giveawayRow.getRequestPrizeCommandId());
-                giveaway.setRequestPrizeCommand(requestPrizeCommand);
-            }
-        }
-
-        if (giveaway.isRafflesEnabled()) {
-            if (giveawayRow.getStartRaffleCommandId() != Command.UNREGISTERED_ID) {
-                StartRaffleCommand startRaffleCommand =
-                        (StartRaffleCommand) commandTable.getCommand(giveawayRow.getStartRaffleCommandId());
-                giveaway.setStartRaffleCommand(startRaffleCommand);
+            for (Prize prize : prizeMap.get(giveawayRow.getId())) {
+                giveaway.addPrize(prize);
             }
 
-            GiveawayCommandSettings startRaffle = new GiveawayCommandSettings(giveawayRow.getStartRaffleCommandName(),
-                    giveawayRow.getStartRaffleFlags(), giveawayRow.getStartRafflePermission(),
-                    giveawayRow.getStartRaffleMessage());
+            if (giveaway.isSelfService()) {
+                giveaway.setRequestPrizeCommandName(giveawayRow.getRequestPrizeCommandName());
+                giveaway.setPrizeRequestLimit(giveawayRow.getPrizeRequestLimit());
+                giveaway.setPrizeRequestUserLimit(giveawayRow.getPrizeRequestUserLimit());
 
-            GiveawayCommandSettings enterRaffle = new GiveawayCommandSettings(giveawayRow.getEnterRaffleCommandName(),
-                    giveawayRow.getEnterRaffleFlags(), giveawayRow.getEnterRafflePermission(),
-                    giveawayRow.getEnterRaffleMessage());
+                if (giveawayRow.getRequestPrizeCommandId() != Command.UNREGISTERED_ID) {
+                    RequestPrizeCommand requestPrizeCommand =
+                            (RequestPrizeCommand) commandTable.getCommand(giveawayRow.getRequestPrizeCommandId());
+                    giveaway.setRequestPrizeCommand(requestPrizeCommand);
+                }
+            }
 
-            GiveawayCommandSettings raffleStatus = new GiveawayCommandSettings(giveawayRow.getRaffleStatusCommandName(),
-                    giveawayRow.getRaffleStatusFlags(), giveawayRow.getRaffleStatusPermission(),
-                    giveawayRow.getRaffleStatusMessage());
+            if (giveaway.isRafflesEnabled()) {
+                if (giveawayRow.getStartRaffleCommandId() != Command.UNREGISTERED_ID) {
+                    StartRaffleCommand startRaffleCommand =
+                            (StartRaffleCommand) commandTable.getCommand(giveawayRow.getStartRaffleCommandId());
+                    giveaway.setStartRaffleCommand(startRaffleCommand);
+                }
 
-            RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle, raffleStatus,
-                    Duration.ofSeconds(giveawayRow.getRaffleDuration()), giveawayRow.getRaffleWinnerCount(),
-                    giveawayRow.getRaffleWinnerResponse(), giveawayRow.getDiscordChannel());
+                GiveawayCommandSettings startRaffle = new GiveawayCommandSettings(giveawayRow.getStartRaffleCommandName(),
+                        giveawayRow.getStartRaffleFlags(), giveawayRow.getStartRafflePermission(),
+                        giveawayRow.getStartRaffleMessage());
 
-            giveaway.setRaffleSettings(raffleSettings);
-        }
+                GiveawayCommandSettings enterRaffle = new GiveawayCommandSettings(giveawayRow.getEnterRaffleCommandName(),
+                        giveawayRow.getEnterRaffleFlags(), giveawayRow.getEnterRafflePermission(),
+                        giveawayRow.getEnterRaffleMessage());
 
-        return giveaway;
+                GiveawayCommandSettings raffleStatus = new GiveawayCommandSettings(giveawayRow.getRaffleStatusCommandName(),
+                        giveawayRow.getRaffleStatusFlags(), giveawayRow.getRaffleStatusPermission(),
+                        giveawayRow.getRaffleStatusMessage());
+
+                RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle, raffleStatus,
+                        Duration.ofSeconds(giveawayRow.getRaffleDuration()), giveawayRow.getRaffleWinnerCount(),
+                        giveawayRow.getRaffleWinnerResponse(), giveawayRow.getDiscordChannel());
+
+                giveaway.setRaffleSettings(raffleSettings);
+            }
+
+            return giveaway;
+        });
     }
 
     private int getFlags(final Giveaway giveaway) {

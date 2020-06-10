@@ -2,7 +2,9 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.LibraryError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
@@ -18,7 +20,7 @@ public class AddBookedStatementCommand extends InvokedCommand {
     private String response;
 
     public AddBookedStatementCommand(final int id, final CommandSettings commandSettings, final Book book,
-            final String response) throws BotErrorException {
+            final String response) throws UserError {
         super(id, commandSettings);
         this.book = book;
         this.response = response;
@@ -37,15 +39,19 @@ public class AddBookedStatementCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError, UserError {
         String text = event.getArguments();
 
         if (Strings.isBlank(text)) {
-            throw new BotErrorException("No statement to add.");
+            throw new UserError("No statement to add.");
         }
 
         BookTableEditor bookTableEditor = event.getBookTableEditor();
-        bookTableEditor.addStatement(book.getId(), text);
+        try {
+            bookTableEditor.addStatement(book.getId(), text);
+        } catch (LibraryError e) {
+            throw new BotHomeError(e.getMessage(), e);
+        }
         event.say(response);
     }
 }

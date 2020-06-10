@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot;
 
 import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.data.repositories.BotRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.data.factories.BotFactory;
@@ -52,7 +51,7 @@ public class BotConfig {
     }
 
     @Bean
-    public BotRegistrar botRegistrar(@Qualifier("globalScope") final Scope globalScope) throws BotErrorException {
+    public BotRegistrar botRegistrar(@Qualifier("globalScope") final Scope globalScope) {
         Bot bot = botFactory.createBot(botRepository.findFirst().get(), globalScope);
         return new BotRegistrar(bot);
     }

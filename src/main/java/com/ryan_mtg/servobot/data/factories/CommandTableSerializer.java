@@ -10,7 +10,6 @@ import com.ryan_mtg.servobot.data.repositories.CommandRepository;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import org.slf4j.Logger;
@@ -42,8 +41,7 @@ public class CommandTableSerializer {
         this.triggerRepository = triggerRepository;
     }
 
-    public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap)
-            throws BotErrorException  {
+    public CommandTable createCommandTable(final int botHomeId, final Map<Integer, Book> bookMap) {
         CommandTable commandTable = new CommandTable(botHomeId, false);
         Iterable<CommandRow> commandRows = commandRepository.findAllByBotHomeId(botHomeId);
         Iterable<Integer> commandIds = SerializationSupport.getIds(commandRows, CommandRow::getId);
@@ -73,7 +71,7 @@ public class CommandTableSerializer {
         return commandTable;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void commit(final CommandTableEdit commandTableEdit) {
         for (Trigger trigger : commandTableEdit.getDeletedTriggers()) {
             triggerRepository.deleteById(trigger.getId());

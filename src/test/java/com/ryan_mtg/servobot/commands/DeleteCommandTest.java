@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.chat.DeleteCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
@@ -24,7 +25,7 @@ public class DeleteCommandTest {
     private static final String COMMAND_NAME = "command_name";
 
     @Test
-    public void testPerform() throws BotErrorException {
+    public void testPerform() throws BotHomeError, UserError {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
@@ -38,8 +39,8 @@ public class DeleteCommandTest {
         verify(event).say(String.format("Command %s deleted.", COMMAND_NAME));
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsExceptionWhenCommandDoesNotStartWithExclamationMark() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsExceptionWhenCommandDoesNotStartWithExclamationMark() throws BotHomeError, UserError {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         String commandLine = String.format("%s", COMMAND_NAME);
@@ -52,8 +53,8 @@ public class DeleteCommandTest {
         }
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsExceptionWhenCommandNameIsEmpty() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsExceptionWhenCommandNameIsEmpty() throws BotHomeError, UserError {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         String commandLine = String.format("!%s", "");
@@ -66,8 +67,8 @@ public class DeleteCommandTest {
         }
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsExceptionWhenPassedNoArguments() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsExceptionWhenPassedNoArguments() throws BotHomeError, UserError {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         String commandLine = "";
@@ -80,8 +81,8 @@ public class DeleteCommandTest {
         }
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testDoesNotSayAnythingWhenHomeEditorThrows() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testDoesNotSayAnythingWhenHomeEditorThrows() throws BotHomeError, UserError {
         DeleteCommand command = new DeleteCommand(ID, COMMAND_SETTINGS);
 
         CommandTableEditor commandTableEditor = mock(CommandTableEditor.class);
@@ -89,7 +90,7 @@ public class DeleteCommandTest {
         String commandLine = String.format("!%s", COMMAND_NAME);
         CommandInvokedEvent event = mockCommandInvokedEvent(commandTableEditor, sender, commandLine);
 
-        doThrow(BotErrorException.class).when(commandTableEditor).deleteCommand(sender, COMMAND_NAME);
+        doThrow(UserError.class).when(commandTableEditor).deleteCommand(sender, COMMAND_NAME);
 
         try {
             command.perform(event);

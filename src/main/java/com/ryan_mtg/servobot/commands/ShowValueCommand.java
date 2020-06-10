@@ -2,10 +2,12 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
+import com.ryan_mtg.servobot.utility.Strings;
 
 public class ShowValueCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.SHOW_VALUE_COMMAND_TYPE;
@@ -15,15 +17,14 @@ public class ShowValueCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError, UserError {
         String arguments = event.getArguments();
-        if (arguments == null) {
-            throw new BotErrorException("No value name given to show value command.");
+        if (Strings.isBlank(arguments)) {
+            throw new UserError("No value name given to show value command.");
         }
         StorageValueEditor storageValueEditor = event.getStorageValueEditor();
         StorageValue storageValue = storageValueEditor.getStorageValue(arguments);
-        String text = String.format("The value of %s is %s.", storageValue.getName(), storageValue.getValue());
-        event.say(text);
+        event.say(String.format("The value of %s is %s.", storageValue.getName(), storageValue.getValue()));
     }
 
     @Override

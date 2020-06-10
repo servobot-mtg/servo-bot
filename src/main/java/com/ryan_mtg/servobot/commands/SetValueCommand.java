@@ -2,7 +2,8 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
@@ -17,8 +18,9 @@ public class SetValueCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError, UserError {
         Scanner scanner = new Scanner(event.getArguments());
+        // TODO: use commandParser
 
         String name = scanner.next();
         StorageValue.validateName(name);
@@ -26,13 +28,13 @@ public class SetValueCommand extends InvokedCommand {
         scanner.useDelimiter("\\z");
 
         if (!scanner.hasNext()) {
-            throw new BotErrorException("No value to set!");
+            throw new UserError("No value to set!");
         }
 
         String value = scanner.next().trim();
 
         if (value.isEmpty()) {
-            throw new BotErrorException("No value to set!");
+            throw new UserError("No value to set!");
         }
 
         StorageValueEditor storageValueEditor = event.getStorageValueEditor();

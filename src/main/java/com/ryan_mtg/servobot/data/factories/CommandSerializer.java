@@ -49,7 +49,7 @@ import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import com.ryan_mtg.servobot.commands.TierCommand;
 import com.ryan_mtg.servobot.data.repositories.TriggerRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.reaction.ReactionCommand;
 import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
@@ -79,7 +79,7 @@ public class CommandSerializer {
         this.scryfallQuerier = scryfallQuerier;
     }
 
-    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) throws BotErrorException {
+    public Command createCommand(final CommandRow commandRow, final Map<Integer, Book> bookMap) {
         int id = commandRow.getId();
 
         RateLimit rateLimit = rateLimitSerializer.createRateLimit(commandRow);
@@ -87,120 +87,123 @@ public class CommandSerializer {
         CommandSettings commandSettings =
                 new CommandSettings(commandRow.getFlags(), commandRow.getPermission(), rateLimit);
         CommandType commandType = CommandType.getFromValue(commandRow.getType());
-        switch (commandType) {
-            case ADD_BOOKED_STATEMENT_COMMAND_TYPE:
-                int bookId = (int) (long) commandRow.getLongParameter();
-                return new AddBookedStatementCommand(id, commandSettings, bookMap.get(bookId),
-                        Strings.trim(commandRow.getStringParameter()));
-            case ADD_COMMAND_TYPE:
-                return new AddCommand(id, commandSettings);
-            case ADD_REACTION_COMMAND_TYPE:
-                return new AddReactionCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
-            case ADD_STATEMENT_COMMAND_TYPE:
-                return new AddStatementCommand(id, commandSettings);
-            case ARREST_COMMAND_TYPE:
-                return new ArrestCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                        Strings.trim(commandRow.getStringParameter2()));
-            case CARD_SEARCH_COMMAND_TYPE:
-                return new CardSearchCommand(id, commandSettings, scryfallQuerier);
-            case DELAYED_ALERT_COMMAND_TYPE:
-                return new DelayedAlertCommand(id, commandSettings, Duration.ofSeconds(commandRow.getLongParameter()),
-                        Strings.trim(commandRow.getStringParameter()));
-            case DELETE_COMMAND_TYPE:
-                return new DeleteCommand(id, commandSettings);
-            case ENTER_RAFFLE_COMMAND_TYPE:
-                int giveawayId = (int) (long) commandRow.getLongParameter();
-                return new EnterRaffleCommand(id, commandSettings, giveawayId,
-                        Strings.trim(commandRow.getStringParameter()));
-            case EVALUATE_EXPRESSION_COMMAND_TYPE:
-                boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
-                return new EvaluateExpressionCommand(id, commandSettings, gabyEasterEgg);
-            case FACTS_COMMAND_TYPE:
-                bookId = (int) (long) commandRow.getLongParameter();
-                return new FactsCommand(id, commandSettings, bookMap.get(bookId));
-            case GAME_QUEUE_COMMAND_TYPE:
-                int gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new GameQueueCommand(id, commandSettings, gameQueueId);
-            case JAIL_BREAK_COMMAND_TYPE:
-                return new JailBreakCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                        Strings.trim(commandRow.getStringParameter2()));
-            case JAIL_COMMAND_TYPE:
-                int jailThreshold = (int) (long) commandRow.getLongParameter();
-                return new JailCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                        jailThreshold, commandRow.getStringParameter2().trim());
-            case JAIL_RELEASE_COMMAND_TYPE:
-                return new JailReleaseCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
-            case JOIN_GAME_QUEUE_COMMAND_TYPE:
-                gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new JoinGameQueueCommand(id, commandSettings, gameQueueId);
-            case MESSAGE_CHANNEL_COMMAND_TYPE:
-                return new MessageChannelCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
-                        Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
-            case RAFFLE_STATUS_COMMAND_TYPE:
-                giveawayId = (int) (long) commandRow.getLongParameter();
-                return new RaffleStatusCommand(id, commandSettings, giveawayId,
-                        Strings.trim(commandRow.getStringParameter()));
-            case REMOVE_FROM_GAME_QUEUE_COMMAND_TYPE:
-                gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new RemoveFromGameQueueCommand(id, commandSettings, gameQueueId);
-            case REQUEST_PRIZE_COMMAND_TYPE:
-                giveawayId = (int) (long) commandRow.getLongParameter();
-                return new RequestPrizeCommand(id, commandSettings, giveawayId);
-            case SCORE_COMMAND_TYPE:
-                return new ScoreCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                        Strings.trim(commandRow.getStringParameter2()));
-            case SCRYFALL_SEARCH_COMMAND_TYPE:
-                return new ScryfallSearchCommand(id, commandSettings, scryfallQuerier);
-            case SELECT_WINNER_COMMAND_TYPE:
-                giveawayId = (int) (long) commandRow.getLongParameter();
-                return new SelectWinnerCommand(id, commandSettings, giveawayId,
-                        Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
-            case SET_ARENA_USERNAME_COMMAND_TYPE:
-                return new SetArenaUsernameCommand(id, commandSettings);
-            case SET_STATUS_COMMAND_TYPE:
-                bookId = (int) (long) commandRow.getLongParameter();
-                return new SetStatusCommand(id, commandSettings, bookMap.get(bookId));
-            case SET_ROLE_COMMAND_TYPE:
-                return new SetRoleCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
-            case SET_USERS_ROLE_COMMAND_TYPE:
-                return new SetUsersRoleCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                        Strings.trim(commandRow.getStringParameter2()));
-            case SET_VALUE_COMMAND_TYPE:
-                return new SetValueCommand(id, commandSettings);
-            case SHOW_ARENA_USERNAMES_COMMAND_TYPE:
-                return new ShowArenaUsernamesCommand(id, commandSettings);
-            case SHOW_GAME_QUEUE_COMMAND_TYPE:
-                gameQueueId = (int) (long) commandRow.getLongParameter();
-                return new ShowGameQueueCommand(id, commandSettings, gameQueueId);
-            case SHOW_VALUE_COMMAND_TYPE:
-                return new ShowValueCommand(id, commandSettings);
-            case START_RAFFLE_COMMAND_TYPE:
-                giveawayId = (int) (long) commandRow.getLongParameter();
-                return new StartRaffleCommand(id, commandSettings, giveawayId,
-                        Strings.trim(commandRow.getStringParameter()));
-            case TEXT_COMMAND_TYPE:
-                return new TextCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
-            case TIER_COMMAND_TYPE:
-                return new TierCommand(id, commandSettings);
-        }
-        throw new IllegalArgumentException("Unsupported command type: " + commandRow.getType());
+        return SystemError.filter(() -> {
+            switch (commandType) {
+                case ADD_BOOKED_STATEMENT_COMMAND_TYPE:
+                    int bookId = (int) (long) commandRow.getLongParameter();
+                    return new AddBookedStatementCommand(id, commandSettings, bookMap.get(bookId),
+                            Strings.trim(commandRow.getStringParameter()));
+                case ADD_COMMAND_TYPE:
+                    return new AddCommand(id, commandSettings);
+                case ADD_REACTION_COMMAND_TYPE:
+                    return new AddReactionCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
+                case ADD_STATEMENT_COMMAND_TYPE:
+                    return new AddStatementCommand(id, commandSettings);
+                case ARREST_COMMAND_TYPE:
+                    return new ArrestCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
+                            Strings.trim(commandRow.getStringParameter2()));
+                case CARD_SEARCH_COMMAND_TYPE:
+                    return new CardSearchCommand(id, commandSettings, scryfallQuerier);
+                case DELAYED_ALERT_COMMAND_TYPE:
+                    return new DelayedAlertCommand(id, commandSettings, Duration.ofSeconds(commandRow.getLongParameter()),
+                            Strings.trim(commandRow.getStringParameter()));
+                case DELETE_COMMAND_TYPE:
+                    return new DeleteCommand(id, commandSettings);
+                case ENTER_RAFFLE_COMMAND_TYPE:
+                    int giveawayId = (int) (long) commandRow.getLongParameter();
+                    return new EnterRaffleCommand(id, commandSettings, giveawayId,
+                            Strings.trim(commandRow.getStringParameter()));
+                case EVALUATE_EXPRESSION_COMMAND_TYPE:
+                    boolean gabyEasterEgg = commandRow.getLongParameter() != null && commandRow.getLongParameter() != 0;
+                    return new EvaluateExpressionCommand(id, commandSettings, gabyEasterEgg);
+                case FACTS_COMMAND_TYPE:
+                    bookId = (int) (long) commandRow.getLongParameter();
+                    return new FactsCommand(id, commandSettings, bookMap.get(bookId));
+                case GAME_QUEUE_COMMAND_TYPE:
+                    int gameQueueId = (int) (long) commandRow.getLongParameter();
+                    return new GameQueueCommand(id, commandSettings, gameQueueId);
+                case JAIL_BREAK_COMMAND_TYPE:
+                    return new JailBreakCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
+                            Strings.trim(commandRow.getStringParameter2()));
+                case JAIL_COMMAND_TYPE:
+                    int jailThreshold = (int) (long) commandRow.getLongParameter();
+                    return new JailCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
+                            jailThreshold, commandRow.getStringParameter2().trim());
+                case JAIL_RELEASE_COMMAND_TYPE:
+                    return new JailReleaseCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
+                case JOIN_GAME_QUEUE_COMMAND_TYPE:
+                    gameQueueId = (int) (long) commandRow.getLongParameter();
+                    return new JoinGameQueueCommand(id, commandSettings, gameQueueId);
+                case MESSAGE_CHANNEL_COMMAND_TYPE:
+                    return new MessageChannelCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
+                            Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
+                case RAFFLE_STATUS_COMMAND_TYPE:
+                    giveawayId = (int) (long) commandRow.getLongParameter();
+                    return new RaffleStatusCommand(id, commandSettings, giveawayId,
+                            Strings.trim(commandRow.getStringParameter()));
+                case REMOVE_FROM_GAME_QUEUE_COMMAND_TYPE:
+                    gameQueueId = (int) (long) commandRow.getLongParameter();
+                    return new RemoveFromGameQueueCommand(id, commandSettings, gameQueueId);
+                case REQUEST_PRIZE_COMMAND_TYPE:
+                    giveawayId = (int) (long) commandRow.getLongParameter();
+                    return new RequestPrizeCommand(id, commandSettings, giveawayId);
+                case SCORE_COMMAND_TYPE:
+                    return new ScoreCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
+                            Strings.trim(commandRow.getStringParameter2()));
+                case SCRYFALL_SEARCH_COMMAND_TYPE:
+                    return new ScryfallSearchCommand(id, commandSettings, scryfallQuerier);
+                case SELECT_WINNER_COMMAND_TYPE:
+                    giveawayId = (int) (long) commandRow.getLongParameter();
+                    return new SelectWinnerCommand(id, commandSettings, giveawayId,
+                            Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
+                case SET_ARENA_USERNAME_COMMAND_TYPE:
+                    return new SetArenaUsernameCommand(id, commandSettings);
+                case SET_STATUS_COMMAND_TYPE:
+                    bookId = (int) (long) commandRow.getLongParameter();
+                    return new SetStatusCommand(id, commandSettings, bookMap.get(bookId));
+                case SET_ROLE_COMMAND_TYPE:
+                    return new SetRoleCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
+                case SET_USERS_ROLE_COMMAND_TYPE:
+                    return new SetUsersRoleCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
+                            Strings.trim(commandRow.getStringParameter2()));
+                case SET_VALUE_COMMAND_TYPE:
+                    return new SetValueCommand(id, commandSettings);
+                case SHOW_ARENA_USERNAMES_COMMAND_TYPE:
+                    return new ShowArenaUsernamesCommand(id, commandSettings);
+                case SHOW_GAME_QUEUE_COMMAND_TYPE:
+                    gameQueueId = (int) (long) commandRow.getLongParameter();
+                    return new ShowGameQueueCommand(id, commandSettings, gameQueueId);
+                case SHOW_VALUE_COMMAND_TYPE:
+                    return new ShowValueCommand(id, commandSettings);
+                case START_RAFFLE_COMMAND_TYPE:
+                    giveawayId = (int) (long) commandRow.getLongParameter();
+                    return new StartRaffleCommand(id, commandSettings, giveawayId,
+                            Strings.trim(commandRow.getStringParameter()));
+                case TEXT_COMMAND_TYPE:
+                    return new TextCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
+                case TIER_COMMAND_TYPE:
+                    return new TierCommand(id, commandSettings);
+            }
+            throw new SystemError("Unsupported command type: " + commandRow.getType());
+        });
     }
 
-    public Trigger createTrigger(TriggerRow triggerRow) throws BotErrorException {
-        int id = triggerRow.getId();
-        switch (triggerRow.getType()) {
-            case CommandAlias.TYPE:
-                return new CommandAlias(id, triggerRow.getText());
-            case CommandEvent.TYPE:
-                return new CommandEvent(id, CommandEvent.Type.valueOf(triggerRow.getText()));
-            case CommandAlert.TYPE:
-                return new CommandAlert(id, triggerRow.getText());
-        }
-        throw new IllegalArgumentException("Unsupported trigger type: " + triggerRow.getType());
+    public Trigger createTrigger(final TriggerRow triggerRow) {
+        return SystemError.filter(() -> {
+            int id = triggerRow.getId();
+            switch (triggerRow.getType()) {
+                case CommandAlias.TYPE:
+                    return new CommandAlias(id, triggerRow.getText());
+                case CommandEvent.TYPE:
+                    return new CommandEvent(id, CommandEvent.Type.valueOf(triggerRow.getText()));
+                case CommandAlert.TYPE:
+                    return new CommandAlert(id, triggerRow.getText());
+            }
+            throw new SystemError("Unsupported trigger type: %s", triggerRow.getType());
+        });
     }
 
-    public ReactionCommand createReactionCommand(final ReactionCommandRow reactionCommandRow, final Command command)
-            throws BotErrorException {
+    public ReactionCommand createReactionCommand(final ReactionCommandRow reactionCommandRow, final Command command) {
         return new ReactionCommand(reactionCommandRow.getId(), command);
     }
 
@@ -249,7 +252,7 @@ public class CommandSerializer {
         }
     }
 
-    public Trigger getTrigger(int triggerId) throws BotErrorException {
+    public Trigger getTrigger(final int triggerId) {
         TriggerRow triggerRow = triggerRepository.findById(triggerId).get();
         return createTrigger(triggerRow);
     }

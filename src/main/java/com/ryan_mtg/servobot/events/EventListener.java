@@ -1,13 +1,13 @@
 package com.ryan_mtg.servobot.events;
 
 public interface EventListener {
-    void onPrivateMessage(MessageEvent messageEvent) throws BotErrorException;
-    void onMessage(MessageHomeEvent messageHomeEvent) throws BotErrorException;
+    void onPrivateMessage(MessageEvent messageEvent);
+    void onMessage(MessageHomeEvent messageHomeEvent);
 
     void onStreamStart(StreamStartEvent streamStartEvent);
-    void onNewUser(UserHomeEvent newUserEvent) throws BotErrorException;
-    void onRaid(UserHomeEvent raidEvent) throws BotErrorException;
-    void onSubscribe(UserHomeEvent subscribeEvent) throws BotErrorException;
+    void onNewUser(UserHomeEvent newUserEvent);
+    void onRaid(UserHomeEvent raidEvent);
+    void onSubscribe(UserHomeEvent subscribeEvent);
 
     void onAlert(AlertEvent alertEvent);
 }

@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.User;
@@ -18,7 +19,7 @@ public class JailReleaseCommand extends InvokedHomedCommand {
     private String prisonRole;
 
     public JailReleaseCommand(final int id, final CommandSettings commandSettings, final String prisonRole)
-            throws BotErrorException {
+            throws UserError {
         super(id, commandSettings);
         this.prisonRole = prisonRole;
 
@@ -36,7 +37,7 @@ public class JailReleaseCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         Home home = event.getHome();
         User releaser = event.getSender();
         User jailee = home.getUser(event.getArguments());

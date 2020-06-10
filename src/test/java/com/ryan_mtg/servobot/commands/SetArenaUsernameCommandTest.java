@@ -3,7 +3,8 @@ package com.ryan_mtg.servobot.commands;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.User;
@@ -25,7 +26,7 @@ public class SetArenaUsernameCommandTest {
     private static final String ARENA_NAME = "name#12345";
 
     @Test
-    public void testPerform() throws BotErrorException {
+    public void testPerform() throws BotHomeError, UserError {
         SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, COMMAND_SETTINGS);
 
         BotEditor botEditor = mockBotEditor();
@@ -38,8 +39,8 @@ public class SetArenaUsernameCommandTest {
         verify(event).say("Username added.");
     }
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsWhenUsernameIsTooLong() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsWhenUsernameIsTooLong() throws BotHomeError, UserError {
         SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, COMMAND_SETTINGS);
 
         BotEditor botEditor = mockBotEditor();
@@ -54,8 +55,8 @@ public class SetArenaUsernameCommandTest {
     }
 
 
-    @Test(expected = BotErrorException.class)
-    public void testThrowsWhenUsernameDoesNotHaveNumber() throws BotErrorException {
+    @Test(expected = UserError.class)
+    public void testThrowsWhenUsernameDoesNotHaveNumber() throws BotHomeError, UserError {
         SetArenaUsernameCommand command = new SetArenaUsernameCommand(ID, COMMAND_SETTINGS);
 
         BotEditor botEditor = mockBotEditor();

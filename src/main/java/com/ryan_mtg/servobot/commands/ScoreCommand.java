@@ -2,7 +2,8 @@ package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -32,7 +33,7 @@ public class ScoreCommand extends InvokedHomedCommand {
     private final String scoreVariable;
 
     public ScoreCommand(final int id, final CommandSettings commandSettings, final String gameName,
-            final String scoreVariable) throws BotErrorException {
+            final String scoreVariable) throws UserError {
         super(id, commandSettings);
         this.gameName = gameName;
         this.scoreVariable = scoreVariable;
@@ -52,7 +53,7 @@ public class ScoreCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         String arguments = event.getArguments();
         if (Strings.isBlank(arguments)) {
             printScores(event);
@@ -67,8 +68,7 @@ public class ScoreCommand extends InvokedHomedCommand {
                 printScores(event);
                 return;
             case COMMAND_MISMATCH:
-                throw new BotErrorException(
-                        String.format("%s isn't properly formatted. Must be score(s), reset, or update.", commandName));
+                throw new UserError("%s isn't properly formatted. Must be score(s), reset, or update.", commandName);
         }
 
         switch (commandName) {
@@ -80,30 +80,28 @@ public class ScoreCommand extends InvokedHomedCommand {
                 return;
             case "reset":
                 if (!hasPermissions(event.getSender(), Permission.MOD)) {
-                    throw new BotErrorException(String.format("%s is not allowed to reset scores.",
-                            event.getSender().getName()));
+                    throw new UserError("%s is not allowed to reset scores.", event.getSender().getName());
                 }
 
                 resetScores(event, parseResult.getInput());
                 return;
             case "update":
                 if (!hasPermissions(event.getSender(), Permission.MOD)) {
-                    throw new BotErrorException(String.format("%s is not allowed to update scores.",
-                            event.getSender().getName()));
+                    throw new UserError("%s is not allowed to update scores.", event.getSender().getName());
                 }
 
                 updateScore(event, parseResult.getInput());
                 return;
             default:
-                throw new BotErrorException(
-                        String.format("%s isn't valid. Must be score(s), reset, or update.", commandName));
+                throw new UserError("%s isn't valid. Must be score(s), reset, or update.", commandName);
         }
     }
 
-    void printScores(final CommandInvokedHomeEvent event) throws BotErrorException {
+    private void printScores(final CommandInvokedHomeEvent event) throws BotHomeError {
         Home home = event.getHome();
         HomeEditor homeEditor = home.getHomeEditor();
-        List<StorageValue> storageValues = homeEditor.getAllUsersStorageValues(scoreVariable);
+        List<StorageValue> storageValues =
+                BotHomeError.filter(() -> homeEditor.getAllUsersStorageValues(scoreVariable));
 
         StringBuilder message = new StringBuilder();
         if (!storageValues.isEmpty()) {
@@ -119,19 +117,21 @@ public class ScoreCommand extends InvokedHomedCommand {
         event.say(message.toString());
     }
 
-    void printScore(final CommandInvokedHomeEvent event) throws BotErrorException {
+    private void printScore(final CommandInvokedHomeEvent event) throws BotHomeError {
         HomeEditor homeEditor = event.getHome().getHomeEditor();
         User sender = event.getSender();
-        StorageValue storageValue = homeEditor.getStorageValue(sender.getId(), scoreVariable, 0);
+        StorageValue storageValue =
+                BotHomeError.filter(() -> homeEditor.getStorageValue(sender.getId(), scoreVariable, 0));
 
         event.say(String.format("%s's score is %s.", sender.getName(), storageValue.getValue()));
     }
 
-    void updateScore(final CommandInvokedHomeEvent event, final String arguments) throws BotErrorException {
+    private void updateScore(final CommandInvokedHomeEvent event, final String arguments)
+            throws UserError, BotHomeError {
         Matcher argumentsMatcher = UPDATE_ARGUMENTS_PATTERN.matcher(arguments);
 
         if (!argumentsMatcher.matches()) {
-            throw new BotErrorException("Command must be: update <user> <score>");
+            throw new UserError("Command must be: update <user> <score>");
         }
 
         String userName = argumentsMatcher.group(1);
@@ -146,7 +146,8 @@ public class ScoreCommand extends InvokedHomedCommand {
         event.say(String.format("%s's score is %s.", user.getName(), storageValue.getValue()));
     }
 
-    void resetScores(final CommandInvokedHomeEvent event, final String arguments) throws BotErrorException {
+    private void resetScores(final CommandInvokedHomeEvent event, final String arguments)
+            throws BotHomeError, UserError {
         Home home = event.getHome();
         HomeEditor homeEditor = home.getHomeEditor();
         if (Strings.isBlank(arguments)) {

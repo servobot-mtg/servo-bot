@@ -4,7 +4,6 @@ import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.discord.model.DiscordUser;
 import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -48,34 +47,26 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onPrivateMessageReceived(@Nonnull final PrivateMessageReceivedEvent event) {
-        try {
-            net.dv8tion.jda.api.entities.User author = event.getAuthor();
-            if (event.getAuthor().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
-                return;
-            }
-
-            User sender = userTable.getByDiscordId(author.getIdLong(), author.getName());
-            loggedMessageSerializer.logReceivedMessage(sender, event.getMessage().getContentRaw(), DiscordService.TYPE);
-
-            DiscordGlobalUser discordSender = new DiscordGlobalUser(author, sender);
-            listener.onPrivateMessage(new DiscordPrivateMessageEvent(discordService, event, discordSender));
-        } catch (BotErrorException e) {
-            LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        net.dv8tion.jda.api.entities.User author = event.getAuthor();
+        if (event.getAuthor().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
+            return;
         }
+
+        User sender = userTable.getByDiscordId(author.getIdLong(), author.getName());
+        loggedMessageSerializer.logReceivedMessage(sender, event.getMessage().getContentRaw(), DiscordService.TYPE);
+
+        DiscordGlobalUser discordSender = new DiscordGlobalUser(author, sender);
+        listener.onPrivateMessage(new DiscordPrivateMessageEvent(discordService, event, discordSender));
     }
 
     @Override
     public void onGuildMessageReceived(@Nonnull final GuildMessageReceivedEvent event) {
-        try {
-            BotHome botHome = homeMap.get(event.getGuild().getIdLong());
-            if (botHome == null) {
-                return;
-            }
-            DiscordUser sender = getUser(event.getMember(), botHome);
-            listener.onMessage(new DiscordMessageSentEvent(event, botHome, sender));
-        } catch (BotErrorException e) {
-            LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+        if (botHome == null) {
+            return;
         }
+        DiscordUser sender = getUser(event.getMember(), botHome);
+        listener.onMessage(new DiscordMessageSentEvent(event, botHome, sender));
     }
 
     @Override
@@ -89,34 +80,26 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onUserActivityStart(@Nonnull final UserActivityStartEvent event) {
-        try {
-            BotHome botHome = homeMap.get(event.getGuild().getIdLong());
-            if (botHome == null) {
-                return;
-            }
-            if (streamStartRegulator.startActivity(event, botHome.getId())) {
-                //listener.onStreamStart(new DiscordStreamStartEvent(event, botHome.getId()));
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error during activity start", e);
+        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+        if (botHome == null) {
+            return;
+        }
+        if (streamStartRegulator.startActivity(event, botHome.getId())) {
+            //listener.onStreamStart(new DiscordStreamStartEvent(event, botHome.getId()));
         }
     }
 
     @Override
     public void onGuildMemberJoin(@Nonnull final GuildMemberJoinEvent event) {
-        try {
-            BotHome botHome = homeMap.get(event.getGuild().getIdLong());
-            if (botHome == null) {
-                return;
-            }
-            DiscordUser member = getUser(event.getMember(), botHome);
-            listener.onNewUser(new DiscordNewUserEvent(event, botHome, member));
-        } catch (BotErrorException e) {
-            LOGGER.warn("Unhandled BotErrorException: {}", e.getErrorMessage());
+        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+        if (botHome == null) {
+            return;
         }
+        DiscordUser member = getUser(event.getMember(), botHome);
+        listener.onNewUser(new DiscordNewUserEvent(event, botHome, member));
     }
 
-    private DiscordUser getUser(final Member member, final BotHome botHome) throws BotErrorException {
+    private DiscordUser getUser(final Member member, final BotHome botHome) {
         boolean isModerator = false;
         for(Role role : member.getRoles()) {
             if (role.getPermissions().contains(Permission.KICK_MEMBERS)) {

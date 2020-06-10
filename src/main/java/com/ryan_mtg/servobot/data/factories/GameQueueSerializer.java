@@ -4,7 +4,6 @@ import com.ryan_mtg.servobot.data.models.GameQueueEntryRow;
 import com.ryan_mtg.servobot.data.models.GameQueueRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.GameQueueRepository;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEntry;
@@ -25,31 +24,31 @@ public class GameQueueSerializer {
         this.gameQueueEntryRepository = gameQueueEntryRepository;
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void saveGameQueue(final GameQueue gameQueue) {
         gameQueueRepository.save(createGameQueueRow(gameQueue));
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void removeEntry(final GameQueue gameQueue, final int userId) {
         gameQueueEntryRepository.deleteAllByGameQueueIdAndUserId(gameQueue.getId(), userId);
         saveGameQueue(gameQueue);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void addEntry(final GameQueue gameQueue, final GameQueueEntry gameQueueEntry) {
         gameQueueEntryRepository.save(createGameQueueEntryRow(gameQueue.getId(), gameQueueEntry));
 
         saveGameQueue(gameQueue);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void emptyGameQueue(GameQueue gameQueue) {
         gameQueueEntryRepository.deleteAllByGameQueueId(gameQueue.getId());
         saveGameQueue(gameQueue);
     }
 
-    @Transactional(rollbackOn = BotErrorException.class)
+    @Transactional(rollbackOn = Exception.class)
     public void commit(final GameQueueEdit gameQueueEdit) {
         List<GameQueueRow> gameQueueRows = new ArrayList<>();
         gameQueueEdit.getSavedGameQueues().forEach(gameQueue -> gameQueueRows.add(createGameQueueRow(gameQueue)));

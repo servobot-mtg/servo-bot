@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
@@ -36,14 +37,14 @@ public class MessageChannelCommandTest {
     private Channel channel;
 
     @Before
-    public void setUp() throws BotErrorException {
+    public void setUp() throws UserError {
         command = new MessageChannelCommand(ID, COMMAND_SETTINGS, SERVICE_TYPE, CHANNEL_NAME, MESSAGE);
         home = mockHome();
         channel = mockChannel();
     }
 
     @Test
-    public void testPerformOnSameService() throws BotErrorException {
+    public void testPerformOnSameService() throws BotHomeError, UserError {
         when(home.getChannel(CHANNEL_NAME, SERVICE_TYPE)).thenReturn(channel);
         HomeEvent homeEvent = mockHomeEvent(home, SERVICE_TYPE);
 
@@ -53,7 +54,7 @@ public class MessageChannelCommandTest {
     }
 
     @Test
-    public void testPerformOnDifferentService() throws BotErrorException {
+    public void testPerformOnDifferentService() throws BotHomeError, UserError {
         ServiceHome serviceHome = mock(ServiceHome.class);
         when(serviceHome.getChannel(CHANNEL_NAME)).thenReturn(channel);
 

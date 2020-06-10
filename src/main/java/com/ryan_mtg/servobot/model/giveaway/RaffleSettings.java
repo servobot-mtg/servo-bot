@@ -3,7 +3,7 @@ package com.ryan_mtg.servobot.model.giveaway;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.Permission;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
@@ -66,7 +66,7 @@ public class RaffleSettings {
     }
 
     public void validateOnSave(final RaffleSettings previousSettings, final CommandTable commandTable)
-            throws BotErrorException  {
+            throws UserError {
         Validation.validateCommandSettings(startRaffle, previousSettings.getStartRaffle(), commandTable, true,
                 START_RAFFLE_DESCRIPTION);
 
@@ -87,19 +87,17 @@ public class RaffleSettings {
         Validation.validateStringLength(discordChannel, Validation.MAX_TEXT_LENGTH, "Discord channel");
     }
 
-    public void validateOnStart(final CommandTable commandTable) throws BotErrorException {
+    public void validateOnStart(final CommandTable commandTable) throws UserError {
         if (enterRaffle.getCommandName() == null || enterRaffle.getCommandName().isEmpty()) {
-            throw new BotErrorException("No enter raffle command is set");
+            throw new UserError("No enter raffle command is set");
         }
         if (commandTable.getCommand(getEnterRaffle().getCommandName()) != null) {
-            throw new BotErrorException(
-                    String.format("There is already a '%s' command.", enterRaffle.getCommandName()));
+            throw new UserError("There is already a '%s' command.", enterRaffle.getCommandName());
         }
 
         if (hasRaffleStatusCommand()) {
             if (commandTable.getCommand(raffleStatus.getCommandName()) != null) {
-                throw new BotErrorException(
-                        String.format("There is already a '%s' command.", raffleStatus.getCommandName()));
+                throw new UserError("There is already a '%s' command.", raffleStatus.getCommandName());
             }
         }
     }

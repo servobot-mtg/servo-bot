@@ -4,7 +4,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -16,8 +17,7 @@ public class TextCommand extends InvokedCommand {
     @Getter
     private final String text;
 
-    public TextCommand(final int id, final CommandSettings commandSettings, final String text)
-            throws BotErrorException {
+    public TextCommand(final int id, final CommandSettings commandSettings, final String text) throws UserError {
         super(id, commandSettings);
         this.text = text;
 
@@ -25,7 +25,7 @@ public class TextCommand extends InvokedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedEvent event) throws BotErrorException {
+    public void perform(final CommandInvokedEvent event) throws BotHomeError {
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         String input = event.getArguments() != null ? event.getArguments() : "";
         symbolTable.addValue("input", input);

@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.data.models.ServiceRow;
 import com.ryan_mtg.servobot.data.repositories.ServiceRepository;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -35,12 +35,12 @@ public class ServiceSerializer {
     }
 
     @Bean
-    public TwitchService twitchService() throws BotErrorException {
+    public TwitchService twitchService() {
         ServiceRow serviceRow = serviceRepository.findByType(TwitchService.TYPE);
         return (TwitchService)createService(serviceRow);
     }
 
-    public Map<Integer, Service> getServiceMap() throws BotErrorException {
+    public Map<Integer, Service> getServiceMap() {
         Map<Integer, Service> services = new HashMap<>();
         Iterable<ServiceRow> serviceRows = serviceRepository.findAll();
         for (ServiceRow serviceRow : serviceRows) {
@@ -50,26 +50,28 @@ public class ServiceSerializer {
         return services;
     }
 
-    public Service createService(final ServiceRow serviceRow) throws BotErrorException {
-        int serviceType = serviceRow.getType();
-        if (serviceMap.containsKey(serviceType)) {
-            return serviceMap.get(serviceType);
-        }
+    public Service createService(final ServiceRow serviceRow) {
+        return SystemError.filter(() -> {
+            int serviceType = serviceRow.getType();
+            if (serviceMap.containsKey(serviceType)) {
+                return serviceMap.get(serviceType);
+            }
 
-        Service service;
-        switch (serviceType) {
-            case DiscordService.TYPE:
-                service = new DiscordService(serviceRow.getToken(), userTable, loggedMessageSerializer);
-                break;
-            case TwitchService.TYPE:
-                service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
-                        serviceRow.getToken(), executorService, loggedMessageSerializer);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());
-        }
-        serviceMap.put(serviceType, service);
-        return service;
+            Service service;
+            switch (serviceType) {
+                case DiscordService.TYPE:
+                    service = new DiscordService(serviceRow.getToken(), userTable, loggedMessageSerializer);
+                    break;
+                case TwitchService.TYPE:
+                    service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
+                            serviceRow.getToken(), executorService, loggedMessageSerializer);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());
+            }
+            serviceMap.put(serviceType, service);
+            return service;
+        });
     }
 
     public ServiceHome createServiceHome(final ServiceHomeRow serviceHomeRow, final Service service) {

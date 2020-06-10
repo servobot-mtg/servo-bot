@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.alerts;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Time;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class DailyGenerator extends AlertGenerator {
     private String timeZone;
     private ZonedDateTime goal;
 
-    public DailyGenerator(final int id, final String alertToken, final LocalTime time) throws BotErrorException {
+    public DailyGenerator(final int id, final String alertToken, final LocalTime time) throws UserError {
         super(id, alertToken);
         this.time = time;
     }

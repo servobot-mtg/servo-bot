@@ -6,7 +6,6 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.events.BotErrorException;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
@@ -21,12 +20,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Controller
 public class BotController {
@@ -92,7 +87,7 @@ public class BotController {
     }
 
     @GetMapping("/home/{home}")
-    public String showHome(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
+    public String showHome(final Model model, @PathVariable("home") final String homeName) {
         model.addAttribute("page", "home");
         BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
@@ -123,7 +118,7 @@ public class BotController {
     }
 
     @GetMapping("/home/{home}/users")
-    public String showUsers(final Model model, @PathVariable("home") final String homeName) throws BotErrorException {
+    public String showUsers(final Model model, @PathVariable("home") final String homeName) {
         BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));

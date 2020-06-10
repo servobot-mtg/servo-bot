@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.books;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ public class Statement {
     @Getter @Setter
     private String text;
 
-    public Statement(final int id, final String text) throws BotErrorException {
+    public Statement(final int id, final String text) throws UserError {
         this.id = id;
         this.text = text;
 

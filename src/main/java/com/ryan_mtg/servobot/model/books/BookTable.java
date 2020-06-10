@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.books;
 
-import com.ryan_mtg.servobot.events.BotErrorException;
+import com.ryan_mtg.servobot.error.LibraryError;
 import com.ryan_mtg.servobot.model.scope.SymbolTable;
 
 import java.util.ArrayList;
@@ -40,12 +40,12 @@ public class BookTable implements SymbolTable, Iterable<Book>{
         return books.isEmpty();
     }
 
-    public Book getBook(final int bookId) throws BotErrorException {
+    public Book getBook(final int bookId) throws LibraryError {
         Optional<Book> book = books.stream().filter(b -> b.getId() == bookId).findFirst();
         if (book.isPresent()) {
             return book.get();
         }
-        throw new BotErrorException(String.format("No book with id %d", bookId));
+        throw new LibraryError("No book with id %d", bookId);
     }
 
     public Optional<Book> getBook(final String bookName) {
@@ -59,7 +59,7 @@ public class BookTable implements SymbolTable, Iterable<Book>{
         return bookTableEdit;
     }
 
-    public BookTableEdit addStatement(final int bookId, final Statement statement) throws BotErrorException {
+    public BookTableEdit addStatement(final int bookId, final Statement statement) throws LibraryError {
         return addStatement(getBook(bookId), statement);
     }
 
@@ -70,7 +70,7 @@ public class BookTable implements SymbolTable, Iterable<Book>{
         return bookTableEdit;
     }
 
-    public BookTableEdit deleteStatement(final int bookId, final int statementId) throws BotErrorException {
+    public BookTableEdit deleteStatement(final int bookId, final int statementId) throws LibraryError {
         BookTableEdit bookTableEdit = new BookTableEdit();
         Book book = getBook(bookId);
         Statement statement = book.deleteStatement(statementId);

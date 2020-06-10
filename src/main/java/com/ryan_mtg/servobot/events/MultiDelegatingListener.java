@@ -23,12 +23,8 @@ public class MultiDelegatingListener implements EventListener {
 
     @Override
     public void onMessage(final MessageHomeEvent messageHomeEvent) {
-        try {
-            for (EventListener listener : getListeners()) {
-                listener.onMessage(messageHomeEvent);
-            }
-        } catch (BotErrorException e) {
-            messageHomeEvent.getChannel().say(e.getErrorMessage());
+        for (EventListener listener : getListeners()) {
+            listener.onMessage(messageHomeEvent);
         }
     }
 
@@ -40,21 +36,21 @@ public class MultiDelegatingListener implements EventListener {
     }
 
     @Override
-    public void onNewUser(final UserHomeEvent newUserEvent) throws BotErrorException {
+    public void onNewUser(final UserHomeEvent newUserEvent) {
         for (EventListener listener : getListeners()) {
             listener.onNewUser(newUserEvent);
         }
     }
 
     @Override
-    public void onRaid(final UserHomeEvent raidEvent) throws BotErrorException {
+    public void onRaid(final UserHomeEvent raidEvent) {
         for (EventListener listener : getListeners()) {
             listener.onRaid(raidEvent);
         }
     }
 
     @Override
-    public void onSubscribe(final UserHomeEvent subscribeEvent) throws BotErrorException {
+    public void onSubscribe(final UserHomeEvent subscribeEvent) {
         for (EventListener listener : getListeners()) {
             listener.onSubscribe(subscribeEvent);
         }
