@@ -5,6 +5,8 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 
 public class MessageInvokedHomeEvent extends MessageInvokedEvent implements CommandInvokedHomeEvent {
     private MessageHomeEvent messageHomeEvent;
@@ -48,5 +50,15 @@ public class MessageInvokedHomeEvent extends MessageInvokedEvent implements Comm
     @Override
     public void setHomeEditor(final HomeEditor homeEditor) {
         throw new UnsupportedOperationException("This operation is not supported");
+    }
+
+    @Override
+    public Scope getScope() {
+        HomeEditor homeEditor = getHomeEditor();
+        SimpleSymbolTable messageSymbolTable = new SimpleSymbolTable();
+        messageSymbolTable.addValue("sender", getSender().getName());
+        messageSymbolTable.addValue("home", getHome().getName());
+
+        return new Scope(homeEditor.getScope(), messageSymbolTable);
     }
 }
