@@ -2,7 +2,11 @@ package com.ryan_mtg.servobot.channelfireball.mfo.model;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Standings {
@@ -24,13 +28,26 @@ public class Standings {
         playerRecord.put(newPlayer, record);
     }
 
-    public Map<Record, Integer> getRecordCounts(final int maxLosses) {
+    public List<RecordCount> getRecordCounts(final int maxLosses) {
         Map<Record, Integer> recordCountMap = new HashMap<>();
         playerRecord.values().stream().filter(record -> record.getLosses() <= maxLosses).forEach(record -> {
             int count = recordCountMap.computeIfAbsent(record, r -> 0);
             recordCountMap.put(record, count + 1);
         });
-        return recordCountMap;
+
+        List<RecordCount> recordCounts = new ArrayList<>();
+        for (Map.Entry<Record, Integer> entry : recordCountMap.entrySet()) {
+            recordCounts.add(new RecordCount(entry.getKey(), entry.getValue()));
+        }
+        Collections.sort(recordCounts, new RecordCountComparator());
+        return recordCounts;
+    }
+
+    private static class RecordCountComparator implements Comparator<RecordCount> {
+        @Override
+        public int compare(final RecordCount recordCount, final RecordCount otherRecordCount) {
+            return -recordCount.getRecord().compareTo(otherRecordCount.getRecord());
+        }
     }
 
     public Record getRecord(final Player player) {

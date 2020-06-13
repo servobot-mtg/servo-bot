@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.channelfireball.mfo.model;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +8,10 @@ public class PlayerSet {
     private Map<String, Player> arenaNameMap = new HashMap<>();
     private Map<String, Player> discordNameMap = new HashMap<>();
     private Map<String, Player> shortArenaNameMap = new HashMap<>();
+
+    public Collection<Player> getPlayers() {
+        return arenaNameMap.values();
+    }
 
     public Player add(final Player player) {
         arenaNameMap.put(player.getArenaName(), player);

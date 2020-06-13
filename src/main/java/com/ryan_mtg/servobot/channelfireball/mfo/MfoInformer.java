@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.PlayerSet;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
+import com.ryan_mtg.servobot.channelfireball.mfo.model.RecordCount;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Standings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
@@ -76,8 +77,11 @@ public class MfoInformer {
     }
 
     public String getCurrentDecklists() {
-        return describeTournaments(tournament -> resolve(String.format("/deck/%d", tournament.getId())), true,
-                false, NO_ACTIVE_TOURNAMENTS);
+        return describeTournaments(this::getDecklistsUrl, true, false, NO_ACTIVE_TOURNAMENTS);
+    }
+
+    public String getDecklistsUrl(final Tournament tournament) {
+        return resolve(String.format("/deck/%d", tournament.getId()));
     }
 
     public String getCurrentDecklist(final String arenaName) {
@@ -92,13 +96,19 @@ public class MfoInformer {
     }
 
     public String getCurrentPairings() {
-        return describeTournaments(tournament -> resolve(String.format("/pairings/%d", tournament.getId())), true,
-                false, NO_ACTIVE_TOURNAMENTS);
+        return describeTournaments(this::getPairingsUrl, true, false, NO_ACTIVE_TOURNAMENTS);
+    }
+
+    public String getPairingsUrl(final Tournament tournament) {
+        return resolve(String.format("/pairings/%d", tournament.getId()));
     }
 
     public String getCurrentStandings() {
-        return describeTournaments( tournament -> resolve(String.format("/standings/%d", tournament.getId())), true,
-                false, NO_ACTIVE_TOURNAMENTS);
+        return describeTournaments(this::getStandingsUrl, true, false, NO_ACTIVE_TOURNAMENTS);
+    }
+
+    public String getStandingsUrl(final Tournament tournament) {
+        return resolve(String.format("/standings/%d", tournament.getId()));
     }
 
     public String getCurrentRound() {
@@ -109,8 +119,7 @@ public class MfoInformer {
     public String getCurrentRecords() {
         return describeTournaments(tournament -> {
             Standings standings = computeStandings(tournament);
-            Map<Record, Integer> recordCountMap = standings.getRecordCounts(3);
-            return print(recordCountMap);
+            return print(standings.getRecordCounts(3));
         }, true, true, NO_ACTIVE_TOURNAMENTS);
     }
 
@@ -125,7 +134,7 @@ public class MfoInformer {
         }, true, true, String.format("There are no current tournaments for %s.", arenaName));
     }
 
-    private Standings computeStandings(final Tournament tournament) {
+    public Standings computeStandings(final Tournament tournament) {
         int tournamentId = tournament.getId();
         Pairings pairings = mfoClient.getPairings(tournamentId);
         int maxRounds = getMaxRounds(tournament);
@@ -235,17 +244,15 @@ public class MfoInformer {
         }
     }
 
-    private String print(final Map<Record, Integer> recordCountMap) {
-        List<Record> records = new ArrayList<>(recordCountMap.keySet());
-        Collections.sort(records);
-        Collections.reverse(records);
+    private String print(final List<RecordCount> recordCounts) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean first = true;
-        for (Record record : records) {
+        for (RecordCount recordCount : recordCounts) {
             if (!first) {
                 stringBuilder.append(", ");
             }
-            int players = recordCountMap.get(record);
+            Record record = recordCount.getRecord();
+            int players = recordCount.getCount();
             stringBuilder.append(record).append(": ").append(players).append(players == 1 ? " player" : " players");
             first = false;
         }
