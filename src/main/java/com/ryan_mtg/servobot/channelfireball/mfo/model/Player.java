@@ -22,6 +22,10 @@ public class Player {
         return arenaName;
     }
 
+    public String getRealName() {
+       return getShortArenaName().replace('_', ' ');
+    }
+
     public static Player createFromMfoName(final String name) {
         int commaIndex = name.indexOf(", ");
         if (commaIndex < 0) {

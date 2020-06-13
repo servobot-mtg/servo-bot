@@ -1,30 +1,48 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${tournament.name}"></title>
-    <div th:replace="fragments :: includes (description='Scoreboard for ' + ${tournament.name})">
+    <title th:text="${tournament.nickName}"></title>
+    <div th:replace="fragments :: includes (description='Scoreboard for ' + ${tournament.nickName})">
     </div>
 </head>
 <body>
-<div class="content">
-    <h1 th:text="${tournament.name}"></h1>
-    Round:<span th:text="${tournament.round}"></span><br>
-    <a th:href="${tournament.pairingsUrl}">Pairings</a><br>
-    <a th:href="${tournament.standingsUrl}">Standings</a><br>
-    <a th:href="${tournament.decklistUrl}">DeckLists</a><br>
-    <hr>
-    <ul>
-        <th:block th:each="recordCount : ${tournament.standings.getRecordCounts(5)}">
-            <li th:text="${recordCount.record} + ': ' + ${recordCount.count} + ' Players'"></li>
-        </th:block>
-    </ul>
+    <div class="content">
+        <h1 th:text="${tournament.nickName}"></h1>
+        Round:<span class="wide-padded" th:text="${tournament.round}"></span>
+        <a class="wide-padded" th:href="${tournament.pairingsUrl}" target="_blank">Pairings</a>
+        <a class="wide-padded" th:href="${tournament.standingsUrl}" target="_blank">Full Standings</a>
+        <a class="wide-padded" th:href="${tournament.decklistUrl}" target="_blank">All Decklists</a>
+        <hr>
 
-    <ul>
-        <th:block th:each="playerStanding : ${tournament.playersToWatch}">
-            <li th:text="${playerStanding.player.arenaName} + ': ' + ${playerStanding.record}"></li>
-        </th:block>
-    </ul>
-</div>
-<div th:include="fragments :: footer"/>
+        <div class="left bordered">
+            <h3>Records</h3>
+            <ul>
+                <th:block th:each="recordCount : ${tournament.standings.getRecordCounts(4)}">
+                    <li th:text="${recordCount.record} + ': ' + ${recordCount.count} + ' Players'"></li>
+                </th:block>
+            </ul>
+        </div>
+
+        <div class="left small-padded">
+            <h2 class="title">Players</h2>
+
+            <table class="player-table" th:with="players=${tournament.playersToWatch}">
+                <thead><tr>
+                    <th>Record</th>
+                    <th>Player</th>
+                    <th>Deck</th>
+                </tr></thead>
+                <th:block th:each="ps, stat : ${players}">
+                    <tr>
+                        <td th:text="${ps.record}" th:classappend="${!stat.first
+                            && ps.record.compareTo(players.get(stat.index-1).record)<0} ? 'pad-top'"></td>
+                        <td th:text="${ps.player.realName}"></td>
+                        <td><a th:href="${ps.decklist.url}" th:text="${ps.decklist.name}" target="_blank"></a></td>
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+    </div>
+    <div th:include="fragments :: footer"/>
 </body>
 </html>

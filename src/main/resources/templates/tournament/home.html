@@ -9,7 +9,7 @@
     <div class="content">
         <h1>Tournaments</h1>
         <th:block th:each="tournament : ${tournaments}">
-            <a th:href="'/tournament/' + ${tournament.name}" th:text="${tournament.name}"></a>
+            <a th:href="'/tournament/' + ${tournament.nickName}" th:text="${tournament.nickName}"></a><br>
         </th:block>
     </div>
     <div th:include="fragments :: footer"/>

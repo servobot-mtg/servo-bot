@@ -7,11 +7,13 @@ import com.ryan_mtg.servobot.channelfireball.mfo.json.Tournament;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeries;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
+import com.ryan_mtg.servobot.channelfireball.mfo.model.DecklistDescription;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.PlayerSet;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.RecordCount;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Standings;
+import com.ryan_mtg.servobot.error.SystemError;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
@@ -32,7 +34,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ public class MfoInformer {
 
     private MfoClient mfoClient;
     private Clock clock;
+    private Map<String, String> decklistNameCache = new HashMap<>();
 
     public MfoInformer() {
         this(MfoClient.newClient(), Clock.systemUTC());
@@ -190,6 +192,36 @@ public class MfoInformer {
         return standings;
     }
 
+    public Map<Player, DecklistDescription> parseDecklistsFor(final PlayerSet players, final int tournamentId) {
+        try {
+            String url = String.format("https://my.cfbevents.com/deck/%d", tournamentId);
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(url);
+            HttpResponse response = httpClient.execute(httpGet);
+
+            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
+
+            List<String> urls = new ArrayList<>();
+            Map<Player, DecklistDescription> decklistDescriptionMap = new HashMap<>();
+            document.select("tr").forEach(row -> {
+                if(!row.parent().nodeName().equals("thead")) {
+                    String arenaName = row.child(0).text();
+                    Player player = players.findByArenaName(arenaName);
+                    if (player != null) {
+                        Element anchor = row.child(2).child(0);
+                        String decklistUrl = anchor.attr("href");
+                        String decklistName = getDecklistName(decklistUrl);
+                        decklistDescriptionMap.put(player, new DecklistDescription(decklistName, decklistUrl));
+                    }
+                }
+            });
+
+            return decklistDescriptionMap;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     private String parseDecklistsFor(final Player player, final int tournamentId) {
         try {
             String url = String.format("https://my.cfbevents.com/deck/%d", tournamentId);
@@ -225,6 +257,10 @@ public class MfoInformer {
 
     private String getDecklistName(final String decklistUrl) {
         try {
+            if (decklistNameCache.containsKey(decklistUrl)) {
+                return decklistNameCache.get(decklistUrl);
+            }
+
             String url = decklistUrl;
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(url);
@@ -236,7 +272,9 @@ public class MfoInformer {
             document.select("h1").forEach(header -> headers.add(header.text()));
 
             if (headers.size() == 3) {
-                return headers.get(1);
+                String name = headers.get(1);
+                decklistNameCache.put(decklistUrl, name);
+                return name;
             }
             return null;
         } catch (IOException e) {

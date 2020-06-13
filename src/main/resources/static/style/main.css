@@ -15,6 +15,10 @@ h2 {
     margin-bottom: 5px;
 }
 
+h2.title {
+    margin-top: 0;
+}
+
 h3 {
     margin: 10px 0 0 0;
 }
@@ -30,6 +34,11 @@ input[type=number] {
 
 .pseudo-link {
     cursor: pointer;
+}
+
+.bordered {
+    padding: 10px;
+    border: black solid 1px;
 }
 
 .note {
@@ -246,7 +255,27 @@ input[type=number] {
     border: 0;
 }
 
-.navbar .right {
+.pad-top {
+    padding-top: 15px;
+}
+
+.wide-padded {
+    padding-right: 45px;
+}
+
+.small-padded {
+    padding-left: 15px;
+}
+
+.clear {
+    clear: both;
+}
+
+.left {
+    float: left;
+}
+
+.right {
     float: right;
 }
 
@@ -276,6 +305,17 @@ input[type=number] {
 table {
     border-collapse: collapse;
     border: 2px solid black;
+}
+
+table.player-table {
+    border: 0px solid black;
+}
+
+.player-table td {
+    padding-left: 15px;
+    padding-right: 20px;
+    border-collapse: collapse;
+    border: 0px solid black;
 }
 
 .data-table td {

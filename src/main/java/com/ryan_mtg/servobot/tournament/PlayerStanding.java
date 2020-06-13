@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.tournament;
 
+import com.ryan_mtg.servobot.channelfireball.mfo.model.DecklistDescription;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Getter;
 public class PlayerStanding implements Comparable<PlayerStanding> {
     private Player player;
     private Record record;
+    private DecklistDescription decklist;
 
     @Override
     public int compareTo(final PlayerStanding playerStanding) {
