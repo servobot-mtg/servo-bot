@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -60,14 +61,14 @@ public class MfoInformer {
         for (TournamentSeries series : seriesList.getData()) {
             ZoneId zoneId = ZoneId.of(series.getTimezone());
             Instant startTime = parse(series.getStartDate(), zoneId);
-            Instant endTime = parse(series.getEndDate(), zoneId).plus(1, ChronoUnit.DAYS);
+            Instant endTime = parse(series.getEndDate(), zoneId).plus(2, ChronoUnit.DAYS);
             Instant now = clock.instant();
             if (startTime.compareTo(now) < 0 &&
                     (now.compareTo(endTime) < 0 || series.getName().contains("MagicFest Online"))) {
                 tournaments.addAll(getCurrentTournaments(zoneId, series.getId()));
             }
         }
-        return tournaments;
+        return filterByTournamentLevel(tournaments);
     }
 
     public String describeCurrentTournaments() {
@@ -251,12 +252,50 @@ public class MfoInformer {
         return stringBuilder.toString();
     }
 
+    private List<Tournament> filterByTournamentLevel(final List<Tournament> tournaments) {
+        if (tournaments.isEmpty()) {
+            return tournaments;
+        }
+
+        Tournament maxTournament = tournaments.get(0);
+        for (int i = 1; i < tournaments.size(); i++) {
+            maxTournament = maxType(maxTournament, tournaments.get(i));
+        }
+
+        int maxValue = typeValue(maxTournament);
+        return tournaments.stream().filter(t -> typeValue(t) == maxValue).collect(Collectors.toList());
+    }
+
+    private Tournament maxType(final Tournament tournamentA, final Tournament tournamentB) {
+        if (typeValue(tournamentA) >= typeValue(tournamentB)) {
+            return tournamentA;
+        }
+        return tournamentB;
+    }
+
+    private int typeValue(final Tournament tournament) {
+        switch (tournament.getTournamentType()) {
+            case "Featured Tournament":
+                if (tournament.getName().contains("Players Tour -")) {
+                    return 10;
+                }
+                return 5;
+            case "Players Tour":
+            case "Grand Prix":
+            case "Package":
+            case "Select Your Playmat":
+            case "MagicFest In-A-Box":
+                return 0;
+        }
+        return 0;
+    }
+
     private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId) {
         TournamentList tournamentList = mfoClient.getTournamentList(tournamentSeriesId);
         List<Tournament> tournaments = new ArrayList<>();
         for (Tournament tournament : tournamentList.getData()) {
             Instant now = clock.instant();
-            if (hasStarted(tournament, now, zoneId) && !hasEnded(tournament, now)) {
+            if (hasStarted(tournament, now, zoneId) && !hasEnded(tournament, now) && !isIdle(tournament, now)) {
                 tournaments.add(tournament);
             }
         }
@@ -271,8 +310,12 @@ public class MfoInformer {
                 }
                 return 15;
             case "Featured Tournament":
-                if (tournament.getName().contains("Finals Qualifier")) {
+                if (tournament.getName().contains("Players Tour -")) {
+                    return 15;
+                } else if (tournament.getName().contains("Finals Qualifier")) {
                     return 5;
+                } else if (tournament.getName().contains("Qualifier")) {
+                    return 7; // really depends on player count
                 } else if (tournament.getName().contains("Showdown")) {
                     return 8;
                 }
@@ -305,6 +348,12 @@ public class MfoInformer {
         Instant lastUpdatedTime = parse(tournament.getLastUpdated());
         return now.compareTo(lastUpdatedTime.plus(90, ChronoUnit.MINUTES)) > 0;
     }
+
+    private boolean isIdle(final Tournament tournament, final Instant now) {
+        Instant lastUpdatedTime = parse(tournament.getLastUpdated());
+        return now.compareTo(lastUpdatedTime.plus(90, ChronoUnit.MINUTES)) > 0;
+    }
+
 
     private String describeTournaments(final Function<Tournament, String> function, final boolean showHeader,
             final boolean showPunctuation, final String emptyTournamentMessage) {
