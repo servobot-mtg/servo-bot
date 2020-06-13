@@ -9,8 +9,10 @@ import lombok.Getter;
 @Getter @AllArgsConstructor
 public class PlayerStanding implements Comparable<PlayerStanding> {
     private Player player;
+    private Player opponent;
     private Record record;
     private DecklistDescription decklist;
+    private DecklistDescription opponentsDecklist;
 
     @Override
     public int compareTo(final PlayerStanding playerStanding) {

@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.channelfireball.mfo;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairings;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.PairingsJson;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.Standings;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
@@ -21,7 +21,7 @@ public interface MfoClient {
     TournamentList getTournamentList(@Param("seriesId") int seriesId);
 
     @RequestLine("GET /api/json/pairings/{tournamentId}")
-    Pairings getPairings(@Param("tournamentId") int tournamentId);
+    PairingsJson getPairings(@Param("tournamentId") int tournamentId);
 
     @RequestLine("GET /api/json/standings/{tournamentId}")
     Standings getStandings(@Param("tournamentId") int tournamentId);

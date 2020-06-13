@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="${tournament.nickName}"></title>
-    <div th:replace="fragments :: includes (description='Scoreboard for ' + ${tournament.nickName})">
-    </div>
+    <div th:replace="fragments :: includes (description='Round ' + ${tournament.round} + ' Scoreboard for '
+        + ${tournament.nickName})"></div>
 </head>
 <body>
     <div class="content">
@@ -31,13 +31,22 @@
                     <th>Record</th>
                     <th>Player</th>
                     <th>Deck</th>
+                    <th>Opponent</th>
+                    <th>Opponent's Deck</th>
                 </tr></thead>
                 <th:block th:each="ps, stat : ${players}">
-                    <tr>
-                        <td th:text="${ps.record}" th:classappend="${!stat.first
-                            && ps.record.compareTo(players.get(stat.index-1).record)<0} ? 'pad-top'"></td>
-                        <td th:text="${ps.player.realName}"></td>
-                        <td><a th:href="${ps.decklist.url}" th:text="${ps.decklist.name}" target="_blank"></a></td>
+                    <tr th:with="pad=${!stat.first
+                            && ps.record.compareTo(players.get(stat.index-1).record)<0} ? 'pad-top'">
+                        <td th:text="${ps.record}" th:classappend="${pad}"></td>
+                        <td th:text="${ps.player.realName}"  th:classappend="${pad}"></td>
+                        <td th:classappend="${pad}">
+                            <a th:href="${ps.decklist.url}" th:text="${ps.decklist.name}" target="_blank"></a>
+                        </td>
+                        <td th:text="${ps.opponent.realName}"  th:classappend="${pad}"></td>
+                        <td th:classappend="${pad}">
+                            <a th:href="${ps.opponentsDecklist.url}" th:text="${ps.opponentsDecklist.name}"
+                               target="_blank"></a>
+                        </td>
                     </tr>
                 </th:block>
             </table>

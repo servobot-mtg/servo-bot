@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.tournament;
 
 import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.DecklistDescription;
+import com.ryan_mtg.servobot.channelfireball.mfo.model.Pairings;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.PlayerSet;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Standings;
@@ -34,6 +35,9 @@ public class Tournament {
 
     @Getter @Setter
     private Standings standings;
+
+    @Getter @Setter
+    private Pairings pairings;
 
     private MfoInformer mfoInformer;
     private int id;
@@ -132,7 +136,9 @@ public class Tournament {
         for (String arenaName : CARE_ABOUTS) {
             Player player = playerSet.findByArenaName(arenaName);
             if (player != null) {
-                playersToWatch.add(new PlayerStanding(player, standings.getRecord(player), decklistMap.get(player)));
+                Player opponent = pairings.getOpponent(player);
+                playersToWatch.add(new PlayerStanding(player, opponent, standings.getRecord(player),
+                    decklistMap.get(player), decklistMap.get(opponent)));
             }
         }
         Collections.sort(playersToWatch);

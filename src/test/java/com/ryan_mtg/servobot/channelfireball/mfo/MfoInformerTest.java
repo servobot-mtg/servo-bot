@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.channelfireball.mfo;
 
 import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairing;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairings;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.PairingsJson;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.PlayerStanding;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.Tournament;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
@@ -61,7 +61,7 @@ public class MfoInformerTest {
         tournament1 = createTournament(123, 2, "Daily Qualifier 1", "2020-01-11T00:01:00+00:00",
                 "2020-01-11T00:03:00+00:00");
 
-        Pairings pairings1 = Pairings.builder().currentRound(2).data(Arrays.asList(
+        PairingsJson pairings1 = PairingsJson.builder().currentRound(2).data(Arrays.asList(
             Pairing.builder().player(PlayerStanding.builder().name("arenaA#1111, discordA#11111").points(3).build()).build(),
             Pairing.builder().player(PlayerStanding.builder().name("arenaB#2222, discordB#22222").points(0).build()).build(),
             Pairing.builder().player(PlayerStanding.builder().name("arenaC#4444, discordC#33333").points(3).build()).build()
@@ -71,7 +71,7 @@ public class MfoInformerTest {
         tournament2 = createTournament(234,1, "Daily Qualifier 2", "2020-01-11T00:02:00+00:00",
                 "2020-01-11T00:03:00+00:00");
 
-        Pairings pairings2 = Pairings.builder().currentRound(4).data(Arrays.asList(
+        PairingsJson pairings2 = PairingsJson.builder().currentRound(4).data(Arrays.asList(
             Pairing.builder().player(PlayerStanding.builder().name("arenaA, discordA").points(4).build()).build()
         )).build();
         when(mockMfoClient.getPairings(234)).thenReturn(pairings2);

@@ -1,19 +1,19 @@
 package com.ryan_mtg.servobot.channelfireball.mfo;
 
 import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairing;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairings;
+import com.ryan_mtg.servobot.channelfireball.mfo.json.PairingsJson;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.PlayerStanding;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.Tournament;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeries;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.DecklistDescription;
+import com.ryan_mtg.servobot.channelfireball.mfo.model.Pairings;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.PlayerSet;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.RecordCount;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Standings;
-import com.ryan_mtg.servobot.error.SystemError;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
@@ -136,19 +136,24 @@ public class MfoInformer {
         }, true, true, String.format("There are no current tournaments for %s.", arenaName));
     }
 
-    public Standings computeStandings(final Tournament tournament) {
+    private Standings computeStandings(final Tournament tournament) {
         int tournamentId = tournament.getId();
-        Pairings pairings = mfoClient.getPairings(tournamentId);
+        PairingsJson pairings = mfoClient.getPairings(tournamentId);
+        return computeStandings(tournament, pairings);
+    }
+
+    private Standings computeStandings(final Tournament tournament, final PairingsJson pairings) {
         int maxRounds = getMaxRounds(tournament);
         if (!pairings.getData().isEmpty()) {
             return computeStandings(pairings, maxRounds);
         }
 
+        int tournamentId = tournament.getId();
         com.ryan_mtg.servobot.channelfireball.mfo.json.Standings standingsJson = mfoClient.getStandings(tournamentId);
         return computeStandings(standingsJson, maxRounds);
     }
 
-    private Standings computeStandings(final Pairings pairings, final int maxRounds) {
+    private Standings computeStandings(final PairingsJson pairings, final int maxRounds) {
         int round = Math.min(maxRounds, pairings.getCurrentRound() - 1);
         int maxPoints = 0;
         for (Pairing pairing : pairings.getData()) {
@@ -222,6 +227,49 @@ public class MfoInformer {
         }
     }
 
+    public com.ryan_mtg.servobot.tournament.Tournament convert(final Tournament tournament) {
+        com.ryan_mtg.servobot.tournament.Tournament result =
+                new com.ryan_mtg.servobot.tournament.Tournament(this, tournament.getName(), tournament.getId());
+        result.setRound(tournament.getCurrentRound());
+        result.setPairingsUrl(getPairingsUrl(tournament));
+        result.setNickName(getNickName(tournament.getName()));
+        result.setStandingsUrl(getStandingsUrl(tournament));
+        result.setDecklistUrl(getDecklistsUrl(tournament));
+
+        int tournamentId = tournament.getId();
+        PairingsJson pairings = mfoClient.getPairings(tournamentId);
+        Standings standings = computeStandings(tournament, pairings);
+        PlayerSet playerSet = standings.getPlayerSet();
+        result.setStandings(standings);
+
+        result.setPairings(computePairings(tournament, pairings, playerSet));
+        return result;
+    }
+
+    private Pairings computePairings(final Tournament tournament, final PairingsJson pairingsJson,
+            final PlayerSet playerSet) {
+        Pairings pairings = new Pairings(playerSet, pairingsJson.getCurrentRound());
+
+        for (Pairing pairing : pairingsJson.getData()) {
+            PlayerStanding playerStanding = pairing.getPlayer();
+            Player player = Player.createFromMfoName(playerStanding.getName());
+            Player opponent = Player.createFromMfoName(pairing.getOpponent().getName());
+            pairings.add(player, opponent);
+        }
+
+        return pairings;
+    }
+
+    public String getNickName(final String name) {
+        switch (name) {
+            case "Players Tour - June 13th 12:00 AM PDT (00:00)":
+                return "Players Tour Online 1";
+            case "Players Tour - June 13th 09:00 AM PDT (09:00)":
+                return "Players Tour Online 2";
+        }
+        return name;
+    }
+
     private String parseDecklistsFor(final Player player, final int tournamentId) {
         try {
             String url = String.format("https://my.cfbevents.com/deck/%d", tournamentId);
@@ -273,6 +321,7 @@ public class MfoInformer {
 
             if (headers.size() == 3) {
                 String name = headers.get(1);
+                LOGGER.info("Saving deck {} for {}", name, decklistUrl);
                 decklistNameCache.put(decklistUrl, name);
                 return name;
             }

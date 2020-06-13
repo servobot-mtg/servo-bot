@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class Pairings {
+public class PairingsJson {
     String version;
     String status;
 
