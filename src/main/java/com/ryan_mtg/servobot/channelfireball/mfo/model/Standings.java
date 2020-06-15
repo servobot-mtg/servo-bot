@@ -17,6 +17,7 @@ public class Standings {
     private int round;
 
     private Map<Player, Record> playerRecord = new HashMap<>();
+    private Map<Player, Integer> playerRank = new HashMap<>();
 
     public Standings(final PlayerSet playerSet, final int round) {
         this.playerSet = playerSet;
@@ -26,6 +27,10 @@ public class Standings {
     public void add(final Player player, final Record record) {
         Player newPlayer = playerSet.add(player);
         playerRecord.put(newPlayer, record);
+    }
+
+    public void setRank(final Player player, final int rank) {
+        playerRank.put(player, rank);
     }
 
     public List<RecordCount> getRecordCounts(final int maxLosses) {
@@ -52,5 +57,9 @@ public class Standings {
 
     public Record getRecord(final Player player) {
         return playerRecord.get(player);
+    }
+
+    public int getRank(final Player player) {
+        return playerRank.get(player);
     }
 }

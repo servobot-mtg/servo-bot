@@ -59,6 +59,10 @@ public class MfoInformer {
     }
 
     public List<Tournament> getCurrentTournaments() {
+       return getCurrentTournaments(false);
+    }
+
+    public List<Tournament> getCurrentTournaments(final boolean includeIdle) {
         TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
         List<Tournament> tournaments = new ArrayList<>();
         for (TournamentSeries series : seriesList.getData()) {
@@ -68,14 +72,14 @@ public class MfoInformer {
             Instant now = clock.instant();
             if (startTime.compareTo(now) < 0 &&
                     (now.compareTo(endTime) < 0 || series.getName().contains("MagicFest Online"))) {
-                tournaments.addAll(getCurrentTournaments(zoneId, series.getId()));
+                tournaments.addAll(getCurrentTournaments(zoneId, series.getId(), includeIdle));
             }
         }
         return filterByTournamentLevel(tournaments);
     }
 
     public String describeCurrentTournaments() {
-        return describeTournaments(Tournament::getName, false, true, NO_ACTIVE_TOURNAMENTS);
+        return describeTournaments(MfoInformer::getNickName, false, true, NO_ACTIVE_TOURNAMENTS);
     }
 
     public String getCurrentDecklists() {
@@ -145,7 +149,7 @@ public class MfoInformer {
     private Standings computeStandings(final Tournament tournament, final PairingsJson pairings) {
         int maxRounds = getMaxRounds(tournament);
         if (!pairings.getData().isEmpty()) {
-            return computeStandings(pairings, maxRounds);
+            return computeStandings(tournament.getId(), pairings, maxRounds);
         }
 
         int tournamentId = tournament.getId();
@@ -153,7 +157,7 @@ public class MfoInformer {
         return computeStandings(standingsJson, maxRounds);
     }
 
-    private Standings computeStandings(final PairingsJson pairings, final int maxRounds) {
+    private Standings computeStandings(final int tournamentId, final PairingsJson pairings, final int maxRounds) {
         int round = Math.min(maxRounds, pairings.getCurrentRound() - 1);
         int maxPoints = 0;
         for (Pairing pairing : pairings.getData()) {
@@ -166,10 +170,17 @@ public class MfoInformer {
 
         PlayerSet playerSet = new PlayerSet();
         Standings standings = new Standings(playerSet, round);
+
         for (Pairing pairing : pairings.getData()) {
             PlayerStanding playerStanding = pairing.getPlayer();
             Player player = Player.createFromMfoName(playerStanding.getName());
             standings.add(player, Record.newRecord(playerStanding.getPoints(), round));
+        }
+
+        com.ryan_mtg.servobot.channelfireball.mfo.json.Standings standingsJson = mfoClient.getStandings(tournamentId);
+        for (PlayerStanding playerStanding : standingsJson.getData()) {
+            Player player = playerSet.findByArenaName(Player.createFromMfoName(playerStanding.getName()).getArenaName());
+            standings.setRank(player, playerStanding.getRank());
         }
 
         return standings;
@@ -192,6 +203,7 @@ public class MfoInformer {
         for (PlayerStanding playerStanding : standingsJson.getData()) {
             Player player = Player.createFromMfoName(playerStanding.getName());
             standings.add(player, Record.newRecord(playerStanding.getPoints(), round));
+            standings.setRank(player, playerStanding.getRank());
         }
 
         return standings;
@@ -206,7 +218,6 @@ public class MfoInformer {
 
             Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
 
-            List<String> urls = new ArrayList<>();
             Map<Player, DecklistDescription> decklistDescriptionMap = new HashMap<>();
             document.select("tr").forEach(row -> {
                 if(!row.parent().nodeName().equals("thead")) {
@@ -232,7 +243,7 @@ public class MfoInformer {
                 new com.ryan_mtg.servobot.tournament.Tournament(this, tournament.getName(), tournament.getId());
         result.setRound(tournament.getCurrentRound());
         result.setPairingsUrl(getPairingsUrl(tournament));
-        result.setNickName(getNickName(tournament.getName()));
+        result.setNickName(getNickName(tournament));
         result.setStandingsUrl(getStandingsUrl(tournament));
         result.setDecklistUrl(getDecklistsUrl(tournament));
 
@@ -260,14 +271,14 @@ public class MfoInformer {
         return pairings;
     }
 
-    public String getNickName(final String name) {
-        switch (name) {
+    public static String getNickName(final Tournament tournament) {
+        switch (tournament.getName()) {
             case "Players Tour - June 13th 12:00 AM PDT (00:00)":
                 return "Players Tour Online 1";
             case "Players Tour - June 13th 09:00 AM PDT (09:00)":
                 return "Players Tour Online 2";
         }
-        return name;
+        return tournament.getName();
     }
 
     private String parseDecklistsFor(final Player player, final int tournamentId) {
@@ -384,12 +395,14 @@ public class MfoInformer {
         return 0;
     }
 
-    private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId) {
+    private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId,
+            final boolean includeIdle) {
         TournamentList tournamentList = mfoClient.getTournamentList(tournamentSeriesId);
         List<Tournament> tournaments = new ArrayList<>();
         for (Tournament tournament : tournamentList.getData()) {
             Instant now = clock.instant();
-            if (hasStarted(tournament, now, zoneId) && !hasEnded(tournament, now) && !isIdle(tournament, now)) {
+            if (hasStarted(tournament, now, zoneId) && !hasEnded(tournament, now)
+                    && (!isIdle(tournament, now) || includeIdle)) {
                 tournaments.add(tournament);
             }
         }
@@ -467,7 +480,7 @@ public class MfoInformer {
             for (Tournament tournament : tournaments) {
                 seen++;
                 if (showHeader) {
-                    builder.append(tournament.getName()).append(": ");
+                    builder.append(getNickName(tournament)).append(": ");
                 }
                 builder.append(valueMap.get(tournament));
                 if (seen + 1 == tournaments.size()) {
@@ -490,7 +503,7 @@ public class MfoInformer {
         } else if (tournaments.size() == 1) {
             Tournament tournament = tournaments.get(0);
             if (showHeader) {
-                builder.append(tournament.getName()).append(": ");
+                builder.append(getNickName(tournament)).append(": ");
             }
             builder.append(valueMap.get(tournament));
             if (showPunctuation) {

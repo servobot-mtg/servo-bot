@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 public class PlayerStanding {
     String name;
     int points;
+    int rank;
 }

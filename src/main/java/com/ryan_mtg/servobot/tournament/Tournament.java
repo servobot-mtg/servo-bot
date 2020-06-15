@@ -5,16 +5,23 @@ import com.ryan_mtg.servobot.channelfireball.mfo.model.DecklistDescription;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Pairings;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.PlayerSet;
+import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
+import com.ryan_mtg.servobot.channelfireball.mfo.model.RecordCount;
 import com.ryan_mtg.servobot.channelfireball.mfo.model.Standings;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Tournament {
+    private static final int LEADERS = 16;
+
     @Getter
     private String name;
 
@@ -48,7 +55,7 @@ public class Tournament {
         this.id = id;
     }
 
-    private static final String[] CARE_ABOUTS = {
+    private static final Set<String> CARE_ABOUTS = new HashSet<>(Arrays.asList(
         "Louis_Samuel_Deltour#09182",
         "Kenta_Harane#51598",
         "Makihito_Mihara#04275",
@@ -75,6 +82,7 @@ public class Tournament {
         "Frank_Karsten#00970",
 
         "Abe_Corrigan#72641",
+        "Adam_Snook#66777",
         "Alex_Majlaton#66191",
         "Allen_Wu#39459",
         "Allison_Warfield#79582",
@@ -125,23 +133,52 @@ public class Tournament {
         "Samuel_Pardee#84546",
         "Willy_Edel#13328",
         "Wyatt_Darby#64959",
-        "Zvi_Mowshowitz#00907",
-    };
+        "Zvi_Mowshowitz#00907"
+    ));
 
     public List<PlayerStanding> getPlayersToWatch() {
         List<PlayerStanding> playersToWatch = new ArrayList<>();
         PlayerSet playerSet = standings.getPlayerSet();
+        Record leaderRecord = getLeaderRecord();
 
         Map<Player, DecklistDescription> decklistMap = mfoInformer.parseDecklistsFor(standings.getPlayerSet(), id);
-        for (String arenaName : CARE_ABOUTS) {
-            Player player = playerSet.findByArenaName(arenaName);
-            if (player != null) {
+
+        for (Player player : playerSet) {
+            if (isWatchable(leaderRecord, player)) {
                 Player opponent = pairings.getOpponent(player);
-                playersToWatch.add(new PlayerStanding(player, opponent, standings.getRecord(player),
-                    decklistMap.get(player), decklistMap.get(opponent)));
+                playersToWatch.add(new PlayerStanding(player, standings.getRank(player), opponent,
+                        standings.getRecord(player), decklistMap.get(player), decklistMap.get(opponent)));
             }
         }
+
         Collections.sort(playersToWatch);
         return playersToWatch;
+    }
+
+    private boolean isWatchable(final Record leaderRecord, final Player player) {
+        Record playerRecord = standings.getRecord(player);
+        if (leaderRecord != null && playerRecord.compareTo(leaderRecord) >= 0) {
+            return true;
+        }
+
+        return  CARE_ABOUTS.contains(player.getArenaName());
+    }
+
+    private Record getLeaderRecord() {
+        List<RecordCount> recordCounts = standings.getRecordCounts(4);
+        if (recordCounts.isEmpty() || recordCounts.get(0).getCount() > LEADERS) {
+            return null;
+        }
+
+        int leaders = 0;
+        int index = 0;
+        Record bestRecord = recordCounts.get(0).getRecord();
+        while (index < recordCounts.size() && leaders + recordCounts.get(index).getCount() <= LEADERS) {
+            leaders += recordCounts.get(index).getCount();
+            bestRecord = recordCounts.get(index).getRecord();
+            index++;
+        }
+
+        return bestRecord;
     }
 }

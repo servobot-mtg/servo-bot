@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeries;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Clock;
@@ -23,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class MfoInformerTest {
     private static final String CURRENT_TIME = "2020-01-11T00:03:14+00:00";
     private static final String LOCAL_TIME_ZONE = "America/Los_Angeles";
