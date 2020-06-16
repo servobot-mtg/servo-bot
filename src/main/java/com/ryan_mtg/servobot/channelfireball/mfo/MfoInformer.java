@@ -7,13 +7,14 @@ import com.ryan_mtg.servobot.channelfireball.mfo.json.Tournament;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeries;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.DecklistDescription;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.Pairings;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.PlayerSet;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.RecordCount;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.Standings;
+import com.ryan_mtg.servobot.tournament.DecklistDescription;
+import com.ryan_mtg.servobot.tournament.Pairings;
+import com.ryan_mtg.servobot.tournament.Player;
+import com.ryan_mtg.servobot.tournament.PlayerSet;
+import com.ryan_mtg.servobot.tournament.Record;
+import com.ryan_mtg.servobot.tournament.RecordCount;
+import com.ryan_mtg.servobot.tournament.Standings;
+import com.ryan_mtg.servobot.utility.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -59,10 +61,6 @@ public class MfoInformer {
     }
 
     public List<Tournament> getCurrentTournaments() {
-       return getCurrentTournaments(false);
-    }
-
-    public List<Tournament> getCurrentTournaments(final boolean includeIdle) {
         TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
         List<Tournament> tournaments = new ArrayList<>();
         for (TournamentSeries series : seriesList.getData()) {
@@ -72,7 +70,7 @@ public class MfoInformer {
             Instant now = clock.instant();
             if (startTime.compareTo(now) < 0 &&
                     (now.compareTo(endTime) < 0 || series.getName().contains("MagicFest Online"))) {
-                tournaments.addAll(getCurrentTournaments(zoneId, series.getId(), includeIdle));
+                tournaments.addAll(getCurrentTournaments(zoneId, series.getId()));
             }
         }
         return filterByTournamentLevel(tournaments);
@@ -332,6 +330,11 @@ public class MfoInformer {
 
             if (headers.size() == 3) {
                 String name = headers.get(1);
+
+                if (Strings.isBlank(name)) {
+                    name = "deck";
+                }
+
                 LOGGER.info("Saving deck {} for {}", name, decklistUrl);
                 decklistNameCache.put(decklistUrl, name);
                 return name;
@@ -395,14 +398,12 @@ public class MfoInformer {
         return 0;
     }
 
-    private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId,
-            final boolean includeIdle) {
+    private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId) {
         TournamentList tournamentList = mfoClient.getTournamentList(tournamentSeriesId);
         List<Tournament> tournaments = new ArrayList<>();
         for (Tournament tournament : tournamentList.getData()) {
             Instant now = clock.instant();
-            if (hasStarted(tournament, now, zoneId) && !hasEnded(tournament, now)
-                    && (!isIdle(tournament, now) || includeIdle)) {
+            if (hasStarted(tournament, now, zoneId) && !hasEnded(tournament, now) && (!isIdle(tournament, now))) {
                 tournaments.add(tournament);
             }
         }
@@ -438,6 +439,32 @@ public class MfoInformer {
         return 6; //This could be very, very wrong
     }
 
+    private Duration getIdleWait(final Tournament tournament) {
+        switch (tournament.getTournamentType()) {
+            case "Grand Prix":
+                return Duration.ofDays(7);
+            case "Featured Tournament":
+                if (tournament.getName().contains("Players Tour -")) {
+                    return Duration.ofDays(7);
+                } else if (tournament.getName().contains("Finals Qualifier")) {
+                    return Duration.ofMinutes(90);
+                } else if (tournament.getName().contains("Qualifier")) {
+                    return Duration.ofMinutes(90);
+                } else if (tournament.getName().contains("Showdown")) {
+                    return Duration.ofDays(7);
+                }
+                return Duration.ofMinutes(90);
+            case "Package":
+            case "Players Tour":
+            case "Select Your Playmat":
+            case "MagicFest In-A-Box":
+                return Duration.ofMinutes(0);
+        }
+
+        LOGGER.warn("Unknown tournament type: " + tournament.getTournamentType());
+        return Duration.ofMinutes(90);
+    }
+
     private boolean hasStarted(final Tournament tournament, final Instant now, final ZoneId zoneId) {
         int maxRounds = getMaxRounds(tournament);
         if (tournament.getCurrentRound() == 0 || maxRounds == 0) {
@@ -458,9 +485,9 @@ public class MfoInformer {
 
     private boolean isIdle(final Tournament tournament, final Instant now) {
         Instant lastUpdatedTime = parse(tournament.getLastUpdated());
-        return now.compareTo(lastUpdatedTime.plus(90, ChronoUnit.MINUTES)) > 0;
+        Duration idleTime = getIdleWait(tournament);
+        return now.compareTo(lastUpdatedTime.plus(idleTime)) > 0;
     }
-
 
     private String describeTournaments(final Function<Tournament, String> function, final boolean showHeader,
             final boolean showPunctuation, final String emptyTournamentMessage) {

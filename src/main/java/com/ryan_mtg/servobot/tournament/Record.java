@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.channelfireball.mfo.model;
+package com.ryan_mtg.servobot.tournament;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

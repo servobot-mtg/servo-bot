@@ -31,6 +31,7 @@
                     <th>Rank</th>
                     <th>Record</th>
                     <th>Player</th>
+                    <th>Socials</th>
                     <th>Deck</th>
                     <th>Opponent</th>
                     <th th:if="${players.get(0).opponentsDecklist}">Opponent's Deck</th>
@@ -40,10 +41,17 @@
                             && ps.record.compareTo(players.get(stat.index-1).record)<0} ? 'pad-top'">
                         <td th:text="${ps.rank}" th:classappend="${pad}"></td>
                         <td th:text="${ps.record}" th:classappend="${pad}"></td>
-                        <td th:text="${ps.player.realName}"  th:classappend="${pad}"></td>
+                        <td th:text="${ps.player.name}" th:classappend="${pad}"></td>
+                        <td th:classappend="${pad}">
+                            <a th:if="${ps.player.twitchName}" target="_blank"
+                               th:href="'https://www.twitch.tv/' + ${ps.player.twitchName}"><img class="icon" src="/images/twitch.ico"></a>
+
+                            <a th:if="${ps.player.twitterName}" target="_blank"
+                               th:href="'https://www.twitter.com/' + ${ps.player.twitterName}"><img class="icon" src="/images/twitter.ico"></a>
+                        </td>
                         <td th:classappend="${pad}"><a th:if="${ps.decklist}" th:href="${ps.decklist.url}"
                                th:text="${ps.decklist.name}" target="_blank"></a></td>
-                        <td th:text="${ps.opponent != null ? ps.opponent.realName : ''}"  th:classappend="${pad}"></td>
+                        <td th:text="${ps.opponent != null ? ps.opponent.name : ''}"  th:classappend="${pad}"></td>
                         <td th:classappend="${pad}" th:if="${ps.opponentsDecklist}">
                             <a th:href="${ps.opponentsDecklist.url}" th:text="${ps.opponentsDecklist.name}"
                                target="_blank"></a>

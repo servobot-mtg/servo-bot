@@ -1,8 +1,5 @@
 package com.ryan_mtg.servobot.tournament;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.model.DecklistDescription;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.Player;
-import com.ryan_mtg.servobot.channelfireball.mfo.model.Record;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

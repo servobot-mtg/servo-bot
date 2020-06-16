@@ -24,7 +24,12 @@ public class TournamentController {
 
     @GetMapping("/{name}")
     public String manage(final Model model, @PathVariable("name") final String name) {
-        model.addAttribute("tournament", tournamentManager.getTournament(name));
+        try {
+            int id = Integer.parseInt(name);
+            model.addAttribute("tournament", tournamentManager.getTournament(id));
+        } catch (Exception e) {
+            model.addAttribute("tournament", tournamentManager.getTournament(name.replace('+', ' ')));
+        }
         return "tournament/tournament";
     }
 }
