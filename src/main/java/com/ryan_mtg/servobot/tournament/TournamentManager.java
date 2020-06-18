@@ -26,7 +26,6 @@ public class TournamentManager {
     }
 
     public Tournament getTournament(final int id) {
-        return mfoInformer.getCurrentTournaments().stream().filter(t -> t.getId() == id)
-                .map(mfoInformer::convert).findFirst().get();
+        return mfoInformer.getTournament(id);
     }
 }

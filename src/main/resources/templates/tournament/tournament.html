@@ -4,8 +4,9 @@
     <title th:text="${tournament.nickName}"></title>
     <div th:replace="fragments :: includes (description='Round ' + ${tournament.round} + ' Scoreboard for '
         + ${tournament.nickName})"></div>
+    <script type="text/javascript" src="/script/tournament.js"> </script>
 </head>
-<body>
+<body onload="initTournament()">
     <div class="content">
         <h1 th:text="${tournament.nickName}"></h1>
         Round:<span class="wide-padded" th:text="${tournament.round}"></span>
@@ -24,23 +25,46 @@
         </div>
 
         <div class="left small-padded">
-            <h2 class="title">Players</h2>
+            <div>
+                <h2 class="title left">Players</h2>
+                <div class="right">
+                    <button id="select-players-button" onclick="startSelecting(); return true;">
+                        Select Players to Follow
+                    </button>
+                    <button id="done-selecting-players-button" class="hidden" onclick="showSelected(); return true;">
+                        Done
+                    </button>
+                </div>
+            </div>
 
-            <table class="player-table" th:with="players=${tournament.playersToWatch}">
+            <table id='player-table' th:with="players=${tournament.players}">
+                <col>
+                <col>
+                <col id="follow-column" class="collapsed">
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
                 <thead><tr>
-                    <th>Rank</th>
-                    <th>Record</th>
-                    <th>Player</th>
-                    <th>Socials</th>
-                    <th>Deck</th>
-                    <th>Opponent</th>
-                    <th th:if="${players.get(0).opponentsDecklist}">Opponent's Deck</th>
+                    <th class="pad-horizontal">Rank</th>
+                    <th class="pad-horizontal">Record</th>
+                    <th class="pad-horizontal">Follow</th>
+                    <th class="pad-horizontal">Player</th>
+                    <th class="pad-horizontal">Socials</th>
+                    <th class="pad-horizontal">Deck</th>
+                    <th class="pad-horizontal">Opponent</th>
+                    <th class="pad-horizontal" th:if="${players.size() > 0 && players.get(0).opponentsDecklist}">
+                        Opponent's Deck
+                    </th>
                 </tr></thead>
                 <th:block th:each="ps, stat : ${players}">
-                    <tr th:with="pad=${!stat.first
-                            && ps.record.compareTo(players.get(stat.index-1).record)<0} ? 'pad-top'">
-                        <td th:text="${ps.rank}" th:classappend="${pad}"></td>
-                        <td th:text="${ps.record}" th:classappend="${pad}"></td>
+                    <tr th:classappend="${!ps.important && !ps.leader} ? 'collapsed'"
+                        th:attr="data-arena-name=${ps.player.arenaName},data-leader=${ps.leader}"
+                        th:with="pad=${!stat.first && ps.record.compareTo(players.get(stat.index-1).record)<0} ? 'pad-top'">
+                        <td class="pad-horizontal" th:text="${ps.rank}" th:classappend="${pad}"></td>
+                        <td class="pad-horizontal" th:text="${ps.record}" th:classappend="${pad}"></td>
+                        <td class="center" th:classappend="${pad}"><input type="checkbox" th:checked="${ps.important}"></td>
                         <td th:text="${ps.player.name}" th:classappend="${pad}"></td>
                         <td th:classappend="${pad}">
                             <a th:if="${ps.player.twitchName}" target="_blank"
@@ -49,10 +73,10 @@
                             <a th:if="${ps.player.twitterName}" target="_blank"
                                th:href="'https://www.twitter.com/' + ${ps.player.twitterName}"><img class="icon" src="/images/twitter.ico"></a>
                         </td>
-                        <td th:classappend="${pad}"><a th:if="${ps.decklist}" th:href="${ps.decklist.url}"
+                        <td class="pad-horizontal" th:classappend="${pad}"><a th:if="${ps.decklist}" th:href="${ps.decklist.url}"
                                th:text="${ps.decklist.name}" target="_blank"></a></td>
-                        <td th:text="${ps.opponent != null ? ps.opponent.name : ''}"  th:classappend="${pad}"></td>
-                        <td th:classappend="${pad}" th:if="${ps.opponentsDecklist}">
+                        <td class="pad-horizontal" th:text="${ps.opponent != null ? ps.opponent.name : ''}"  th:classappend="${pad}"></td>
+                        <td class="pad-horizontal" th:classappend="${pad}" th:if="${ps.opponentsDecklist}">
                             <a th:href="${ps.opponentsDecklist.url}" th:text="${ps.opponentsDecklist.name}"
                                target="_blank"></a>
                         </td>

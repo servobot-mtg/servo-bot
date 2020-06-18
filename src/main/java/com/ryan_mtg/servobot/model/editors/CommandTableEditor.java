@@ -11,7 +11,6 @@ import com.ryan_mtg.servobot.data.factories.CommandSerializer;
 import com.ryan_mtg.servobot.data.factories.CommandTableSerializer;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.error.LibraryError;
-import com.ryan_mtg.servobot.error.SystemBadError;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.BookTable;

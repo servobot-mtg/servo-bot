@@ -7,9 +7,11 @@ import lombok.Getter;
 public class PlayerStanding implements Comparable<PlayerStanding> {
     private Player player;
     private int rank;
-    private Player opponent;
+    private boolean important;
+    private boolean leader;
     private Record record;
     private DecklistDescription decklist;
+    private Player opponent;
     private DecklistDescription opponentsDecklist;
 
     @Override

@@ -112,6 +112,10 @@ input[type=number] {
     display: none;
 }
 
+.collapsed {
+    visibility: collapse;
+}
+
 .secure {
     background-color: #FFDDDD;
 }
@@ -259,6 +263,11 @@ input[type=number] {
     padding-top: 20px;
 }
 
+.pad-horizontal {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 .wide-padded {
     padding-right: 45px;
 }
@@ -269,6 +278,11 @@ input[type=number] {
 
 .clear {
     clear: both;
+}
+
+.center {
+    text-align: center;
+    vertical-align: middle;
 }
 
 .left {
@@ -307,7 +321,7 @@ table {
     border: 2px solid black;
 }
 
-table.player-table {
+table#player-table {
     border: 0px solid black;
 }
 

@@ -10,7 +10,6 @@ import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.LibraryError;
-import com.ryan_mtg.servobot.error.SystemBadError;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.user.HomedUser;

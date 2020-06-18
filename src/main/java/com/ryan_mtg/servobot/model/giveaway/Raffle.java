@@ -5,7 +5,6 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
-import com.ryan_mtg.servobot.error.SystemBadError;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Entrant;

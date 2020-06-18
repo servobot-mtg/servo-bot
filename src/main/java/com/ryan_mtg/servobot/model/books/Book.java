@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.model.books;
 
 import com.ryan_mtg.servobot.error.LibraryError;
-import com.ryan_mtg.servobot.error.SystemBadError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.storage.Evaluatable;
 import com.ryan_mtg.servobot.utility.Validation;

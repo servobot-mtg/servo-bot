@@ -58,36 +58,19 @@ public class Tournament {
                 "themightylinguine", "mightylinguine")
     ));
 
-    public List<PlayerStanding> getPlayersToWatch() {
-        List<PlayerStanding> playersToWatch = new ArrayList<>();
-        PlayerSet playerSet = standings.getPlayerSet();
-        mergeCareAbouts(playerSet, CARE_ABOUTS);
-        Record leaderRecord = getLeaderRecord();
-
-        Map<Player, DecklistDescription> decklistMap = mfoInformer.parseDecklistsFor(standings.getPlayerSet(), id);
-
-        for (Player player : playerSet) {
-            if (isWatchable(leaderRecord, player)) {
-                Player opponent = pairings.getOpponent(player);
-                playersToWatch.add(new PlayerStanding(player, standings.getRank(player), opponent,
-                        standings.getRecord(player), decklistMap.get(player), decklistMap.get(opponent)));
-            }
-        }
-
-        Collections.sort(playersToWatch);
-        return playersToWatch;
-    }
-
     public List<PlayerStanding> getPlayers() {
         List<PlayerStanding> players = new ArrayList<>();
         PlayerSet playerSet = standings.getPlayerSet();
         mergeCareAbouts(playerSet, CARE_ABOUTS);
         Map<Player, DecklistDescription> decklistMap = mfoInformer.parseDecklistsFor(standings.getPlayerSet(), id);
 
+        Record leaderRecord = getLeaderRecord();
+
         for (Player player : playerSet) {
             Player opponent = pairings.getOpponent(player);
-            players.add(new PlayerStanding(player, standings.getRank(player), opponent,
-                    standings.getRecord(player), decklistMap.get(player), decklistMap.get(opponent)));
+            players.add(new PlayerStanding(player, standings.getRank(player), isWatchable(player),
+                isLeader(leaderRecord, player), standings.getRecord(player), decklistMap.get(player), opponent,
+                decklistMap.get(opponent)));
         }
 
         Collections.sort(players);
@@ -102,12 +85,16 @@ public class Tournament {
         }
     }
 
-    private boolean isWatchable(final Record leaderRecord, final Player player) {
-        Record playerRecord = standings.getRecord(player);
-        if (leaderRecord != null && playerRecord.compareTo(leaderRecord) >= 0) {
-            return true;
+    private boolean isLeader(final Record leaderRecord, final Player player) {
+        if (leaderRecord == null) {
+            return false;
         }
 
+        Record playerRecord = standings.getRecord(player);
+        return playerRecord.compareTo(leaderRecord) >= 0;
+    }
+
+    private boolean isWatchable(final Player player) {
         for (Player careAboutPlayer : CARE_ABOUTS) {
             if (player.getArenaName().equals(careAboutPlayer.getArenaName())) {
                 return true;

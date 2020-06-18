@@ -18,7 +18,6 @@ import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
-import com.ryan_mtg.servobot.error.SystemBadError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;

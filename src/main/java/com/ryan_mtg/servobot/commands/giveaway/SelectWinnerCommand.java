@@ -6,7 +6,6 @@ import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
-import com.ryan_mtg.servobot.error.SystemBadError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Home;

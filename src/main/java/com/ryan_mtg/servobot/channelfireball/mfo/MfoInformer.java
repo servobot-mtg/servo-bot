@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.channelfireball.mfo;
 
+import com.ryan_mtg.servobot.Application;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairing;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.PairingsJson;
 import com.ryan_mtg.servobot.channelfireball.mfo.json.PlayerStanding;
@@ -60,6 +61,18 @@ public class MfoInformer {
         this.clock = clock;
     }
 
+    public com.ryan_mtg.servobot.tournament.Tournament getTournament(final int tournamentId) {
+        TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
+        for (TournamentSeries series : seriesList.getData()) {
+            ZoneId zoneId = ZoneId.of(series.getTimezone());
+            Tournament tournament = getTournament(zoneId, series.getId(), tournamentId);
+            if (tournament != null) {
+                return convert(tournament);
+            }
+        }
+        return null;
+    }
+
     public List<Tournament> getCurrentTournaments() {
         TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
         List<Tournament> tournaments = new ArrayList<>();
@@ -69,7 +82,7 @@ public class MfoInformer {
             Instant endTime = parse(series.getEndDate(), zoneId).plus(2, ChronoUnit.DAYS);
             Instant now = clock.instant();
             if (startTime.compareTo(now) < 0 &&
-                    (now.compareTo(endTime) < 0 || series.getName().contains("MagicFest Online"))) {
+                    (now.compareTo(endTime) < 0 || series.getName().contains("Last Chance Qualifiers"))) {
                 tournaments.addAll(getCurrentTournaments(zoneId, series.getId()));
             }
         }
@@ -317,6 +330,10 @@ public class MfoInformer {
             if (decklistNameCache.containsKey(decklistUrl)) {
                 return decklistNameCache.get(decklistUrl);
             }
+            if (Application.isTesting()) {
+                decklistNameCache.put(decklistUrl, "deck");
+                return "deck";
+            }
 
             String url = decklistUrl;
             HttpClient httpClient = HttpClients.createDefault();
@@ -396,6 +413,16 @@ public class MfoInformer {
                 return 0;
         }
         return 0;
+    }
+
+    private Tournament getTournament(final ZoneId zoneId, final int tournamentSeriesId, final int tournamentId) {
+        TournamentList tournamentList = mfoClient.getTournamentList(tournamentSeriesId);
+        for (Tournament tournament : tournamentList.getData()) {
+            if (tournament.getId() == tournamentId) {
+                return tournament;
+            }
+        }
+        return null;
     }
 
     private List<Tournament> getCurrentTournaments(final ZoneId zoneId, final int tournamentSeriesId) {
