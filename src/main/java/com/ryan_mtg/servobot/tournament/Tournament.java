@@ -1,9 +1,12 @@
 package com.ryan_mtg.servobot.tournament;
 
 import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
+import com.ryan_mtg.servobot.utility.Time;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +41,12 @@ public class Tournament {
 
     @Getter @Setter
     private Pairings pairings;
+
+    @Getter @Setter
+    private Instant startTime;
+
+    @Getter @Setter
+    private TournamentType type;
 
     private MfoInformer mfoInformer;
     private int id;
@@ -75,6 +84,14 @@ public class Tournament {
 
         Collections.sort(players);
         return players;
+    }
+
+    public boolean hasStarted() {
+        return Instant.now().compareTo(startTime) >= 0;
+    }
+
+    public String getTimeUntilStart() {
+        return Time.toReadableString(Duration.between(Instant.now(), startTime));
     }
 
     private void mergeCareAbouts(final PlayerSet playerSet, final Set<Player> careAbouts) {

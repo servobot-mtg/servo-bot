@@ -15,14 +15,11 @@ public class TournamentManager {
     }
 
     public List<Tournament> getTournaments() {
-        return mfoInformer.getCurrentTournaments().stream().map(mfoInformer::convert)
-                .collect(Collectors.toList());
+        return mfoInformer.getTournaments();
     }
 
     public Tournament getTournament(final String name) {
-        return mfoInformer.getCurrentTournaments().stream().filter(t -> t.getName().equalsIgnoreCase(name)
-                || MfoInformer.getNickName(t).equalsIgnoreCase(name))
-                .map(mfoInformer::convert).findFirst().get();
+        return mfoInformer.getTournament(name);
     }
 
     public Tournament getTournament(final int id) {

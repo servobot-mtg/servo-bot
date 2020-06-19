@@ -17,13 +17,13 @@ public class TournamentController {
     }
 
     @GetMapping("")
-    public String manage(final Model model) {
+    public String showTournaments(final Model model) {
         model.addAttribute("tournaments", tournamentManager.getTournaments());
         return "tournament/home";
     }
 
     @GetMapping("/{name}")
-    public String manage(final Model model, @PathVariable("name") final String name) {
+    public String showTournament(final Model model, @PathVariable("name") final String name) {
         try {
             int id = Integer.parseInt(name);
             model.addAttribute("tournament", tournamentManager.getTournament(id));

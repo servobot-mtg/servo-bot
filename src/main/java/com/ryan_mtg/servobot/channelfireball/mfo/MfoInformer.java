@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.tournament.PlayerSet;
 import com.ryan_mtg.servobot.tournament.Record;
 import com.ryan_mtg.servobot.tournament.RecordCount;
 import com.ryan_mtg.servobot.tournament.Standings;
+import com.ryan_mtg.servobot.tournament.TournamentType;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
@@ -61,16 +62,46 @@ public class MfoInformer {
         this.clock = clock;
     }
 
+    public com.ryan_mtg.servobot.tournament.Tournament getTournament(final String name) {
+        TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
+        for (TournamentSeries series : seriesList.getData()) {
+            ZoneId zoneId = ZoneId.of(series.getTimezone());
+            Tournament tournament = getTournament(zoneId, series.getId(), name);
+            if (tournament != null) {
+                return convert(tournament, zoneId);
+            }
+        }
+        return null;
+    }
+
     public com.ryan_mtg.servobot.tournament.Tournament getTournament(final int tournamentId) {
         TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
         for (TournamentSeries series : seriesList.getData()) {
             ZoneId zoneId = ZoneId.of(series.getTimezone());
             Tournament tournament = getTournament(zoneId, series.getId(), tournamentId);
             if (tournament != null) {
-                return convert(tournament);
+                return convert(tournament, zoneId);
             }
         }
         return null;
+    }
+
+    public List<com.ryan_mtg.servobot.tournament.Tournament> getTournaments() {
+        TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
+        List<com.ryan_mtg.servobot.tournament.Tournament> tournaments = new ArrayList<>();
+        for (TournamentSeries series : seriesList.getData()) {
+            ZoneId zoneId = ZoneId.of(series.getTimezone());
+            Instant startTime = parse(series.getStartDate(), zoneId);
+            Instant endTime = parse(series.getEndDate(), zoneId).plus(2, ChronoUnit.DAYS);
+            Instant now = clock.instant();
+            if (startTime.compareTo(now) < 0 &&
+                    (now.compareTo(endTime) < 0 || series.getName().contains("Last Chance Qualifiers"))) {
+                for (Tournament tournament : getCurrentTournaments(zoneId, series.getId())) {
+                    tournaments.add(convert(tournament, zoneId));
+                }
+            }
+        }
+        return filterByTournamentType(tournaments);
     }
 
     public List<Tournament> getCurrentTournaments() {
@@ -249,7 +280,7 @@ public class MfoInformer {
         }
     }
 
-    public com.ryan_mtg.servobot.tournament.Tournament convert(final Tournament tournament) {
+    public com.ryan_mtg.servobot.tournament.Tournament convert(final Tournament tournament, final ZoneId zoneId) {
         com.ryan_mtg.servobot.tournament.Tournament result =
                 new com.ryan_mtg.servobot.tournament.Tournament(this, tournament.getName(), tournament.getId());
         result.setRound(tournament.getCurrentRound());
@@ -257,6 +288,8 @@ public class MfoInformer {
         result.setNickName(getNickName(tournament));
         result.setStandingsUrl(getStandingsUrl(tournament));
         result.setDecklistUrl(getDecklistsUrl(tournament));
+        result.setStartTime(parse(tournament.getStartsAt(), zoneId));
+        result.setType(typeValue(tournament));
 
         int tournamentId = tournament.getId();
         PairingsJson pairings = mfoClient.getPairings(tournamentId);
@@ -288,6 +321,10 @@ public class MfoInformer {
                 return "Players Tour Online 1";
             case "Players Tour - June 13th 09:00 AM PDT (09:00)":
                 return "Players Tour Online 2";
+            case "Players Tour - June 19th 05:00 PM PDT (17:00)":
+                return "Players Tour Online 3";
+            case "Players Tour - June 20th 06:00 AM PDT (06:00)":
+                return "Players Tour Online 4";
         }
         return tournament.getName();
     }
@@ -377,6 +414,21 @@ public class MfoInformer {
         return stringBuilder.toString();
     }
 
+    private List<com.ryan_mtg.servobot.tournament.Tournament> filterByTournamentType(
+            final List<com.ryan_mtg.servobot.tournament.Tournament> tournaments) {
+        if (tournaments.isEmpty()) {
+            return tournaments;
+        }
+
+        com.ryan_mtg.servobot.tournament.Tournament maxTournament = tournaments.get(0);
+        for (int i = 1; i < tournaments.size(); i++) {
+            maxTournament = maxType(maxTournament, tournaments.get(i));
+        }
+
+        TournamentType maxValue = maxTournament.getType();
+        return tournaments.stream().filter(t -> t.getType() == maxValue).collect(Collectors.toList());
+    }
+
     private List<Tournament> filterByTournamentLevel(final List<Tournament> tournaments) {
         if (tournaments.isEmpty()) {
             return tournaments;
@@ -387,32 +439,54 @@ public class MfoInformer {
             maxTournament = maxType(maxTournament, tournaments.get(i));
         }
 
-        int maxValue = typeValue(maxTournament);
+        TournamentType maxValue = typeValue(maxTournament);
         return tournaments.stream().filter(t -> typeValue(t) == maxValue).collect(Collectors.toList());
     }
 
     private Tournament maxType(final Tournament tournamentA, final Tournament tournamentB) {
-        if (typeValue(tournamentA) >= typeValue(tournamentB)) {
+        if (typeValue(tournamentA).compareTo(typeValue(tournamentB)) <= 0) {
             return tournamentA;
         }
         return tournamentB;
     }
 
-    private int typeValue(final Tournament tournament) {
+    private com.ryan_mtg.servobot.tournament.Tournament maxType(
+            final com.ryan_mtg.servobot.tournament.Tournament tournamentA,
+            final com.ryan_mtg.servobot.tournament.Tournament tournamentB) {
+        if (tournamentA.getType().compareTo(tournamentB.getType()) <= 0) {
+            return tournamentA;
+        }
+        return tournamentB;
+    }
+
+
+    private TournamentType typeValue(final Tournament tournament) {
         switch (tournament.getTournamentType()) {
             case "Featured Tournament":
                 if (tournament.getName().contains("Players Tour -")) {
-                    return 10;
+                    return TournamentType.PLAYERS_TOUR;
                 }
-                return 5;
+                return TournamentType.QUALIFIER;
             case "Players Tour":
+                return TournamentType.PLAYERS_TOUR;
             case "Grand Prix":
+                return TournamentType.GRAND_PRIX;
             case "Package":
             case "Select Your Playmat":
             case "MagicFest In-A-Box":
-                return 0;
+                return TournamentType.NONE;
         }
-        return 0;
+        return TournamentType.NONE;
+    }
+
+    private Tournament getTournament(final ZoneId zoneId, final int tournamentSeriesId, final String name) {
+        TournamentList tournamentList = mfoClient.getTournamentList(tournamentSeriesId);
+        for (Tournament tournament : tournamentList.getData()) {
+            if (tournament.getName().equals(name) || getNickName(tournament).equals(name)) {
+                return tournament;
+            }
+        }
+        return null;
     }
 
     private Tournament getTournament(final ZoneId zoneId, final int tournamentSeriesId, final int tournamentId) {
