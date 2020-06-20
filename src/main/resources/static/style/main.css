@@ -112,7 +112,11 @@ input[type=number] {
     display: none;
 }
 
-.collapsed {
+.collapsed-column {
+    visibility: collapse;
+}
+
+.collapsed-row {
     visibility: collapse;
 }
 
@@ -276,6 +280,10 @@ input[type=number] {
     padding-left: 15px;
 }
 
+.padded {
+    padding: 12px;
+}
+
 .clear {
     clear: both;
 }
@@ -330,6 +338,10 @@ table#player-table {
     padding-right: 20px;
     border-collapse: collapse;
     border: 0px solid black;
+}
+
+.follow-row .boldable {
+    font-weight: bold;
 }
 
 .data-table td {

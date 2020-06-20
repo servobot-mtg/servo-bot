@@ -303,7 +303,8 @@ public class MfoInformer {
 
     private Pairings computePairings(final Tournament tournament, final PairingsJson pairingsJson,
             final PlayerSet playerSet) {
-        Pairings pairings = new Pairings(playerSet, pairingsJson.getCurrentRound());
+        Instant roundStartTime = parse(tournament.getPairingsLastUpdated());
+        Pairings pairings = new Pairings(playerSet, pairingsJson.getCurrentRound(), roundStartTime);
 
         for (Pairing pairing : pairingsJson.getData()) {
             PlayerStanding playerStanding = pairing.getPlayer();
@@ -368,8 +369,9 @@ public class MfoInformer {
                 return decklistNameCache.get(decklistUrl);
             }
             if (Application.isTesting()) {
-                decklistNameCache.put(decklistUrl, "deck");
-                return "deck";
+                String deckName = "Rakdos Sacrifice (Jegantha)";
+                decklistNameCache.put(decklistUrl, deckName);
+                return deckName;
             }
 
             String url = decklistUrl;

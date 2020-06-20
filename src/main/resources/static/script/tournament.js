@@ -1,40 +1,45 @@
 function initTournament() {
+    hideColumn('follow-column', 2);
     if (getCookie('follows') == null) {
-        let lastVisible = 0;
-        let playerTable = document.getElementById('player-table');
-
-        for (let i = 1, row; row = playerTable.rows[i]; i++) {
-            let leader = row.dataset.leader == 'true';
-            let follow = row.getElementsByTagName('input').item(0).checked;
-
-            if (lastVisible != 0 && row.dataset.points < playerTable.rows[lastVisible].dataset.points) {
-                row.classList.add('pad-row-top');
-            } else {
-                row.classList.remove('pad-row-top');
-            }
-
-            if (leader || follow) {
-                lastVisible = i;
-            }
-        }
-
+        stylePlayerTable();
         return;
     }
 
     let storedFollows = getFollows();
     let playerTable = document.getElementById('player-table');
-    let lastVisible = 0;
     for (let i = 1, row; row = playerTable.rows[i]; i++) {
-        let leader = row.dataset.leader == 'true';
         let follow = storedFollows[row.dataset.arenaName];
         row.getElementsByTagName('input').item(0).checked = follow;
+    }
+
+    stylePlayerTable();
+}
+
+function showRow(row) {
+    row.style.display = 'table-row';
+    row.style.visibility = 'visible';
+}
+
+function hideRow(row) {
+    row.style.display = 'none';
+    row.style.visibility = 'visible';
+    //row.style.visibility = 'collapse';
+}
+
+function stylePlayerTable() {
+    let lastVisible = 0;
+    let playerTable = document.getElementById('player-table');
+
+    for (let i = 1, row; row = playerTable.rows[i]; i++) {
+        let leader = row.dataset.leader == 'true';
+        let follow = row.getElementsByTagName('input').item(0).checked;
         if (leader || follow) {
-            row.style.visibility = 'visible';
+            showRow(row);
         } else {
-            row.style.visibility = 'collapse';
+            hideRow(row);
         }
 
-        if (lastVisible != 0 && row.dataset.points < playerTable.rows[lastVisible].dataset.points) {
+        if (lastVisible != 0 && parseInt(row.dataset.points) < parseInt(playerTable.rows[lastVisible].dataset.points)) {
             row.classList.add('pad-row-top');
         } else {
             row.classList.remove('pad-row-top');
@@ -42,6 +47,42 @@ function initTournament() {
 
         if (leader || follow) {
             lastVisible = i;
+        }
+
+        if (follow) {
+            row.classList.add('follow-row');
+        } else {
+            row.classList.remove('follow-row');
+        }
+    }
+}
+
+function printDebug(statement) {
+    /*
+    let debug = document.getElementById('debug');
+    debug.appendChild(document.createTextNode(statement));
+    debug.appendChild(document.createElement('br'));
+     */
+}
+
+function hideColumn(columnId, columnIndex) {
+    document.getElementById(columnId).style.visibility = 'collapse';
+    const browser = getBrowser();
+    if (browser == 'chrome' || browser == 'safari') {
+        let playerTable = document.getElementById('player-table');
+        for (let i = 0, row; row = playerTable.rows[i]; i++) {
+            row.cells[columnIndex].style.display = 'none';
+        }
+    }
+}
+
+function showColumn(columnId, columnIndex) {
+    document.getElementById(columnId).style.visibility = 'visible';
+    const browser = getBrowser();
+    if (browser == 'chrome' || browser == 'safari') {
+        let playerTable = document.getElementById('player-table');
+        for (let i = 0, row; row = playerTable.rows[i]; i++) {
+            row.cells[columnIndex].style.display = 'table-cell';
         }
     }
 }
@@ -49,48 +90,34 @@ function initTournament() {
 function startSelecting() {
     let playerTable = document.getElementById('player-table');
     for (let i = 0, row; row = playerTable.rows[i]; i++) {
-        row.style.visibility = 'visible';
+        showRow(row);
 
-        if (i > 1 && row.dataset.points < playerTable.rows[i - 1].dataset.points) {
+        if (i > 1 && parseInt(row.dataset.points) < parseInt(playerTable.rows[i - 1].dataset.points)) {
             row.classList.add('pad-row-top');
         } else {
             row.classList.remove('pad-row-top');
         }
     }
 
-    document.getElementById('follow-column').style.visibility = 'visible';
+    showColumn('follow-column', 2);
     document.getElementById('select-players-button').style.display = 'none';
     document.getElementById('done-selecting-players-button').style.display = 'block';
 }
 
 function showSelected() {
-    document.getElementById('follow-column').style.visibility = 'collapse';
+    hideColumn('follow-column', 2);
 
     let storedFollows = getFollows();
     let playerTable = document.getElementById('player-table');
-    let lastVisible = 0;
     for (let i = 1, row; row = playerTable.rows[i]; i++) {
-        let leader = row.dataset.leader == 'true';
         let follow = row.getElementsByTagName('input').item(0).checked;
         if (follow) {
             storedFollows[row.dataset.arenaName] = true;
         } else {
             storedFollows[row.dataset.arenaName] = false;
-            if (!leader) {
-                row.style.visibility = 'collapse';
-            }
-        }
-
-        if (lastVisible != 0 && row.dataset.points < playerTable.rows[lastVisible].dataset.points) {
-            row.classList.add('pad-row-top');
-        } else {
-            row.classList.remove('pad-row-top');
-        }
-
-        if (leader || follow) {
-            lastVisible = i;
         }
     }
+    stylePlayerTable();
 
     let follows = [];
     for (const [key, value] of Object.entries(storedFollows)) {
@@ -119,7 +146,7 @@ function getFollows() {
 }
 
 function setFollows(follows) {
-    setCookie('follows', follows.join(','), 365);
+    setCookie('follows', follows.join(','), 2);
 }
 
 function getCookie(cname) {
@@ -144,3 +171,32 @@ function setCookie(cname, cvalue, exdays) {
     let expires = 'expires=' + d.toUTCString();
     document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/;SameSite=Strict';
 }
+
+let browser = null;
+
+function getBrowser() {
+    if (browser) {
+        return browser;
+    }
+
+    browser = computeBrowser();
+    printDebug('is ' + browser);
+
+    return browser;
+}
+
+function computeBrowser() {
+    let ua = navigator.userAgent.toLowerCase();
+    if (ua.indexOf('safari') != -1) {
+        if (ua.indexOf('chrome') > -1) {
+            return 'chrome';
+        } else {
+            return 'safari';
+        }
+    }
+    if (ua.indexOf('firefox') != -1) {
+        return 'firefox';
+    }
+    return '?';
+}
+

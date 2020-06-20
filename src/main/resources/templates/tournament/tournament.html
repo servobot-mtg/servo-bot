@@ -15,6 +15,9 @@
         <a class="wide-padded" th:href="${tournament.decklistUrl}" target="_blank">All Decklists</a>
         <hr>
 
+        <span id="debug">
+        </span>
+
         <div th:if="${!tournament.hasStarted()}">
             The tournament has not started yet. It will begin in <span th:text="${tournament.timeUntilStart}"></span>.
         </div>
@@ -24,6 +27,18 @@
                 <ul>
                     <th:block th:each="recordCount : ${tournament.standings.getRecordCounts(4)}">
                         <li th:text="${recordCount.record} + ': ' + ${recordCount.count} + ' Players'"></li>
+                    </th:block>
+                </ul>
+                <h3>Round Start</h3>
+                <span th:text="${tournament.pairings.timeSinceStartOfRound}"></span> ago
+                <h3>Until Round End</h3>
+                <span th:text="${tournament.pairings.timeUntilEndOfRound}"></span>
+
+                <h3 class="pad-row-top">Metagame</h3>
+                <ul>
+                    <th:block th:each="archetype : ${tournament.metagameBreakdown}">
+                        <li th:text="${archetype.name + ': ' + archetype.count
+                            + (archetype.count > 5 ? ' (' + #numbers.formatDecimal(100 * archetype.percentage, 1, 1) + '%)' : '')}"></li>
                     </th:block>
                 </ul>
             </div>
@@ -41,52 +56,54 @@
                     </div>
                 </div>
 
-                <table id='player-table' th:with="players=${tournament.players}">
-                    <col>
-                    <col>
-                    <col id="follow-column" class="collapsed">
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <thead><tr>
-                        <th class="pad-horizontal">Rank</th>
-                        <th class="pad-horizontal">Record</th>
-                        <th class="pad-horizontal">Follow</th>
-                        <th class="pad-horizontal">Player</th>
-                        <th class="pad-horizontal">Socials</th>
-                        <th class="pad-horizontal">Deck</th>
-                        <th class="pad-horizontal">Opponent</th>
-                        <th class="pad-horizontal" th:if="${players.size() > 0 && players.get(0).opponentsDecklist != null}">
-                            Opponent's Deck
-                        </th>
-                    </tr></thead>
+                <div class="clear padded">
+                    <table id='player-table' th:with="players=${tournament.players}">
+                        <col>
+                        <col>
+                        <col id="follow-column">
+                        <col>
+                        <col>
+                        <col>
+                        <col>
+                        <col>
+                        <thead><tr>
+                            <th class="pad-horizontal">Rank</th>
+                            <th class="pad-horizontal">Record</th>
+                            <th class="pad-horizontal">Follow</th>
+                            <th class="pad-horizontal">Player</th>
+                            <th class="pad-horizontal">Socials</th>
+                            <th class="pad-horizontal">Deck</th>
+                            <th class="pad-horizontal">Opponent</th>
+                            <th class="pad-horizontal" th:if="${players.size() > 0 && players.get(0).opponentsDecklist != null}">
+                                Opponent's Deck
+                            </th>
+                        </tr></thead>
 
-                    <th:block th:each="ps, stat : ${players}">
-                        <tr th:attr="data-arena-name=${ps.player.arenaName},data-leader=${ps.leader},data-points=${ps.record.points}"
-                            th:classappend="${!ps.important && !ps.leader} ? 'collapsed'">
-                            <td class="pad-horizontal" th:text="${ps.rank}"></td>
-                            <td class="pad-horizontal" th:text="${ps.record}"></td>
-                            <td class="center"><input type="checkbox" th:checked="${ps.important}"></td>
-                            <td th:text="${ps.player.name}"></td>
-                            <td>
-                                <a th:if="${ps.player.twitchName}" target="_blank"
-                                   th:href="'https://www.twitch.tv/' + ${ps.player.twitchName}"><img class="icon" src="/images/twitch.ico"></a>
+                        <th:block th:each="ps, stat : ${players}">
+                            <tr th:attr="data-arena-name=${ps.player.arenaName},data-leader=${ps.leader},data-points=${ps.record.points}"
+                                th:classappend="${!ps.important && !ps.leader} ? 'collapsed'">
+                                <td class="pad-horizontal" th:text="${ps.rank}"></td>
+                                <td class="pad-horizontal" th:text="${ps.record}"></td>
+                                <td class="center"><input type="checkbox" th:checked="${ps.important}"></td>
+                                <td class="boldable" th:text="${ps.player.name}"></td>
+                                <td>
+                                    <a th:if="${ps.player.twitchName}" target="_blank"
+                                       th:href="'https://www.twitch.tv/' + ${ps.player.twitchName}"><img class="icon" src="/images/twitch.ico"></a>
 
-                                <a th:if="${ps.player.twitterName}" target="_blank"
-                                   th:href="'https://www.twitter.com/' + ${ps.player.twitterName}"><img class="icon" src="/images/twitter.ico"></a>
-                            </td>
-                            <td class="pad-horizontal"><a th:if="${ps.decklist}" th:href="${ps.decklist.url}"
-                                   th:text="${ps.decklist.name}" target="_blank"></a></td>
-                            <td class="pad-horizontal" th:text="${ps.opponent != null ? ps.opponent.name : ''}"></td>
-                            <td class="pad-horizontal" th:if="${ps.opponentsDecklist}">
-                                <a th:href="${ps.opponentsDecklist.url}" th:text="${ps.opponentsDecklist.name}"
-                                   target="_blank"></a>
-                            </td>
-                        </tr>
-                    </th:block>
-                </table>
+                                    <a th:if="${ps.player.twitterName}" target="_blank"
+                                       th:href="'https://www.twitter.com/' + ${ps.player.twitterName}"><img class="icon" src="/images/twitter.ico"></a>
+                                </td>
+                                <td class="pad-horizontal"><a th:if="${ps.decklist}" th:href="${ps.decklist.url}"
+                                       th:text="${ps.decklist.name}" target="_blank"></a></td>
+                                <td class="pad-horizontal" th:text="${ps.opponent != null ? ps.opponent.name : ''}"></td>
+                                <td class="pad-horizontal" th:if="${ps.opponentsDecklist}">
+                                    <a th:href="${ps.opponentsDecklist.url}" th:text="${ps.opponentsDecklist.name}"
+                                       target="_blank"></a>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
