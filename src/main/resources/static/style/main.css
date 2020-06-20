@@ -259,7 +259,7 @@ input[type=number] {
     border: 0;
 }
 
-.pad-top {
+.pad-row-top td {
     padding-top: 20px;
 }
 

@@ -1,10 +1,29 @@
 function initTournament() {
     if (getCookie('follows') == null) {
+        let lastVisible = 0;
+        let playerTable = document.getElementById('player-table');
+
+        for (let i = 1, row; row = playerTable.rows[i]; i++) {
+            let leader = row.dataset.leader == 'true';
+            let follow = row.getElementsByTagName('input').item(0).checked;
+
+            if (lastVisible != 0 && row.dataset.points < playerTable.rows[lastVisible].dataset.points) {
+                row.classList.add('pad-row-top');
+            } else {
+                row.classList.remove('pad-row-top');
+            }
+
+            if (leader || follow) {
+                lastVisible = i;
+            }
+        }
+
         return;
     }
 
     let storedFollows = getFollows();
     let playerTable = document.getElementById('player-table');
+    let lastVisible = 0;
     for (let i = 1, row; row = playerTable.rows[i]; i++) {
         let leader = row.dataset.leader == 'true';
         let follow = storedFollows[row.dataset.arenaName];
@@ -14,6 +33,16 @@ function initTournament() {
         } else {
             row.style.visibility = 'collapse';
         }
+
+        if (lastVisible != 0 && row.dataset.points < playerTable.rows[lastVisible].dataset.points) {
+            row.classList.add('pad-row-top');
+        } else {
+            row.classList.remove('pad-row-top');
+        }
+
+        if (leader || follow) {
+            lastVisible = i;
+        }
     }
 }
 
@@ -21,6 +50,12 @@ function startSelecting() {
     let playerTable = document.getElementById('player-table');
     for (let i = 0, row; row = playerTable.rows[i]; i++) {
         row.style.visibility = 'visible';
+
+        if (i > 1 && row.dataset.points < playerTable.rows[i - 1].dataset.points) {
+            row.classList.add('pad-row-top');
+        } else {
+            row.classList.remove('pad-row-top');
+        }
     }
 
     document.getElementById('follow-column').style.visibility = 'visible';
@@ -33,6 +68,7 @@ function showSelected() {
 
     let storedFollows = getFollows();
     let playerTable = document.getElementById('player-table');
+    let lastVisible = 0;
     for (let i = 1, row; row = playerTable.rows[i]; i++) {
         let leader = row.dataset.leader == 'true';
         let follow = row.getElementsByTagName('input').item(0).checked;
@@ -43,6 +79,16 @@ function showSelected() {
             if (!leader) {
                 row.style.visibility = 'collapse';
             }
+        }
+
+        if (lastVisible != 0 && row.dataset.points < playerTable.rows[lastVisible].dataset.points) {
+            row.classList.add('pad-row-top');
+        } else {
+            row.classList.remove('pad-row-top');
+        }
+
+        if (leader || follow) {
+            lastVisible = i;
         }
     }
 

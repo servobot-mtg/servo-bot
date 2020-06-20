@@ -50,7 +50,7 @@ public class Player {
             return realName;
         }
 
-        return getShortArenaName();
+        return getShortArenaName().replace('_', ' ');
     }
 
     public String getShortArenaName() {
