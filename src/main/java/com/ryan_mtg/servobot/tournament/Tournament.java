@@ -149,15 +149,23 @@ public class Tournament {
     public List<ArchetypeDescription> getMetagameBreakdown() {
         Map<String, Integer> archetypeCount = new HashMap<>();
         updateDecklistMap();
-        for (DecklistDescription decklistDescription : decklistMap.values()) {
-            int previousCount = archetypeCount.computeIfAbsent(decklistDescription.getName(), name -> 0);
-            archetypeCount.put(decklistDescription.getName(), previousCount + 1);
+        int count = 0;
+        for (Map.Entry<Player, DecklistDescription> entry : decklistMap.entrySet()) {
+            Player player = entry.getKey();
+            String decklistName = entry.getValue().getName();
+            Record record = standings.getRecord(player);
+            int minPoints = (standings.getRound() - 4) * 3;
+            if (record.getPoints() >= minPoints) {
+                int previousCount = archetypeCount.computeIfAbsent(decklistName, name -> 0);
+                archetypeCount.put(decklistName, previousCount + 1);
+                count++;
+            }
         }
 
         List<ArchetypeDescription> archetypeDescriptions = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : archetypeCount.entrySet()) {
             archetypeDescriptions.add(new ArchetypeDescription(entry.getKey(), entry.getValue(),
-                    (double)entry.getValue() / decklistMap.size()));
+                    (double)entry.getValue() / count));
         }
 
         Collections.sort(archetypeDescriptions);
