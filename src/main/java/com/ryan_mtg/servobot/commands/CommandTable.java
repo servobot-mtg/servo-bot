@@ -68,12 +68,11 @@ public class CommandTable {
         return commandTableEdit;
     }
 
-    public CommandTableEdit addCommand(final String alias, final InvokedHomedCommand newCommand) throws UserError {
-        return addCommand(alias, (Command) newCommand);
-    }
-
-    public CommandTableEdit addCommand(final String alias, final InvokedCommand newCommand) throws UserError  {
-        return addCommand(alias, (Command) newCommand);
+    public CommandTableEdit addCommand(final String alias, final Command newCommand) throws UserError {
+        CommandTableEdit commandTableEdit = deleteCommand(alias);
+        CommandAlias commandAlias = createAlias(newCommand, alias);
+        commandTableEdit.save(contextId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
+        return commandTableEdit;
     }
 
     public CommandTableEdit addAlias(final String newAlias, final String existingAlias) throws UserError {
@@ -97,6 +96,9 @@ public class CommandTable {
         CommandTableEdit commandTableEdit = new CommandTableEdit();
 
         Command command = idToCommandMap.get(commandId);
+        if (command == null) {
+            return commandTableEdit;
+        }
         idToCommandMap.remove(command.getId());
         commandTableEdit.delete(command);
 
@@ -226,13 +228,6 @@ public class CommandTable {
 
     private String canonicalize(final String token) {
         return isCaseSensitive ? token : token.toLowerCase();
-    }
-
-    private CommandTableEdit addCommand(final String alias, final Command newCommand) throws UserError {
-        CommandTableEdit commandTableEdit = deleteCommand(alias);
-        CommandAlias commandAlias = createAlias(newCommand, alias);
-        commandTableEdit.save(contextId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
-        return commandTableEdit;
     }
 
     private CommandAlias createAlias(final Command newCommand, final String text) throws UserError {

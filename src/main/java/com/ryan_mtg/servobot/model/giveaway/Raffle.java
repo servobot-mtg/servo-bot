@@ -5,7 +5,6 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
-import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Entrant;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -59,7 +58,7 @@ public class Raffle {
     }
 
     public Duration getTimeLeft() {
-        if (stopTime == null) {
+        if (!isTimed()) {
             return null;
         }
 
@@ -74,12 +73,12 @@ public class Raffle {
         return entrants.size();
     }
 
+    public String getPrizeDescription() {
+        return prizes.get(0).getDescription();
+    }
+
     public List<HomedUser> selectWinners(final Giveaway giveaway, final CommandTable commandTable,
                                   final GiveawayEdit giveawayEdit) {
-        if (!getTimeLeft().isZero()) {
-            throw new SystemError("Selecting, but the raffle isn't over!");
-        }
-
         setStatus(Raffle.Status.CONCLUDED);
 
         List<HomedUser> winners = new ArrayList<>();
@@ -120,5 +119,9 @@ public class Raffle {
         }
         Entrant entrant = new Entrant(user);
         entrants.add(entrant);
+    }
+
+    private boolean isTimed() {
+        return stopTime != null;
     }
 }

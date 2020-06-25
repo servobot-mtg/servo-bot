@@ -7,9 +7,12 @@ import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
+import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.events.HomeEvent;
+import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.giveaway.Raffle;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -47,16 +50,18 @@ public class SelectWinnerCommand extends HomeCommand {
         Home home = homeEvent.getHome();
         Scope scope = homeEditor.getScope();
 
+        Raffle raffle = homeEditor.getGiveaway(giveawayId).retrieveCurrentRaffle();
         List<HomedUser> winners = homeEditor.selectRaffleWinners(giveawayId);
 
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         String message;
         if (winners.isEmpty()) {
             message = "The raffle has no winner, because there were no entrants.";
         } else {
             String winnerString = Strings.join(winners.stream().map(HomedUser::getName).collect(Collectors.toList()));
-            SimpleSymbolTable symbolTable = new SimpleSymbolTable();
             scope = new Scope(scope, symbolTable);
             symbolTable.addValue("winner", winnerString);
+            symbolTable.addValue("raffle", raffle);
             message = response;
         }
 
@@ -64,9 +69,14 @@ public class SelectWinnerCommand extends HomeCommand {
             homeEvent.say(home.getChannel(discordChannel, DiscordService.TYPE), scope, message);
         }
 
-        if (Flags.hasFlag(getFlags(), TWITCH_FLAG)) {
+        if (homeEvent instanceof CommandInvokedHomeEvent) {
+            ((CommandInvokedHomeEvent) homeEvent).say(symbolTable, message);
+        } else if (Flags.hasFlag(getFlags(), TWITCH_FLAG)) {
             String twitchChannel = homeEditor.getTwitchChannelName();
-            homeEvent.say(home.getChannel(twitchChannel, TwitchService.TYPE), scope, message);
+            Channel channel = home.getChannel(twitchChannel, TwitchService.TYPE);
+            if (channel != null) {
+                homeEvent.say(channel, scope, message);
+            }
         }
     }
 

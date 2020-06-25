@@ -7,6 +7,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
+import com.ryan_mtg.servobot.model.giveaway.Raffle;
+import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -32,12 +34,14 @@ public class EnterRaffleCommand extends InvokedHomedCommand {
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         HomedUser entrant = event.getSender().getHomedUser();
-        event.getHomeEditor().enterRaffle(entrant, giveawayId);
+        Raffle raffle = event.getHomeEditor().enterRaffle(entrant, giveawayId);
 
         if (entrant.isStreamer()) {
             event.say("%sender% has rigged the raffle!");
         } else {
-            event.say(response);
+            SimpleSymbolTable symbolTable = new SimpleSymbolTable();
+            symbolTable.addValue("raffle", raffle);
+            event.say(symbolTable, response);
         }
     }
 
