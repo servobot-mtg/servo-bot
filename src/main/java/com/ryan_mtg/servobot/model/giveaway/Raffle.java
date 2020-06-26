@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Entrant;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Time;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -57,16 +58,16 @@ public class Raffle {
         this.stopTime = stopTime;
     }
 
-    public Duration getTimeLeft() {
+    public String getTimeLeft() {
         if (!isTimed()) {
-            return null;
+            return "None";
         }
 
         Duration result = Duration.between(Instant.now(), stopTime);
         if (result.compareTo(Duration.ofSeconds(0)) < 0) {
-            return Duration.ofSeconds(0);
+            return "None";
         }
-        return result;
+        return Time.toReadableString(result);
     }
 
     public int getEntrantCount() {

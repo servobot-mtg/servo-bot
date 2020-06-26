@@ -641,7 +641,6 @@ public class HomeEditor {
 
         Duration duration = raffleSettings.getDuration();
 
-        Map<String, Command> tokenMap = new HashMap<>();
         List<Alert> alerts = new ArrayList<>();
         List<Command> alertCommands = new ArrayList<>();
 
@@ -650,18 +649,19 @@ public class HomeEditor {
             new CommandSettings(selectWinnerCommandSettings.getFlags(), selectWinnerCommandSettings.getPermission(),
             new RateLimit()), giveawayId, selectWinnerCommandSettings.getMessage(), raffleSettings.getDiscordChannel());
 
-        if (raffleSettings.isTimed()) {
-            String winnerAlertToken = "winner";
-            alerts.add(new Alert(duration, winnerAlertToken));
-            tokenMap.put(winnerAlertToken, selectWinnerCommand);
-        }
-
         if (!Strings.isBlank(selectWinnerCommandSettings.getCommandName())) {
             giveawayEdit.merge(
                     commandTable.addCommand(selectWinnerCommandSettings.getCommandName(), selectWinnerCommand));
         } else {
             giveawayEdit.merge(commandTable.addCommand(selectWinnerCommand));
         }
+
+        if (raffleSettings.isTimed()) {
+            String winnerAlertToken = "winner";
+            alerts.add(new Alert(duration, winnerAlertToken));
+            giveawayEdit.merge(commandTable.addTrigger(selectWinnerCommand, CommandAlert.TYPE, winnerAlertToken));
+        }
+
 
         RaffleStatusCommand raffleStatusCommand = null;
 
@@ -688,9 +688,9 @@ public class HomeEditor {
                             new CommandSettings(flags, Permission.ANYONE, new RateLimit()),
                             TwitchService.TYPE, getTwitchChannelName(), alertMessage);
 
-                    tokenMap.put(waitAlertToken, alertCommand);
                     alertCommands.add(alertCommand);
                     giveawayEdit.merge(commandTable.addCommand(alertCommand));
+                    giveawayEdit.merge(commandTable.addTrigger(alertCommand, CommandAlert.TYPE, waitAlertToken));
                 }
             }
         }
@@ -701,12 +701,6 @@ public class HomeEditor {
         giveaway.addRaffle(raffle);
 
         serializers.getGiveawaySerializer().commit(giveawayEdit);
-        // TODO: make it so this can go with the previous commit
-        for (Map.Entry<String, Command> entry : tokenMap.entrySet()) {
-            CommandTableEdit commandTableEdit =
-                    commandTable.addTrigger(entry.getValue().getId(), CommandAlert.TYPE, entry.getKey());
-            serializers.getCommandTableSerializer().commit(commandTableEdit);
-        }
 
         for (Alert alert : alerts) {
             scheduleAlert(alert);

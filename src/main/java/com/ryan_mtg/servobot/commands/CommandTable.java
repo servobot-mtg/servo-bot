@@ -1,8 +1,6 @@
 package com.ryan_mtg.servobot.commands;
 
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
-import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
-import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
@@ -71,7 +69,7 @@ public class CommandTable {
     public CommandTableEdit addCommand(final String alias, final Command newCommand) throws UserError {
         CommandTableEdit commandTableEdit = deleteCommand(alias);
         CommandAlias commandAlias = createAlias(newCommand, alias);
-        commandTableEdit.save(contextId, newCommand, commandAlias, this::registerCommand, this::triggerSaved);
+        commandTableEdit.save(contextId, newCommand, commandAlias, this::registerCommand);
         return commandTableEdit;
     }
 
@@ -84,7 +82,7 @@ public class CommandTable {
         Command command = getCommand(existingAlias);
 
         CommandAlias commandAlias = createAlias(command, newAlias);
-        commandTableEdit.save(command.getId(), commandAlias, this::triggerSaved);
+        commandTableEdit.save(command.getId(), commandAlias);
         return commandTableEdit;
     }
 
@@ -115,6 +113,11 @@ public class CommandTable {
 
     public CommandTableEdit addTrigger(final int commandId, final int triggerType, final String text) throws UserError {
         Command command = idToCommandMap.get(commandId);
+        return addTrigger(command, triggerType, text);
+    }
+
+    public CommandTableEdit addTrigger(final Command command, final int triggerType, final String text)
+            throws UserError {
         CommandTableEdit commandTableEdit;
         Trigger trigger;
         switch (triggerType) {
@@ -133,8 +136,8 @@ public class CommandTable {
             default:
                 throw new IllegalArgumentException("Unsupported trigger type: " + triggerType);
         }
-        commandTableEdit.save(commandId, trigger, this::triggerSaved);
-        registerCommand(command, trigger);
+
+        commandTableEdit.save(contextId, command, trigger, this::registerCommand);
 
         return commandTableEdit;
     }
@@ -235,13 +238,7 @@ public class CommandTable {
         commandMap.put(canonicalAlias, newCommand);
         CommandAlias commandAlias = new CommandAlias(CommandAlias.UNREGISTERED_ID, text);
         aliasMap.put(canonicalAlias, commandAlias);
-        reverseTriggerMap.computeIfAbsent(newCommand, command -> new ArrayList<>()).add(commandAlias);
         return commandAlias;
-    }
-
-    private void triggerSaved(final int commandId, final Trigger trigger) {
-        Command command = idToCommandMap.get(commandId);
-        triggerCommandMap.put(trigger, command);
     }
 
     private void deleteTrigger(final Trigger trigger, final CommandTableEdit commandTableEdit,
@@ -313,6 +310,9 @@ public class CommandTable {
             String canonicalAlias = canonicalize(commandAlias.getAlias());
 
             if (commandMap.containsKey(canonicalAlias)) {
+                if (aliasMap.get(canonicalAlias) == commandAlias) {
+                    return;
+                }
                 LOGGER.warn("Command " + canonicalAlias + " is already registered");
                 throw new IllegalStateException("Command " + canonicalAlias + " is already registered");
             } else {

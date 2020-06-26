@@ -223,7 +223,7 @@
                                 <td th:id="${raffleLabel + '-status'}" th:text="${raffle.status}"/>
                                 <td th:text="${raffle.entrantCount}"/>
                                 <td></td>
-                                <td th:text="${T(com.ryan_mtg.servobot.utility.Time).toReadableString(raffle.timeLeft)}"/>
+                                <td th:text="${raffle.timeLeft}"/>
                             </tr>
                         </th:block>
                     </table>
