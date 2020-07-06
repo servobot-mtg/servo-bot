@@ -212,7 +212,6 @@ input[type=number] {
 }
 
 .navbar li {
-    float: left;
     color: black;
     text-align: center;
 }

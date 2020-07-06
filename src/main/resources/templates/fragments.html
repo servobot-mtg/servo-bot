@@ -23,18 +23,18 @@
 
         <div class="navbar">
             <ul>
-                <li><div class="navitem index">
+                <li class="left"><div class="navitem index">
                     <a href="#" th:href="@{/}"><img src="/images/MoosersBot.png" alt="ServoBot" height="28" width="32"></a>
                 </div></li>
 
-                <li><div class="navitem navicon" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
+                <li class="left"><div class="navitem navicon" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
                     <a href="#" th:href="@{/home/{id}(id=${botHome.name})}">
                         <span th:if="${botHome.imageUrl == null}" th:text="${botHome.name}"></span>
                         <img th:if="${botHome.imageUrl != null}" class="user-image" th:src="${botHome.imageUrl}"/>
                     </a>
                 </div></li>
 
-                <li th:if="${user.authenticated && user.admin}"><div class="navitem admin">
+                <li th:if="${user.authenticated && user.admin}" class="left"><div class="navitem admin">
                     <a href="/admin">Admin</a>
                 </div></li>
 
