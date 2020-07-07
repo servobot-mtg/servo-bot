@@ -10,7 +10,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -20,8 +19,8 @@ import java.util.Map;
 
 public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     public static final String USER_ID_PROPERTY = "servobot:userId";
-    private UserTable userTable;
-    private TwitchService twitchService;
+    private final UserTable userTable;
+    private final TwitchService twitchService;
 
     public TwitchUserService(final TwitchService twitchService, final UserTable userTable) {
         this.twitchService = twitchService;
