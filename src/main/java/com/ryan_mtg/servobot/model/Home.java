@@ -26,6 +26,7 @@ public interface Home {
     User getUser(String userName) throws UserError;
 
     Emote getEmote(String emoteName);
+    List<Emote> getEmotes();
 
     User getUser(HomedUser homedUser);
 

@@ -16,6 +16,11 @@
         <p th:if="${user.hasInvite()}">You have a special <a href="/home">invite</a> to have the bot join your
             channel.</p>
 
+        <h2>Logging Into the Website</h2>
+        <p>The ServoBot website uses Twitch to authentication. Click the Twitch
+            <img class="small-icon" src="/images/twitch.ico"> icon in the upper right of the page.
+        </p>
+
         <h2>Using an Invite</h2>
         <p>
             Once you have an invite fill out the Bot Invitation <a href="/home">form</a> It asks you to set your time
@@ -56,11 +61,6 @@
                 </ol>
             </li>
         </ol>
-        <h2>Fin</h2>
-        <p><a href="https://discordapp.com/invite/w7uJW67"><img class="small-icon" src="/images/discord.ico"></a>
-            For more information check out the full <a href="/help">documentation</a> or join the ServoBot
-            <a href="https://discordapp.com/invite/w7uJW67">Discord Server</a>.
-        </p>
     </div>
     <div th:include="fragments :: footer"/>
 </body>
