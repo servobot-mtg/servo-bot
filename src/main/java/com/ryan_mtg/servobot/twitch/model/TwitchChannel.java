@@ -131,6 +131,11 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
+    public List<Emote> getEmotes() {
+        return null;
+    }
+
+    @Override
     public User getUser(final HomedUser homedUser) {
         return new TwitchUser(twitchChat, homedUser);
     }
