@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -18,6 +19,10 @@ public interface MessageEvent extends UserEvent {
 
     default void say(final String text) throws BotHomeError {
         say(null, text);
+    }
+
+    default void sendImage(final String url, final String fileName, final String description) throws UserError {
+        sendImage(getChannel(), url, fileName, description);
     }
 
     default void say(final SymbolTable symbolTable, final String text) throws BotHomeError {

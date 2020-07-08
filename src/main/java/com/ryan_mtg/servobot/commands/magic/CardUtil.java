@@ -45,6 +45,10 @@ public class CardUtil {
                 card.getTypeLine(), card.getOracleText());
     }
 
+    public static String getCardFileName(final Card card) {
+        return String.format("%s.png", card.getName().toLowerCase().replaceAll("\\W", "_"));
+    }
+
     private static String getManaCost(final Card card) {
         String manaCost = card.getManaCost().replaceAll("[{}]", "");
         if (manaCost.isEmpty()) {

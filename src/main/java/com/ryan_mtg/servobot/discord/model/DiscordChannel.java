@@ -1,13 +1,18 @@
 package com.ryan_mtg.servobot.discord.model;
 
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +41,18 @@ public class DiscordChannel implements Channel {
         }
     }
 
+    @Override
+    public void sendImage(final String url, final String fileName, final String description) throws UserError {
+        try {
+            InputStream file = new URL(url).openStream();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setImage("attachment://" + fileName).setDescription(description);
+            channel.sendFile(file, fileName).embed(embed.build()).queue();
+        } catch (IOException e) {
+            throw new UserError(e, "Unable to download %s", fileName);
+        }
+    }
+
     private String replaceNames(final String text) {
         //TODO: Fix this once channels are constructed appropriately
         if (home == null) {
@@ -54,7 +71,7 @@ public class DiscordChannel implements Channel {
         List<Emote> emotes = home.getEmotes();
         Map<String, Emote> emoteMap = new HashMap<>();
         emotes.forEach(emote -> emoteMap.put(emote.getName(), emote));
-        final String emoteReplacedText = replace(nameReplacedText, EMOTE_PATTERN, matcher -> {
+        return replace(nameReplacedText, EMOTE_PATTERN, matcher -> {
             String name = matcher.group();
             if (name.startsWith(":")) {
                 name = name.substring(1, name.length() - 1);
@@ -64,8 +81,6 @@ public class DiscordChannel implements Channel {
             }
             return null;
         });
-
-        return  emoteReplacedText;
     }
 
     private String replace(final String text, final Pattern pattern, final Function<Matcher, String> replaceFunction) {

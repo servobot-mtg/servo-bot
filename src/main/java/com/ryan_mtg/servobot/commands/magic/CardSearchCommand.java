@@ -54,8 +54,13 @@ public class CardSearchCommand extends InvokedCommand {
 
         try {
             Card card = scryfallQuerier.searchForCardByName(query);
-            String response = CardUtil.respondToCardSearch(card, event.getServiceType() == DiscordService.TYPE);
-            event.say(response);
+            if (event.getServiceType() == DiscordService.TYPE) {
+                String fileName = CardUtil.getCardFileName(card);
+                event.sendImage(card.getImageUris().getNormal(), fileName, card.getName());
+            } else {
+                String response = CardUtil.respondToCardSearch(card, false);
+                event.say(response);
+            }
         } catch (ScryfallQueryException e) {
             event.say(e.getDetails());
         }

@@ -2,13 +2,7 @@ package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.user.User;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
-
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DiscordPrivateChannel implements Channel {
     private final DiscordService discordService;
@@ -27,5 +21,10 @@ public class DiscordPrivateChannel implements Channel {
             discordService.logSendMessage(user, message);
             channel.sendMessage(message).queue();
         }
+    }
+
+    @Override
+    public void sendImage(final String url, final String fileName, final String description) {
+        throw new UnsupportedOperationException("Sending images on private channels not supported yet");
     }
 }
