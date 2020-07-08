@@ -4,6 +4,7 @@
     --reaction-color: darkgreen;
     --alert-color: maroon;
     --book-color: maroon;
+    --storage-color: black;
 }
 
 body {
@@ -444,6 +445,17 @@ table#player-table {
     --add-color: var(--book-color);
     margin: 12px;
 }
+
+.storage {
+    border: 3px solid var(--storage-color);
+}
+
+.add-storage {
+    --add-button-size: 24px;
+    --add-color: var(--storage-color);
+    margin: 12px;
+}
+
 
 .add-button {
     height: var(--add-button-size, 12px);

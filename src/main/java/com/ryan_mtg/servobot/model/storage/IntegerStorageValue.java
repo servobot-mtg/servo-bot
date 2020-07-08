@@ -34,4 +34,12 @@ public class IntegerStorageValue extends StorageValue {
     public String evaluate() {
         return Integer.toString(value);
     }
+
+    public static int parseValue(final String value) throws UserError {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            throw new UserError("Invalid value %s.", value);
+        }
+    }
 }

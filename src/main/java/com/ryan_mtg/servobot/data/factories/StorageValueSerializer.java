@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.data.repositories.StorageValueRepository;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
+import com.ryan_mtg.servobot.model.storage.StringStorageValue;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,8 +21,12 @@ public class StorageValueSerializer {
             case IntegerStorageValue.TYPE:
                 return SystemError.filter(() -> new IntegerStorageValue(storageValueRow.getId(),
                         storageValueRow.getUserId(), storageValueRow.getName(), storageValueRow.getNumber()));
+            case StringStorageValue.TYPE:
+                return SystemError.filter(() -> new StringStorageValue(storageValueRow.getId(),
+                        storageValueRow.getUserId(), storageValueRow.getName(), storageValueRow.getString()));
+            default:
+                throw new SystemError("Unsupported type: %s", storageValueRow.getType());
         }
-        throw new SystemError("Unsupported type: %s", storageValueRow.getType());
     }
 
 
@@ -35,7 +40,11 @@ public class StorageValueSerializer {
 
         switch (storageValue.getType()) {
             case IntegerStorageValue.TYPE:
-                storageValueRow.setNumber((int)storageValue.getValue());
+                storageValueRow.setNumber((int) storageValue.getValue());
+                break;
+            case StringStorageValue.TYPE:
+                storageValueRow.setString((String) storageValue.getValue());
+                break;
         }
         return storageValueRow;
     }

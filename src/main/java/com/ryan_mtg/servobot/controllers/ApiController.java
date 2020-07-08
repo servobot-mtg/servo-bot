@@ -25,6 +25,7 @@ import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -324,7 +325,7 @@ public class ApiController {
 
     @PostMapping(value = "/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteCommand(@RequestBody final DeleteObjectRequest request) {
+    public boolean deleteCommand(@RequestBody final DeleteHomedObjectRequest request) {
         return SystemError.filter(() -> {
             CommandTableEditor commandTableEditor = getCommandTableEditor(request.getBotHomeId());
             commandTableEditor.deleteCommand(request.getObjectId());
@@ -334,14 +335,19 @@ public class ApiController {
 
     @PostMapping(value = "/delete_trigger", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteTrigger(@RequestBody final DeleteObjectRequest request) {
+    public boolean deleteTrigger(@RequestBody final DeleteHomedObjectRequest request) {
         CommandTableEditor commandTableEditor = getCommandTableEditor(request.getBotHomeId());
         commandTableEditor.deleteTrigger(request.getObjectId());
         return true;
     }
 
     @Getter
-    public static class DeleteObjectRequest extends BotHomeRequest {
+    public static class DeleteHomedObjectRequest extends BotHomeRequest {
+        private int objectId;
+    }
+
+    @Getter
+    public static class DeleteContextObjectRequest extends ContextRequest {
         private int objectId;
     }
 
@@ -373,7 +379,7 @@ public class ApiController {
 
     @PostMapping(value = "/delete_reaction", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteReaction(@RequestBody final DeleteObjectRequest request) {
+    public boolean deleteReaction(@RequestBody final DeleteHomedObjectRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.deleteReaction(request.getObjectId());
         return true;
@@ -409,11 +415,36 @@ public class ApiController {
 
     @PostMapping(value = "/delete_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteAlert(@RequestBody final DeleteObjectRequest request) {
+    public boolean deleteAlert(@RequestBody final DeleteHomedObjectRequest request) {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.deleteAlert(request.getObjectId());
         return true;
     }
+
+    @PostMapping(value = "/add_storage_value", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public StorageValue addStorageValue(@RequestBody final AddStorageValueRequest request) throws UserError {
+        HomeEditor homeEditor = getHomeEditor(request.getContextId());
+        return homeEditor.addStorageValue(request.getType(), request.getName(), request.getValue());
+    }
+
+    @Getter
+    public static class AddStorageValueRequest extends ContextRequest {
+        private int type;
+        private String name;
+        private String value;
+    }
+
+    @PostMapping(value = "/delete_storage_value", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteStorageValue(@RequestBody final DeleteContextObjectRequest request) {
+        return SystemError.filter(() -> {
+            HomeEditor homeEditor = getHomeEditor(request.getContextId());
+            homeEditor.deleteStorageValue(request.getObjectId());
+            return true;
+        });
+    }
+
 
     @PostMapping(value = "/stop_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean stopHome(@RequestBody final BotHomeRequest request) {
@@ -564,7 +595,7 @@ public class ApiController {
     }
 
     @Getter
-    public static class DeleteGiveawayObjectRequest extends DeleteObjectRequest {
+    public static class DeleteGiveawayObjectRequest extends DeleteHomedObjectRequest {
         private int giveawayId;
     }
 
