@@ -59,7 +59,7 @@ public class AddStatementCommand extends InvokedCommand {
             } catch (LibraryError e) {
                 throw new SystemError(e.getMessage(), e);
             }
-            event.say(String.format("Statement added to %s.", book.get()));
+            event.say(String.format("Statement added to %s.", book.get().getName()));
         } else if (Command.hasPermissions(event.getSender(), Permission.MOD)){
             bookTableEditor.addBook(bookName, text);
             event.say(String.format("%s created with the statement.", bookName));
