@@ -106,6 +106,11 @@ public class MultiServiceHome implements Home {
     }
 
     @Override
+    public List<Emote> getEmotes() {
+        return null;
+    }
+
+    @Override
     public User getUser(final HomedUser homedUser) {
         return null;
     }

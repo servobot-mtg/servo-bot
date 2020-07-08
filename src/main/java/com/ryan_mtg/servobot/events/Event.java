@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.error.BotHomeError;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
@@ -25,6 +26,11 @@ public interface Event {
 
     default void say(final Channel channel, final Scope scope, final String text) throws BotHomeError {
         channel.say(evaluate(scope, text, 0));
+    }
+
+    default void sendImage(final Channel channel, final String url, final String fileName, final String description)
+            throws UserError {
+        channel.sendImage(url, fileName, description);
     }
 
     default String evaluate(final Scope scope, final String text, final int recursionLevel) throws BotHomeError {

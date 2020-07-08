@@ -15,4 +15,7 @@ public class Card {
 
     @JsonProperty("oracle_text")
     private String oracleText;
+
+    @JsonProperty("image_uris")
+    private ImageUris imageUris;
 }

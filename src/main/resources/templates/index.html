@@ -30,9 +30,11 @@
             </ul>
 
             <h2>Documentation</h2>
-            <p>Full ServoBot <a href="/help">Documentation</a></p>
-            <p>Quick Start <a href="/help/quick_start">Guide</a></p>
-            <p class="hidden">Streaming <a href="/help/streaming">Guide</a></p>
+            <ul>
+                <li>Full <a href="/help">Documentation</a></li>
+                <li>Quick Start <a href="/help/quick_start">Guide</a></li>
+                <li th:if="${user.admin}">Streaming <a href="/help/streaming">Guide</a></li>
+            </ul>
         </div>
         <div th:include="fragments :: footer"/>
     </body>

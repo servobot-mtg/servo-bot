@@ -38,6 +38,11 @@ public class TwitchChannel implements Channel, Home {
     }
 
     @Override
+    public void sendImage(final String url, final String fileName, final String description) {
+        throw new UnsupportedOperationException("Twitch doesn't support sending images");
+    }
+
+    @Override
     public String getName() {
         return channelName;
     }
@@ -127,6 +132,11 @@ public class TwitchChannel implements Channel, Home {
 
     @Override
     public Emote getEmote(final String emoteName) {
+        return null;
+    }
+
+    @Override
+    public List<Emote> getEmotes() {
         return null;
     }
 

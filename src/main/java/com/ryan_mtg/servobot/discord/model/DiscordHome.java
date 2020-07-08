@@ -19,13 +19,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DiscordHome implements Home {
     private static Logger LOGGER = LoggerFactory.getLogger(DiscordHome.class);
 
     private Guild guild;
     private HomeEditor homeEditor;
+    //TODO: put this in DiscordHome once it's merged with ServiceHome
+    private static Map<Long, List<Emote>> emoteCache = new HashMap<>();
 
     public DiscordHome(final Guild guild, final HomeEditor homeEditor) {
         this.guild = guild;
@@ -140,6 +145,18 @@ public class DiscordHome implements Home {
         Member member = getMember(userName);
         HomedUser homedUser = getHomeEditor().getUserByDiscordId(member.getIdLong(), member.getEffectiveName());
         return new DiscordUser(homedUser , member);
+    }
+
+    @Override
+    public List<Emote> getEmotes() {
+        long guildId = guild.getIdLong();
+        if (emoteCache.containsKey(guildId)) {
+            return emoteCache.get(guildId);
+        }
+        List<net.dv8tion.jda.api.entities.Emote> emotes = guild.getEmotes();
+        List<Emote> cachedEmotes = emotes.stream().map(emote -> new DiscordEmote(emote)).collect(Collectors.toList());
+        emoteCache.put(guildId, cachedEmotes);
+        return cachedEmotes;
     }
 
     @Override

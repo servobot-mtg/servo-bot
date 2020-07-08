@@ -17,9 +17,12 @@ public class DiscordEmote implements Emote {
     }
 
     @Override
+    public String getName() {
+        return emote.getName();
+    }
+
+    @Override
     public String getMessageText() {
-        String text = emote.getAsMention();
-        LOGGER.info("Getting message text: " + text);
-        return text;
+        return emote.getAsMention();
     }
 }
