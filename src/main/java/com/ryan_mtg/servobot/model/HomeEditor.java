@@ -119,6 +119,7 @@ public class HomeEditor {
         botHome.setTimeZone(timeZone);
         botHome.getReactionTable().setTimeZone(timeZone);
         botHome.getCommandTable().setTimeZone(timeZone);
+        botHome.getSchedule().setTimeZone(timeZone);
 
         bot.getAlertQueue().update(botHome);
 
