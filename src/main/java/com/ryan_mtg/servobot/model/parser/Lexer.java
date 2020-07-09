@@ -94,6 +94,15 @@ public class Lexer {
                 nextToken = new Token(Token.Type.ADD, "+");
                 position++;
                 return;
+            case '-':
+                if (position + 1 < input.length() && input.charAt(position + 1) == '-') {
+                    nextToken = new Token(Token.Type.DECREMENT, "--");
+                    position+=2;
+                    return;
+                }
+                nextToken = new Token(Token.Type.SUBTRACT, "-");
+                position++;
+                return;
         }
 
         int start = position;

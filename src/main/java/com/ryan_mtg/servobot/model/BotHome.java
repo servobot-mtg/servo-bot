@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.schedule.Schedule;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
@@ -75,6 +76,9 @@ public class BotHome implements Context {
     private StorageTable storageTable;
 
     @Getter
+    private Schedule schedule;
+
+    @Getter
     private Map<Integer, ServiceHome> serviceHomes;
 
     @Getter
@@ -103,6 +107,7 @@ public class BotHome implements Context {
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
         this.storageTable = storageTable;
+        this.schedule = new Schedule(timeZone);
         this.serviceHomes = serviceHomes;
         this.gameQueues = gameQueues;
         this.giveaways = giveaways;
@@ -195,6 +200,7 @@ public class BotHome implements Context {
 
     private Scope createScope(final Scope botScope) {
         SimpleSymbolTable timeSymbolTable = new SimpleSymbolTable();
+        timeSymbolTable.addFunctor("nextStream", () -> getSchedule().getNextStream());
         timeSymbolTable.addFunctor("year", () -> now().getYear());
         timeSymbolTable.addFunctor("month", () -> now().getMonthValue());
         timeSymbolTable.addFunctor("dayOfMonth", () -> now().getDayOfMonth());
@@ -202,6 +208,7 @@ public class BotHome implements Context {
         timeSymbolTable.addFunctor("dayOfWeek",
                 () -> Strings.capitalize(now().getDayOfWeek().toString().toLowerCase()));
         timeSymbolTable.addFunctor("timeOfDay", () -> dateTimeFormatter.format(now()));
+        timeSymbolTable.addFunctor("now", () -> now());
 
         timeSymbolTable.addValue("hasUser", (Function<String, Boolean>)this::hasUser);
         timeSymbolTable.addValue("findUser", (Function<String, HomedUser>)this::findUser);

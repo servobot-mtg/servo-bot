@@ -54,12 +54,14 @@ CREATE TABLE IF NOT EXISTS storage_value (id INTEGER AUTO_INCREMENT PRIMARY KEY,
 CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, name VARCHAR(30),
         flags INTEGER, state INTEGER, request_prize_command_name VARCHAR(30), prize_request_limit INTEGER,
         prize_request_user_limit INTEGER, request_prize_command_id INTEGER, prize_requests INTEGER,
-        start_raffle_command_name VARCHAR(30), start_raffle_flags INTEGER, start_raffle_permission INTEGER,
-        start_raffle_message VARCHAR(200), start_raffle_command_id INTEGER, enter_raffle_command_name VARCHAR(30),
-        enter_raffle_permission INTEGER, enter_raffle_flags INTEGER, enter_raffle_message VARCHAR(200),
-        raffle_status_command_name VARCHAR(30), raffle_status_permission INTEGER, raffle_status_flags INTEGER,
-        raffle_status_message VARCHAR(200), raffle_duration INTEGER, raffle_winner_count INTEGER,
-        raffle_winner_response VARCHAR(200), discord_channel VARCHAR(200));
+        raffle_flags INTEGER, start_raffle_command_name VARCHAR(30), start_raffle_flags INTEGER,
+        start_raffle_permission INTEGER, start_raffle_message VARCHAR(200), start_raffle_command_id INTEGER,
+        enter_raffle_command_name VARCHAR(30), enter_raffle_permission INTEGER, enter_raffle_flags INTEGER,
+        enter_raffle_message VARCHAR(200), raffle_status_command_name VARCHAR(30), raffle_status_permission INTEGER,
+        raffle_status_flags INTEGER, raffle_status_message VARCHAR(200), select_winner_command_name VARCHAR(30),
+        select_winner_permission INTEGER, select_winner_flags INTEGER, select_winner_message VARCHAR(200),
+        raffle_duration INTEGER, raffle_winner_count INTEGER, raffle_winner_response VARCHAR(200),
+        discord_channel VARCHAR(200));
 
 CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
         description VARCHAR(200), status INTEGER, winner_id INTEGER);
@@ -80,3 +82,7 @@ CREATE TABLE session_ATTRIBUTES (session_primary_id CHAR(36) NOT NULL, attribute
 CREATE UNIQUE INDEX spring_session_ix1 ON session (session_id);
 CREATE INDEX spring_session_ix2 ON session (expiry_time);
 CREATE INDEX spring_session_ix3 ON session (principal_name);
+
+ALTER TABLE giveaway ADD COLUMN raffle_flags INTEGER, ADD COLUMN select_winner_command_name VARCHAR(30),
+        ADD COLUMN select_winner_permission INTEGER, ADD COLUMN select_winner_flags INTEGER,
+        ADD COLUMN select_winner_message VARCHAR(200);

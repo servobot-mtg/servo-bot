@@ -15,6 +15,8 @@ public class Token {
         CONDITIONAL,
         CONDITIONAL_ELSE,
         STRING_LITERAL,
+        SUBTRACT,
+        DECREMENT
         ;
     }
 

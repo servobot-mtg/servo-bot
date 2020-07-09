@@ -71,6 +71,8 @@ public class GiveawaySerializer {
 
         RaffleSettings raffleSettings = giveaway.getRaffleSettings();
 
+        giveawayRow.setRaffleFlags(raffleSettings.getFlags());
+
         giveawayRow.setRaffleDuration((int)raffleSettings.getDuration().getSeconds());
         giveawayRow.setRaffleWinnerCount(raffleSettings.getWinnerCount());
         Command startRaffleCommand = giveaway.getStartRaffleCommand();
@@ -91,7 +93,10 @@ public class GiveawaySerializer {
         giveawayRow.setRaffleStatusPermission(raffleSettings.getRaffleStatus().getPermission());
         giveawayRow.setRaffleStatusMessage(raffleSettings.getRaffleStatus().getMessage());
 
-        giveawayRow.setRaffleWinnerResponse(raffleSettings.getWinnerResponse());
+        giveawayRow.setSelectWinnerCommandName(raffleSettings.getSelectWinner().getCommandName());
+        giveawayRow.setSelectWinnerFlags(raffleSettings.getSelectWinner().getFlags());
+        giveawayRow.setSelectWinnerPermission(raffleSettings.getSelectWinner().getPermission());
+        giveawayRow.setSelectWinnerMessage(raffleSettings.getSelectWinner().getMessage());
         giveawayRow.setDiscordChannel(raffleSettings.getDiscordChannel());
 
         giveawayRepository.save(giveawayRow);
@@ -207,13 +212,18 @@ public class GiveawaySerializer {
                         giveawayRow.getEnterRaffleFlags(), giveawayRow.getEnterRafflePermission(),
                         giveawayRow.getEnterRaffleMessage());
 
-                GiveawayCommandSettings raffleStatus = new GiveawayCommandSettings(giveawayRow.getRaffleStatusCommandName(),
-                        giveawayRow.getRaffleStatusFlags(), giveawayRow.getRaffleStatusPermission(),
-                        giveawayRow.getRaffleStatusMessage());
+                GiveawayCommandSettings raffleStatus = new GiveawayCommandSettings(
+                        giveawayRow.getRaffleStatusCommandName(), giveawayRow.getRaffleStatusFlags(),
+                        giveawayRow.getRaffleStatusPermission(), giveawayRow.getRaffleStatusMessage());
 
-                RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle, raffleStatus,
+                GiveawayCommandSettings selectWinner = new GiveawayCommandSettings(
+                        giveawayRow.getSelectWinnerCommandName(), giveawayRow.getSelectWinnerFlags(),
+                        giveawayRow.getSelectWinnerPermission(), giveawayRow.getSelectWinnerMessage());
+
+                int raffleFlags = giveawayRow.getRaffleFlags();
+                RaffleSettings raffleSettings = new RaffleSettings(raffleFlags, startRaffle, enterRaffle, raffleStatus,
                         Duration.ofSeconds(giveawayRow.getRaffleDuration()), giveawayRow.getRaffleWinnerCount(),
-                        giveawayRow.getRaffleWinnerResponse(), giveawayRow.getDiscordChannel());
+                        selectWinner, giveawayRow.getDiscordChannel());
 
                 giveaway.setRaffleSettings(raffleSettings);
             }

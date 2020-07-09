@@ -48,6 +48,9 @@ public class GiveawayRow {
     @Column(name = "prize_requests")
     private int prizeRequests;
 
+    @Column(name = "raffle_flags")
+    private int raffleFlags;
+
     @Column(name = "start_raffle_command_name")
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String startRaffleCommandName;
@@ -92,6 +95,20 @@ public class GiveawayRow {
     @Column(name = "raffle_status_message")
     @Size(max = Validation.MAX_TEXT_LENGTH)
     private String raffleStatusMessage;
+
+    @Column(name = "select_winner_command_name")
+    @Size(max = Validation.MAX_NAME_LENGTH)
+    private String selectWinnerCommandName;
+
+    @Column(name = "select_winner_flags")
+    private int selectWinnerFlags;
+
+    @Column(name = "select_winner_permission")
+    private Permission selectWinnerPermission;
+
+    @Column(name = "select_winner_message")
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    private String selectWinnerMessage;
 
     @Column(name = "raffle_duration")
     private int raffleDuration;

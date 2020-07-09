@@ -14,6 +14,8 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -163,7 +165,7 @@ public class Parser {
     }
 
     private static boolean isTermOperation(final Token.Type tokenType) {
-        return tokenType == Token.Type.ADD;
+        return tokenType == Token.Type.ADD || tokenType == Token.Type.SUBTRACT;
     }
 
     private static boolean isFactorOperation(final Token.Type tokenType) {
@@ -174,11 +176,24 @@ public class Parser {
             throws ParseException {
         switch (operation) {
             case ADD:
-                return getInteger(leftHandOperand) + getInteger(rightHandOperand);
+                return add(leftHandOperand, rightHandOperand);
+            case SUBTRACT:
+                return subtract(leftHandOperand, rightHandOperand);
             case MULTIPLY:
                 return getInteger(leftHandOperand) * getInteger(rightHandOperand);
         }
         throw new ParseException(String.format("Invalid Operation '%s'", operation));
+    }
+
+    private Object add(final Object leftHandOperand, final Object rightHandOperand) throws ParseException {
+        return getInteger(leftHandOperand) + getInteger(rightHandOperand);
+    }
+
+    private Object subtract(final Object leftHandOperand, final Object rightHandOperand) throws ParseException {
+        if (leftHandOperand instanceof Temporal && rightHandOperand instanceof Temporal) {
+            return Duration.between((Temporal) rightHandOperand, (Temporal) leftHandOperand);
+        }
+        return getInteger(leftHandOperand) - getInteger(rightHandOperand);
     }
 
     private boolean testCondition(final Object condition) throws ParseException {
@@ -270,7 +285,11 @@ public class Parser {
         }
 
         if (value instanceof HomedUser) {
-            return new StringEvaluatable(((HomedUser)value).getName());
+            return new StringEvaluatable(((HomedUser) value).getName());
+        }
+
+        if (value instanceof ZonedDateTime) {
+            return new StringEvaluatable(Time.toReadableString((ZonedDateTime) value));
         }
 
         throw new ParseException(String.format("Unknown type '%s' for value: %s", value.getClass(), value));

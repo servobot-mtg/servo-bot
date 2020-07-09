@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.security;
 
-import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -33,14 +32,12 @@ import java.util.List;
 @Configuration
 @ControllerAdvice
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final BotRegistrar botRegistrar;
     private final UserTable userTable;
     private final WebsiteUserFactory websiteUserFactory;
     private final TwitchService twitchService;
 
-    public SecurityConfig(final BotRegistrar botRegistrar, final UserTable userTable,
-            final WebsiteUserFactory websiteUserFactory, final TwitchService twitchService) {
-        this.botRegistrar = botRegistrar;
+    public SecurityConfig(final UserTable userTable, final WebsiteUserFactory websiteUserFactory,
+            final TwitchService twitchService) {
         this.userTable = userTable;
         this.websiteUserFactory = websiteUserFactory;
         this.twitchService = twitchService;

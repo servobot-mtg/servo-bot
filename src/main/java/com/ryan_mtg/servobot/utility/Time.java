@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.utility;
 
+import com.ryan_mtg.servobot.error.SystemError;
 import lombok.Getter;
 
 import java.time.Duration;
@@ -18,7 +19,9 @@ public class Time {
         new UnitDescriptor("second", Duration::getSeconds, 1, "a"),
         new UnitDescriptor("", duration -> 0L, 1, ""),
     };
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+
+    private static final DateTimeFormatter SHORT_FORMATTER = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+    private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("LLLL");
 
     public static String toReadableString(final Duration duration) {
         for (int i = 0; i + 1 < unitDescriptors.length; i++) {
@@ -31,11 +34,26 @@ public class Time {
     }
 
     public static String toReadableString(final LocalTime localTime) {
-        return FORMATTER.format(localTime);
+        return SHORT_FORMATTER.format(localTime);
     }
 
-    public static String toReadableString(final ZonedDateTime goal) {
-        return FORMATTER.format(goal);
+    public static String toReadableString(final ZonedDateTime zonedDateTime) {
+        return toReadableString(zonedDateTime, ZonedDateTime.now(zonedDateTime.getZone()));
+    }
+
+    public static String toReadableString(final ZonedDateTime goal, final ZonedDateTime now) {
+        int dayOfMonth = goal.getDayOfMonth();
+        String time = SHORT_FORMATTER.format(goal);
+        if (now.getYear() != goal.getYear()) {
+            return String.format("%s on the %d%s of %s, %d", time, dayOfMonth, getSuffix(dayOfMonth),
+                    MONTH_FORMATTER.format(goal), goal.getYear());
+        } else if (now.getMonthValue() != goal.getMonthValue()) {
+            return String.format("%s on the %d%s of %s", time, dayOfMonth, getSuffix(dayOfMonth),
+                    MONTH_FORMATTER.format(goal));
+        } else if (now.getDayOfMonth() != dayOfMonth) {
+            return String.format("%s on the %d%s", time, dayOfMonth, getSuffix(dayOfMonth));
+        }
+        return time;
     }
 
     private static class UnitDescriptor {
@@ -86,5 +104,29 @@ public class Time {
             return sb.toString();
         }
         return null;
+    }
+
+    private static String getSuffix(final int number) {
+        if (11 <= number && number <= 13) {
+            return "th";
+        }
+        switch (number%10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 0:
+                return "th";
+            default:
+                throw new SystemError("Unknown suffix");
+        }
     }
 }

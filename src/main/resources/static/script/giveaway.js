@@ -79,17 +79,18 @@ function saveRaffleSettings(botHomeId, giveawayId) {
     const label = 'giveaway-' + giveawayId;
     const duration = document.getElementById(label + '-raffle-duration').value;
     const winnerCount = document.getElementById(label + '-raffle-winner-count').value;
+    const timed = document.getElementById(label + '-raffle-end-input').checked;
 
     const startRaffle = getCommandSettings(label + '-start-raffle');
     const enterRaffle = getCommandSettings(label + '-enter-raffle');
     const raffleStatus = getCommandSettings(label + '-raffle-status');
+    const selectWinner = getCommandSettings(label + '-select-winner');
 
-    const winnerResponse = document.getElementById(label + '-raffle-winner-response').value;
     const discordChannel = document.getElementById(label + '-discord-channel').value;
 
-    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, duration: duration, winnerCount: winnerCount,
-        winnerResponse: winnerResponse, discordChannel: discordChannel, startRaffle: startRaffle,
-        enterRaffle: enterRaffle, raffleStatus: raffleStatus};
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, timed: timed, duration: duration,
+        winnerCount: winnerCount, discordChannel: discordChannel, startRaffle: startRaffle, enterRaffle: enterRaffle,
+        raffleStatus: raffleStatus, selectWinner: selectWinner};
 
     postSaveGiveawayRaffleSettings(botHomeId, parameters);
 }
@@ -255,6 +256,7 @@ const giveawayCommandsData = [
     {label: 'start-raffle'},
     {label: 'enter-raffle'},
     {label: 'raffle-status'},
+    {label: 'select-winner'},
 ];
 
 function toggleTwitchCommandSetting(giveawayId, settingsId) {

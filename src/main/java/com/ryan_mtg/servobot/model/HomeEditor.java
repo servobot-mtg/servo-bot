@@ -121,6 +121,7 @@ public class HomeEditor {
         botHome.setTimeZone(timeZone);
         botHome.getReactionTable().setTimeZone(timeZone);
         botHome.getCommandTable().setTimeZone(timeZone);
+        botHome.getSchedule().setTimeZone(timeZone);
 
         bot.getAlertQueue().update(botHome);
 
@@ -558,8 +559,8 @@ public class HomeEditor {
     @Transactional(rollbackOn = Exception.class)
     public Giveaway saveGiveawayRaffleSettings(final int giveawayId, final Duration raffleDuration,
             final int winnerCount, final GiveawayCommandSettings startRaffle, final GiveawayCommandSettings enterRaffle,
-            final GiveawayCommandSettings raffleStatus, final String winnerResponse, final String discordChannel)
-            throws UserError {
+            final GiveawayCommandSettings raffleStatus, final GiveawayCommandSettings selectWinner,
+            final String discordChannel, final boolean timed) throws UserError {
 
         Giveaway giveaway = getGiveaway(giveawayId);
         if (giveaway.getState() != Giveaway.State.CONFIGURING) {
@@ -567,8 +568,8 @@ public class HomeEditor {
         }
         RaffleSettings previousSettings = giveaway.getRaffleSettings();
 
-        RaffleSettings raffleSettings = new RaffleSettings(startRaffle, enterRaffle, raffleStatus, raffleDuration,
-                winnerCount, winnerResponse, discordChannel);
+        RaffleSettings raffleSettings = new RaffleSettings(timed, startRaffle, enterRaffle, raffleStatus, raffleDuration,
+                winnerCount, selectWinner, discordChannel);
 
         CommandTable commandTable = botHome.getCommandTable();
         raffleSettings.validateOnSave(previousSettings, commandTable);
@@ -671,17 +672,27 @@ public class HomeEditor {
 
         Duration duration = raffleSettings.getDuration();
 
-        Map<String, Command> tokenMap = new HashMap<>();
         List<Alert> alerts = new ArrayList<>();
         List<Command> alertCommands = new ArrayList<>();
-        String winnerAlertToken = "winner";
-        alerts.add(new Alert(duration, winnerAlertToken));
-        int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
+
+        GiveawayCommandSettings selectWinnerCommandSettings = raffleSettings.getSelectWinner();
         SelectWinnerCommand selectWinnerCommand = new SelectWinnerCommand(Command.UNREGISTERED_ID,
-            new CommandSettings(flags, Permission.STREAMER, new RateLimit()), giveawayId,
-            raffleSettings.getWinnerResponse(), raffleSettings.getDiscordChannel());
-        tokenMap.put(winnerAlertToken, selectWinnerCommand);
-        giveawayEdit.merge(commandTable.addCommand(selectWinnerCommand));
+            new CommandSettings(selectWinnerCommandSettings.getFlags(), selectWinnerCommandSettings.getPermission(),
+            new RateLimit()), giveawayId, selectWinnerCommandSettings.getMessage(), raffleSettings.getDiscordChannel());
+
+        if (!Strings.isBlank(selectWinnerCommandSettings.getCommandName())) {
+            giveawayEdit.merge(
+                    commandTable.addCommand(selectWinnerCommandSettings.getCommandName(), selectWinnerCommand));
+        } else {
+            giveawayEdit.merge(commandTable.addCommand(selectWinnerCommand));
+        }
+
+        if (raffleSettings.isTimed()) {
+            String winnerAlertToken = "winner";
+            alerts.add(new Alert(duration, winnerAlertToken));
+            giveawayEdit.merge(commandTable.addTrigger(selectWinnerCommand, CommandAlert.TYPE, winnerAlertToken));
+        }
+
 
         RaffleStatusCommand raffleStatusCommand = null;
 
@@ -694,36 +705,33 @@ public class HomeEditor {
                     commandTable.addCommand(raffleSettings.getRaffleStatus().getCommandName(), raffleStatusCommand));
         }
 
-        int[] waitMinutes = { 5, 1 };
-        int[] thresholdMinutes = { 10, 3 };
-        for (int i = 0; i < waitMinutes.length; i++) {
-            if (duration.toMinutes() >= thresholdMinutes[i]) {
-                String waitAlertToken = String.format("min%d", waitMinutes[i]);
-                Duration waitDuration = Duration.of(duration.toMinutes() - waitMinutes[i], ChronoUnit.MINUTES);
-                alerts.add(new Alert(waitDuration, waitAlertToken));
-                String alertMessage = String.format("%d minutes left in the raffle.", waitMinutes[i]);
-                Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID,
-                        new CommandSettings(flags, Permission.ANYONE, new RateLimit()),
-                        TwitchService.TYPE, getTwitchChannelName(), alertMessage);
+        if (raffleSettings.isTimed()) {
+            int[] waitMinutes = {5, 1};
+            int[] thresholdMinutes = {10, 3};
+            for (int i = 0; i < waitMinutes.length; i++) {
+                if (duration.toMinutes() >= thresholdMinutes[i]) {
+                    String waitAlertToken = String.format("min%d", waitMinutes[i]);
+                    Duration waitDuration = Duration.of(duration.toMinutes() - waitMinutes[i], ChronoUnit.MINUTES);
+                    alerts.add(new Alert(waitDuration, waitAlertToken));
+                    String alertMessage = String.format("%d minutes left in the raffle.", waitMinutes[i]);
+                    int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
+                    Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID,
+                            new CommandSettings(flags, Permission.ANYONE, new RateLimit()),
+                            TwitchService.TYPE, getTwitchChannelName(), alertMessage);
 
-                tokenMap.put(waitAlertToken, alertCommand);
-                alertCommands.add(alertCommand);
-                giveawayEdit.merge(commandTable.addCommand(alertCommand));
+                    alertCommands.add(alertCommand);
+                    giveawayEdit.merge(commandTable.addCommand(alertCommand));
+                    giveawayEdit.merge(commandTable.addTrigger(alertCommand, CommandAlert.TYPE, waitAlertToken));
+                }
             }
         }
 
-        Instant stopTime = Instant.now().plus(duration);
+        Instant stopTime = raffleSettings.isTimed() ? Instant.now().plus(duration) : null;
         Raffle raffle = new Raffle(Raffle.UNREGISTERED_ID, enterCommandSettings.getCommandName(), enterRaffleCommand,
                 raffleStatusCommand, selectWinnerCommand, alertCommands, prizes, stopTime);
         giveaway.addRaffle(raffle);
 
         serializers.getGiveawaySerializer().commit(giveawayEdit);
-        // TODO: make it so this can go with the previous commit
-        for (Map.Entry<String, Command> entry : tokenMap.entrySet()) {
-            CommandTableEdit commandTableEdit =
-                    commandTable.addTrigger(entry.getValue().getId(), CommandAlert.TYPE, entry.getKey());
-            serializers.getCommandTableSerializer().commit(commandTableEdit);
-        }
 
         for (Alert alert : alerts) {
             scheduleAlert(alert);
@@ -733,13 +741,13 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public void enterRaffle(final HomedUser entrant, final int giveawayId) throws UserError {
+    public Raffle enterRaffle(final HomedUser entrant, final int giveawayId) throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
         Raffle raffle = giveaway.retrieveCurrentRaffle();
         raffle.enter(entrant);
+        return raffle;
     }
-
 
     @Transactional(rollbackOn = Exception.class)
     public List<HomedUser> selectRaffleWinners(int giveawayId) throws UserError {

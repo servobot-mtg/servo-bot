@@ -499,7 +499,8 @@ public class ApiController {
         return homeEditor.saveGiveawayRaffleSettings(request.getGiveawayId(),
                 Duration.of(request.getDuration(), ChronoUnit.MINUTES), request.getWinnerCount(),
                 request.getStartRaffle().toSettings(), request.getEnterRaffle().toSettings(),
-                request.getRaffleStatus().toSettings(), request.getWinnerResponse(), request.getDiscordChannel());
+                request.getRaffleStatus().toSettings(), request.getSelectWinner().toSettings(),
+                request.getDiscordChannel(), request.isTimed());
     }
 
     @Getter
@@ -520,13 +521,14 @@ public class ApiController {
 
     @Getter
     public static class SaveRaffleSettingsRequest extends GiveawayRequest {
+        private boolean timed;
         private int duration;
         private int winnerCount;
-        private String winnerResponse;
         private String discordChannel;
         private CommandSettings startRaffle;
         private CommandSettings enterRaffle;
         private CommandSettings raffleStatus;
+        private CommandSettings selectWinner;
     }
 
     @PostMapping(value = "/start_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,

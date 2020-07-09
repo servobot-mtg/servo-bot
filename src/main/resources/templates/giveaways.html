@@ -81,8 +81,11 @@
                         </div>
                         <div class="form-block">
                             <label>Raffle End</label><br>
-                            <input type="radio" th:name="${label} + '-raffle-end'" value="TIMED" checked>Timed<br>
-                            <input type="radio" th:name="${label} + '-raffle-end'" value="MANUAL">Manual<br>
+                            <input th:id="${label} + '-raffle-end-input'" type="radio"
+                                   th:name="${label} + '-raffle-end'" value="TIMED"
+                                   th:checked="${giveaway.raffleSettings.timed}">Timed<br>
+                            <input type="radio" th:name="${label} + '-raffle-end'" value="MANUAL"
+                                   th:checked="${!giveaway.raffleSettings.timed}">Manual<br>
                         </div>
                         <div class="form-block">
                             <label>Raffle Duration (min)</label><br>
@@ -116,11 +119,10 @@
                             label = ${label + '-raffle-status'}, settingsId = ${3},
                             commandSettings = ${giveaway.raffleSettings.raffleStatus})" />
 
-                        <div>
-                            <label>Winner Response</label><br>
-                            <input type="text" th:id="${label} + '-raffle-winner-response'" class="message-input"
-                                   th:value="${giveaway.raffleSettings.winnerResponse}"><br>
-                        </div><br>
+                        <div th:include="fragments :: command_settings (description = 'Select Winner Command',
+                            label = ${label + '-select-winner'}, settingsId = ${4},
+                            commandSettings = ${giveaway.raffleSettings.selectWinner})" />
+                        <br>
                         <div class="form-block hidden">
                             <label>Select Raffle Winner Command Name</label><br>
                             <input type="text" id="select-raffle-winner-command"><br>
@@ -221,7 +223,7 @@
                                 <td th:id="${raffleLabel + '-status'}" th:text="${raffle.status}"/>
                                 <td th:text="${raffle.entrantCount}"/>
                                 <td></td>
-                                <td th:text="${T(com.ryan_mtg.servobot.utility.Time).toReadableString(raffle.timeLeft)}"/>
+                                <td th:text="${raffle.timeLeft}"/>
                             </tr>
                         </th:block>
                     </table>

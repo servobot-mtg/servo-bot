@@ -25,9 +25,10 @@ public class CommandTableEdit {
 
     @Getter
     private Map<Trigger, Integer> savedTriggers = new IdentityHashMap<>();
-    private Map<Command, Trigger> savedCommandToTriggerMap = new HashMap<>();
+    private Map<Command, List<Trigger>> savedCommandToTriggersMap = new HashMap<>();
+    private Map<Trigger, Command> savedTriggerToCommandMap = new IdentityHashMap<>();
     private Map<Command, Consumer<Command>> commandSaveCallbackMap = new HashMap<>();
-    private Map<Trigger, BiConsumer<Integer, Trigger>> triggerSaveCallbackMap = new IdentityHashMap<>();
+    private Map<Trigger, BiConsumer<Command, Trigger>> triggerSaveCallbackMap = new IdentityHashMap<>();
 
     @Getter
     private Map<AlertGenerator, Integer> savedAlertGenerators = new HashMap<>();
@@ -48,23 +49,25 @@ public class CommandTableEdit {
         commandSaveCallbackMap.put(command, commandSaveCallback);
     }
 
-    public void save(final int botHomeId, final Command command, final Trigger trigger,
-            final Consumer<Command> commandSaveCallback, final BiConsumer<Integer, Trigger> aliasSaveCallback) {
-        savedCommands.put(command, botHomeId);
-        savedCommandToTriggerMap.put(command, trigger);
-        commandSaveCallbackMap.put(command, commandSaveCallback);
-        triggerSaveCallbackMap.put(trigger, aliasSaveCallback);
-    }
+    public void save(final int contextId, final Command command, final Trigger trigger,
+            final BiConsumer<Command, Trigger> triggerSaveCallback) {
+        save(contextId, command);
+        savedCommandToTriggersMap.computeIfAbsent(command, c -> new ArrayList<>()).add(trigger);
 
-    public void save(final int commandId, final Trigger trigger,
-                     final BiConsumer<Integer, Trigger> triggerSaveCallback) {
-        savedTriggers.put(trigger, commandId);
+        save(command.getId(), trigger);
+        savedTriggerToCommandMap.put(trigger, command);
         triggerSaveCallbackMap.put(trigger, triggerSaveCallback);
     }
 
+    public void save(final int commandId, final Trigger trigger) {
+        savedTriggers.put(trigger, commandId);
+    }
+
     public void commandSaved(final Command command) {
-        if (savedCommandToTriggerMap.containsKey(command)) {
-            savedTriggers.put(savedCommandToTriggerMap.get(command), command.getId());
+        if (savedCommandToTriggersMap.containsKey(command)) {
+            for (Trigger trigger : savedCommandToTriggersMap.get(command)) {
+                savedTriggers.put(trigger, command.getId());
+            }
         }
         if (commandSaveCallbackMap.containsKey(command)) {
             commandSaveCallbackMap.get(command).accept(command);
@@ -72,7 +75,9 @@ public class CommandTableEdit {
     }
 
     public void triggerSaved(final Trigger trigger) {
-        triggerSaveCallbackMap.get(trigger).accept(savedTriggers.get(trigger), trigger);
+        if (triggerSaveCallbackMap.containsKey(trigger)) {
+            triggerSaveCallbackMap.get(trigger).accept(savedTriggerToCommandMap.get(trigger), trigger);
+        }
     }
 
     public void delete(final Trigger trigger) {
@@ -94,15 +99,12 @@ public class CommandTableEdit {
         deletedTriggers.addAll(commandTableEdit.deletedTriggers);
 
         savedTriggers.putAll(commandTableEdit.savedTriggers);
-        savedCommandToTriggerMap.putAll(commandTableEdit.savedCommandToTriggerMap);
+        savedCommandToTriggersMap.putAll(commandTableEdit.savedCommandToTriggersMap);
+        savedTriggerToCommandMap.putAll(commandTableEdit.savedTriggerToCommandMap);
         commandSaveCallbackMap.putAll(commandTableEdit.commandSaveCallbackMap);
         triggerSaveCallbackMap.putAll(commandTableEdit.triggerSaveCallbackMap);
 
         savedAlertGenerators.putAll(commandTableEdit.savedAlertGenerators);
         deletedAlertGenerators.addAll(deletedAlertGenerators);
-    }
-
-    private <Key, Value> void merge(final Map<Key, Value> map, final Map<Key, Value> sourceMap) {
-        sourceMap.forEach((key, value) -> map.merge(key, value,(value1, value2) -> value1));
     }
 }

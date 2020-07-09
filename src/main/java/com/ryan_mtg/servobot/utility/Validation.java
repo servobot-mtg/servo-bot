@@ -45,17 +45,17 @@ public class Validation {
     public static void validateSetTemporaryCommandName(final String newCommandName, final String savedCommandName,
             final CommandTable commandTable, final boolean required, final String commandDescription)
             throws UserError {
-        if (required) {
-            if (newCommandName == null || newCommandName.isEmpty()) {
-                throw new UserError("%s must not be empty", commandDescription);
-            }
+        boolean isBlank = Strings.isBlank(newCommandName);
+
+        if (required && isBlank) {
+            throw new UserError("%s must not be empty", commandDescription);
         }
 
-        if (newCommandName != null && newCommandName.equals(savedCommandName)) {
+        if (!isBlank && newCommandName.equals(savedCommandName)) {
             return;
         }
 
-        if (newCommandName == null || newCommandName.isEmpty()) {
+        if (isBlank) {
             return;
         }
 
