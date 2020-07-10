@@ -47,7 +47,6 @@ import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
-import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -61,9 +60,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.ryan_mtg.servobot.model.game_queue.GameQueue.EMPTY_QUEUE;
 
@@ -182,8 +179,8 @@ public class HomeEditor {
     }
 
     public void alert(final String alertToken) {
-        Home home = new MultiServiceHome(botHome.getServiceHomes(), this);
-        AlertEvent alertEvent = new BotHomeAlertEvent(botHome, alertToken, home);
+        ServiceHome serviceHome = new MultiserviceHome(botHome.getServiceHomes(), this);
+        AlertEvent alertEvent = new BotHomeAlertEvent(botHome, alertToken, serviceHome);
         botHome.getEventListener().onAlert(alertEvent);
     }
 
@@ -757,12 +754,12 @@ public class HomeEditor {
     }
 
     public String getTwitchChannelName() {
-        return ((TwitchServiceHome) botHome.getServiceHome(TwitchService.TYPE)).getChannelName();
+        return botHome.getServiceHome(TwitchService.TYPE).getName();
     }
 
     private void whisperMessage(final int serviceType, final HomedUser user, final String message) {
-        ServiceHome serviceHome = botHome.getServiceHome(serviceType);
-        serviceHome.getService().whisper(user.getUser(), message);
+        Service service = botHome.getServiceHome(serviceType).getService();
+        service.whisper(user.getUser(), message);
     }
 
     public List<User> getArenaUsers() {

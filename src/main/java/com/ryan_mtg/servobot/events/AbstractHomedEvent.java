@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import lombok.Getter;
@@ -21,7 +20,10 @@ public abstract class AbstractHomedEvent implements BotHomeEvent {
         this.botHome = botHome;
     }
 
-    public abstract Home getHome();
+    @Override
+    public ServiceHome getServiceHome() {
+        return botHome.getServiceHome(getServiceType());
+    }
 
     @Override
     public int getHomeId() {

@@ -5,8 +5,8 @@ import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.utility.CommandParser;
@@ -98,8 +98,8 @@ public class ScoreCommand extends InvokedHomedCommand {
     }
 
     private void printScores(final CommandInvokedHomeEvent event) throws BotHomeError {
-        Home home = event.getHome();
-        HomeEditor homeEditor = home.getHomeEditor();
+        ServiceHome serviceHome = event.getServiceHome();
+        HomeEditor homeEditor = serviceHome.getHomeEditor();
         List<StorageValue> storageValues =
                 BotHomeError.filter(() -> homeEditor.getAllUsersStorageValues(scoreVariable));
 
@@ -118,7 +118,7 @@ public class ScoreCommand extends InvokedHomedCommand {
     }
 
     private void printScore(final CommandInvokedHomeEvent event) throws BotHomeError {
-        HomeEditor homeEditor = event.getHome().getHomeEditor();
+        HomeEditor homeEditor = event.getHomeEditor();
         User sender = event.getSender();
         StorageValue storageValue =
                 BotHomeError.filter(() -> homeEditor.getStorageValue(sender.getId(), scoreVariable, 0));
@@ -137,9 +137,9 @@ public class ScoreCommand extends InvokedHomedCommand {
         String userName = argumentsMatcher.group(1);
         int score = Integer.parseInt(argumentsMatcher.group(2));
 
-        Home home = event.getHome();
-        HomeEditor homeEditor = home.getHomeEditor();
-        User user = home.getUser(userName);
+        ServiceHome serviceHome = event.getServiceHome();
+        HomeEditor homeEditor = serviceHome.getHomeEditor();
+        User user = serviceHome.getUser(userName);
         StorageValue storageValue =
                 homeEditor.increaseStorageValue(user.getId(), scoreVariable, score, 0);
 
@@ -148,7 +148,7 @@ public class ScoreCommand extends InvokedHomedCommand {
 
     private void resetScores(final CommandInvokedHomeEvent event, final String arguments)
             throws BotHomeError, UserError {
-        Home home = event.getHome();
+        ServiceHome home = event.getServiceHome();
         HomeEditor homeEditor = home.getHomeEditor();
         if (Strings.isBlank(arguments)) {
             homeEditor.removeStorageVariables(scoreVariable);

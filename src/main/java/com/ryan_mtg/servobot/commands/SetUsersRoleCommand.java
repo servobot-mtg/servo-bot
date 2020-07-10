@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -32,11 +32,11 @@ public class SetUsersRoleCommand extends InvokedHomedCommand {
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         String arguments = event.getArguments();
-        Home home = event.getHome();
-        User user = home.getUser(arguments);
+        ServiceHome serviceHome = event.getServiceHome();
+        User user = serviceHome.getUser(arguments);
 
-        if (!home.hasRole(user, role)) {
-            home.setRole(user, role);
+        if (!serviceHome.hasRole(user, role)) {
+            serviceHome.setRole(user, role);
 
             SimpleSymbolTable symbolTable = new SimpleSymbolTable();
             symbolTable.addValue("input", arguments);

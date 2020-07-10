@@ -45,7 +45,7 @@ public class TwitchEventGenerator {
     private void handleMessageEvent(final ChannelMessageEvent event) {
         BotErrorHandler.handleError(() -> {
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
-            TwitchUser sender = getUser(event.getTwitchChat(), event.getUser(), event.getPermissions(), botHome);
+            TwitchUser sender = getUser(event.getUser(), event.getPermissions(), botHome);
             eventListener.onMessage(new TwitchMessageSentEvent(client, event, botHome, sender));
         });
     }
@@ -54,7 +54,7 @@ public class TwitchEventGenerator {
         BotErrorHandler.handleError(() -> {
             LOGGER.info("Subscribe event: " + event.getChannel() + " is subbed by " + event.getUser());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
-            TwitchUser subscriber = getUser(event.getTwitchChat(), event.getUser(), botHome);
+            TwitchUser subscriber = getUser(event.getUser(), botHome);
             eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome, subscriber));
         });
     }
@@ -63,7 +63,7 @@ public class TwitchEventGenerator {
         BotErrorHandler.handleError(() -> {
             LOGGER.info("Raid event: " + event.getChannel() + " is raided by " + event.getRaider());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
-            TwitchUser subscriber = getUser(event.getTwitchChat(), event.getRaider(), botHome);
+            TwitchUser subscriber = getUser(event.getRaider(), botHome);
             eventListener.onRaid(new TwitchRaidEvent(client, event, botHome, subscriber));
         });
     }
@@ -81,8 +81,8 @@ public class TwitchEventGenerator {
         return homeMap.get(Long.parseLong(channelId));
     }
 
-    private TwitchUser getUser(final TwitchChat chat, final EventUser eventUser,
-            final Set<CommandPermission> permissions, final BotHome botHome) {
+    private TwitchUser getUser(final EventUser eventUser, final Set<CommandPermission> permissions,
+            final BotHome botHome) {
         boolean isModerator = permissions.contains(CommandPermission.MODERATOR);
         boolean isSubscriber = permissions.contains(CommandPermission.SUBSCRIBER);
         boolean isVip = permissions.contains(CommandPermission.VIP);
@@ -91,12 +91,12 @@ public class TwitchEventGenerator {
 
         HomedUser user = botHome.getHomedUserTable().getByTwitchId(Integer.parseInt(eventUser.getId()),
                 eventUser.getName(), status);
-        return new TwitchUser(chat, user);
+        return new TwitchUser(user);
     }
 
-    private TwitchUser getUser(final TwitchChat chat, final EventUser eventUser, final BotHome botHome) {
+    private TwitchUser getUser(final EventUser eventUser, final BotHome botHome) {
         HomedUser user = botHome.getHomedUserTable().getByTwitchId(
                 Integer.parseInt(eventUser.getId()), eventUser.getName());
-        return new TwitchUser(chat, user);
+        return new TwitchUser(user);
     }
 }

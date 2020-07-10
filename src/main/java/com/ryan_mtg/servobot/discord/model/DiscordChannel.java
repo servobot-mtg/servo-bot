@@ -27,11 +27,11 @@ public class DiscordChannel implements Channel {
             Pattern.compile("(\\b[a-z_A-Z][a-z_A-Z0-9]*\\b)|(:[a-z_A-Z][a-z_A-Z0-9]*:)");
     private MessageChannel channel;
 
-    private DiscordHome home;
+    private DiscordServiceHome serviceHome;
 
-    public DiscordChannel(final DiscordHome home, final MessageChannel channel) {
+    public DiscordChannel(final DiscordServiceHome serviceHome, final MessageChannel channel) {
         this.channel = channel;
-        this.home = home;
+        this.serviceHome = serviceHome;
     }
 
     @Override
@@ -54,11 +54,7 @@ public class DiscordChannel implements Channel {
     }
 
     private String replaceNames(final String text) {
-        //TODO: Fix this once channels are constructed appropriately
-        if (home == null) {
-            return text;
-        }
-        Guild guild = home.getGuild();
+        Guild guild = serviceHome.getGuild();
         final String nameReplacedText = replace(text, NAME_PATTERN, matcher -> {
             String name = matcher.group().substring(1);
             List<Member> members = guild.getMembersByName(name, true);
@@ -68,7 +64,7 @@ public class DiscordChannel implements Channel {
             return members.get(0).getAsMention();
         });
 
-        List<Emote> emotes = home.getEmotes();
+        List<Emote> emotes = serviceHome.getEmotes();
         Map<String, Emote> emoteMap = new HashMap<>();
         emotes.forEach(emote -> emoteMap.put(emote.getName(), emote));
         return replace(nameReplacedText, EMOTE_PATTERN, matcher -> {

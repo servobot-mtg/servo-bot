@@ -1,9 +1,7 @@
 package com.ryan_mtg.servobot.discord.event;
 
 import com.ryan_mtg.servobot.discord.model.DiscordChannel;
-import com.ryan_mtg.servobot.discord.model.DiscordHome;
 import com.ryan_mtg.servobot.discord.model.DiscordMessage;
-import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.MessageHomeEvent;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
@@ -22,13 +20,8 @@ public class DiscordMessageSentEvent extends DiscordBotHomeEvent implements Mess
     }
 
     @Override
-    public DiscordHome getHome() {
-        return new DiscordHome(event.getGuild(), getHomeEditor());
-    }
-
-    @Override
     public Channel getChannel() {
-        return new DiscordChannel(getHome(), event.getChannel());
+        return new DiscordChannel(getServiceHome(), event.getChannel());
     }
 
     @Override
@@ -39,10 +32,5 @@ public class DiscordMessageSentEvent extends DiscordBotHomeEvent implements Mess
     @Override
     public User getSender() {
         return sender;
-    }
-
-    @Override
-    public int getServiceType() {
-        return DiscordService.TYPE;
     }
 }

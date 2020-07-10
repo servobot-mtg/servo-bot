@@ -49,16 +49,15 @@ public class JailCommand extends InvokedHomedCommand {
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         User sender = event.getSender();
 
-        if (JailUtility.isInJail(event.getHome(), sender, prisonRole)) {
+        if (JailUtility.isInJail(event.getServiceHome(), sender, prisonRole)) {
             return;
         }
 
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("criminal", sender.getName());
-        symbolTable.addValue("cop", event.getHome().getBotName());
         symbolTable.addValue("role", prisonRole);
 
-        event.getHome().setRole(sender, prisonRole);
+        event.getServiceHome().setRole(sender, prisonRole);
         event.say(symbolTable, "%criminal%, I'm throwing the book at you!");
     }
 }

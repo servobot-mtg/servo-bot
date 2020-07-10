@@ -108,35 +108,35 @@ public class ObjectMother {
         return event;
     }
 
-    public static CommandInvokedHomeEvent mockCommandInvokedHomeEvent(final Home home, final User sender,
-            final int serviceType, final String arguments) {
+    public static CommandInvokedHomeEvent mockCommandInvokedHomeEvent(final ServiceHome serviceHome, final User sender,
+            final String arguments) {
         CommandInvokedHomeEvent event = mock(CommandInvokedHomeEvent.class);
-        when(event.getHome()).thenReturn(home);
+        when(event.getServiceHome()).thenReturn(serviceHome);
         when(event.getSender()).thenReturn(sender);
         when(event.getArguments()).thenReturn(arguments);
-        when(event.getServiceType()).thenReturn(serviceType);
         return event;
     }
 
-    public static HomeEvent mockHomeEvent(final Home home) {
-        return mockHomeEvent(home, 0);
+    public static HomeEvent mockHomeEvent(final ServiceHome serviceHome) {
+        return mockHomeEvent(serviceHome, 0);
     }
 
-    public static HomeEvent mockHomeEvent(final Home home, final int serviceType) {
+    public static HomeEvent mockHomeEvent(final ServiceHome serviceHome, final int serviceType) {
         HomeEvent event = mock(HomeEvent.class);
-        when(event.getHome()).thenReturn(home);
+        when(event.getServiceHome()).thenReturn(serviceHome);
+        when(event.getServiceHome(serviceType)).thenReturn(serviceHome);
         when(event.getServiceType()).thenReturn(serviceType);
         return event;
     }
 
-    public static Home mockHome() {
-        return mockHome(mockHomeEditor());
+    public static ServiceHome mockServiceHome() {
+        return mockServiceHome(mockHomeEditor());
     }
 
-    public static Home mockHome(final HomeEditor homeEditor) {
-        Home home = mock(Home.class);
-        when(home.getHomeEditor()).thenReturn(homeEditor);
-        return home;
+    public static ServiceHome mockServiceHome(final HomeEditor homeEditor) {
+        ServiceHome serviceHome = mock(ServiceHome.class);
+        when(serviceHome.getHomeEditor()).thenReturn(homeEditor);
+        return serviceHome;
     }
 
     public static BotEditor mockBotEditor() {

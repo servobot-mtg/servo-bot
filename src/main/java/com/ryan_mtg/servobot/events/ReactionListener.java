@@ -1,11 +1,11 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.Emote;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +28,11 @@ public class ReactionListener implements EventListener {
             return;
         }
 
-        Home home = messageHomeEvent.getHome();
+        ServiceHome serviceHome = messageHomeEvent.getServiceHome();
         for (Reaction reaction : reactionTable) {
             if (reaction.matches(message)) {
                 String emoteName = reaction.getEmoteName();
-                Emote emote = home.getEmote(emoteName);
+                Emote emote = serviceHome.getEmote(emoteName);
                 if (emote != null) {
                     LOGGER.info("Adding a " + emoteName + " reaction to " + sender + "'s message.");
                     message.addEmote(emote);

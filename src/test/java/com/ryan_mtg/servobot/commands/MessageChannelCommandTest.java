@@ -8,14 +8,13 @@ import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.mockChannel;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockHome;
+import static com.ryan_mtg.servobot.model.ObjectMother.mockServiceHome;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockHomeEvent;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,20 +32,20 @@ public class MessageChannelCommandTest {
     private static final String MESSAGE = "message";
 
     private MessageChannelCommand command;
-    private Home home;
+    private ServiceHome serviceHome;
     private Channel channel;
 
     @Before
     public void setUp() throws UserError {
         command = new MessageChannelCommand(ID, COMMAND_SETTINGS, SERVICE_TYPE, CHANNEL_NAME, MESSAGE);
-        home = mockHome();
+        serviceHome = mockServiceHome();
         channel = mockChannel();
     }
 
     @Test
     public void testPerformOnSameService() throws BotHomeError, UserError {
-        when(home.getChannel(CHANNEL_NAME, SERVICE_TYPE)).thenReturn(channel);
-        HomeEvent homeEvent = mockHomeEvent(home, SERVICE_TYPE);
+        when(serviceHome.getChannel(CHANNEL_NAME)).thenReturn(channel);
+        HomeEvent homeEvent = mockHomeEvent(serviceHome, SERVICE_TYPE);
 
         command.perform(homeEvent);
 
@@ -58,7 +57,7 @@ public class MessageChannelCommandTest {
         ServiceHome serviceHome = mock(ServiceHome.class);
         when(serviceHome.getChannel(CHANNEL_NAME)).thenReturn(channel);
 
-        HomeEvent homeEvent = mockHomeEvent(home, OTHER_SERVICE_TYPE);
+        HomeEvent homeEvent = mockHomeEvent(serviceHome, OTHER_SERVICE_TYPE);
         when(homeEvent.getServiceHome(SERVICE_TYPE)).thenReturn(serviceHome);
 
         command.perform(homeEvent);

@@ -81,8 +81,7 @@ public class StreamStartRegulator implements Runnable {
                 LOGGER.trace("  > stream {} wasStreaming: {}, isStreaming: {}", id, wasStreaming, isStreaming);
 
                 if (!wasStreaming && isStreaming) {
-                    String channelName =
-                            ((TwitchServiceHome) homeMap.get(id).getServiceHome(TwitchService.TYPE)).getChannelName();
+                    String channelName = homeMap.get(id).getServiceHome(TwitchService.TYPE).getName();
                     LOGGER.info("Stream is starting for {}", channelName);
                     eventListener.onStreamStart(
                             new TwitchStreamStartEvent(client, homeMap.get(id), channelName));

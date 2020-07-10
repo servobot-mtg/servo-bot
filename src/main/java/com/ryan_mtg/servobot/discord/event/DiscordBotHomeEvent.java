@@ -1,5 +1,7 @@
 package com.ryan_mtg.servobot.discord.event;
 
+import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.discord.model.DiscordServiceHome;
 import com.ryan_mtg.servobot.events.BotHomeEvent;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.HomeEditor;
@@ -15,6 +17,11 @@ public abstract class DiscordBotHomeEvent extends DiscordEvent implements BotHom
 
     public DiscordBotHomeEvent(final BotHome botHome) {
         this.botHome = botHome;
+    }
+
+    @Override
+    public DiscordServiceHome getServiceHome() {
+        return (DiscordServiceHome) botHome.getServiceHome(DiscordService.TYPE);
     }
 
     @Override

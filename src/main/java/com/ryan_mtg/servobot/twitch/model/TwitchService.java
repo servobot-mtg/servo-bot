@@ -4,13 +4,12 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.StreamList;
+import com.github.twitch4j.helix.domain.UserList;
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Home;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
@@ -107,7 +106,7 @@ public class TwitchService implements Service {
     }
 
     public Channel getChannel(final String channelName) {
-        return new TwitchChannelOnly(client.getChat(), channelName);
+        return new TwitchChannel(client, channelName);
     }
 
     @Override
@@ -153,10 +152,6 @@ public class TwitchService implements Service {
         throw new RuntimeException("Not supported");
     }
 
-    public Home getHome(final long channelId, final HomeEditor homeEditor) {
-        return new TwitchChannel(client, getChannelName(channelId), homeEditor);
-    }
-
     public boolean isStreaming(final long channelId) {
         StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null, null,
                 Collections.singletonList(Long.toString(channelId)), null).execute();
@@ -183,27 +178,34 @@ public class TwitchService implements Service {
         return channelName;
     }
 
-    public void joinChannel(final long channelId) {
-        String channelName = getChannelName(channelId);
+    public void joinChannel(final String channelName) {
         client.getChat().joinChannel(channelName);
     }
 
-    public void leaveChannel(final long channelId) {
-        String channelName = getChannelName(channelId);
+    public void leaveChannel(final String channelName) {
         client.getChat().leaveChannel(channelName);
     }
 
-    private String fetchChannelImageUrl(final long channelId) {
-        return fetchChannelUser(channelId).getProfileImageUrl();
+    public String fetchChannelName(final long channelId) {
+        return fetchChannelUser(channelId).getLogin();
     }
 
-    private String fetchChannelName(final long channelId) {
-        return fetchChannelUser(channelId).getLogin();
+    public String fetchChannelImageUrl(final long channelId) {
+        return fetchChannelUser(channelId).getProfileImageUrl();
     }
 
     private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
         return client.getHelix().
                 getUsers(authToken, Collections.singletonList(Long.toString(channelId)), null).execute()
                 .getUsers().get(0);
+    }
+
+    public com.github.twitch4j.helix.domain.User fetchUser(final String userName) {
+        UserList userList = client.getHelix().getUsers(authToken, null, Collections.singletonList(userName)).execute();
+        List<com.github.twitch4j.helix.domain.User> users = userList.getUsers();
+        if (!users.isEmpty()) {
+            return users.get(0);
+        }
+        return null;
     }
 }

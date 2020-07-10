@@ -10,12 +10,10 @@ import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.giveaway.Raffle;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
-import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -47,7 +45,6 @@ public class SelectWinnerCommand extends HomeCommand {
     @Override
     public void perform(final HomeEvent homeEvent) throws BotHomeError, UserError {
         HomeEditor homeEditor = homeEvent.getHomeEditor();
-        Home home = homeEvent.getHome();
         Scope scope = homeEditor.getScope();
 
         Raffle raffle = homeEditor.getGiveaway(giveawayId).retrieveCurrentRaffle();
@@ -66,14 +63,14 @@ public class SelectWinnerCommand extends HomeCommand {
         }
 
         if (Flags.hasFlag(getFlags(), DISCORD_FLAG) && discordChannel != null && !discordChannel.isEmpty()) {
-            homeEvent.say(home.getChannel(discordChannel, DiscordService.TYPE), scope, message);
+            homeEvent.say(homeEvent.getServiceHome(DiscordService.TYPE).getChannel(discordChannel), scope, message);
         }
 
         if (homeEvent instanceof CommandInvokedHomeEvent) {
             ((CommandInvokedHomeEvent) homeEvent).say(symbolTable, message);
         } else if (Flags.hasFlag(getFlags(), TWITCH_FLAG)) {
             String twitchChannel = homeEditor.getTwitchChannelName();
-            Channel channel = home.getChannel(twitchChannel, TwitchService.TYPE);
+            Channel channel = homeEvent.getServiceHome(DiscordService.TYPE).getChannel(twitchChannel);
             if (channel != null) {
                 homeEvent.say(channel, scope, message);
             }

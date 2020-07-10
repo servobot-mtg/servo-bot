@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -38,27 +38,27 @@ public class JailReleaseCommand extends InvokedHomedCommand {
 
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
-        Home home = event.getHome();
+        ServiceHome serviceHome = event.getServiceHome();
         User releaser = event.getSender();
-        User jailee = home.getUser(event.getArguments());
+        User jailee = serviceHome.getUser(event.getArguments());
 
-        if (JailUtility.isInJail(home, releaser, prisonRole)) {
+        if (JailUtility.isInJail(serviceHome, releaser, prisonRole)) {
             event.say(String.format("You can't release someone while in %s!", prisonRole));
             return;
         }
 
-        if (!JailUtility.isInJail(home, jailee, prisonRole)) {
+        if (!JailUtility.isInJail(serviceHome, jailee, prisonRole)) {
             event.say(String.format("%s is not in %s!", jailee.getName(), prisonRole));
             return;
         }
 
-        if (home.isHigherRanked(jailee, releaser)) {
-            home.setRole(event.getSender(), prisonRole);
+        if (serviceHome.isHigherRanked(jailee, releaser)) {
+            serviceHome.setRole(event.getSender(), prisonRole);
             event.say("I see through your tricks! I'm checking %sender% into the greybar hotel.");
             return;
         }
 
-        home.clearRole(jailee, prisonRole);
+        serviceHome.clearRole(jailee, prisonRole);
         event.say(String.format("%s broke %s out of %s!", releaser.getName(), jailee.getName(), prisonRole));
     }
 }

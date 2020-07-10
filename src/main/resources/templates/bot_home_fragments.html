@@ -280,7 +280,7 @@
                     <label id="add-command-emote-label">Emote</label><br>
                     <select id='add-command-emote-input'>
                         <th:block th:each="emote, status : ${emotes}">
-                            <option th:value="${emote}" th:text="${emote}" th:selected="${status.index == 0}"/>
+                            <option th:value="${emote.name}" th:text="${emote.name}" th:selected="${status.index == 0}"/>
                         </th:block>
                     </select>
                 </div>
@@ -372,7 +372,7 @@
                     <label>Reaction Emote</label><br>
                     <select id='add-reaction-emote-input'>
                         <th:block th:each="emote, status : ${emotes}">
-                            <option th:value="${emote}" th:text="${emote}" th:selected="${status.index == 0}"/>
+                            <option th:value="${emote.name}" th:text="${emote.name}" th:selected="${status.index == 0}"/>
                         </th:block>
                     </select>
                 </div>

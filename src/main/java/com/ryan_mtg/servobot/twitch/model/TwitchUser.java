@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.twitch.model;
 
-import com.github.twitch4j.chat.TwitchChat;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
 import org.slf4j.Logger;
@@ -9,11 +8,9 @@ import org.slf4j.LoggerFactory;
 public class TwitchUser implements User {
     private static Logger LOGGER = LoggerFactory.getLogger(TwitchUser.class);
 
-    private TwitchChat chat;
     private HomedUser user;
 
-    public TwitchUser(final TwitchChat chat, final HomedUser user) {
-        this.chat = chat;
+    public TwitchUser(final HomedUser user) {
         this.user = user;
     }
 

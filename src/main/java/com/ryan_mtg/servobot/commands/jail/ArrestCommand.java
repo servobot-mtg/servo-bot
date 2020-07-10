@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
@@ -45,18 +45,18 @@ public class ArrestCommand extends InvokedHomedCommand {
 
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
-        Home home = event.getHome();
+        ServiceHome serviceHome = event.getServiceHome();
         User cop  = event.getSender();
 
-        if (JailUtility.isInAnyJail(home, cop, prisonRole)) {
+        if (JailUtility.isInAnyJail(serviceHome, cop, prisonRole)) {
             event.say("You can't arrest someone while in jail!");
             return;
         }
 
         String arguments = event.getArguments();
-        if (!home.hasUser(arguments)) {
-            if (home.hasRole(arguments)) {
-                home.setRole(cop, prisonRole);
+        if (!serviceHome.hasUser(arguments)) {
+            if (serviceHome.hasRole(arguments)) {
+                serviceHome.setRole(cop, prisonRole);
                 event.say("No one is above the law! %sender% is going to the clink.");
                 return;
             }
@@ -64,19 +64,19 @@ public class ArrestCommand extends InvokedHomedCommand {
             return;
         }
 
-        User criminal = home.getUser(arguments);
-        if (home.isHigherRanked(criminal, cop)) {
-            home.setRole(event.getSender(), prisonRole);
+        User criminal = serviceHome.getUser(arguments);
+        if (serviceHome.isHigherRanked(criminal, cop)) {
+            serviceHome.setRole(event.getSender(), prisonRole);
             event.say("I see through your tricks! I'm checking %sender% into the greybar hotel.");
             return;
         }
 
-        if (JailUtility.isInAnyJail(home, criminal, prisonRole)) {
+        if (JailUtility.isInAnyJail(serviceHome, criminal, prisonRole)) {
             event.say(String.format("%s is already in jail!", criminal.getName()));
             return;
         }
 
-        home.setRole(criminal, prisonRole);
+        serviceHome.setRole(criminal, prisonRole);
 
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         symbolTable.addValue("input", arguments);

@@ -4,7 +4,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 
 public class TierCommand extends InvokedHomedCommand {
@@ -33,10 +33,10 @@ public class TierCommand extends InvokedHomedCommand {
     }
 
     private String getTier(final CommandInvokedHomeEvent event) {
-        Home home = event.getHome();
-        if (home.isStreamer(event.getSender())) {
+        ServiceHome serviceHome = event.getServiceHome();
+        if (serviceHome.isStreamer(event.getSender())) {
             return "The Mighty Linguine!";
         }
-        return home.getRole(event.getSender(), event.getServiceType());
+        return serviceHome.getRole(event.getSender());
     }
 }

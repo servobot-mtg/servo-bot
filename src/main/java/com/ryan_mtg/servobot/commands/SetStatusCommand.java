@@ -19,7 +19,7 @@ public class SetStatusCommand extends HomeCommand {
 
     @Override
     public void perform(final HomeEvent homeEvent) {
-        homeEvent.getHome().setStatus(book.getRandomLine());
+        homeEvent.getServiceHome().setStatus(book.getRandomLine());
     }
 
     @Override

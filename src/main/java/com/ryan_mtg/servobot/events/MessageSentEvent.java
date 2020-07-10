@@ -13,7 +13,7 @@ public interface MessageSentEvent extends HomeEvent, MessageEvent {
         HomeEditor homeEditor = getHomeEditor();
         SimpleSymbolTable messageSymbolTable = new SimpleSymbolTable();
         messageSymbolTable.addValue("sender", getSender().getName());
-        messageSymbolTable.addValue("home", getHome().getName());
+        messageSymbolTable.addValue("home", getServiceHome().getName());
 
         return new Scope(homeEditor.getScope(), messageSymbolTable);
     }

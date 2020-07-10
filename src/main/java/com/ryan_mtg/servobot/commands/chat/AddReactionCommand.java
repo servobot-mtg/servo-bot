@@ -41,7 +41,7 @@ public class AddReactionCommand extends MessagedHomeCommand {
             return;
         }
 
-        Emote emote = event.getHome().getEmote(emoteName);
+        Emote emote = event.getServiceHome().getEmote(emoteName);
         if (emote == null) {
             throw new BotHomeError(String.format("No emote named %s" , emoteName));
         }

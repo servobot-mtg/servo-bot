@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 
 public interface BotHomeEvent extends Event {
     int getHomeId();
+    ServiceHome getServiceHome();
     ServiceHome getServiceHome(int serviceType);
 
     HomeEditor getHomeEditor();

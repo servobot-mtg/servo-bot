@@ -1,27 +1,49 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.error.UserError;
+import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.List;
 
 public interface ServiceHome {
     Service getService();
-    Home getHome();
-
     int getServiceType();
-    String getDescription();
 
+    String getName();
+    String getBotName();
     String getLink();
     String getImageUrl();
-    List<String> getEmotes();
-    List<String> getRoles();
-    List<String> getChannels();
-    Channel getChannel(String channelName) throws UserError;
-
+    String getDescription();
     boolean isStreaming();
+
+    HomeEditor getHomeEditor();
+    void setHomeEditor(HomeEditor homeEditor);
+
+    void setStatus(String status);
+    void setName(String botName);
+
+    boolean isStreamer(User user);
 
     void start(BotHome botHome);
     void stop(BotHome botHome);
-    void setHomeEditor(HomeEditor homeEditor);
-    void setName(String botName);
+
+    List<String> getChannels();
+    Channel getChannel(String channelName) throws UserError;
+
+    List<String> getRoles();
+    String getRole(User user);
+    boolean hasRole(User user, String role);
+    boolean hasRole(String role);
+    void clearRole(User user, String role) throws UserError;
+    void setRole(User user, String role) throws UserError;
+
+    List<String> clearRole(String role) throws UserError;
+    boolean isHigherRanked(User user, User otherUser) throws UserError;
+
+    boolean hasUser(String userName);
+    User getUser(String userName) throws UserError;
+    User getUser(HomedUser homedUser);
+
+    Emote getEmote(String emoteName);
+    List<Emote> getEmotes();
 }

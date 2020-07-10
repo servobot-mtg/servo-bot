@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.discord.event;
 
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.events.Event;
 import com.ryan_mtg.servobot.model.BotEditor;
 import lombok.Getter;
@@ -9,6 +10,10 @@ public abstract class DiscordEvent implements Event {
     @Getter @Setter
     private BotEditor botEditor;
 
-    public DiscordEvent() {
+    public DiscordEvent() {}
+
+    @Override
+    public int getServiceType() {
+        return DiscordService.TYPE;
     }
 }

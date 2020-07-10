@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,11 @@ public abstract class TwitchEvent implements BotHomeEvent {
     @Override
     public int getHomeId() {
         return botHome.getId();
+    }
+
+    @Override
+    public ServiceHome getServiceHome() {
+        return botHome.getServiceHome(TwitchService.TYPE);
     }
 
     @Override

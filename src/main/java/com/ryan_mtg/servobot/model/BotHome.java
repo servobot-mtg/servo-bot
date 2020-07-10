@@ -225,7 +225,7 @@ public class BotHome implements Context {
 
     private boolean hasUser(final String userName) {
         for (ServiceHome serviceHome : serviceHomes.values()) {
-            if (serviceHome.getHome().hasUser(userName)) {
+            if (serviceHome.hasUser(userName)) {
                 return true;
             }
         }
@@ -234,9 +234,8 @@ public class BotHome implements Context {
 
     private HomedUser findUser(final String userName) {
         for (ServiceHome serviceHome : serviceHomes.values()) {
-            Home home = serviceHome.getHome();
-            if (home.hasUser(userName)) {
-                return SystemError.filter(() -> home.getUser(userName).getHomedUser());
+            if (serviceHome.hasUser(userName)) {
+                return SystemError.filter(() -> serviceHome.getUser(userName).getHomedUser());
             }
         }
         LOGGER.warn("Problem finding user {}", userName);

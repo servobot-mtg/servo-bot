@@ -5,12 +5,12 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.Home;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import org.junit.Test;
 
 import static com.ryan_mtg.servobot.model.ObjectMother.mockCommandInvokedHomeEvent;
-import static com.ryan_mtg.servobot.model.ObjectMother.mockHome;
+import static com.ryan_mtg.servobot.model.ObjectMother.mockServiceHome;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockUser;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,18 +21,17 @@ public class TierCommandTest {
         new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, new RateLimit());
     private static final String USER_NAME = "username";
     private static final String ROLE = "role";
-    private static final int SERVICE_TYPE = 5;
     private static final String ARGUMENTS = "argument other_argument";
 
     @Test
     public void testPerform() throws BotHomeError {
         TierCommand command = new TierCommand(ID, COMMAND_SETTINGS);
 
-        Home home = mockHome();
+        ServiceHome serviceHome = mockServiceHome();
         User user = mockUser(USER_NAME);
-        CommandInvokedHomeEvent event = mockCommandInvokedHomeEvent(home, user, SERVICE_TYPE, ARGUMENTS);
+        CommandInvokedHomeEvent event = mockCommandInvokedHomeEvent(serviceHome, user, ARGUMENTS);
 
-        when(home.getRole(user, SERVICE_TYPE)).thenReturn(ROLE);
+        when(serviceHome.getRole(user)).thenReturn(ROLE);
 
         command.perform(event);
 

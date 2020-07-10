@@ -49,7 +49,7 @@ public class JailBreakCommand extends InvokedHomedCommand {
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         User sender = event.getSender();
 
-        List<String> inmates = event.getHome().clearRole(prisonRole);
+        List<String> inmates = event.getServiceHome().clearRole(prisonRole);
 
         HomeEditor homeEditor = event.getHomeEditor();
         homeEditor.removeStorageVariables(variableName);

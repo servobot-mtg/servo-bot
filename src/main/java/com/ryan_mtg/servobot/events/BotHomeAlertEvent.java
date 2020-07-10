@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.events;
 
 import com.ryan_mtg.servobot.model.BotHome;
-import com.ryan_mtg.servobot.model.Home;
 import com.ryan_mtg.servobot.model.Service;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import lombok.Getter;
 
 public class BotHomeAlertEvent extends AbstractHomedEvent implements AlertEvent {
@@ -10,13 +10,13 @@ public class BotHomeAlertEvent extends AbstractHomedEvent implements AlertEvent 
     private String alertToken;
 
     @Getter
-    private Home home;
+    private ServiceHome serviceHome;
 
-    public BotHomeAlertEvent(final BotHome botHome, final String alertToken, final Home home) {
+    public BotHomeAlertEvent(final BotHome botHome, final String alertToken, final ServiceHome serviceHome) {
         super(botHome);
         this.alertToken = alertToken;
-        this.home = home;
-        setHomeEditor(home.getHomeEditor());
+        this.serviceHome = serviceHome;
+        setHomeEditor(serviceHome.getHomeEditor());
     }
 
     @Override

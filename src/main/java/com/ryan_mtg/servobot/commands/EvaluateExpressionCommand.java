@@ -41,12 +41,12 @@ public class EvaluateExpressionCommand extends InvokedCommand {
                 event.say("gabyMath");
                 return;
             } else if (serviceType == DiscordService.TYPE && event instanceof HomeEvent) {
-                Emote emote = ((HomeEvent) event).getHome().getEmote("gabyMath");
+                Emote emote = ((HomeEvent) event).getServiceHome().getEmote("gabyMath");
                 if (emote != null) {
                     LOGGER.info("Got an emote!");
                     event.say(emote.getMessageText());
+                    return;
                 }
-                return;
             }
         }
 

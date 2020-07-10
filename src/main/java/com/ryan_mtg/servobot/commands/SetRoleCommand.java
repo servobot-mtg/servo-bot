@@ -22,7 +22,7 @@ public class SetRoleCommand extends UserHomedCommand {
 
     @Override
     public void perform(final UserHomeEvent userHomeEvent) throws UserError {
-        userHomeEvent.getHome().setRole(userHomeEvent.getUser(), role);
+        userHomeEvent.getServiceHome().setRole(userHomeEvent.getUser(), role);
     }
 
     @Override

@@ -39,7 +39,7 @@ public class CommandPerformer {
     public void perform(final UserHomeEvent userEvent, final UserHomedCommand command) {
         BotErrorHandler.handleError(() -> {
             if (shouldPerform(userEvent.getUser().getId(), command, userEvent)) {
-                LOGGER.info("Performing {} at {}", command.getId(), userEvent.getHome().getName());
+                LOGGER.info("Performing {} at {}", command.getId(), userEvent.getServiceHome().getName());
                 command.perform(userEvent);
             }
         });
@@ -48,7 +48,7 @@ public class CommandPerformer {
     public void perform(final HomeEvent homeEvent, final HomeCommand command) {
         BotErrorHandler.handleError(() -> {
             if (shouldPerform(UNREGISTERED_ID, command, homeEvent)) {
-                LOGGER.info("Performing command {} for {}", command.getId(), homeEvent.getHome().getName());
+                LOGGER.info("Performing command {} for {}", command.getId(), homeEvent.getServiceHome().getName());
                 command.perform(homeEvent);
             }
         });
@@ -69,7 +69,8 @@ public class CommandPerformer {
     public void perform(final MessageHomeEvent messageHomeEvent, final Command command) {
         BotErrorHandler.handleError(() -> {
             if (shouldPerform(UNREGISTERED_ID, command, messageHomeEvent)) {
-                LOGGER.info("Performing command {} for {}", command.getId(), messageHomeEvent.getHome().getName());
+                LOGGER.info("Performing command {} for {}", command.getId(),
+                        messageHomeEvent.getServiceHome().getName());
                 dynamicPerform(messageHomeEvent, command);
             }
         });
@@ -146,7 +147,7 @@ public class CommandPerformer {
 
     private boolean shouldPerform(final int userId, final Command command, final Event event) {
         if (event instanceof HomeEvent &&
-                (command.isOnlyWhileStreaming() && !((HomeEvent) event).getHome().isStreaming())) {
+                (command.isOnlyWhileStreaming() && !((HomeEvent) event).getServiceHome().isStreaming())) {
             return false;
         }
         return (event.getServiceType() == Service.NO_SERVICE_TYPE || command.getService(event.getServiceType()))
