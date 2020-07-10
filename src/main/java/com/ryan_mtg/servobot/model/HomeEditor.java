@@ -21,6 +21,7 @@ import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.LibraryError;
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
@@ -46,6 +47,7 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
+import com.ryan_mtg.servobot.model.storage.StringStorageValue;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
@@ -245,6 +247,26 @@ public class HomeEditor {
         return botHome.getStorageTable().getAllUsersStorage(name);
     }
 
+    @Transactional(rollbackOn = Exception.class)
+    public StorageValue addStorageValue(final int type, final String name, final String value) throws UserError {
+        StorageValue storageValue = null;
+        switch (type) {
+            case IntegerStorageValue.TYPE:
+                storageValue = new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, name,
+                        IntegerStorageValue.parseValue(value));
+                break;
+            case StringStorageValue.TYPE:
+                storageValue = new StringStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, name,
+                        value);
+                break;
+            default:
+                throw new SystemError("Unknown storage value type %d", type);
+        }
+        botHome.getStorageTable().registerValue(storageValue);
+        serializers.getStorageValueSerializer().save(storageValue, botHome.getId());
+        return storageValue;
+    }
+
     public IntegerStorageValue getStorageValue(final int userId, final String name, final int defaultValue)
             throws UserError {
         StorageValue.validateName(name);
@@ -266,17 +288,19 @@ public class HomeEditor {
     @Transactional(rollbackOn = Exception.class)
     public StorageValue setStorageValue(final String name, final String value) throws UserError {
         StorageValue storageValue = getStorageValue(name);
-        if (storageValue instanceof IntegerStorageValue) {
-            IntegerStorageValue integerValue = (IntegerStorageValue) storageValue;
-            try {
-                integerValue.setValue(Integer.parseInt(value));
-            } catch (Exception e) {
-                throw new UserError("Invalid value %s.", value);
-            }
-            serializers.getStorageValueSerializer().save(integerValue, botHome.getId());
-        } else {
-            throw new UserError("%s has an unknown type of value.", storageValue.getName());
+        switch (storageValue.getType()) {
+            case IntegerStorageValue.TYPE:
+                IntegerStorageValue integerValue = (IntegerStorageValue) storageValue;
+                integerValue.setValue(IntegerStorageValue.parseValue(value));
+                break;
+            case StringStorageValue.TYPE:
+                StringStorageValue stringValue = (StringStorageValue) storageValue;
+                stringValue.setValue(value);
+                break;
+            default:
+                throw new UserError("%s has an unknown type %d.", storageValue.getName(), storageValue.getType());
         }
+        serializers.getStorageValueSerializer().save(storageValue, botHome.getId());
         return storageValue;
     }
 
@@ -292,6 +316,12 @@ public class HomeEditor {
         if (storageValue != null) {
             serializers.getStorageValueRepository().deleteById(storageValue.getId());
         }
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteStorageValue(final int storageValueId) {
+        botHome.getStorageTable().removeVariable(storageValueId);
+        serializers.getStorageValueRepository().deleteById(storageValueId);
     }
 
     @Transactional(rollbackOn = Exception.class)

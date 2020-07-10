@@ -446,20 +446,51 @@
     <!-- storage values -->
     <div th:fragment="storage_values">
         <h2>Storage Values</h2>
-        <table class="data-table">
+        <table id="storage-table" class="storage data-table">
             <thead><tr>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Value</th>
+                <th th:if="${privileged}">Delete</th>
             </tr></thead>
             <th:block th:each="value : ${botHome.storageTable}">
-                <tr>
+                <tr th:id="${'storage-' + value.id + '-row'}">
                     <td th:text="${value.name}"/>
                     <td th:text="${value.typeName}"/>
                     <td th:text="${value.value}"/>
+                    <td th:if="${privileged}" class="pseudo-link"
+                        th:onclick="'deleteStorageValue(' + ${botHome.id} + ',' + ${value.id} + ')'">
+                        &#x1F5D1;&#xFE0F;
+                    </td>
                 </tr>
             </th:block>
         </table>
+
+        <div th:if="${privileged}" class="add-storage">
+            <div id="add-storage-button" class="pseudo-link add-button" onclick="showAddStorageForm()"
+                 title="Add a storage value">+</div>
+            <form id="add-storage-form" class="add-form hidden"
+                  th:onsubmit="'addStorageValue(' + ${botHome.id} + '); return false;'">
+                <div id="add-storage-type-div">
+                    <label>Storage Type</label><br>
+                    <select id="add-storage-type-input" onchange="changeAddStorageType(this)">
+                        <option th:value="1" selected>Integer</option>
+                        <option th:value="2">String</option>
+                    </select>
+                </div>
+                <br>
+                <div id="add-storage-name-div">
+                    <label id="add-storage-name-label">Name</label><br>
+                    <input type="text" id="add-storage-name-input" class="name"><br>
+                </div><br>
+                <br>
+                <div id="add-storage-value-div">
+                    <label id="add-storage-value-label">Value</label><br>
+                    <input type="text" id="add-storage-value-input" class="name"><br>
+                </div><br>
+                <input type="submit" value="Create Storage Value">
+            </form>
+        </div>
     </div>
 
     <!-- books -->

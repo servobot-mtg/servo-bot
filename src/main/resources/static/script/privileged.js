@@ -83,6 +83,35 @@ const addAlertFormData = {
     ],
 };
 
+const alertData = [
+    {},
+    {name: 'Continual', parameters: [{id: 'duration', label: 'Duration', name: 'time', type: 'integer'},
+            {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //1
+    {name: 'Daily', parameters: [{id: 'time', label: 'Time', name: 'time', type: 'time'},
+            {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //2
+];
+
+const addAlertElements = ['add-alert-time-div', 'add-alert-duration-div', 'add-alert-keyword-div'];
+
+const addStorageFormData = {
+    focus: 'type',
+    getInputBlock: getInputDiv,
+    inputs: [{name: 'type', type: 'select', value: 0, hide: false},
+        {name: 'name', type: 'value', value: 0, hide: false},
+        {name: 'value', type: 'value', value: '', hide: false},
+    ],
+};
+
+const storageData = [
+    {},
+    {name: 'Integer', parameters: [{id: 'name', label: 'Name', name: 'name', type: 'string'},
+            {id: 'value', label: 'Value', name: 'value', type: 'integer'}]}, //1
+    {name: 'String', parameters: [{id: 'name', label: 'Name', name: 'name', type: 'string'},
+            {id: 'value', label: 'Value', name: 'value', type: 'string'}]}, //2
+];
+
+const addStorageElements = ['add-storage-name-div', 'add-storage-value-div'];
+
 const addBookFormData = {
     focus: 'name',
     getInputBlock: getInputDiv,
@@ -1009,16 +1038,6 @@ function addReactionRow(reaction, botHomeId) {
     });
 }
 
-const alertData = [
-    {},
-    {name: 'Continual', parameters: [{id: 'duration', label: 'Duration', name: 'time', type: 'integer'},
-            {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //1
-    {name: 'Daily', parameters: [{id: 'time', label: 'Time', name: 'time', type: 'time'},
-            {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //2
-];
-
-const addAlertElements = ['add-alert-time-div', 'add-alert-duration-div', 'add-alert-keyword-div'];
-
 function showAddAlertForm() {
     showForm('add-alert', addAlertFormData);
     changeAddAlertType(document.getElementById('add-alert-type-input'));
@@ -1030,14 +1049,13 @@ function changeAddAlertType(selectElement) {
 
 function addAlert(botHomeId) {
     try {
-        const parameters = collectFormData(botHomeId, 'add-alert', alertData);
+        const parameters = collectFormData({botHomeId: botHomeId}, 'add-alert', alertData);
         postAddAlert(parameters);
     } catch (e) {
     }
 }
 
-function collectFormData(botHomeId, label, formData) {
-    const parameters = {botHomeId: botHomeId};
+function collectFormData(parameters, label, formData) {
     const type = parseInt(document.getElementById(label + '-type-input').value);
     addFormParameter(label, parameters, {id: 'type', name: 'type', type: 'integer'});
 
@@ -1089,6 +1107,57 @@ function addAlertRow(alert, botHomeId) {
 function deleteAlert(botHomeId, alertId) {
     const parameters = {botHomeId: botHomeId, objectId: alertId};
     postDelete('/api/delete_alert', parameters, 'alert-' + alertId + '-row');
+}
+
+function showAddStorageForm() {
+    showForm('add-storage', addStorageFormData);
+    changeAddStorageType(document.getElementById('add-storage-type-input'));
+}
+
+function changeAddStorageType(selectElement) {
+    changeFormType('add-storage', selectElement, storageData, addStorageElements);
+}
+
+function addStorageValue(contextId) {
+    try {
+        const parameters = collectFormData({contextId: contextId}, 'add-storage', storageData);
+        postAddStorageValue(parameters);
+    } catch (e) {
+    }
+}
+
+async function postAddStorageValue(parameters) {
+    const label = 'add-storage';
+    let response = await makePost('/api/add_storage_value', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let storageValue = await response.json();
+        addStorageValueRow(storageValue, parameters.contextId);
+    }
+}
+
+function addStorageValueRow(storageValue, contextId) {
+    let storageTable = document.getElementById('storage-table');
+    let row = storageTable.insertRow();
+
+    const label = 'storage-' + storageValue.id;
+    row.id = label + '-row';
+
+    addTextCell(row, storageValue.name);
+    addTextCell(row, storageValue.typeName);
+    addTextCell(row, storageValue.value);
+
+    addDeleteCell(row, trashcanIcon, function () {
+        deleteStorageValue(contextId, storageValue.id);
+    });
+}
+
+function deleteStorageValue(contextId, storageValueId) {
+    const parameters = {contextId: contextId, objectId: storageValueId};
+    postDelete('/api/delete_storage_value', parameters, 'storage-' + storageValueId + '-row');
 }
 
 function showAddBookForm() {

@@ -53,6 +53,11 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
         return getStorage(name);
     }
 
+    public void removeVariable(final int storageValueId) {
+        storageMap.values().stream().filter(storageValue -> storageValue.getId() == storageValueId).findFirst()
+            .ifPresent(storageValue -> removeVariable(storageValue.getUserId(), storageValue.getName()));
+    }
+
     public StorageValue removeVariable(final int userId, final String name) {
         StorageKey keyToRemove = new StorageKey(userId, name);
         return storageMap.remove(keyToRemove);
