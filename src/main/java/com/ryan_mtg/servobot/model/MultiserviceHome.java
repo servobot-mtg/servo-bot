@@ -157,6 +157,11 @@ public class MultiserviceHome implements ServiceHome {
         return preferService(DiscordService.TYPE).getEmotes();
     }
 
+    @Override
+    public void updateEmotes() {
+        serviceHomes.values().forEach(serviceHome -> serviceHome.updateEmotes());
+    }
+
     private ServiceHome preferService(final int serviceType) {
         if(serviceHomes.containsKey(serviceType)) {
             return serviceHomes.get(serviceType);

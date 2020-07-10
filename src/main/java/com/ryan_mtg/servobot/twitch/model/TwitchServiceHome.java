@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.twitch.model;
 
-import com.github.twitch4j.helix.domain.UserList;
 import com.google.common.collect.Lists;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
@@ -182,6 +181,9 @@ public class TwitchServiceHome implements ServiceHome {
     public List<Emote> getEmotes() {
         return Collections.emptyList();
     }
+
+    @Override
+    public void updateEmotes() {}
 
     public long getChannelId() {
         return channelId;

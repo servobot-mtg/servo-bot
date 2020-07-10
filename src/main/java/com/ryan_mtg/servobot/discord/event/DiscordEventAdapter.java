@@ -12,6 +12,8 @@ import com.ryan_mtg.servobot.user.UserTable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.emote.EmoteAddedEvent;
+import net.dv8tion.jda.api.events.emote.EmoteRemovedEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
@@ -97,6 +99,26 @@ public class DiscordEventAdapter extends ListenerAdapter {
         }
         DiscordUser member = getUser(event.getMember(), botHome);
         listener.onNewUser(new DiscordNewUserEvent(event, botHome, member));
+    }
+
+    //Emote Events
+    @Override
+    public void onEmoteAdded(@Nonnull EmoteAddedEvent event) {
+        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+        if (botHome == null) {
+            return;
+        }
+
+        botHome.getServiceHome(DiscordService.TYPE).updateEmotes();
+    }
+
+    @Override
+    public void onEmoteRemoved(@Nonnull EmoteRemovedEvent event) {
+        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+        if (botHome == null) {
+            return;
+        }
+        botHome.getServiceHome(DiscordService.TYPE).updateEmotes();
     }
 
     private DiscordUser getUser(final Member member, final BotHome botHome) {

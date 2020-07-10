@@ -14,15 +14,15 @@ public interface ServiceHome {
     String getLink();
     String getImageUrl();
     String getDescription();
+
     boolean isStreaming();
+    boolean isStreamer(User user);
 
     HomeEditor getHomeEditor();
     void setHomeEditor(HomeEditor homeEditor);
 
     void setStatus(String status);
     void setName(String botName);
-
-    boolean isStreamer(User user);
 
     void start(BotHome botHome);
     void stop(BotHome botHome);
@@ -46,4 +46,5 @@ public interface ServiceHome {
 
     Emote getEmote(String emoteName);
     List<Emote> getEmotes();
+    void updateEmotes();
 }
