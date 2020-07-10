@@ -1,12 +1,7 @@
 package com.ryan_mtg.servobot.discord.model;
 
 import com.ryan_mtg.servobot.error.UserError;
-import com.ryan_mtg.servobot.model.BotHome;
-import com.ryan_mtg.servobot.model.Channel;
-import com.ryan_mtg.servobot.model.Home;
-import com.ryan_mtg.servobot.model.HomeEditor;
-import com.ryan_mtg.servobot.model.Service;
-import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.model.*;
 import lombok.Getter;
 
 import java.util.List;
@@ -53,8 +48,13 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public List<String> getEmotes() {
+    public List<Emote> getEmotes() {
         return discordService.getEmotes(guildId);
+    }
+
+    @Override
+    public void updateEmotes() {
+        discordService.updateEmotes(guildId);
     }
 
     @Override

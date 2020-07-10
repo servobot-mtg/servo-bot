@@ -106,6 +106,10 @@ public class HomeEditor {
         return bot.getService(serviceType);
     }
 
+    public ServiceHome getServiceHome(final int serviceType) {
+        return botHome.getServiceHome(serviceType);
+    }
+
     @Transactional(rollbackOn = Exception.class)
     public void modifyBotName(final String botName) {
         botHome.setBotName(botName);

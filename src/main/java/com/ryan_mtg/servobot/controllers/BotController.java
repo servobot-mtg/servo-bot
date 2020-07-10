@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 public class BotController {
@@ -188,7 +189,8 @@ public class BotController {
 
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {
-            model.addAttribute("emotes", serviceHome.getEmotes());
+            model.addAttribute("emotes",
+                    serviceHome.getEmotes().stream().map(emote -> emote.getName()).collect(Collectors.toList()));
             model.addAttribute("roles", serviceHome.getRoles());
             model.addAttribute("channels", serviceHome.getChannels());
         } else {

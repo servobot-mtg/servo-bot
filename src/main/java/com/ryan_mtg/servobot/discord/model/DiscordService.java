@@ -44,6 +44,9 @@ public class DiscordService implements Service {
     private final LoggedMessageSerializer loggedMessageSerializer;
     private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
 
+    //TODO: put this in DiscordHome once it's merged with ServiceHome
+    private Map<Long, List<com.ryan_mtg.servobot.model.Emote>> emoteCache = new HashMap<>();
+
     public DiscordService(final String token, final UserTable userTable,
             final LoggedMessageSerializer loggedMessageSerializer) throws UserError {
         this.token = token;
@@ -137,9 +140,19 @@ public class DiscordService implements Service {
         return formatter.format(now);
     }
 
-    public List<String> getEmotes(final long guildId) {
+    public List<com.ryan_mtg.servobot.model.Emote> getEmotes(final long guildId) {
+        if (emoteCache.containsKey(guildId)) {
+            return emoteCache.get(guildId);
+        }
+        updateEmotes(guildId);
+        return emoteCache.get(guildId);
+    }
+
+    public void updateEmotes(final long guildId) {
         Guild guild = jda.getGuildById(guildId);
-        return guild.getEmotes().stream().map(Emote::getName).collect(Collectors.toList());
+
+        List<Emote> emotes = guild.getEmotes();
+        emoteCache.put(guildId, emotes.stream().map(emote -> new DiscordEmote(emote)).collect(Collectors.toList()));
     }
 
     public List<String> getRoles(final long guildId) {

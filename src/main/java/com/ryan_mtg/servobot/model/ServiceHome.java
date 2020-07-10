@@ -13,7 +13,8 @@ public interface ServiceHome {
 
     String getLink();
     String getImageUrl();
-    List<String> getEmotes();
+    List<Emote> getEmotes();
+    void updateEmotes();
     List<String> getRoles();
     List<String> getChannels();
     Channel getChannel(String channelName) throws UserError;
