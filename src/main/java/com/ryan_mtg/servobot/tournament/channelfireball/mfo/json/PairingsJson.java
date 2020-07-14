@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.channelfireball.mfo.json;
+package com.ryan_mtg.servobot.tournament.channelfireball.mfo.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

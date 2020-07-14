@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.tournament;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.utility.Time;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,8 +39,8 @@ public class Tournament {
     @Getter @Setter
     private Standings standings;
 
-    @Getter @Setter
-    private Pairings pairings;
+    @Getter
+    private Map<Integer, Pairings> pairingsMap = new HashMap<>();
 
     @Getter @Setter
     private Instant startTime;
@@ -49,14 +48,20 @@ public class Tournament {
     @Getter @Setter
     private TournamentType type;
 
-    private MfoInformer mfoInformer;
+    private Informer informer;
+
+    @Setter
     private Map<Player, DecklistDescription> decklistMap;
     private int id;
 
-    public Tournament(final MfoInformer informer, final String name, final int id) {
-        this.mfoInformer = informer;
+    public Tournament(final Informer informer, final String name, final int id) {
+        this.informer = informer;
         this.name = name;
         this.id = id;
+    }
+
+    public void setPairings(final Pairings pairings) {
+        pairingsMap.put(pairings.getRound(), pairings);
     }
 
     private static final Set<Player> CARE_ABOUTS = new HashSet<>(Arrays.asList(
@@ -127,16 +132,20 @@ public class Tournament {
         //new Player("", null, "", null, null, null),
     ));
 
+    public Pairings getMostRecentPairings() {
+        int maxPairingsRound = Collections.max(pairingsMap.keySet());
+        return pairingsMap.get(maxPairingsRound);
+    }
+
     public List<PlayerStanding> getPlayers() {
         List<PlayerStanding> players = new ArrayList<>();
         PlayerSet playerSet = standings.getPlayerSet();
         mergeCareAbouts(playerSet, CARE_ABOUTS);
 
         Record leaderRecord = getLeaderRecord();
-        updateDecklistMap();
 
         for (Player player : playerSet) {
-            Player opponent = pairings.getOpponent(player);
+            Player opponent = getMostRecentPairings().getOpponent(player);
             players.add(new PlayerStanding(player, standings.getRank(player), isWatchable(player),
                 isLeader(leaderRecord, player), standings.getRecord(player), decklistMap.get(player), opponent,
                 decklistMap.get(opponent)));
@@ -148,7 +157,6 @@ public class Tournament {
 
     public List<ArchetypeDescription> getMetagameBreakdown() {
         Map<String, Integer> archetypeCount = new HashMap<>();
-        updateDecklistMap();
         int count = 0;
         for (Map.Entry<Player, DecklistDescription> entry : decklistMap.entrySet()) {
             Player player = entry.getKey();
@@ -173,7 +181,10 @@ public class Tournament {
     }
 
     public boolean hasStarted() {
-        return Instant.now().compareTo(startTime) >= 0;
+        if (startTime != null) {
+            return Instant.now().compareTo(startTime) >= 0;
+        }
+        return true;
     }
 
     public String getTimeUntilStart() {
@@ -199,7 +210,7 @@ public class Tournament {
 
     private boolean isWatchable(final Player player) {
         for (Player careAboutPlayer : CARE_ABOUTS) {
-            if (player.getArenaName().equals(careAboutPlayer.getArenaName())) {
+            if (player.getArenaName() != null && player.getArenaName().equals(careAboutPlayer.getArenaName())) {
                 return true;
             }
         }
@@ -222,11 +233,5 @@ public class Tournament {
         }
 
         return bestRecord;
-    }
-
-    private void updateDecklistMap() {
-        if (decklistMap == null) {
-            decklistMap = mfoInformer.parseDecklistsFor(standings.getPlayerSet(), id);
-        }
     }
 }

@@ -4,39 +4,85 @@ import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class PlayerSet implements Iterable<Player> {
     private Map<String, Player> arenaNameMap = new HashMap<>();
+    private Map<String, Player> realNameMap = new HashMap<>();
     private Map<String, Player> discordNameMap = new HashMap<>();
     private Map<String, Player> shortArenaNameMap = new HashMap<>();
+    private Set<Player> players = new HashSet<>();
 
     public Collection<Player> getPlayers() {
-        return arenaNameMap.values();
+        return players;
     }
 
     public Player add(final Player player) {
-        arenaNameMap.put(player.getArenaName(), player);
-        discordNameMap.put(player.getDiscordName(), player);
-        shortArenaNameMap.put(player.getShortArenaName().toLowerCase(), player);
+        if (player.getRealName() != null) {
+            realNameMap.put(player.getRealName(), player);
+        }
+
+        if (player.getArenaName() != null) {
+            arenaNameMap.put(player.getArenaName(), player);
+            shortArenaNameMap.put(player.getShortArenaName().toLowerCase(), player);
+        }
+
+        if (player.getDiscordName() != null) {
+            discordNameMap.put(player.getDiscordName(), player);
+        }
+
+        players.add(player);
         return player;
     }
 
     public Player merge(final Player player) {
-        Player foundPlayer = findByArenaName(player.getArenaName());
+        Player foundPlayer = find(player);
         if (foundPlayer == null) {
             return add(player);
         }
 
+        String arenaName = player.getArenaName();
+        if (foundPlayer.getArenaName() == null && arenaName != null) {
+            arenaNameMap.put(arenaName, foundPlayer);
+            shortArenaNameMap.put(player.getShortArenaName().toLowerCase(), foundPlayer);
+        }
+
+        String realName = player.getRealName();
+        if (foundPlayer.getRealName() == null && realName != null) {
+            realNameMap.put(realName, foundPlayer);
+        }
+
+        merge(foundPlayer::getArenaName, foundPlayer::setArenaName, player.getRealName());
+        merge(foundPlayer::getDiscordName, foundPlayer::setDiscordName, player.getRealName());
         merge(foundPlayer::getRealName, foundPlayer::setRealName, player.getRealName());
         merge(foundPlayer::getNickName, foundPlayer::setNickName, player.getNickName());
         merge(foundPlayer::getTwitchName, foundPlayer::setTwitchName, player.getTwitchName());
         merge(foundPlayer::getTwitterName, foundPlayer::setTwitterName, player.getTwitterName());
         return foundPlayer;
+    }
+
+    public Player find(final Player player) {
+        String arenaName = player.getArenaName();
+        if (arenaName != null) {
+            Player foundPlayer = findByArenaName(arenaName);
+            if (foundPlayer != null) {
+                return foundPlayer;
+            }
+        }
+
+        String realName = player.getRealName();
+        if (realName != null) {
+            if (realNameMap.containsKey(realName)) {
+                return realNameMap.get(realName);
+            }
+        }
+
+        return null;
     }
 
     public Player findByArenaName(final String arenaName) {
@@ -75,6 +121,6 @@ public class PlayerSet implements Iterable<Player> {
 
     @Override
     public Iterator<Player> iterator() {
-        return discordNameMap.values().iterator();
+        return players.iterator();
     }
 }

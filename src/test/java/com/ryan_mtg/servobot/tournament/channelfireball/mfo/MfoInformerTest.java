@@ -1,12 +1,12 @@
-package com.ryan_mtg.servobot.channelfireball.mfo;
+package com.ryan_mtg.servobot.tournament.channelfireball.mfo;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.json.Pairing;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.PairingsJson;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.PlayerStanding;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.Tournament;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeries;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.Pairing;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.PairingsJson;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.PlayerStanding;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.Tournament;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.TournamentList;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.TournamentSeries;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.TournamentSeriesList;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

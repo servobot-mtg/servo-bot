@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.data.repositories.BotRepository;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;

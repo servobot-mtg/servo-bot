@@ -26,8 +26,8 @@ public class Pairings {
     }
 
     public void add(final Player player, final Player opponent) {
-        Player existingPlayer = playerSet.findByArenaName(player.getArenaName());
-        Player existingOpponent = playerSet.findByArenaName(opponent.getArenaName());
+        Player existingPlayer = playerSet.merge(player);
+        Player existingOpponent = playerSet.merge(opponent);
         opponentMap.put(existingPlayer, existingOpponent);
     }
 
@@ -42,10 +42,17 @@ public class Pairings {
     }
 
     public String getTimeSinceStartOfRound() {
+        if (roundStartTime == null) {
+            return "No clue!";
+        }
         return Time.toReadableString(Duration.between(roundStartTime, Instant.now()));
     }
 
     public String getTimeUntilEndOfRound() {
+        if (roundStartTime == null) {
+            return "No clue!";
+        }
+
         Instant now = Instant.now();
         if (now.compareTo(getRoundEndTime()) < 0) {
             return String.format("About %s", Time.toReadableString(Duration.between(Instant.now(), getRoundEndTime())));

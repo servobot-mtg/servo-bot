@@ -8,7 +8,9 @@ import lombok.Setter;
 public class Player {
     public static final Player BYE = new Player("BYE", "BYE");
 
+    @Setter
     private String arenaName;
+    @Setter
     private String discordName;
     @Setter
     private String realName;
@@ -70,5 +72,9 @@ public class Player {
         final String arenaName = name.substring(0, commaIndex);
         final String discordName = name.substring(commaIndex + 2);
         return new Player(arenaName,discordName);
+    }
+
+    public static Player createFromName(final String name, final String twitchChannel) {
+        return new Player(null, null, name, null, twitchChannel, null);
     }
 }

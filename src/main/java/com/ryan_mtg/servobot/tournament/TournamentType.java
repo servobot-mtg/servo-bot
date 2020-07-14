@@ -5,4 +5,7 @@ public enum TournamentType {
     GRAND_PRIX,
     QUALIFIER,
     NONE,
+    INVITATIONAL,
+    WEEKLY,
+    ONE_OFF,
 }

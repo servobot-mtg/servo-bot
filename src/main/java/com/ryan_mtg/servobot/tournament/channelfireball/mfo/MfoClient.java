@@ -1,9 +1,9 @@
-package com.ryan_mtg.servobot.channelfireball.mfo;
+package com.ryan_mtg.servobot.tournament.channelfireball.mfo;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.json.PairingsJson;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.Standings;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentList;
-import com.ryan_mtg.servobot.channelfireball.mfo.json.TournamentSeriesList;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.PairingsJson;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.Standings;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.TournamentList;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.TournamentSeriesList;
 import feign.Feign;
 import feign.Logger;
 import feign.Param;

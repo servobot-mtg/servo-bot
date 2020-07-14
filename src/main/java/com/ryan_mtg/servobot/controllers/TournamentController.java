@@ -22,11 +22,22 @@ public class TournamentController {
         return "tournament/home";
     }
 
-    @GetMapping("/{name}")
-    public String showTournament(final Model model, @PathVariable("name") final String name) {
+    @GetMapping("/cfb/{name}")
+    public String showCfbTournament(final Model model, @PathVariable("name") final String name) {
         try {
             int id = Integer.parseInt(name);
-            model.addAttribute("tournament", tournamentManager.getTournament(id));
+            model.addAttribute("tournament", tournamentManager.getCfbTournament(id));
+        } catch (Exception e) {
+            model.addAttribute("tournament", tournamentManager.getTournament(name.replace('+', ' ')));
+        }
+        return "tournament/tournament";
+    }
+
+    @GetMapping("/scg/{name}")
+    public String showScgTournament(final Model model, @PathVariable("name") final String name) {
+        try {
+            int id = Integer.parseInt(name);
+            model.addAttribute("tournament", tournamentManager.getScgTournament(id));
         } catch (Exception e) {
             model.addAttribute("tournament", tournamentManager.getTournament(name.replace('+', ' ')));
         }

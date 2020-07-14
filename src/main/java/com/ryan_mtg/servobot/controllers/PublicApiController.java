@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Bot;

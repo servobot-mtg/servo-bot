@@ -1,17 +1,19 @@
 package com.ryan_mtg.servobot.tournament;
 
-import com.ryan_mtg.servobot.channelfireball.mfo.MfoInformer;
+import com.ryan_mtg.servobot.tournament.channelfireball.mfo.MfoInformer;
+import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class TournamentManager {
     private MfoInformer mfoInformer;
+    private MtgMeleeInformer meleeInformer;
 
-    public TournamentManager(final MfoInformer mfoInformer) {
+    public TournamentManager(final MfoInformer mfoInformer, final MtgMeleeInformer meleeInformer) {
         this.mfoInformer = mfoInformer;
+        this.meleeInformer = meleeInformer;
     }
 
     public List<Tournament> getTournaments() {
@@ -22,7 +24,11 @@ public class TournamentManager {
         return mfoInformer.getTournament(name);
     }
 
-    public Tournament getTournament(final int id) {
+    public Tournament getCfbTournament(final int id) {
         return mfoInformer.getTournament(id);
+    }
+
+    public Tournament getScgTournament(final int id) {
+        return meleeInformer.getTournament(id);
     }
 }
