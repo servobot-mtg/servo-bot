@@ -107,7 +107,7 @@ public class DiscordServiceHome implements ServiceHome {
     @Override
     public void start(final BotHome botHome) {
         guild = discordService.getGuild(guildId);
-        setName(botHome.getName());
+        setName(botHome.getBotName());
     }
 
     @Override
