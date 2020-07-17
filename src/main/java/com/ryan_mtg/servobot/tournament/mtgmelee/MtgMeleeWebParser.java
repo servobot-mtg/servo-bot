@@ -11,6 +11,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,8 +38,17 @@ public class MtgMeleeWebParser {
             Element nameElement = document.select("meta[property=og:title]").get(0);
             tournament.setName(nameElement.attr("content"));
 
+            Element startDateP = document.getElementById("tournament-headline-start-date-field");
+            String startTimeString = startDateP.getElementsByTag("span").get(0).dataset().get("value");
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a");
+
+            LocalDateTime startDate = LocalDateTime.parse(startTimeString, formatter);
+            Instant startTime = startDate.toInstant(ZoneOffset.UTC);
+
             tournament.setPairingsIdMap(getPairingsMap(document));
             tournament.setStandingsId(getStandingsId(document));
+            tournament.setStartTime(startTime);
 
             return tournament;
         } catch (IOException e) {

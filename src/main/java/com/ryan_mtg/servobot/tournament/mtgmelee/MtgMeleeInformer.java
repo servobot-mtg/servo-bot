@@ -10,19 +10,29 @@ import com.ryan_mtg.servobot.tournament.RecordCount;
 import com.ryan_mtg.servobot.tournament.Standings;
 import com.ryan_mtg.servobot.tournament.Tournament;
 import com.ryan_mtg.servobot.tournament.TournamentType;
-import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.Pairing;
-import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.PlayerStanding;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PairingInfo;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PairingsJson;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PlayerInfo;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.StandingsJson;
+import com.ryan_mtg.servobot.tournament.mtgmelee.json.TournamentJson;
+import com.ryan_mtg.servobot.tournament.mtgmelee.json.TournamentsJson;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Component
 public class MtgMeleeInformer implements Informer {
@@ -42,43 +52,60 @@ public class MtgMeleeInformer implements Informer {
 
     @Override
     public String describeCurrentTournaments() {
-        return String.format("%s.", getCurrentTournaments().get(0).getName());
+        return describeTournaments(MtgMeleeInformer::getNickName, false, true, NO_ACTIVE_TOURNAMENTS);
     }
 
     @Override
     public String getCurrentDecklists() {
-        MtgMeleeTournament tournament = getCurrentTournaments().get(0);
-        return String.format("%s: %s", tournament.getName(), getDecklistsUrl(tournament));
+        return describeTournaments(this::getDecklistsUrl, true, false, NO_ACTIVE_TOURNAMENTS);
     }
 
     @Override
     public String getCurrentPairings() {
-        MtgMeleeTournament tournament = getCurrentTournaments().get(0);
-        return String.format("%s: %s", tournament.getName(), getPairingsUrl(tournament));
+        return describeTournaments(this::getPairingsUrl, true, false, NO_ACTIVE_TOURNAMENTS);
     }
 
     @Override
     public String getCurrentStandings() {
-        MtgMeleeTournament tournament = getCurrentTournaments().get(0);
-        return String.format("%s: %s", tournament.getName(), getStandingsUrl(tournament));
+        return describeTournaments(this::getStandingsUrl, true, false, NO_ACTIVE_TOURNAMENTS);
     }
 
     @Override
     public String getCurrentRound() {
-        MtgMeleeTournament tournament = getCurrentTournaments().get(0);
-        return String.format("%s: round %d", tournament.getName(), getCurrentRound(tournament));
+        return describeTournaments(tournament -> String.format("round %d", getCurrentRound(tournament)), true,
+                false, NO_ACTIVE_TOURNAMENTS);
     }
 
     @Override
     public String getCurrentRecords() {
-        MtgMeleeTournament tournament = getCurrentTournaments().get(0);
-        Standings standings = computeStandings(tournament, new PlayerSet());
-        return RecordCount.print(standings.getRecordCounts(3));
+        return describeTournaments(tournament -> {
+            Standings standings = computeStandings(tournament, new PlayerSet());
+            return RecordCount.print(standings.getRecordCounts(3));
+        }, true, true, NO_ACTIVE_TOURNAMENTS);
+    }
+
+    @Override
+    public String getCurrentRecord(String arenaName) {
+        return describeTournaments(tournament -> {
+            PlayerSet players = new PlayerSet();
+            Standings standings = computeStandings(tournament, players);
+            Player player = players.findByName(arenaName);
+            if (player == null) {
+                return null;
+            }
+            return standings.getRecord(player).toString();
+        }, true, true, String.format("There are no current tournaments for %s.", arenaName));
     }
 
     @Override
     public Tournament getTournament(int tournamentId) {
         return getTournament(parser.parse(tournamentId));
+    }
+
+    private String describeTournaments(final Function<MtgMeleeTournament, String> function, final boolean showHeader,
+                                       final boolean showPunctuation, final String emptyTournamentMessage) {
+        return Informer.describeTournaments(getCurrentTournaments(), MtgMeleeInformer::getNickName, function,
+                showHeader, showPunctuation, emptyTournamentMessage);
     }
 
     private Tournament getTournament(MtgMeleeTournament tournament) {
@@ -117,7 +144,24 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private List<MtgMeleeTournament> getCurrentTournaments() {
-        return Collections.singletonList(parser.parse(2166));
+        TournamentsJson tournamentsJson = client.getTournaments("Star City Games", 500);
+        //List<TournamentJson> tournamentsJson = client.getTodaysTournaments();
+
+        List<MtgMeleeTournament> tournaments = new ArrayList<>();
+        Instant now = Instant.now();
+        for (TournamentJson tournamentJson : tournamentsJson.getData()) {
+            if (isRecent(tournamentJson, now)) {
+                tournaments.add(parser.parse(tournamentJson.getId()));
+            }
+        }
+
+        return tournaments;
+    }
+
+    private boolean isRecent(final TournamentJson tournamentJson, final Instant now) {
+        Instant startTime = LocalDateTime.parse(tournamentJson.getStartTime(),
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME).toInstant(ZoneOffset.UTC);
+        return Duration.between(startTime, now).toHours() < 6;
     }
 
     private Standings computeStandings(final MtgMeleeTournament tournament, final PlayerSet playerSet) {
@@ -169,7 +213,9 @@ public class MtgMeleeInformer implements Informer {
             Player opponent = createPlayer(players, pairing.getPlayer2Name(), pairing.getPlayer2ArenaName(),
                     pairing.getPlayer2Discord(), pairing.getPlayer2Twitch());
             pairings.add(player, opponent);
-            pairings.add(opponent, player);
+            if (opponent != Player.BYE) {
+                pairings.add(opponent, player);
+            }
         }
 
         return pairings;
@@ -189,7 +235,12 @@ public class MtgMeleeInformer implements Informer {
                 MtgMeleeWebParser.STANDINGS_ID);
     }
 
-    private String getNickName(final MtgMeleeTournament tournament) {
+    private static String getNickName(final MtgMeleeTournament tournament) {
+        String name = tournament.getName();
+        if (name.equals("SCG Tour Online - Standard Challenge")) {
+            ZonedDateTime startTime = tournament.getStartTime().atZone(ZoneId.of("America/New_York"));
+            return String.format("SCG Challenge (%s)", DateTimeFormatter.ofPattern("h:mm").format(startTime.toLocalTime()));
+        }
         return tournament.getName();
     }
 
@@ -203,6 +254,9 @@ public class MtgMeleeInformer implements Informer {
 
     private Player createPlayer(final PlayerSet players, final String name, final String arenaName,
             final String discordName, final String twitchName) {
+        if (name == null && arenaName == null) {
+            return Player.BYE;
+        }
         Player player = new Player(arenaName, discordName, name, null, twitchName, null);
         return players.merge(player);
     }

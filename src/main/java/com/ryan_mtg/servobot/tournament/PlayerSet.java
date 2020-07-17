@@ -85,6 +85,19 @@ public class PlayerSet implements Iterable<Player> {
         return null;
     }
 
+    public Player findByName(final String name) {
+        Player player = findByArenaName(name);
+        if (player != null) {
+            return player;
+        }
+
+        if (realNameMap.containsKey(name)) {
+            return realNameMap.get(name);
+        }
+
+        return null;
+    }
+
     public Player findByArenaName(final String arenaName) {
         if (arenaName.equalsIgnoreCase(Player.BYE.getArenaName())) {
             return Player.BYE;

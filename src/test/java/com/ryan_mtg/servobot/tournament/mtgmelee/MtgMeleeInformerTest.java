@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class MtgMeleeInformerTest {
     private MtgMeleeWebParser mockWebParser;
     private MtgMeleeClient mockClient;
@@ -29,7 +30,7 @@ public class MtgMeleeInformerTest {
         mockClock = mock(Clock.class);
         informer = new MtgMeleeInformer(mockWebParser, mockClient, mockClock);
 
-        tournament1.setId(2166);
+        tournament1.setId(1943);
         tournament1.setName("Tournament 1");
         tournament1.setPairingsIdMap(Collections.singletonMap(2, 7676));
     }
@@ -43,14 +44,14 @@ public class MtgMeleeInformerTest {
     @Test
     public void testGetCurrentDecklistsWithSingletonTournamentList() {
         when(mockWebParser.parse(tournament1.getId())).thenReturn(tournament1);
-        assertEquals("Tournament 1: https://mtgmelee.com/Tournament/View/2166", informer.getCurrentDecklists());
+        assertEquals("Tournament 1: https://mtgmelee.com/Tournament/View/1943", informer.getCurrentDecklists());
     }
 
     @Test
     public void testGetCurrentPairingsWithSingletonTournamentList() {
         when(mockWebParser.parse(tournament1.getId())).thenReturn(tournament1);
         assertEquals(
-                "Tournament 1: https://mtgmelee.com/Tournament/View/2166#pairings-round-selector-container",
+                "Tournament 1: https://mtgmelee.com/Tournament/View/1943#pairings-round-selector-container",
                 informer.getCurrentPairings());
     }
 
@@ -58,7 +59,7 @@ public class MtgMeleeInformerTest {
     public void testGetCurrentStandingsWithSingletonTournamentList() {
         when(mockWebParser.parse(tournament1.getId())).thenReturn(tournament1);
         assertEquals(
-                "Tournament 1: https://mtgmelee.com/Tournament/View/2166#standings-phase-selector-container",
+                "Tournament 1: https://mtgmelee.com/Tournament/View/1943#standings-phase-selector-container",
                 informer.getCurrentStandings());
     }
 
@@ -68,12 +69,16 @@ public class MtgMeleeInformerTest {
         assertEquals("Tournament 1: round 2", informer.getCurrentRound());
     }
 
-    @Test @Ignore
+    @Test
     public void spike() {
         informer = new MtgMeleeInformer();
+        String description = informer.describeCurrentTournaments();
+        System.out.println(description);
+        /*
         System.out.println(informer.getCurrentRecords());
         Tournament tournament = informer.getTournament(tournament1.getId());
         assertEquals(4, tournament.getStandings().getRound());
         assertNotNull(tournament.getMostRecentPairings());
+         */
     }
 }

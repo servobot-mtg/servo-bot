@@ -48,8 +48,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class MfoInformer implements Informer {
-    private static final String NO_ACTIVE_TOURNAMENTS = "There are no active tournaments.";
-
     private MfoClient mfoClient;
     private Clock clock;
     private Map<String, String> decklistNameCache = new HashMap<>();
@@ -181,6 +179,12 @@ public class MfoInformer implements Informer {
             }
             return standings.getRecord(player).toString();
         }, true, true, String.format("There are no current tournaments for %s.", arenaName));
+    }
+
+    private String describeTournaments(final Function<Tournament, String> function, final boolean showHeader,
+                                       final boolean showPunctuation, final String emptyTournamentMessage) {
+        return Informer.describeTournaments(getCurrentTournaments(), MfoInformer::getNickName, function, showHeader,
+                showPunctuation, emptyTournamentMessage);
     }
 
     private Standings computeStandings(final Tournament tournament) {
@@ -577,59 +581,6 @@ public class MfoInformer implements Informer {
         Instant lastUpdatedTime = parse(tournament.getLastUpdated());
         Duration idleTime = getIdleWait(tournament);
         return now.compareTo(lastUpdatedTime.plus(idleTime)) > 0;
-    }
-
-    private String describeTournaments(final Function<Tournament, String> function, final boolean showHeader,
-            final boolean showPunctuation, final String emptyTournamentMessage) {
-        Map<Tournament, String> valueMap = new HashMap<>();
-        List<Tournament> tournaments = new ArrayList<>();
-        getCurrentTournaments().forEach(tournament -> {
-            String value = function.apply(tournament);
-            if (value != null) {
-                valueMap.put(tournament, value);
-                tournaments.add(tournament);
-            }
-        });
-
-        StringBuilder builder = new StringBuilder();
-        if (tournaments.size() > 1) {
-            int seen = 0;
-            for (Tournament tournament : tournaments) {
-                seen++;
-                if (showHeader) {
-                    builder.append(getNickName(tournament)).append(": ");
-                }
-                builder.append(valueMap.get(tournament));
-                if (seen + 1 == tournaments.size()) {
-                    if (showPunctuation && tournaments.size() > 2) {
-                        builder.append(',');
-                    }
-                    builder.append(" and ");
-                } else if (seen == tournaments.size()) {
-                    if (showPunctuation) {
-                        builder.append('.');
-                    }
-                } else {
-                    if (showPunctuation) {
-                        builder.append(", ");
-                    } else {
-                        builder.append(" ");
-                    }
-                }
-            }
-        } else if (tournaments.size() == 1) {
-            Tournament tournament = tournaments.get(0);
-            if (showHeader) {
-                builder.append(getNickName(tournament)).append(": ");
-            }
-            builder.append(valueMap.get(tournament));
-            if (showPunctuation) {
-                builder.append(".");
-            }
-        } else {
-            return emptyTournamentMessage;
-        }
-        return builder.toString();
     }
 
     private String resolve(final String path) {

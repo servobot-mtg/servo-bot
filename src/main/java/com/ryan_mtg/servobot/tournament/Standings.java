@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Standings {
+    private static final int UNKNOWN_RANK = 999999;
+
     @Getter
     private PlayerSet playerSet;
 
@@ -56,10 +58,17 @@ public class Standings {
     }
 
     public Record getRecord(final Player player) {
-        return playerRecord.get(player);
+        if (playerRank.containsKey(player)) {
+            return playerRecord.get(player);
+        } else {
+            return Record.newRecord(0, 0);
+        }
     }
 
     public int getRank(final Player player) {
-        return playerRank.get(player);
+        if (playerRank.containsKey(player)) {
+            return playerRank.get(player);
+        }
+        return UNKNOWN_RANK;
     }
 }

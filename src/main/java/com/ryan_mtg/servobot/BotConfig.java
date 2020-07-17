@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.data.factories.BotFactory;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +24,15 @@ public class BotConfig {
 
     private final BotRepository botRepository;
     private final BotFactory botFactory;
-    private final MfoInformer informer;
+    private final MfoInformer mfoInformer;
+    private final MtgMeleeInformer meleeInformer;
 
-    public BotConfig(final BotRepository botRepository, final BotFactory botFactory, final MfoInformer mfoInformer) {
+    public BotConfig(final BotRepository botRepository, final BotFactory botFactory, final MfoInformer mfoInformer,
+            final MtgMeleeInformer meleeInformer) {
         this.botRepository = botRepository;
         this.botFactory = botFactory;
-        this.informer = mfoInformer;
+        this.mfoInformer = mfoInformer;
+        this.meleeInformer = meleeInformer;
     }
 
     @Bean
@@ -37,15 +41,23 @@ public class BotConfig {
         Function<Book, String> randomStatement = Book::randomStatement;
         symbolTable.addValue("randomStatement", randomStatement);
 
-        symbolTable.addFunctor("cfbTournaments", informer::describeCurrentTournaments);
-        symbolTable.addFunctor("cfbDecklists", informer::getCurrentDecklists);
-        symbolTable.addFunctor("cfbDecks", informer::getCurrentDecklists);
-        symbolTable.addFunctor("cfbPairings", informer::getCurrentPairings);
-        symbolTable.addFunctor("cfbStandings", informer::getCurrentStandings);
-        symbolTable.addFunctor("cfbRound", informer::getCurrentRound);
-        symbolTable.addFunctor("cfbRecords", informer::getCurrentRecords);
-
+        symbolTable.addFunctor("cfbTournaments", mfoInformer::describeCurrentTournaments);
+        symbolTable.addFunctor("cfbDecklists", mfoInformer::getCurrentDecklists);
+        symbolTable.addFunctor("cfbDecks", mfoInformer::getCurrentDecklists);
+        symbolTable.addFunctor("cfbPairings", mfoInformer::getCurrentPairings);
+        symbolTable.addFunctor("cfbStandings", mfoInformer::getCurrentStandings);
+        symbolTable.addFunctor("cfbRound", mfoInformer::getCurrentRound);
+        symbolTable.addFunctor("cfbRecords", mfoInformer::getCurrentRecords);
         symbolTable.addValue("cfbRecord", (Function<String, String>) this::getCfbRecord);
+
+        symbolTable.addFunctor("scgTournaments", meleeInformer::describeCurrentTournaments);
+        symbolTable.addFunctor("scgDecklists", meleeInformer::getCurrentDecklists);
+        symbolTable.addFunctor("scgDecks", meleeInformer::getCurrentDecklists);
+        symbolTable.addFunctor("scgPairings", meleeInformer::getCurrentPairings);
+        symbolTable.addFunctor("scgStandings", meleeInformer::getCurrentStandings);
+        symbolTable.addFunctor("scgRound", meleeInformer::getCurrentRound);
+        symbolTable.addFunctor("scgRecords", meleeInformer::getCurrentRecords);
+        symbolTable.addValue("scgRecord", (Function<String, String>) this::getScgRecord);
 
         return new Scope(null, symbolTable);
     }
@@ -58,8 +70,21 @@ public class BotConfig {
 
     private String getCfbRecord(final String input) {
         if (Strings.isBlank(input)) {
-            return informer.getCurrentRecords();
+            return mfoInformer.getCurrentRecords();
         }
-        return informer.getCurrentRecord(input);
+        return mfoInformer.getCurrentRecord(input);
+    }
+
+    private String getScgRecord(final String input) {
+        if (Strings.isBlank(input)) {
+            return meleeInformer.getCurrentRecords();
+        }
+
+        String result = meleeInformer.getCurrentRecord(input);
+        if (result != null) {
+            return result;
+        }
+
+        return meleeInformer.getCurrentRecords();
     }
 }
