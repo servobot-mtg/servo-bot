@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>ServoBot Guide to Tournament Scores</title>
+    <div th:replace="fragments :: includes"/>
+    <div th:replace="fragments :: includes (description='Tournament Commands Help')"></div>
+</head>
+<body>
+<div th:include="fragments :: header"/>
+<div class="content">
+    <h1>Tournament Commands</h1>
+    <p>ServoBot provides commands to obtain information about certain Magic tournaments. The commands do the following:
+    </p>
+    <ul>
+        <li>A link to the standings</li>
+        <li>A link to the pairings</li>
+        <li>A link to decklists</li>
+        <li>Tournament records</li>
+        <li>The record for a particular player</li>
+        <li>A link to the decklist for a particular player</li>
+    </ul>
+    <h2>MTGBot Plugin</h2>
+    <p>ServoBot also has an API that can be accessed by other bots, most notably MTGBot. Here's a guide to setting
+        up the commands. </p>
+    <p><span class="note">Note</span>: Currently these are experimental. If you notice a problem, please report it in the Discord.</p>
+    <ul>
+        <li>Standings<br>
+            <div class="command-line">
+                !addcom !standings %remoteapi https://servobot.info/api/public/melee?query=standings%
+            </div>
+            <ul>
+                <li>Links to the full standings for the tournament.</li>
+                <li><span class="note">Note</span>: !standings is a built in command of MTGBot, and must be overridden
+                    by the broadcaster:</li>
+                <div class="command-line">
+                    !override !standings disable
+                </div>
+            </ul>
+        </li>
+        <li>Pairings<br>
+            <div class="command-line">
+                !addcom !pairings %remoteapi https://servobot.info/api/public/melee?query=pairings%
+            </div>
+            <ul>
+                <li>Links to the pairings for the current round of the tournament.</li>
+            </ul>
+        </li>
+        <li>Decklists<br>
+            <div class="command-line">
+                !addcom !decklists %remoteapi https://servobot.info/api/public/melee?query=decks%
+            </div>
+            <ul>
+                <li>Links to the list of all decklists.</li>
+            </ul>
+            <div class="command-line">
+                !addcom !deck %remoteapi https://servobot.info/api/public/melee?query=deck&name=%input%%
+            </div>
+            <ul>
+                <li>Links to the list of a particular player's decklist.</li>
+                <li>If no name is provided, it links to a list of all decklists.</li>
+                <li>The name is passed as an input to the command, for example</li>
+                <div class="command-line">
+                    !deck Brad Nelson
+                </div>
+                <li>The name can be either the player's name or Arena handle.</li>
+            </ul>
+        </li>
+        <li>Tournament Records<br>
+            <div class="command-line">
+                !addcom !records %remoteapi https://servobot.info/api/public/melee?query=records%
+            </div>
+            <ul>
+                <li>Gives a list of the top few records and how many players are at that record. Useful for estimating
+                    what record will be necessary to make a cut to top 8.</li>
+            </ul>
+            <div class="command-line">
+                !addcom !record %remoteapi https://servobot.info/api/public/melee?query=record&name=%input%%
+            </div>
+            <ul>
+                <li>Gives the record for the player.</li>
+                <li>The name can be either the player's name or Arena handle.</li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div th:include="fragments :: footer"/>
+</body>
+</html>

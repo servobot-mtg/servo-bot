@@ -10,6 +10,8 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
+import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
+import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeWebParser;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +59,6 @@ public class PublicApiController {
     @GetMapping("/cfb")
     public String evaluateCfbExpression(@RequestParam final String query,
             @RequestParam(required = false) final String arenaName, final MfoInformer informer) {
-        //Bot bot = botRegistrar.getDefaultBot();
-        //Scope scope = bot.getBotScope();
-
         switch (query) {
             case "tournaments":
                 return informer.describeCurrentTournaments();
@@ -83,6 +82,46 @@ public class PublicApiController {
                     return informer.getCurrentRecords();
                 } else {
                     return informer.getCurrentRecord(arenaName);
+                }
+            default:
+                return String.format("Unknown query %s", query);
+        }
+    }
+
+    @GetMapping("/melee")
+    public String evaluateMeleeExpression(@RequestParam final String query,
+            @RequestParam(required = false) final String name, final MtgMeleeInformer informer) {
+        switch (query) {
+            case "tournaments":
+                return informer.describeCurrentTournaments();
+            case "decklists":
+            case "decks":
+            case "deck":
+                if (Strings.isBlank(name)) {
+                    return informer.getCurrentDecklists();
+                } else {
+                    return informer.getCurrentDecklist(name);
+                }
+            case "pairings":
+                String description = informer.getCurrentPairings();
+                if (description.length() >= 255) {
+                    description = description.replace("#" + MtgMeleeInformer.PAIRINGS_ID, "");
+                }
+                return description;
+            case "standings":
+                description = informer.getCurrentStandings();
+                if (description.length() >= 255) {
+                    description = description.replace("#" + MtgMeleeInformer.STANDINGS_ID, "");
+                }
+                return description;
+            case "round":
+                return informer.getCurrentRound();
+            case "records":
+            case "record":
+                if (Strings.isBlank(name)) {
+                    return informer.getCurrentRecords();
+                } else {
+                    return informer.getCurrentRecord(name);
                 }
             default:
                 return String.format("Unknown query %s", query);

@@ -26,16 +26,18 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class MtgMeleeInformer implements Informer {
+    public static final String STANDINGS_ID = "standings";
+    public static final String PAIRINGS_ID = "pairings";
     private MtgMeleeWebParser parser;
     private MtgMeleeClient client;
     private Clock clock;
@@ -97,9 +99,36 @@ public class MtgMeleeInformer implements Informer {
         }, true, true, String.format("There are no current tournaments for %s.", arenaName));
     }
 
+    public String getCurrentDecklist(final String name) {
+        return describeTournaments(tournament -> {
+            PlayerSet players = new PlayerSet();
+            StandingsJson standingsJson = client.getStandings(tournament.getStandingsId(), 500);
+            Map<Player, DecklistDescription> decklistMap = computeDecklistMap(players, standingsJson);
+            Player player = players.findByName(name);
+            if (player == null) {
+                return null;
+            }
+
+            return decklistMap.get(player).getUrl();
+        }, true, false, String.format("%s is not in the tournament.", name));
+    }
+
+
     @Override
     public Tournament getTournament(int tournamentId) {
         return getTournament(parser.parse(tournamentId));
+    }
+
+    public static TournamentType getType(final String name) {
+        if (name.startsWith("SCG Tour Online - Standard Challenge")) {
+            return TournamentType.DAILY;
+        }
+
+        if (name.startsWith("SCG Tour Online Championship Qualifier")) {
+            return TournamentType.WEEKLY;
+        }
+
+        return TournamentType.ONE_OFF;
     }
 
     private String describeTournaments(final Function<MtgMeleeTournament, String> function, final boolean showHeader,
@@ -108,15 +137,15 @@ public class MtgMeleeInformer implements Informer {
                 showHeader, showPunctuation, emptyTournamentMessage);
     }
 
-    private Tournament getTournament(MtgMeleeTournament tournament) {
+    private Tournament getTournament(final MtgMeleeTournament tournament) {
         Tournament result = new Tournament(this, tournament.getName(), tournament.getId());
         result.setRound(getCurrentRound(tournament));
         result.setPairingsUrl(getPairingsUrl(tournament));
         result.setNickName(getNickName(tournament));
         result.setStandingsUrl(getStandingsUrl(tournament));
         result.setDecklistUrl(getDecklistsUrl(tournament));
-        result.setStartTime(null); //parse(tournament.getStartsAt(), zoneId));
-        result.setType(TournamentType.ONE_OFF); //TO DO, figure out a way to describe the type of tournament
+        result.setStartTime(tournament.getStartTime());
+        result.setType(tournament.getTournamentType());
 
         PlayerSet playerSet = new PlayerSet();
         tournament.getPairingsIdMap()
@@ -145,23 +174,41 @@ public class MtgMeleeInformer implements Informer {
 
     private List<MtgMeleeTournament> getCurrentTournaments() {
         TournamentsJson tournamentsJson = client.getTournaments("Star City Games", 500);
-        //List<TournamentJson> tournamentsJson = client.getTodaysTournaments();
 
-        List<MtgMeleeTournament> tournaments = new ArrayList<>();
+        List<TournamentJson> filteredTournamentJsons = new ArrayList<>();
         Instant now = Instant.now();
+        TournamentType minType = TournamentType.NONE;
         for (TournamentJson tournamentJson : tournamentsJson.getData()) {
             if (isRecent(tournamentJson, now)) {
-                tournaments.add(parser.parse(tournamentJson.getId()));
+                filteredTournamentJsons.add(tournamentJson);
+                TournamentType tournamentType = getType(tournamentJson.getName());
+                if (tournamentType.compareTo(minType) < 0) {
+                    minType = tournamentType;
+                }
             }
         }
 
-        return tournaments;
+        final TournamentType filterType = minType;
+        return filteredTournamentJsons.stream()
+                .filter(tournamentJson -> getType(tournamentJson.getName()) == filterType)
+                .map(tournamentJson -> parser.parse(tournamentJson.getId())).collect(Collectors.toList());
     }
 
     private boolean isRecent(final TournamentJson tournamentJson, final Instant now) {
         Instant startTime = LocalDateTime.parse(tournamentJson.getStartTime(),
                 DateTimeFormatter.ISO_LOCAL_DATE_TIME).toInstant(ZoneOffset.UTC);
-        return Duration.between(startTime, now).toHours() < 6;
+        int length = getLengthInHours(getType(tournamentJson.getName()));
+        return Duration.between(startTime, now).toHours() < length;
+    }
+
+    private static int getLengthInHours(final TournamentType tournamentType) {
+        switch (tournamentType) {
+            case DAILY:
+                return 4;
+            case WEEKLY:
+                return 9;
+        }
+        return 6;
     }
 
     private Standings computeStandings(final MtgMeleeTournament tournament, final PlayerSet playerSet) {
@@ -226,21 +273,25 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private String getPairingsUrl(final MtgMeleeTournament tournament) {
-        return String.format("https://mtgmelee.com/Tournament/View/%d#%s", tournament.getId(),
-                MtgMeleeWebParser.PAIRINGS_ID);
+        return String.format("https://mtgmelee.com/Tournament/View/%d#%s", tournament.getId(), PAIRINGS_ID);
     }
 
     private String getStandingsUrl(final MtgMeleeTournament tournament) {
-        return String.format("https://mtgmelee.com/Tournament/View/%d#%s", tournament.getId(),
-                MtgMeleeWebParser.STANDINGS_ID);
+        return String.format("https://mtgmelee.com/Tournament/View/%d#%s", tournament.getId(), STANDINGS_ID);
     }
 
     private static String getNickName(final MtgMeleeTournament tournament) {
-        String name = tournament.getName();
-        if (name.equals("SCG Tour Online - Standard Challenge")) {
+        if (tournament.getTournamentType() == TournamentType.WEEKLY) {
             ZonedDateTime startTime = tournament.getStartTime().atZone(ZoneId.of("America/New_York"));
             return String.format("SCG Challenge (%s)", DateTimeFormatter.ofPattern("h:mm").format(startTime.toLocalTime()));
         }
+
+        if (tournament.getTournamentType() == TournamentType.WEEKLY) {
+            int numIndex = tournament.getName().indexOf("#") + 1;
+            int qualifierNum = Integer.parseInt(tournament.getName().substring(numIndex));
+            return String.format("SCG Qualifier #%d", qualifierNum);
+        }
+
         return tournament.getName();
     }
 

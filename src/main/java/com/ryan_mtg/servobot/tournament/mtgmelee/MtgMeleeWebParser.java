@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.tournament.mtgmelee;
 
+import com.ryan_mtg.servobot.tournament.TournamentType;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -13,15 +14,14 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MtgMeleeWebParser {
-    public static final String STANDINGS_ID = "standings-phase-selector-container";
-    public static final String PAIRINGS_ID = "pairings-round-selector-container";
+    private static final String STANDINGS_ID = "standings-phase-selector-container";
+    private static final String PAIRINGS_ID = "pairings-round-selector-container";
 
     public MtgMeleeTournament parse(final int tournamentId) {
         try {
@@ -50,10 +50,16 @@ public class MtgMeleeWebParser {
             tournament.setStandingsId(getStandingsId(document));
             tournament.setStartTime(startTime);
 
+            tournament.setTournamentType(getTournamentType(tournament.getName()));
+
             return tournament;
         } catch (IOException e) {
             return null;
         }
+    }
+
+    private TournamentType getTournamentType(final String name) {
+        return MtgMeleeInformer.getType(name);
     }
 
     private int getStandingsId(final Document document) {
