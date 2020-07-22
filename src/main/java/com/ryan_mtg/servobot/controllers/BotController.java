@@ -189,8 +189,7 @@ public class BotController {
 
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {
-            model.addAttribute("emotes",
-                    serviceHome.getEmotes().stream().map(emote -> emote.getName()).collect(Collectors.toList()));
+            model.addAttribute("emotes", serviceHome.getEmotes());
             model.addAttribute("roles", serviceHome.getRoles());
             model.addAttribute("channels", serviceHome.getChannels());
         } else {
