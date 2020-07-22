@@ -20,9 +20,29 @@ public class Pairings {
     private Instant roundStartTime;
 
     private Map<Player, Player> opponentMap = new HashMap<>();
+    private Map<Player, Boolean> resultMap = new HashMap<>();
+
+    public boolean isDone() {
+        return resultMap.size() == opponentMap.size();
+    }
 
     public Player getOpponent(final Player player) {
         return opponentMap.get(player);
+    }
+
+    public boolean hasResult(final Player player) {
+        return resultMap.containsKey(player);
+    }
+
+    public boolean getResult(final Player player) {
+        return resultMap.get(player);
+    }
+
+    public void add(final Player player, final Player opponent, final boolean hasResult, final boolean playerWon) {
+        add(player, opponent);
+        if (hasResult) {
+            resultMap.put(player, playerWon);
+        }
     }
 
     public void add(final Player player, final Player opponent) {

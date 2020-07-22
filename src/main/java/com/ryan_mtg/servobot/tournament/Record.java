@@ -42,4 +42,12 @@ public class Record implements Comparable<Record> {
         }
         return String.format("%d-%d-%d", wins, losses, draws);
     }
+
+    public Record addWin() {
+        return new Record(wins + 1, losses, draws);
+    }
+
+    public Record addLoss() {
+        return new Record(wins, losses + 1, draws);
+    }
 }

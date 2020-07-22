@@ -20,6 +20,9 @@ public class PairingInfo {
     @JsonProperty("Player1DecklistId")
     int player1DecklistId;
 
+    @JsonProperty("Player1Decklist")
+    String player1DecklistName;
+
     @JsonProperty("Player1Discord")
     String player1Discord;
 
@@ -34,6 +37,9 @@ public class PairingInfo {
 
     @JsonProperty("Player2DecklistId")
     int player2DecklistId;
+
+    @JsonProperty("Player2Decklist")
+    String player2DecklistName;
 
     @JsonProperty("Player2Discord")
     String player2Discord;

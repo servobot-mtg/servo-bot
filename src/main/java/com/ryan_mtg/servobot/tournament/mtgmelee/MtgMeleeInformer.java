@@ -87,7 +87,7 @@ public class MtgMeleeInformer implements Informer {
     }
 
     @Override
-    public String getCurrentRecord(String arenaName) {
+    public String getCurrentRecord(final String arenaName) {
         return describeTournaments(tournament -> {
             PlayerSet players = new PlayerSet();
             Standings standings = computeStandings(tournament, players);
@@ -102,14 +102,15 @@ public class MtgMeleeInformer implements Informer {
     public String getCurrentDecklist(final String name) {
         return describeTournaments(tournament -> {
             PlayerSet players = new PlayerSet();
-            StandingsJson standingsJson = client.getStandings(tournament.getStandingsId(), 500);
-            Map<Player, DecklistDescription> decklistMap = computeDecklistMap(players, standingsJson);
+            PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(1), 500);
+            Map<Player, DecklistDescription> decklistMap = computeDecklistMap(players, pairingsJson);
             Player player = players.findByName(name);
             if (player == null) {
                 return null;
             }
 
-            return decklistMap.get(player).getUrl();
+            DecklistDescription description = decklistMap.get(player);
+            return String.format("%s (%s)", description.getUrl(), description.getName());
         }, true, false, String.format("%s is not in the tournament.", name));
     }
 
@@ -168,6 +169,26 @@ public class MtgMeleeInformer implements Informer {
             player = playerSet.merge(player);
             decklistMap.put(player, new DecklistDescription(playerInfo.getDecklistName(),
                     getDecklistUrl(playerInfo.getDecklistId())));
+        }
+        return decklistMap;
+    }
+
+    private Map<Player, DecklistDescription> computeDecklistMap(final PlayerSet players,
+            final PairingsJson pairingsJson) {
+        Map<Player, DecklistDescription> decklistMap = new HashMap<>();
+        for (PairingInfo pairing : pairingsJson.getData()) {
+            Player player = createPlayer(players, pairing.getPlayer1Name(), pairing.getPlayer1ArenaName(),
+                    pairing.getPlayer1Discord(), pairing.getPlayer1Twitch());
+            player = players.merge(player);
+            decklistMap.put(player, new DecklistDescription(pairing.getPlayer1DecklistName(),
+                    getDecklistUrl(pairing.getPlayer1DecklistId())));
+            Player opponent = createPlayer(players, pairing.getPlayer2Name(), pairing.getPlayer2ArenaName(),
+                    pairing.getPlayer2Discord(), pairing.getPlayer2Twitch());
+            opponent = players.merge(opponent);
+            if (opponent != Player.BYE) {
+                decklistMap.put(opponent, new DecklistDescription(pairing.getPlayer2DecklistName(),
+                        getDecklistUrl(pairing.getPlayer2DecklistId())));
+            }
         }
         return decklistMap;
     }
@@ -239,10 +260,28 @@ public class MtgMeleeInformer implements Informer {
 
         Standings standings = new Standings(playerSet, round);
 
+        Pairings pairings;
+        if (fullTournament == null) {
+            pairings = computePairings(tournament, playerSet, getCurrentRound(tournament));
+        } else {
+            pairings = fullTournament.getMostRecentPairings();
+        }
+
         for (PlayerInfo playerInfo : standingsJson.getData()) {
             Player player = Player.createFromName(playerInfo.getName(), playerInfo.getTwitchChannel());
+
             player = playerSet.merge(player);
-            standings.add(player, Record.newRecord(playerInfo.getPoints(), round));
+            Record record = Record.newRecord(playerInfo.getPoints(), round);
+
+            if (!pairings.isDone() && pairings.hasResult(player)) {
+                if (pairings.getResult(player)) {
+                    record = record.addWin();
+                } else {
+                    record = record.addLoss();
+                }
+            }
+
+            standings.add(player, record);
             standings.setRank(player, playerInfo.getRank());
         }
 
@@ -259,9 +298,15 @@ public class MtgMeleeInformer implements Informer {
                     pairing.getPlayer1Discord(), pairing.getPlayer1Twitch());
             Player opponent = createPlayer(players, pairing.getPlayer2Name(), pairing.getPlayer2ArenaName(),
                     pairing.getPlayer2Discord(), pairing.getPlayer2Twitch());
-            pairings.add(player, opponent);
+
+            boolean result = false;
+            if (pairing.isHasResults()) {
+                result = pairing.getResult().startsWith(pairing.getPlayer1Name());
+            }
+
+            pairings.add(player, opponent, pairing.isHasResults(), result);
             if (opponent != Player.BYE) {
-                pairings.add(opponent, player);
+                pairings.add(opponent, player, pairing.isHasResults(), !result);
             }
         }
 
@@ -281,7 +326,7 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private static String getNickName(final MtgMeleeTournament tournament) {
-        if (tournament.getTournamentType() == TournamentType.WEEKLY) {
+        if (tournament.getTournamentType() == TournamentType.DAILY) {
             ZonedDateTime startTime = tournament.getStartTime().atZone(ZoneId.of("America/New_York"));
             return String.format("SCG Challenge (%s)", DateTimeFormatter.ofPattern("h:mm").format(startTime.toLocalTime()));
         }
