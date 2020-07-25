@@ -37,6 +37,9 @@ public class Tournament {
     private String decklistUrl;
 
     @Getter @Setter
+    private PlayerSet playerSet;
+
+    @Getter @Setter
     private Standings standings;
 
     @Getter
@@ -65,6 +68,55 @@ public class Tournament {
     }
 
     private static final Set<Player> CARE_ABOUTS = new HashSet<>(Arrays.asList(
+        new Player(null, null, "Alexander Hayne", null, null, null),
+        new Player(null, null, "Ally Warfield", null, null, null),
+        new Player(null, null, "Andrea Mengucci", null, null, null),
+        new Player(null, null, "Autumn Burchett", null, null, null),
+        new Player(null, null, "Benjamin Weitz", null, null, null),
+        new Player(null, null, "Brian Braun-Duin", null, null, null),
+        new Player(null, null, "Chris Kvartek", null, null, null),
+        new Player(null, null, "Eli Kassis", null, null, null),
+        new Player(null, null, "Eduardo Sajgalik", null, null, null),
+        new Player(null, null, "kenta harane", null, null, null),
+        new Player(null, null, "Brad Nelson", null, null, null),
+        new Player(null, null, "shi tian lee", null, null, null),
+        new Player(null, null, "Abe Corrigan", null, null, null),
+        new Player(null, null, "Corey Burkhart", null, null, null),
+        new Player(null, null, "Martin Juza", null, null, null),
+        new Player(null, null, "Ivan Floch", null, null, null),
+        new Player(null, null, "Jean-Emmanuel Depraz", null, null, null),
+        new Player(null, null, "Simon Görtzen", null, null, null),
+        new Player(null, null, "Javier Dominguez", null, null, null),
+        new Player(null, null, "Joel Larsson", null, null, null),
+        new Player(null, null, "kanister", null, null, null),
+        new Player(null, null, "ken yukuhiro", null, null, null),
+        new Player(null, null, "Marcio Carvalho", null, null, null),
+        new Player(null, null, "benjamin stark", null, null, null),
+        new Player(null, null, "Andrew Cuneo", null, null, null),
+        new Player(null, null, "Mike Sigrist", null, null, null),
+        new Player(null, null, "Oliver Tomajko", null, null, null),
+        new Player(null, null, "Ondrej Strasky", null, null, null),
+        new Player(null, null, "Martin Müller", null, null, null),
+        new Player(null, null, "paulo vitor damo da rosa", null, null, null),
+        new Player(null, null, "Logan Nettles", null, null, null),
+        new Player(null, null, "Carlos Romao", null, null, null),
+        new Player(null, null, "Raphael Levy", null, null, null),
+        new Player(null, null, "Gabriel Nassif", null, null, null),
+        new Player(null, null, "Rei Sato", null, null, null),
+        new Player(null, null, "Reid Duke", null, null, null),
+        new Player(null, null, "Andrew Baeckstrom", null, null, null),
+        new Player(null, null, "SethManfieldMTG", null, null, null),
+        new Player(null, null, "Shahar Shenhar", null, null, null),
+        new Player(null, null, "Sebastián Pozzo", null, null, null),
+        new Player(null, null, "Smdster", null, null, null),
+        new Player(null, null, "Thiago Saporito", null, null, null),
+        new Player(null, null, "Thoralf Severin", null, null, null),
+        new Player(null, null, "yaya3", null, null, null),
+        new Player(null, null, "William Jensen", null, null, null),
+        new Player(null, null, "YUTA TAKAHASHI", null, null, null)
+            //new Player(null, null, "", null, null, null),
+
+        /*
         new Player("MZBlazer#72009", null, null, null, null, "MTGMilan"),
         new Player("Filipa#15754", null, null, null, "filipacarola", "filipamtg"),
         new Player("Booradley95#84650", null, null, null, null, "bradleyyoo_mtg"),
@@ -130,6 +182,7 @@ public class Tournament {
         new Player("Tommi_Hovi#24660", null, "Tommi Hovi", null, null, null),
         new Player("William_Jensen#25008", null, "William Jensen", "Huey", "hueywj", "HueyJensen")
         //new Player("", null, "", null, null, null),
+         */
     ));
 
     public Pairings getMostRecentPairings() {
@@ -139,16 +192,16 @@ public class Tournament {
 
     public List<PlayerStanding> getPlayers() {
         List<PlayerStanding> players = new ArrayList<>();
-        PlayerSet playerSet = standings.getPlayerSet();
         mergeCareAbouts(playerSet, CARE_ABOUTS);
 
         Record leaderRecord = getLeaderRecord();
 
         for (Player player : playerSet) {
             Player opponent = getMostRecentPairings().getOpponent(player);
-            players.add(new PlayerStanding(player, standings.getRank(player), isWatchable(player),
-                isLeader(leaderRecord, player), standings.getRecord(player), decklistMap.get(player), opponent,
-                decklistMap.get(opponent)));
+            int rank = standings != null ? standings.getRank(player) : 0;
+            Record record = standings != null ? standings.getRecord(player) : Record.newRecord(0, 0);
+            players.add(new PlayerStanding(player, rank, isWatchable(player), isLeader(leaderRecord, player), record,
+                    decklistMap.get(player), opponent, decklistMap.get(opponent)));
         }
 
         Collections.sort(players);
@@ -193,14 +246,15 @@ public class Tournament {
 
     private void mergeCareAbouts(final PlayerSet playerSet, final Set<Player> careAbouts) {
         for (Player careAboutPlayer : careAbouts) {
-            if (playerSet.findByArenaName(careAboutPlayer.getArenaName()) != null) {
+            Player foundPlayer = playerSet.find(careAboutPlayer);
+            if (foundPlayer != null) {
                 playerSet.merge(careAboutPlayer);
             }
         }
     }
 
     private boolean isLeader(final Record leaderRecord, final Player player) {
-        if (leaderRecord == null) {
+        if (leaderRecord == null || standings == null) {
             return false;
         }
 
@@ -213,11 +267,18 @@ public class Tournament {
             if (player.getArenaName() != null && player.getArenaName().equals(careAboutPlayer.getArenaName())) {
                 return true;
             }
+
+            if (player.getRealName() != null && player.getRealName().equals(careAboutPlayer.getRealName())) {
+                return true;
+            }
         }
         return false;
     }
 
     private Record getLeaderRecord() {
+        if (standings == null) {
+            return Record.newRecord(0, 0);
+        }
         List<RecordCount> recordCounts = standings.getRecordCounts(4);
         if (recordCounts.isEmpty() || recordCounts.get(0).getCount() > LEADERS) {
             return null;

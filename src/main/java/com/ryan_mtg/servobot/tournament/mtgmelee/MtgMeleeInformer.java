@@ -121,6 +121,10 @@ public class MtgMeleeInformer implements Informer {
     }
 
     public static TournamentType getType(final String name) {
+        if (name.startsWith("Players Tour Finals")) {
+            return TournamentType.PLAYERS_TOUR_FINALS;
+        }
+
         if (name.startsWith("SCG Tour Online - Standard Challenge")) {
             return TournamentType.DAILY;
         }
@@ -149,6 +153,7 @@ public class MtgMeleeInformer implements Informer {
         result.setType(tournament.getTournamentType());
 
         PlayerSet playerSet = new PlayerSet();
+        result.setPlayerSet(playerSet);
         tournament.getPairingsIdMap()
                 .forEach((round, pairingsId) -> result.setPairings(computePairings(tournament, playerSet, round)));
 

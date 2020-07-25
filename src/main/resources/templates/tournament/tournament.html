@@ -23,12 +23,14 @@
         </div>
         <div th:if="${tournament.hasStarted()}">
             <div class="left bordered">
-                <h3>Records</h3>
-                <ul>
-                    <th:block th:each="recordCount : ${tournament.standings.getRecordCounts(4)}">
-                        <li th:text="${recordCount.record} + ': ' + ${recordCount.count} + ' Players'"></li>
-                    </th:block>
-                </ul>
+                <div th:if="${tournament.standings}">
+                    <h3>Records</h3>
+                    <ul>
+                        <th:block th:each="recordCount : ${tournament.standings.getRecordCounts(4)}">
+                            <li th:text="${recordCount.record} + ': ' + ${recordCount.count} + ' Players'"></li>
+                        </th:block>
+                    </ul>
+                </div>
                 <h3>Round Start</h3>
                 <span th:text="${tournament.mostRecentPairings.timeSinceStartOfRound}"></span> ago
                 <h3>Until Round End</h3>

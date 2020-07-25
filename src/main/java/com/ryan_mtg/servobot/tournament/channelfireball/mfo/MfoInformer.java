@@ -460,6 +460,8 @@ public class MfoInformer implements Informer {
                     return TournamentType.PLAYERS_TOUR;
                 }
                 return TournamentType.QUALIFIER;
+            case "Players Tour Finals":
+                return TournamentType.PLAYERS_TOUR_FINALS;
             case "Players Tour":
                 return TournamentType.PLAYERS_TOUR;
             case "Grand Prix":
