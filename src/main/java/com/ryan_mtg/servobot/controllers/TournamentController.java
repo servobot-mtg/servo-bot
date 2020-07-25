@@ -33,12 +33,13 @@ public class TournamentController {
         return "tournament/tournament";
     }
 
-    @GetMapping("/scg/{name}")
+    @GetMapping({"/scg/{name}", "/melee/{name}"})
     public String showScgTournament(final Model model, @PathVariable("name") final String name) {
         try {
             int id = Integer.parseInt(name);
             model.addAttribute("tournament", tournamentManager.getScgTournament(id));
         } catch (Exception e) {
+            e.printStackTrace();
             model.addAttribute("tournament", tournamentManager.getTournament(name.replace('+', ' ')));
         }
         return "tournament/tournament";

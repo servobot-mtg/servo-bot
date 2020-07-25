@@ -152,11 +152,14 @@ public class MtgMeleeInformer implements Informer {
         tournament.getPairingsIdMap()
                 .forEach((round, pairingsId) -> result.setPairings(computePairings(tournament, playerSet, round)));
 
-        StandingsJson standingsJson = client.getStandings(tournament.getStandingsId(), 500);
-        Standings standings = computeStandings(tournament, playerSet, standingsJson, result);
-        result.setStandings(standings);
-
-        result.setDecklistMap(computeDecklistMap(playerSet, standingsJson));
+        if (tournament.getStandingsId() != -1) {
+            StandingsJson standingsJson = client.getStandings(tournament.getStandingsId(), 500);
+            Standings standings = computeStandings(tournament, playerSet, standingsJson, result);
+            result.setStandings(standings);
+            result.setDecklistMap(computeDecklistMap(playerSet, standingsJson));
+        } else {
+            result.setDecklistMap(new HashMap<>());
+        }
 
         return result;
     }
@@ -314,6 +317,9 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private int getCurrentRound(final MtgMeleeTournament tournament) {
+        if (tournament.getPairingsIdMap().isEmpty()) {
+            return 0;
+        }
         return Collections.max(tournament.getPairingsIdMap().keySet());
     }
 

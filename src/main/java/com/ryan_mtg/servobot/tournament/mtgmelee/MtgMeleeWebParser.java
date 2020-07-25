@@ -64,6 +64,9 @@ public class MtgMeleeWebParser {
 
     private int getStandingsId(final Document document) {
         Element standingsDiv = document.getElementById(STANDINGS_ID);
+        if (standingsDiv == null) {
+            return -1;
+        }
         Elements standingsButtons = standingsDiv.getElementsByTag("button");
 
         for (Element button : standingsButtons) {
@@ -79,10 +82,14 @@ public class MtgMeleeWebParser {
     }
 
     private Map<Integer, Integer> getPairingsMap(final Document document) {
+        Map<Integer, Integer> pairingsMap = new HashMap<>();
+
         Element pairingsDiv = document.getElementById(PAIRINGS_ID);
+        if (pairingsDiv == null) {
+            return pairingsMap;
+        }
         Elements pairingsButtons = pairingsDiv.getElementsByTag("button");
 
-        Map<Integer, Integer> pairingsMap = new HashMap<>();
         for (Element button : pairingsButtons) {
             Map<String, String> data = button.dataset();
             if (data != null && data.get("is-started").equals("True")) {
