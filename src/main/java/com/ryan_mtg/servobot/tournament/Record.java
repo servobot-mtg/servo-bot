@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.tournament;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 @Getter @EqualsAndHashCode
 public class Record implements Comparable<Record> {
@@ -32,11 +31,16 @@ public class Record implements Comparable<Record> {
     }
 
     @Override
-    public int compareTo(@NotNull final Record other) {
+    public int compareTo(final Record other) {
         if (getPoints() != other.getPoints()) {
             return getPoints() - other.getPoints();
         }
-        return getWins() - other.getWins();
+
+        if (getWins() != other.getWins()) {
+            return getWins() - other.getWins();
+        }
+
+        return other.getLosses() - getLosses();
     }
 
     @Override
