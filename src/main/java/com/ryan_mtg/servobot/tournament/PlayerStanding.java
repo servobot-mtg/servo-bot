@@ -10,9 +10,33 @@ public class PlayerStanding implements Comparable<PlayerStanding> {
     private boolean important;
     private boolean leader;
     private Record record;
+    private Result result;
     private DecklistDescription decklist;
+    private boolean hasDropped;
     private Player opponent;
     private DecklistDescription opponentsDecklist;
+
+    public enum Result {
+        NONE,
+        WIN,
+        LOSS,
+        DRAW;
+
+        public static Result reverse(final Result result) {
+            switch (result) {
+                case NONE:
+                    return NONE;
+                case WIN:
+                    return LOSS;
+                case LOSS:
+                    return WIN;
+                case DRAW:
+                    return DRAW;
+                default:
+                    throw new IllegalStateException("Unknown result: " + result);
+            }
+        }
+    }
 
     @Override
     public int compareTo(final PlayerStanding playerStanding) {
@@ -21,5 +45,18 @@ public class PlayerStanding implements Comparable<PlayerStanding> {
             return recordCompare;
         }
         return rank - playerStanding.getRank();
+    }
+
+    public boolean won() {
+        return result == Result.WIN;
+    }
+
+
+    public boolean loss() {
+        return result == Result.LOSS;
+    }
+
+    public boolean drew() {
+        return result == Result.DRAW;
     }
 }

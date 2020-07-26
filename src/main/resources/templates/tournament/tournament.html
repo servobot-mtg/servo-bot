@@ -75,29 +75,43 @@
                             <th class="pad-horizontal">Player</th>
                             <th class="pad-horizontal">Socials</th>
                             <th class="pad-horizontal">Deck</th>
-                            <th class="pad-horizontal">Opponent</th>
-                            <th class="pad-horizontal" th:if="${players.size() > 0 && players.get(0).opponentsDecklist != null}">
-                                Opponent's Deck
-                            </th>
+                            <th class="pad-horizontal" th:if="${tournament.isRoundActive()}">Opponent</th>
+                            <th class="pad-horizontal" th:if="${tournament.isRoundActive()}">Opponent's Deck</th>
                         </tr></thead>
 
                         <th:block th:each="ps, stat : ${players}">
                             <tr th:attr="data-arena-name=${ps.player.arenaName},data-leader=${ps.leader},data-points=${ps.record.points}"
                                 th:classappend="${!ps.important && !ps.leader} ? 'collapsed'">
-                                <td class="pad-horizontal" th:text="${ps.rank}"></td>
+                                <td class="pad-horizontal" th:text="${ps.rank}">&;</td>
                                 <td class="pad-horizontal" th:text="${ps.record}"></td>
                                 <td class="center"><input type="checkbox" th:checked="${ps.important}"></td>
-                                <td class="boldable" th:text="${ps.player.name}"></td>
+                                <td>
+                                    <span th:if="${ps.won()}">&#x2714;&#xFE0F;</span>
+                                    <span th:if="${ps.loss()}">&#x274C;</span>
+                                    <span th:if="${ps.drew()}">&#x1F91D;</span>
+                                    <span th:if="${ps.hasDropped}">&#x2620;&#xFE0F;</span>
+                                    <span class="boldable" th:text="${ps.player.name}" th:title="${ps.player.realName}">
+                                    </span>
+                                </td>
                                 <td>
                                     <a th:if="${ps.player.twitchName}" target="_blank"
-                                       th:href="'https://www.twitch.tv/' + ${ps.player.twitchName}"><img class="icon" src="/images/twitch.ico"></a>
+                                       th:href="'https://www.twitch.tv/' + ${ps.player.twitchName}"
+                                       th:title="${ps.player.twitchName}"
+                                    ><img class="icon" src="/images/twitch.ico"></a>
 
                                     <a th:if="${ps.player.twitterName}" target="_blank"
-                                       th:href="'https://www.twitter.com/' + ${ps.player.twitterName}"><img class="icon" src="/images/twitter.ico"></a>
+                                       th:href="'https://www.twitter.com/' + ${ps.player.twitterName}"
+                                       th:title="${ps.player.twitterName}"
+                                    ><img class="icon" src="/images/twitter.ico"></a>
                                 </td>
                                 <td class="pad-horizontal"><a th:if="${ps.decklist}" th:href="${ps.decklist.url}"
                                        th:text="${ps.decklist.name}" target="_blank"></a></td>
-                                <td class="pad-horizontal" th:text="${ps.opponent != null ? ps.opponent.name : ''}"></td>
+                                <td class="pad-horizontal" th:if="${ps.opponent}">
+                                    <span th:if="${ps.won()}">&#x274C;</span>
+                                    <span th:if="${ps.loss()}">&#x2714;&#xFE0F;</span>
+                                    <span th:if="${ps.drew()}">&#x1F91D;</span>
+                                    <span th:text="${ps.opponent.name}"></span>
+                                </td>
                                 <td class="pad-horizontal" th:if="${ps.opponentsDecklist}">
                                     <a th:href="${ps.opponentsDecklist.url}" th:text="${ps.opponentsDecklist.name}"
                                        target="_blank"></a>

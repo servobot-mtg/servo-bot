@@ -333,9 +333,9 @@ table#player-table {
     border: 0px solid black;
 }
 
-.player-table td {
-    padding-left: 15px;
-    padding-right: 20px;
+#player-table td {
+    padding-left: 10px;
+    padding-right: 15px;
     border-collapse: collapse;
     border: 0px solid black;
 }

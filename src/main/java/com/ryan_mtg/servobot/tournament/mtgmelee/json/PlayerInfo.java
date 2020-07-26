@@ -28,4 +28,22 @@ public class PlayerInfo {
 
     @JsonProperty("TwitchChannel")
     String twitchChannel;
+
+    @JsonProperty("FacebookPage")
+    String facebookPage;
+
+    @JsonProperty("YouTubeChannel")
+    String youTubeChannel;
+
+    @JsonProperty("TwitterHandle")
+    String twitterHandle;
+
+    @JsonProperty("MatchWins")
+    int wins;
+
+    @JsonProperty("MatchLoses")
+    int losses;
+
+    @JsonProperty("MatchDraws")
+    int draws;
 }

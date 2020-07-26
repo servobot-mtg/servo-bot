@@ -40,16 +40,16 @@ public class Player {
             return nickName;
         }
 
+        if (!Strings.isBlank(realName)) {
+            return realName;
+        }
+
         if (!Strings.isBlank(twitchName)) {
             return twitchName;
         }
 
         if (!Strings.isBlank(twitterName)) {
             return twitterName;
-        }
-
-        if (!Strings.isBlank(realName)) {
-            return realName;
         }
 
         return getShortArenaName().replace('_', ' ');

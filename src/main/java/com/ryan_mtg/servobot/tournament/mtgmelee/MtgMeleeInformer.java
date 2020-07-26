@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.tournament.Informer;
 import com.ryan_mtg.servobot.tournament.Pairings;
 import com.ryan_mtg.servobot.tournament.Player;
 import com.ryan_mtg.servobot.tournament.PlayerSet;
+import com.ryan_mtg.servobot.tournament.PlayerStanding;
 import com.ryan_mtg.servobot.tournament.Record;
 import com.ryan_mtg.servobot.tournament.RecordCount;
 import com.ryan_mtg.servobot.tournament.Standings;
@@ -245,28 +246,18 @@ public class MtgMeleeInformer implements Informer {
         return computeStandings(tournament, playerSet, standingsJson, null);
     }
 
+    private int computeRound(final StandingsJson standingsJson) {
+        int maxRound = 0;
+        for (PlayerInfo playerInfo : standingsJson.getData()) {
+            int playerRounds = playerInfo.getWins() + playerInfo.getLosses() + playerInfo.getDraws();
+            maxRound = Math.max(maxRound, playerRounds);
+        }
+        return maxRound;
+    }
+
     private Standings computeStandings(final MtgMeleeTournament tournament, final PlayerSet playerSet,
             final StandingsJson standingsJson, final Tournament fullTournament) {
-        int round = getCurrentRound(tournament);
-
-        if (round == 4) { //max round
-            if (fullTournament != null && fullTournament.getMostRecentPairings().getRound() == round) {
-
-            } else {
-                int maxPoints = 0;
-                for (PlayerInfo playerInfo : standingsJson.getData()) {
-                    maxPoints = Math.max(maxPoints, playerInfo.getPoints());
-                }
-
-                if (maxPoints < 3 * round) {
-                    round--;
-                }
-            }
-        } else {
-            round--;
-        }
-
-        Standings standings = new Standings(playerSet, round);
+        Standings standings = new Standings(playerSet, computeRound(standingsJson));
 
         Pairings pairings;
         if (fullTournament == null) {
@@ -279,13 +270,20 @@ public class MtgMeleeInformer implements Informer {
             Player player = Player.createFromName(playerInfo.getName(), playerInfo.getTwitchChannel());
 
             player = playerSet.merge(player);
-            Record record = Record.newRecord(playerInfo.getPoints(), round);
+            Record record = Record.newRecord(playerInfo.getWins(), playerInfo.getLosses(), playerInfo.getDraws());
 
             if (!pairings.isDone() && pairings.hasResult(player)) {
-                if (pairings.getResult(player)) {
-                    record = record.addWin();
-                } else {
-                    record = record.addLoss();
+                switch (pairings.getResult(player)) {
+                    case WIN:
+                        record = record.addWin();
+                        break;
+                    case DRAW:
+                        record = record.addDraw();
+                        break;
+                    case LOSS:
+                        record = record.addLoss();
+                        break;
+                    case NONE:
                 }
             }
 
@@ -294,6 +292,28 @@ public class MtgMeleeInformer implements Informer {
         }
 
         return standings;
+    }
+
+    private PlayerStanding.Result parseResult(final PairingInfo pairing) {
+        if (!pairing.isHasResults()) {
+            return PlayerStanding.Result.NONE;
+        }
+
+        String resultString = pairing.getResult();
+
+        if (resultString.endsWith("was awarded a bye")) {
+            return PlayerStanding.Result.WIN;
+        }
+
+        if (resultString.endsWith(" Draw")) {
+            return PlayerStanding.Result.DRAW;
+        }
+
+        if (resultString.startsWith(pairing.getPlayer1Name())) {
+            return PlayerStanding.Result.WIN;
+        }
+
+        return PlayerStanding.Result.LOSS;
     }
 
     private Pairings computePairings(final MtgMeleeTournament tournament, final PlayerSet players, final int round) {
@@ -307,14 +327,10 @@ public class MtgMeleeInformer implements Informer {
             Player opponent = createPlayer(players, pairing.getPlayer2Name(), pairing.getPlayer2ArenaName(),
                     pairing.getPlayer2Discord(), pairing.getPlayer2Twitch());
 
-            boolean result = false;
-            if (pairing.isHasResults()) {
-                result = pairing.getResult().startsWith(pairing.getPlayer1Name());
-            }
-
-            pairings.add(player, opponent, pairing.isHasResults(), result);
+            PlayerStanding.Result result = parseResult(pairing);
+            pairings.add(player, opponent, result);
             if (opponent != Player.BYE) {
-                pairings.add(opponent, player, pairing.isHasResults(), !result);
+                pairings.add(opponent, player, PlayerStanding.Result.reverse(result));
             }
         }
 
