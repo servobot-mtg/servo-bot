@@ -44,7 +44,7 @@ public class Pairings {
     }
 
     public void add(final Player player, final Player opponent, final PlayerStanding.Result result) {
-        add(player, opponent);
+        doAdd(player, opponent);
         if (result == PlayerStanding.Result.NONE) {
             done = false;
         }
@@ -52,9 +52,7 @@ public class Pairings {
     }
 
     public void add(final Player player, final Player opponent) {
-        Player existingPlayer = playerSet.merge(player);
-        Player existingOpponent = playerSet.merge(opponent);
-        opponentMap.put(existingPlayer, existingOpponent);
+        doAdd(player, opponent);
         done = false;
     }
 
@@ -85,5 +83,11 @@ public class Pairings {
             return String.format("About %s", Time.toReadableString(Duration.between(Instant.now(), getRoundEndTime())));
         }
         return "Any time now";
+    }
+
+    private void doAdd(final Player player, final Player opponent) {
+        Player existingPlayer = playerSet.merge(player);
+        Player existingOpponent = playerSet.merge(opponent);
+        opponentMap.put(existingPlayer, existingOpponent);
     }
 }

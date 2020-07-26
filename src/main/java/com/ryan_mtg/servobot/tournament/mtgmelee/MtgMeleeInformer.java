@@ -270,7 +270,9 @@ public class MtgMeleeInformer implements Informer {
             Player player = Player.createFromName(playerInfo.getName(), playerInfo.getTwitchChannel());
 
             player = playerSet.merge(player);
-            Record record = Record.newRecord(playerInfo.getWins(), playerInfo.getLosses(), playerInfo.getDraws());
+            boolean dropped = pairings.hasDropped(player);
+            Record record =
+                    Record.newRecord(playerInfo.getWins(), playerInfo.getLosses(), playerInfo.getDraws(), dropped);
 
             if (!pairings.isDone() && pairings.hasResult(player)) {
                 switch (pairings.getResult(player)) {

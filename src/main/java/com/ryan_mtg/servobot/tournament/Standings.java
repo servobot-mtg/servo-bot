@@ -38,8 +38,10 @@ public class Standings {
     public List<RecordCount> getRecordCounts(final int maxLosses) {
         Map<Record, Integer> recordCountMap = new HashMap<>();
         playerRecord.values().stream().filter(record -> record.getLosses() <= maxLosses).forEach(record -> {
-            int count = recordCountMap.computeIfAbsent(record, r -> 0);
-            recordCountMap.put(record, count + 1);
+            if (!record.isDropped()) {
+                int count = recordCountMap.computeIfAbsent(record, r -> 0);
+                recordCountMap.put(record, count + 1);
+            }
         });
 
         List<RecordCount> recordCounts = new ArrayList<>();

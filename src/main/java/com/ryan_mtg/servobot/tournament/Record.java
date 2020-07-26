@@ -8,26 +8,32 @@ public class Record implements Comparable<Record> {
     private int wins;
     private int losses;
     private int draws;
+    private boolean dropped;
 
-    private Record(final int wins, final int losses, final int draws) {
+    private Record(final int wins, final int losses, final int draws, final boolean dropped) {
         this.wins = wins;
         this.losses = losses;
         this.draws = draws;
+        this.dropped = dropped;
     }
 
     public int getPoints() {
         return 3 * wins + draws;
     }
 
-    public static Record newRecord(final int wins, final int losses, final int draws) {
-        return new Record(wins, losses, draws);
+    public static Record newRecord(final int wins, final int losses, final int draws, final boolean dropped) {
+        return new Record(wins, losses, draws, dropped);
     }
 
-    public static Record newRecord(final int points, final int roundsPlayed) {
+    public static Record newRecord(final int points, final int roundsPlayed, final boolean dropped) {
         int wins = points / 3;
         int draws = points % 3;
         int losses = roundsPlayed - wins - draws;
-        return new Record(wins, losses, draws);
+        return new Record(wins, losses, draws, dropped);
+    }
+
+    public static Record newRecord(final int points, final int roundsPlayed) {
+        return newRecord(points, roundsPlayed, false);
     }
 
     @Override
@@ -52,14 +58,14 @@ public class Record implements Comparable<Record> {
     }
 
     public Record addWin() {
-        return new Record(wins + 1, losses, draws);
+        return new Record(wins + 1, losses, draws, dropped);
     }
 
     public Record addLoss() {
-        return new Record(wins, losses + 1, draws);
+        return new Record(wins, losses + 1, draws, dropped);
     }
 
     public Record addDraw() {
-        return new Record(wins, losses, draws + 1);
+        return new Record(wins, losses, draws + 1, dropped);
     }
 }
