@@ -177,10 +177,10 @@ public class BotEditor {
             List<GameQueue> gameQueues = new ArrayList<>();
             List<Giveaway> giveaways = new ArrayList<>();
             BookTable bookTable = new BookTable();
-            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, bookTable,
-                    commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
+            BotHome botHome = new BotHome(botHomeId, BotHome.DEFAULT_FLAGS, homeName, botName, timeZone, homedUserTable,
+                    bookTable, commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
             bot.addHome(botHome);
-            botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
+            botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue(), false);
             return botHome;
         } catch (Exception e) {
             e.printStackTrace();
@@ -189,7 +189,7 @@ public class BotEditor {
     }
 
     public void stopHome(final int botHomeId) {
-        bot.getHome(botHomeId).stop(bot.getAlertQueue());
+        bot.getHomeEditor(botHomeId).stop();
     }
 
     public void restartHome(final int botHomeId) {
@@ -197,7 +197,8 @@ public class BotEditor {
 
         BotHome botHome = this.serializers.getBotFactory().createBotHome(botHomeId);
         bot.addHome(botHome);
-        botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue());
+
+        bot.getHomeEditor(botHomeId).start(bot.getAlertQueue());
     }
 
     @Transactional(rollbackOn = Exception.class)

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, type 
                                     client_id VARCHAR(30), client_secret VARCHAR(30));
 
 CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), bot_name VARCHAR(30),
-                                time_zone VARCHAR(60));
+                                 flags INTEGER, time_zone VARCHAR(60));
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
                                     flags INTEGER, permission INTEGER, stringParameter VARCHAR(200),

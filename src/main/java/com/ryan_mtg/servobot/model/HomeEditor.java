@@ -27,6 +27,7 @@ import com.ryan_mtg.servobot.events.AlertEvent;
 import com.ryan_mtg.servobot.events.BotHomeAlertEvent;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
@@ -63,6 +64,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.ryan_mtg.servobot.model.game_queue.GameQueue.EMPTY_QUEUE;
 
@@ -108,13 +110,22 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
+    public void start(final AlertQueue alertQueue) {
+        botHome.start(this, alertQueue, true);
+        save(botHomeRow -> botHomeRow.setFlags(botHome.getFlags()));
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    public void stop() {
+        botHome.stop(bot.getAlertQueue(), true);
+        save(botHomeRow -> botHomeRow.setFlags(botHome.getFlags()));
+    }
+
+    @Transactional(rollbackOn = Exception.class)
     public void modifyBotName(final String botName) {
         botHome.setBotName(botName);
 
-        BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
-        BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
-        botHomeRow.setBotName(botName);
-        botHomeRepository.save(botHomeRow);
+        save(botHomeRow -> botHomeRow.setBotName(botName));
     }
 
     @Transactional(rollbackOn = Exception.class)
@@ -126,10 +137,7 @@ public class HomeEditor {
 
         bot.getAlertQueue().update(botHome);
 
-        BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
-        BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
-        botHomeRow.setTimeZone(timeZone);
-        botHomeRepository.save(botHomeRow);
+        save(botHomeRow -> botHomeRow.setTimeZone(timeZone));
     }
 
     public HomedUser getUserById(final int userId) {
@@ -814,5 +822,13 @@ public class HomeEditor {
             return user.getTwitchUsername();
         }
         return user.getDiscordUsername();
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    private void save(final Consumer<BotHomeRow> homeModifier) {
+        BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
+        BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
+        homeModifier.accept(botHomeRow);
+        botHomeRepository.save(botHomeRow);
     }
 }

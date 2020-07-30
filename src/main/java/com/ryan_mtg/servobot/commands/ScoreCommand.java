@@ -12,10 +12,13 @@ import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,15 +109,30 @@ public class ScoreCommand extends InvokedHomedCommand {
         StringBuilder message = new StringBuilder();
         if (!storageValues.isEmpty()) {
             message.append(gameName).append(" Scores:\n");
+            List<Score> scores = new ArrayList<>();
             for(StorageValue storageValue : storageValues) {
                 String userName = homeEditor.getUserById(storageValue.getUserId()).getName();
-                message.append(String.format("  %s: %s\n", userName, storageValue.getValue()));
+                scores.add(new Score(userName, (int) storageValue.getValue()));
+            }
+            for(Score score : scores) {
+                message.append(String.format("  %s: %s\n", score.getName(), score.getScore()));
             }
         } else {
             message.append("There are no scores currently.");
         }
 
         event.say(message.toString());
+    }
+
+    @Data @AllArgsConstructor
+    private static class Score implements Comparable<Score> {
+        private String name;
+        private int score;
+
+        @Override
+        public int compareTo(final Score score) {
+            return this.score - score.score;
+        }
     }
 
     private void printScore(final CommandInvokedHomeEvent event) throws BotHomeError {

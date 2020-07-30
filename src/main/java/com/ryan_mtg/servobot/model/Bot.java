@@ -115,7 +115,7 @@ public class Bot implements Context {
     }
 
     public void removeHome(final BotHome home) {
-        home.stop(alertQueue);
+        home.stop(alertQueue, false);
         services.values().forEach(service -> service.unregister(home));
         listener.unregister(home);
         homeEditorMap.remove(home.getId());
@@ -152,7 +152,7 @@ public class Bot implements Context {
     public void startBot() throws InterruptedException {
         startServices();
 
-        homes.forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue));
+        homes.forEach(home -> home.start(homeEditorMap.get(home.getId()), alertQueue, false));
         alertQueue.start();
         homes.forEach(home -> alertQueue.scheduleAlert(home, new Alert(Duration.ofSeconds(30), "startup")));
     }

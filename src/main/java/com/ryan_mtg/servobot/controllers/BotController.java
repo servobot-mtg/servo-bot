@@ -100,8 +100,25 @@ public class BotController {
         return "bot_home";
     }
 
+    @GetMapping("/home/{home}/settings")
+    public String showHomeSettings(final Model model, @PathVariable("home") final String homeName) {
+        model.addAttribute("page", "settings");
+
+        BotHome botHome = botRegistrar.getBotHome(homeName);
+        if (botHome == null) {
+            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
+        }
+
+        addBotHome(model, botHome);
+        model.addAttribute("timeZones", timeZones);
+        return "bot_home_settings";
+    }
+
+
     @GetMapping("/home/{home}/hub")
     public String showHub(final Model model, @PathVariable("home") final String homeName) {
+        model.addAttribute("page", "hub");
+
         BotHome botHome = botRegistrar.getBotHome(homeName);
         if (botHome == null) {
             throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
@@ -110,8 +127,6 @@ public class BotController {
         if (!isPrivledged(model, botHome)) {
             return String.format("redirect:/home/%s", homeName);
         }
-
-        model.addAttribute("page", "hub");
 
         addBotHome(model, botHome);
         model.addAttribute("timeZones", timeZones);

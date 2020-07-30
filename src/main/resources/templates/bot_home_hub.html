@@ -14,22 +14,9 @@
         <h1 th:text="'Moderation Hub for ' + ${botHome.name}"/>
 
         <div th:if="${privileged}">
-            <div class="home-controls">
-                <span class="home-status" id="status" th:text="${botHome.active ? '&#x2714;&#xFE0F' : '&#x274C;'}"
-                    th:title="${botHome.active ? 'Active' : 'Idle'}"/>
-                <span id="play-button" class="pseudo-link home-control" th:onclick="'startHome(' + ${botHome.id} + ')'"
-                        title="Restart Bot">
-                    &#x25B6;
-                </span>
-                <span id="stop-button" class="pseudo-link home-control" th:onclick="'stopHome(' + ${botHome.id} + ')'"
-                      th:style="'display: ' + ${botHome.active ? 'inline-block' : 'none'}" title="Stop Bot">
-                    &#x23F9;
-                </span>
-            </div>
+            <h2>Links</h2>
             <ul style="float: left;">
-                <li th:if="${streamer}"><a href="/home">Home Ownership</a></li>
-                <li><div th:include="bot_home_fragments :: bot_name"/></li>
-                <li><div th:include="bot_home_fragments :: time_zone"/></li>
+                <li th:if="${exalted}"><a href="settings">Settings</a></li>
                 <li><a href="users">Users</a></li>
                 <li><a href="giveaways">Giveaways</a></li>
             </ul>

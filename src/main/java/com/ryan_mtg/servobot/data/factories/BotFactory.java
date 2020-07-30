@@ -86,6 +86,7 @@ public class BotFactory {
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
         Map<Integer, Service> services = serviceSerializer.getServiceMap();
         String homeName = botHomeRow.getHomeName();
+        int flags = botHomeRow.getFlags();
         String botName = botHomeRow.getBotName();
         String timeZone = botHomeRow.getTimeZone();
         int botHomeId = botHomeRow.getId();
@@ -134,7 +135,7 @@ public class BotFactory {
                 serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
         return SystemError.filter(() -> {
-            BotHome botHome = new BotHome(botHomeId, homeName, botName, timeZone, homedUserTable, bookTable,
+            BotHome botHome = new BotHome(botHomeId, flags, homeName, botName, timeZone, homedUserTable, bookTable,
                     commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
 
             LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());

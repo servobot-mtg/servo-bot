@@ -22,6 +22,7 @@ import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.HomedUserTable;
+import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -39,11 +40,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BotHome implements Context {
+    public static final int DEFAULT_FLAGS = 0;
+
+    // Flag that says the bot should not join this home
+    public static final int STOPPED_FLAG = 1;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BotHome.class);
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("H:mm");
 
     @Getter
     private int id;
+
+    @Getter
+    private int flags;
 
     @Getter
     private Bot bot;
@@ -93,12 +102,13 @@ public class BotHome implements Context {
     @Getter
     private MultiDelegatingListener eventListener;
 
-    public BotHome(final int id, final String name, final String botName, final String timeZone,
+    public BotHome(final int id, final int flags, final String name, final String botName, final String timeZone,
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
                    final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<GameQueue> gameQueues,
                    final List<Giveaway> giveaways) throws UserError {
         this.id = id;
+        this.flags = flags;
         this.name = name;
         this.botName = botName;
         this.timeZone = timeZone;
@@ -173,14 +183,19 @@ public class BotHome implements Context {
         return gameQueues.stream().filter(gameQueue -> gameQueue.getId() == gameQueueId).findFirst().orElse(null);
     }
 
-    public void start(final HomeEditor homeEditor, final AlertQueue alertQueue) {
-        serviceHomes.values().forEach(serviceHome -> {
-            serviceHome.setHomeEditor(homeEditor);
-            serviceHome.start(this);
-        });
-        alertQueue.update(this);
-        active = true;
-        eventListener.setActive(true);
+    public void start(final HomeEditor homeEditor, final AlertQueue alertQueue, final boolean keepStarted) {
+        if (keepStarted) {
+            flags = Flags.setFlag(flags, STOPPED_FLAG, false);
+        }
+        if (!isStopped()) {
+            serviceHomes.values().forEach(serviceHome -> {
+                serviceHome.setHomeEditor(homeEditor);
+                serviceHome.start(this);
+            });
+            alertQueue.update(this);
+            active = true;
+            eventListener.setActive(true);
+        }
     }
 
     public void registerAlertGenerator(final AlertGenerator alertGenerator) {
@@ -189,7 +204,14 @@ public class BotHome implements Context {
         }
     }
 
-    public void stop(final AlertQueue alertQueue) {
+    public boolean isStopped() {
+        return Flags.hasFlag(flags, STOPPED_FLAG);
+    }
+
+    public void stop(final AlertQueue alertQueue, final boolean keepStopped) {
+        if (keepStopped) {
+            flags = Flags.setFlag(flags, STOPPED_FLAG, true);
+        }
         if (active) {
             active = false;
             eventListener.setActive(false);

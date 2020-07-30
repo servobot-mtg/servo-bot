@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${botHome.name}"/>
+    <div th:replace="fragments :: includes" />
+    <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
+            type="text/javascript" src="/script/privileged.js"></script>
+</head>
+<body th:with="moderator=${user.roles.contains('ROLE_MOD:' + botHome.id)},
+      streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
+      privileged=${user.admin || moderator},
+      exalted=${user.admin || streamer}">
+<div th:include="fragments :: header" />
+<div class="content">
+    <h1 th:text="'Settings for ' + ${botHome.name}"/>
+
+    <div th:if="${exalted}">
+        <div class="home-controls">
+            <span class="home-status" id="status"
+                  th:text="${botHome.active ? '&#x2714;&#xFE0F' : botHome.stopped ? '&#x274C;' : '&#x1F504;'}"
+                  th:title="${botHome.active ? 'Active' : botHome.stopped ? 'Stopped' : 'Restarting'}"/>
+            <span id="play-button" class="pseudo-link home-control" th:onclick="'startHome(' + ${botHome.id} + ')'"
+                  title="Restart Bot">
+                    &#x25B6;
+            </span>
+            <span id="stop-button" class="pseudo-link home-control" th:onclick="'stopHome(' + ${botHome.id} + ')'"
+                  th:style="'display: ' + ${botHome.active ? 'inline-block' : 'none'}" title="Stop Bot">
+                    &#x23F9;
+            </span>
+        </div>
+
+        <h2>Links</h2>
+        <ul style="float: left;">
+            <li><a href="hub">Moderation Hub</a></li>
+            <li><a href="users">Users</a></li>
+            <li><a href="giveaways">Giveaways</a></li>
+        </ul>
+
+        <h2>Settings</h2>
+        <ul>
+            <li><div th:include="bot_home_fragments :: bot_name"/></li>
+            <li><div th:include="bot_home_fragments :: time_zone"/></li>
+        </ul>
+    </div>
+</div>
+<div th:include="fragments :: footer" />
+</body>
+</html>

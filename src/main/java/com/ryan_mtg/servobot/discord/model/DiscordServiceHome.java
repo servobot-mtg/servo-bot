@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,10 @@ public class DiscordServiceHome implements ServiceHome {
 
     @Override
     public String getName() {
-        return guild.getName();
+        if (guild != null) {
+            return guild.getName();
+        }
+        return "???";
     }
 
     @Override
@@ -117,7 +121,10 @@ public class DiscordServiceHome implements ServiceHome {
 
     @Override
     public List<String> getChannels() {
-        return guild.getTextChannels().stream().map(GuildChannel::getName).collect(Collectors.toList());
+        if (guild != null) {
+            return guild.getTextChannels().stream().map(GuildChannel::getName).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -131,8 +138,11 @@ public class DiscordServiceHome implements ServiceHome {
 
     @Override
     public List<String> getRoles() {
-        return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole())
-                .map(Role::getName).collect(Collectors.toList());
+        if (guild != null) {
+            return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole())
+                    .map(Role::getName).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -238,8 +248,12 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     public void updateEmotes() {
-        List<net.dv8tion.jda.api.entities.Emote> emotes = guild.getEmotes();
-        cachedEmotes = emotes.stream().map(emote -> new DiscordEmote(emote)).collect(Collectors.toList());
+        if (guild != null) {
+            List<net.dv8tion.jda.api.entities.Emote> emotes = guild.getEmotes();
+            cachedEmotes = emotes.stream().map(emote -> new DiscordEmote(emote)).collect(Collectors.toList());
+        } else {
+            cachedEmotes = new ArrayList<>();
+        }
     }
 
     private long getDiscordId(final User user) {

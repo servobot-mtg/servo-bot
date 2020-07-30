@@ -11,7 +11,7 @@ const tvIcon = '&#x1F4FA;';
 const decodedTvIcon = decodeHtmlEntity(tvIcon);
 const clockIcon = '&#x1F570;&#xFE0F;';
 const checkmarkIcon = '&#x2714;&#xFE0F;';
-const crossIcon = '&#x274C;';
+const xIcon = '&#x274C;';
 const yellowCircleIcon = '&#x1F7E1;';
 const trashcanIcon = '&#x1F5D1;&#xFE0F;';
 const penIcon = '&#x270F;&#xFE0F;';
@@ -461,7 +461,7 @@ async function postStopHome(botHomeId) {
     if (response.ok) {
         hideElementById('stop-button');
         let statusElement = document.getElementById('status');
-        statusElement.innerHTML = crossIcon;
+        statusElement.innerHTML = xIcon;
         statusElement.title = 'Idle';
     }
 }

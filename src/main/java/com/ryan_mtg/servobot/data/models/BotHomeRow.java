@@ -22,6 +22,8 @@ public class BotHomeRow {
     @Setter(AccessLevel.NONE)
     private int id;
 
+    private int flags;
+
     @Column(name = "name")
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String homeName;
