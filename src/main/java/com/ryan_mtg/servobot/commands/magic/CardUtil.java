@@ -45,6 +45,9 @@ public class CardUtil {
                 return new CardQuery("Soulfire Grand Master");
             case "shelly":
                 return new CardQuery("Shelldock Isle");
+            case "sloth":
+            case "slothers":
+                return new CardQuery("Arboreal Grazer");
             case "snappy":
                 return new CardQuery("Snapcaster Mage");
             case "snek":
