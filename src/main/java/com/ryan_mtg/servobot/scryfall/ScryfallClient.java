@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.scryfall;
 
+import com.ryan_mtg.servobot.scryfall.json.Card;
 import feign.Feign;
 import feign.Logger;
 import feign.QueryMap;

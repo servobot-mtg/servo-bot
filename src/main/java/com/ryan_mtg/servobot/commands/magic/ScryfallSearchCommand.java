@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
-import com.ryan_mtg.servobot.scryfall.Card;
+import com.ryan_mtg.servobot.scryfall.json.Card;
 import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
 import com.ryan_mtg.servobot.scryfall.ScryfallQueryException;
 import com.ryan_mtg.servobot.utility.Strings;

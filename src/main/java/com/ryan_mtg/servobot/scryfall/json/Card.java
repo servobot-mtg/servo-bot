@@ -1,7 +1,9 @@
-package com.ryan_mtg.servobot.scryfall;
+package com.ryan_mtg.servobot.scryfall.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class Card {
@@ -18,4 +20,7 @@ public class Card {
 
     @JsonProperty("image_uris")
     private ImageUris imageUris;
+
+    @JsonProperty("card_faces")
+    private List<CardFace> cardFaces;
 }

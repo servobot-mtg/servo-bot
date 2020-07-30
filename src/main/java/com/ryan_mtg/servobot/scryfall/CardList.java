@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.scryfall;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ryan_mtg.servobot.scryfall.json.Card;
 import lombok.Data;
 
 import java.util.List;

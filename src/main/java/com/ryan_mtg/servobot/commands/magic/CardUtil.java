@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.commands.magic;
 
-import com.ryan_mtg.servobot.scryfall.Card;
+import com.ryan_mtg.servobot.scryfall.json.Card;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +12,50 @@ public class CardUtil {
         }
 
         return CardUtil.formatCard(card, supportsNewLines);
+    }
+
+    public static CardQuery resolveNickName(final String query) {
+        String lower = query.toLowerCase();
+
+        switch (lower) {
+            case "baby jace":
+                return new CardQuery("Jace Vryn's Prodigy");
+            case "bob":
+                return new CardQuery("Dark Confidant", "rav");
+            case "bop":
+                return new CardQuery("Birds of Paradise");
+            case "gary":
+                return new CardQuery("Gray Merchange of Asphodel");
+            case "goyf":
+                return new CardQuery("Tarmogoyf", "fut");
+            case "hippy":
+            case "hippie":
+                return new CardQuery("Hypnotic Specter", "alpha");
+            case "mom":
+                return new CardQuery("Mother of Runes");
+            case "muli duli":
+                return new CardQuery("Oracle of Mul'Daya");
+            case "prime time":
+                return new CardQuery("Primeval Titan");
+            case "sad robot":
+                return new CardQuery("Solemn Simulacrum", "mrd");
+            case "sfg":
+                return new CardQuery("Stoneforge Mystic");
+            case "sfm":
+                return new CardQuery("Soulfire Grand Master");
+            case "shelly":
+                return new CardQuery("Shelldock Isle");
+            case "snappy":
+                return new CardQuery("Snapcaster Mage");
+            case "snek":
+                return new CardQuery("Ambush Viper");
+            case "steve":
+                return new CardQuery("Sakura-Tribe Elder");
+            case "tim":
+                return new CardQuery("Prodigal Sorcerer", "alpha");
+        }
+
+        return new CardQuery(query);
     }
 
     public static String respondToCardSearch(final List<Card> cards, final boolean supportsNewLines) {
@@ -43,6 +87,14 @@ public class CardUtil {
         }
         return String.format("%s %s | %s | %s", card.getName(), manaCost,
                 card.getTypeLine(), card.getOracleText());
+    }
+
+
+    public static String getCardImageUri(final Card card) {
+        if (card.getImageUris() != null) {
+            return card.getImageUris().getNormal();
+        }
+        return card.getCardFaces().get(0).getImageUris().getNormal();
     }
 
     public static String getCardFileName(final Card card) {

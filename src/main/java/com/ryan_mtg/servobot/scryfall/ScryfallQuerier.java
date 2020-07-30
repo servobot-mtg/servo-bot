@@ -1,11 +1,15 @@
 package com.ryan_mtg.servobot.scryfall;
 
 import com.google.common.collect.ImmutableMap;
+import com.ryan_mtg.servobot.commands.magic.CardQuery;
+import com.ryan_mtg.servobot.scryfall.json.Card;
 import feign.FeignException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ScryfallQuerier {
@@ -24,7 +28,12 @@ public class ScryfallQuerier {
         }
     }
 
-    public Card searchForCardByName(final String query) throws ScryfallQueryException {
-        return scryfallClient.fuzzySearchForCardByName(ImmutableMap.of("fuzzy", query));
+    public Card searchForCardByName(final CardQuery cardQuery) throws ScryfallQueryException {
+        Map<String, String> arguments = new HashMap<>();
+        arguments.put("fuzzy", cardQuery.getQuery());
+        if (cardQuery.getSet() != null) {
+            arguments.put("set", cardQuery.getSet());
+        }
+        return scryfallClient.fuzzySearchForCardByName(arguments);
     }
 }

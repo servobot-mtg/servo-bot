@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.scryfall;
+package com.ryan_mtg.servobot.scryfall.json;
 
 import lombok.Data;
 

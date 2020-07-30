@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedEvent;
-import com.ryan_mtg.servobot.scryfall.Card;
+import com.ryan_mtg.servobot.scryfall.json.Card;
 import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
 import com.ryan_mtg.servobot.scryfall.ScryfallQueryException;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -31,32 +31,14 @@ public class CardSearchCommand extends InvokedCommand {
             throw new UserError("No search term provided.");
         }
 
-        String lower = query.toLowerCase();
-
-        switch (lower) {
-            case "sfm":
-                query = "Soulfire Grand Master";
-                break;
-            case "snek":
-                query = "Ambush Viper";
-                break;
-            case "goyf":
-                query = "Tarmogoyf";
-                break;
-            case "sfg":
-            case "sgm":
-                query = "Stoneforge Mystic";
-                break;
-            case "bob":
-                query = "Dark Confidant";
-                break;
-        }
+        CardQuery cardQuery = CardUtil.resolveNickName(query);
 
         try {
-            Card card = scryfallQuerier.searchForCardByName(query);
+            Card card = scryfallQuerier.searchForCardByName(cardQuery);
             if (event.getServiceType() == DiscordService.TYPE) {
                 String fileName = CardUtil.getCardFileName(card);
-                event.sendImage(card.getImageUris().getNormal(), fileName, card.getName());
+                String imageUri = CardUtil.getCardImageUri(card);
+                event.sendImage(imageUri, fileName, card.getName());
             } else {
                 String response = CardUtil.respondToCardSearch(card, false);
                 event.say(response);
