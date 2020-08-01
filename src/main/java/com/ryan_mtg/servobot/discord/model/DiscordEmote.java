@@ -25,4 +25,9 @@ public class DiscordEmote implements Emote {
     public String getMessageText() {
         return emote.getAsMention();
     }
+
+    @Override
+    public String getImageUrl() {
+        return emote.getImageUrl();
+    }
 }

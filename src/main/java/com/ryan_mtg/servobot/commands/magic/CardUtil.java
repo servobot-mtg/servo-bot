@@ -35,6 +35,8 @@ public class CardUtil {
                 return new CardQuery("Mother of Runes");
             case "muli duli":
                 return new CardQuery("Oracle of Mul'Daya");
+            case "needle":
+                return new CardQuery("Pithing Needle");
             case "prime time":
                 return new CardQuery("Primeval Titan");
             case "sad robot":

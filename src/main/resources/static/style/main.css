@@ -149,6 +149,12 @@ input[type=number] {
     height: 20px;
 }
 
+.emote {
+    display: inline;
+    width: 28px;
+    height: 28px;
+}
+
 .alias-label {
     background-color: #BBDDFF;
 }

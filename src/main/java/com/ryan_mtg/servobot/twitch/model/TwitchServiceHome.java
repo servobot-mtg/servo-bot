@@ -10,14 +10,24 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.twitch.betterttv.BetterTtvClient;
+import com.ryan_mtg.servobot.twitch.betterttv.json.EmoteJson;
+import com.ryan_mtg.servobot.twitch.betterttv.json.EmotesJson;
+import com.ryan_mtg.servobot.twitch.twitchemotes.TwitchEmotesClient;
+import com.ryan_mtg.servobot.twitch.twitchemotes.json.TwitchEmotes;
 import com.ryan_mtg.servobot.user.HomedUser;
+import feign.FeignException;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class TwitchServiceHome implements ServiceHome {
+    private static TwitchEmotesClient twitchEmotesClient;
+    private static BetterTtvClient bttvEmotesClient;
+
     private TwitchService twitchService;
     private long channelId;
 
@@ -26,6 +36,7 @@ public class TwitchServiceHome implements ServiceHome {
 
     private String channelName;
     private String imageUrl;
+    private List<Emote> cachedEmotes;
 
     public TwitchServiceHome(final TwitchService twitchService, final long channelId) {
         this.channelId = channelId;
@@ -179,13 +190,56 @@ public class TwitchServiceHome implements ServiceHome {
 
     @Override
     public List<Emote> getEmotes() {
-        return Collections.emptyList();
+        if (cachedEmotes == null) {
+            updateEmotes();
+        }
+        return cachedEmotes;
     }
 
     @Override
-    public void updateEmotes() {}
+    public void updateEmotes() {
+        TwitchEmotesClient twitchEmotesClient = getTwitchEmotesClient();
+        List<Emote> emotes = new ArrayList<>();
+        try {
+            TwitchEmotes twitchEmotes = twitchEmotesClient.getChannelEmotes(channelId);
+            for (com.ryan_mtg.servobot.twitch.twitchemotes.json.Emote emoteJson : twitchEmotes.getEmotes()) {
+                emotes.add(new TwitchEmote(emoteJson.getCode(), emoteJson.getId()));
+            }
+        } catch (FeignException.NotFound e) {
+            // Intentionally ignore, because the emote list should be empty.
+        }
+
+        BetterTtvClient bttvEmotesClient = getBttvEmotesClient();
+        try {
+            EmotesJson bttvEmotes = bttvEmotesClient.getChannelEmotes(channelId);
+            for (EmoteJson emoteJson : bttvEmotes.getChannelEmotes()) {
+                emotes.add(new BttvEmote(emoteJson.getCode(), emoteJson.getId()));
+            }
+
+            for (EmoteJson emoteJson : bttvEmotes.getSharedEmotes()) {
+                emotes.add(new BttvEmote(emoteJson.getCode(), emoteJson.getId()));
+            }
+        } catch (FeignException.NotFound e) {
+            // Intentionally ignore, because the emote list should be empty.
+        }
+        cachedEmotes = emotes;
+    }
 
     public long getChannelId() {
         return channelId;
+    }
+
+    private static TwitchEmotesClient getTwitchEmotesClient() {
+        if (twitchEmotesClient != null) {
+            return twitchEmotesClient;
+        }
+        return twitchEmotesClient = TwitchEmotesClient.newClient();
+    }
+
+    private static BetterTtvClient getBttvEmotesClient() {
+        if (bttvEmotesClient != null) {
+            return bttvEmotesClient;
+        }
+        return bttvEmotesClient = BetterTtvClient.newClient();
     }
 }

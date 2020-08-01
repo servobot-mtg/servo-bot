@@ -11,14 +11,20 @@
             <thead><tr>
                 <th>Service</th>
                 <th>Details</th>
+                <th>Emotes</th>
             </tr></thead>
             <th:block th:each="serviceHomeEntry : ${botHome.serviceHomes}">
                 <tr th:object="${serviceHomeEntry.value}">
-                    <td th:text="*{service.name}"/>
-                    <td th:if="*{link != null}">
-                        <a th:href="*{link}" th:text="*{description}" target="_blank"/>
+                    <td th:text="*{service.name}"></td>
+                    <td>
+                        <a th:if="*{link != null}" th:href="*{link}" th:text="*{description}" target="_blank"></a>
+                        <span th:if="*{link == null}" th:text="*{description}"></span>
                     </td>
-                    <td th:if="*{link == null}" th:text="*{description}"/>
+                    <td>
+                        <th:block th:each="emote : *{emotes}">
+                            <img class="emote" th:src="${emote.imageUrl}" th:title="${emote.name}">
+                        </th:block>
+                    </td>
                 </tr>
             </th:block>
         </table>
