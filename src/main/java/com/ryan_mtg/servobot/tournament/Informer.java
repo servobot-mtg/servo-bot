@@ -16,6 +16,7 @@ public interface Informer {
     String getCurrentStandings();
     String getCurrentRound();
     String getCurrentRecords();
+    String getCurrentStatus(final String name);
     String getCurrentRecord(final String name);
     String getCurrentDecklist(final String name);
     Tournament getTournament(int tournamentId);

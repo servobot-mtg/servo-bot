@@ -11,7 +11,6 @@ import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
-import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeWebParser;
 import com.ryan_mtg.servobot.utility.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,12 +107,6 @@ public class PublicApiController {
                     description = description.replace("#" + MtgMeleeInformer.PAIRINGS_ID, "");
                 }
                 return description;
-            case "standings":
-                description = informer.getCurrentStandings();
-                if (description.length() >= 255) {
-                    description = description.replace("#" + MtgMeleeInformer.STANDINGS_ID, "");
-                }
-                return description;
             case "round":
                 return informer.getCurrentRound();
             case "records":
@@ -123,6 +116,14 @@ public class PublicApiController {
                 } else {
                     return informer.getCurrentRecord(name);
                 }
+            case "standings":
+                description = informer.getCurrentStandings();
+                if (description.length() >= 255) {
+                    description = description.replace("#" + MtgMeleeInformer.STANDINGS_ID, "");
+                }
+                return description;
+            case "status":
+                return informer.getCurrentStatus(name);
             default:
                 return String.format("Unknown query %s", query);
         }

@@ -170,6 +170,11 @@ public class MfoInformer implements Informer {
         }, true, true, NO_ACTIVE_TOURNAMENTS);
     }
 
+    @Override
+    public String getCurrentStatus(final String name) {
+        return "Not implemented";
+    }
+
     public String getCurrentRecord(final String arenaName) {
         return describeTournaments(tournament -> {
             Standings standings = computeStandings(tournament);

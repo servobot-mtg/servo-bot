@@ -88,16 +88,51 @@ public class MtgMeleeInformer implements Informer {
     }
 
     @Override
-    public String getCurrentRecord(final String arenaName) {
+    public String getCurrentStatus(final String name) {
         return describeTournaments(tournament -> {
             PlayerSet players = new PlayerSet();
             Standings standings = computeStandings(tournament, players);
-            Player player = players.findByName(arenaName);
+            Player player = players.findByName(name);
+            if (player == null) {
+                return null;
+            }
+            Record record = standings.getRecord(player);
+            if (record.isDropped()) {
+                return String.format("%s dropped.");
+            } else {
+                int round = getCurrentRound(tournament);
+                PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(round), 500);
+                Pairings pairings = computePairings(tournament, players, round, pairingsJson);
+
+                if (pairings.isDone()) {
+                    return String.format("%s is %s and round %d has ended.", player.getName(), record, round);
+                }
+
+                String status = String.format("%s is %s and ", player.getName(), record);
+                Player opponent = pairings.getOpponent(player);
+                if (pairings.getOpponent(player) == Player.BYE) {
+                    return status + String.format("has a bye.", player.getName());
+                } else {
+                    Map<Player, DecklistDescription> decklistMap = computeDecklistMap(players, pairingsJson);
+                    DecklistDescription opponentDeck = decklistMap.get(opponent);
+                    return status + String.format("playing against %s on %s, %s", opponent.getName(),
+                            opponentDeck.getName(), opponentDeck.getUrl());
+                }
+            }
+        }, true, false, String.format("There are no current tournaments for %s.", name));
+    }
+
+    @Override
+    public String getCurrentRecord(final String name) {
+        return describeTournaments(tournament -> {
+            PlayerSet players = new PlayerSet();
+            Standings standings = computeStandings(tournament, players);
+            Player player = players.findByName(name);
             if (player == null) {
                 return null;
             }
             return standings.getRecord(player).toString();
-        }, true, true, String.format("There are no current tournaments for %s.", arenaName));
+        }, true, true, String.format("There are no current tournaments for %s.", name));
     }
 
     public String getCurrentDecklist(final String name) {
@@ -114,7 +149,6 @@ public class MtgMeleeInformer implements Informer {
             return String.format("%s (%s)", description.getUrl(), description.getName());
         }, true, false, String.format("%s is not in the tournament.", name));
     }
-
 
     @Override
     public Tournament getTournament(int tournamentId) {
@@ -319,8 +353,12 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private Pairings computePairings(final MtgMeleeTournament tournament, final PlayerSet players, final int round) {
-        //Instant roundStartTime = parse(tournament.getPairingsLastUpdated());
         PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(round), 500);
+        return computePairings(tournament, players, round, pairingsJson);
+    }
+
+    private Pairings computePairings(final MtgMeleeTournament tournament, final PlayerSet players, final int round,
+            final PairingsJson pairingsJson) {
         Pairings pairings = new Pairings(players, round, null);
 
         for (PairingInfo pairing : pairingsJson.getData()) {
