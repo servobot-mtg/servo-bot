@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DiscordServiceHome implements ServiceHome {
@@ -216,6 +217,11 @@ public class DiscordServiceHome implements ServiceHome {
     public User getUser(final HomedUser homedUser) {
         Member member = guild.getMemberById(homedUser.getDiscordId());
         return new DiscordUser(homedUser, member);
+    }
+
+    @Override
+    public Map<String, Emote> getEmoteMap() {
+        return homeEditor.getEmoteMap(DiscordService.TYPE);
     }
 
     @Override

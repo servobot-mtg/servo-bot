@@ -24,4 +24,9 @@ public class TwitchEmote implements Emote {
     public String getImageUrl() {
         return String.format("https://static-cdn.jtvnw.net/emoticons/v1/%d/1.0", id);
     }
+
+    @Override
+    public boolean isPermitted() {
+        return true;
+    }
 }

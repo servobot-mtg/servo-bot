@@ -24,4 +24,9 @@ public class BttvEmote implements Emote {
     public String getImageUrl() {
         return String.format("https://cdn.betterttv.net/emote/%s/1x", id);
     }
+
+    @Override
+    public boolean isPermitted() {
+        return true;
+    }
 }

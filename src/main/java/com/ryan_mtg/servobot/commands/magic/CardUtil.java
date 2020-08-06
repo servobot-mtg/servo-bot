@@ -28,6 +28,8 @@ public class CardUtil {
                 return new CardQuery("Gray Merchange of Asphodel");
             case "goyf":
                 return new CardQuery("Tarmogoyf", "fut");
+            case "eugene":
+                return new CardQuery("Ugin, the Spirit Dragon");
             case "hippy":
             case "hippie":
                 return new CardQuery("Hypnotic Specter", "alpha");

@@ -26,6 +26,7 @@ public class SerializerContainer {
     private final BotHomeRepository botHomeRepository;
     private final CommandSerializer commandSerializer;
     private final CommandTableSerializer commandTableSerializer;
+    private final EmoteLinkSerializer emoteLinkSerializer;
     private final GameQueueRepository gameQueueRepository;
     private final GameQueueSerializer gameQueueSerializer;
     private final GameQueueEntryRepository gameQueueEntryRepository;
@@ -48,21 +49,23 @@ public class SerializerContainer {
     public SerializerContainer(final AlertGeneratorSerializer alertGeneratorSerializer,
             final BookSerializer bookSerializer, final BotHomeRepository botHomeRepository,
             final CommandSerializer commandSerializer, final CommandTableSerializer commandTableSerializer,
-            final GameQueueRepository gameQueueRepository, final GameQueueSerializer gameQueueSerializer,
-            final GameQueueEntryRepository gameQueueEntryRepository, final GiveawayRepository giveawayRepository,
-            final GiveawaySerializer giveawaySerializer, final PrizeRepository prizeRepository,
-            final ReactionSerializer reactionSerializer, final ReactionTableSerializer reactionTableSerializer,
-            final ServiceHomeRepository serviceHomeRepository, final ServiceSerializer serviceSerializer,
-            final StatementRepository statementRepository, final StorageTableSerializer storageTableSerializer,
-            final StorageValueRepository storageValueRepository, final StorageValueSerializer storageValueSerializer,
-            final SuggestionRepository suggestionRepository, final UserHomeRepository userHomeRepository,
-            final UserSerializer userSerializer, final UserTable userTable) {
+            final EmoteLinkSerializer emoteLinkSerializer, final GameQueueRepository gameQueueRepository,
+            final GameQueueSerializer gameQueueSerializer, final GameQueueEntryRepository gameQueueEntryRepository,
+            final GiveawayRepository giveawayRepository, final GiveawaySerializer giveawaySerializer,
+            final PrizeRepository prizeRepository, final ReactionSerializer reactionSerializer,
+            final ReactionTableSerializer reactionTableSerializer, final ServiceHomeRepository serviceHomeRepository,
+            final ServiceSerializer serviceSerializer, final StatementRepository statementRepository,
+            final StorageTableSerializer storageTableSerializer, final StorageValueRepository storageValueRepository,
+            final StorageValueSerializer storageValueSerializer, final SuggestionRepository suggestionRepository,
+            final UserHomeRepository userHomeRepository, final UserSerializer userSerializer,
+            final UserTable userTable) {
 
         this.alertGeneratorSerializer = alertGeneratorSerializer;
         this.bookSerializer = bookSerializer;
         this.botHomeRepository = botHomeRepository;
         this.commandSerializer = commandSerializer;
         this.commandTableSerializer = commandTableSerializer;
+        this.emoteLinkSerializer = emoteLinkSerializer;
         this.gameQueueRepository = gameQueueRepository;
         this.gameQueueSerializer = gameQueueSerializer;
         this.gameQueueEntryRepository = gameQueueEntryRepository;

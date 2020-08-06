@@ -23,6 +23,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class TwitchServiceHome implements ServiceHome {
     private static TwitchEmotesClient twitchEmotesClient;
@@ -118,7 +119,7 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public Channel getChannel(final String channelName) throws UserError {
         if (channelName.equals(getName())) {
-            return twitchService.getChannel(channelName);
+            return twitchService.getChannel(this, channelName);
         }
         throw new UserError("No Twitch channel named %s", channelName);
     }
@@ -181,6 +182,11 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public User getUser(final HomedUser homedUser) {
         return new TwitchUser(homedUser);
+    }
+
+    @Override
+    public Map<String, Emote> getEmoteMap() {
+        return homeEditor.getEmoteMap(TwitchService.TYPE);
     }
 
     @Override

@@ -105,8 +105,8 @@ public class TwitchService implements Service {
         }
     }
 
-    public Channel getChannel(final String channelName) {
-        return new TwitchChannel(client, channelName);
+    public Channel getChannel(final TwitchServiceHome serviceHome, final String channelName) {
+        return new TwitchChannel(client, serviceHome, channelName);
     }
 
     @Override

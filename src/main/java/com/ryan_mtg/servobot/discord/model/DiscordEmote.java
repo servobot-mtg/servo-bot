@@ -30,4 +30,9 @@ public class DiscordEmote implements Emote {
     public String getImageUrl() {
         return emote.getImageUrl();
     }
+
+    @Override
+    public boolean isPermitted() {
+        return emote.canInteract(emote.getGuild().getSelfMember());
+    }
 }

@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.twitch.model.TwitchChannel;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 
 public class TwitchHomeEvent extends TwitchEvent implements HomeEvent {
     private String channelName;
@@ -22,7 +23,7 @@ public class TwitchHomeEvent extends TwitchEvent implements HomeEvent {
 
     public TwitchChannel getChannel() {
         if (twitchChannel == null) {
-            twitchChannel = new TwitchChannel(getClient(), channelName);
+            twitchChannel = new TwitchChannel(getClient(), (TwitchServiceHome) getServiceHome(), channelName);
         }
         return twitchChannel;
     }

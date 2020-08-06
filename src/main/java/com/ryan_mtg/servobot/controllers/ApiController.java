@@ -11,6 +11,7 @@ import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.LibraryError;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
+import com.ryan_mtg.servobot.model.EmoteLink;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotEditor;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -601,6 +602,27 @@ public class ApiController {
         private int giveawayId;
     }
 
+    @PostMapping(value = "/add_emote_link", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmoteLink addEmoteLink(@RequestBody final AddEmoteLinkRequest request) throws UserError {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addEmoteLink(request.getTwitchEmote(), request.getDiscordEmote());
+    }
+
+    @Getter
+    public static class AddEmoteLinkRequest extends BotHomeRequest {
+        private String twitchEmote;
+        private String discordEmote;
+    }
+
+    @PostMapping(value = "/delete_emote_link", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteEmoteLink(@RequestBody final DeleteHomedObjectRequest request) {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        homeEditor.deleteEmoteLink(request.getObjectId());
+        return true;
+    }
+
     private HomeEditor getHomeEditor(final int botHomeId) {
         return botRegistrar.getHomeEditor(botHomeId);
     }
@@ -622,7 +644,6 @@ public class ApiController {
         }
         return botRegistrar.getBotEditor(contextId).getBookTableEditor();
     }
-
 
     @ExceptionHandler(BotHomeError.class)
     public ResponseEntity<BotError> botErrorExceptionHandler(final BotHomeError botHomeError) {

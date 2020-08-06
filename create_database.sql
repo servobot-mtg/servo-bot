@@ -63,6 +63,9 @@ CREATE TABLE IF NOT EXISTS giveaway (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_
         raffle_duration INTEGER, raffle_winner_count INTEGER, raffle_winner_response VARCHAR(200),
         discord_channel VARCHAR(200));
 
+CREATE TABLE IF NOT EXISTS emote_link (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER,
+        twitch_emote_name VARCHAR(30), discord_emote_name VARCHAR(30));
+
 CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveaway_id INTEGER, reward VARCHAR(200),
         description VARCHAR(200), status INTEGER, winner_id INTEGER);
 

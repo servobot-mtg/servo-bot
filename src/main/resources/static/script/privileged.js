@@ -120,6 +120,19 @@ const addBookFormData = {
     ],
 };
 
+const addEmoteLinkFormData = {
+    focus: 'twitch-emote',
+    getInputBlock: getInputId,
+    inputs: [{name: 'twitch-emote', type: 'select', value: 0, hide: false},
+        {name: 'discord-emote', type: 'select', value: 0, hide: false},
+    ],
+};
+
+const emoteLinkData = {
+    parameters: [{id: 'twitch-emote', label: 'Twitch Emote', name: 'twitchEmote', type: 'string'},
+            {id: 'discord-emote', label: 'Discord Emote', name: 'discordEmote', type: 'string'}]
+};
+
 function createElement(type, {id = null, classType = null, classList = null, title = null, value = null,
         clickFunction = null}) {
     let element = document.createElement(type);
@@ -1049,19 +1062,22 @@ function changeAddAlertType(selectElement) {
 
 function addAlert(botHomeId) {
     try {
-        const parameters = collectFormData({botHomeId: botHomeId}, 'add-alert', alertData);
+        const parameters = collectTypedFormData({botHomeId: botHomeId}, 'add-alert', alertData);
         postAddAlert(parameters);
     } catch (e) {
     }
 }
 
-function collectFormData(parameters, label, formData) {
+function collectTypedFormData(parameters, label, formData) {
     const type = parseInt(document.getElementById(label + '-type-input').value);
     addFormParameter(label, parameters, {id: 'type', name: 'type', type: 'integer'});
 
-    const data = formData[type];
-    for (let i = 0; i < data.parameters.length; i++) {
-        let parameterData = data.parameters[i];
+    return collectFormData(parameters, label, formData[type]);
+}
+
+function collectFormData(parameters, label, formData) {
+    for (let i = 0; i < formData.parameters.length; i++) {
+        let parameterData = formData.parameters[i];
         addFormParameter(label, parameters, parameterData);
     }
 
@@ -1120,7 +1136,7 @@ function changeAddStorageType(selectElement) {
 
 function addStorageValue(contextId) {
     try {
-        const parameters = collectFormData({contextId: contextId}, 'add-storage', storageData);
+        const parameters = collectTypedFormData({contextId: contextId}, 'add-storage', storageData);
         postAddStorageValue(parameters);
     } catch (e) {
     }
@@ -1192,4 +1208,71 @@ function addBookItem(book, contextId) {
     link.innerHTML = book.name;
     listItem.appendChild(link);
     bookList.appendChild(listItem);
+}
+
+function showAddEmoteLinkForm(commandId) {
+    const label = 'add-emote-link';
+    showForm(label, addEmoteLinkFormData);
+}
+
+function updateAddEmoteLinkTwitchEmoteImage() {
+    const label = 'add-emote-link-twitch-emote-';
+    updateAddEmoteLinkEmoteImage(label);
+}
+
+function updateAddEmoteLinkDiscordEmoteImage() {
+    const label = 'add-emote-link-discord-emote-';
+    updateAddEmoteLinkEmoteImage(label);
+}
+
+function updateAddEmoteLinkEmoteImage(label) {
+    const selectElement = document.getElementById(label + 'input');
+    const emoteType = parseInt(selectElement.value);
+    const image = document.getElementById(label + 'image');
+    image.src = selectElement.options[selectElement.selectedIndex].dataset.url;
+}
+
+function initializeSettings() {
+    updateAddEmoteLinkTwitchEmoteImage();
+    updateAddEmoteLinkDiscordEmoteImage();
+}
+function addEmoteLink(botHomeId) {
+    try {
+        const parameters = collectFormData({botHomeId: botHomeId}, 'add-emote-link', emoteLinkData);
+        postAddEmoteLink(parameters);
+    } catch (e) {
+    }
+}
+
+async function postAddEmoteLink(parameters) {
+    const label = 'add-emote-link';
+    let response = await makePost('/api/add_emote_link', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let emoteLink = await response.json();
+        addEmoteLinkRow(emoteLink, parameters.botHomeId);
+    }
+}
+
+function addEmoteLinkRow(emoteLink, botHomeId) {
+    let emoteLinkTable = document.getElementById('emote-link-table');
+    let row = emoteLinkTable.insertRow();
+
+    const label = 'emote-link-' + emoteLink.id;
+    row.id = label + '-row';
+
+    addTextCell(row, emoteLink.twitchEmote);
+    addTextCell(row, emoteLink.discordEmote);
+
+    addDeleteCell(row, trashcanIcon, function () {
+        deleteEmoteLink(botHomeId, emoteLink.id);
+    });
+}
+
+function deleteEmoteLink(botHomeId, emoteLinkId) {
+    const parameters = {botHomeId: botHomeId, objectId: emoteLinkId};
+    postDelete('/api/delete_emote_link', parameters, 'emote-link-' + emoteLinkId + '-row');
 }

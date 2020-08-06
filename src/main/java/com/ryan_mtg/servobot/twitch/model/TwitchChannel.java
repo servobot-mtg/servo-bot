@@ -5,11 +5,14 @@ import com.github.twitch4j.chat.TwitchChat;
 import com.ryan_mtg.servobot.model.Channel;
 
 public class TwitchChannel implements Channel {
-    private TwitchChat twitchChat;
-    private String channelName;
+    private final TwitchChat twitchChat;
+    private final TwitchServiceHome serviceHome;
+    private final String channelName;
 
-    public TwitchChannel(final TwitchClient twitchClient, final String channelName) {
+    public TwitchChannel(final TwitchClient twitchClient, final TwitchServiceHome serviceHome,
+            final String channelName) {
         this.twitchChat = twitchClient.getChat();
+        this.serviceHome = serviceHome;
         this.channelName = channelName;
     }
 

@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.user.HomedUser;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ServiceHome {
     Service getService();
@@ -44,6 +45,7 @@ public interface ServiceHome {
     User getUser(String userName) throws UserError;
     User getUser(HomedUser homedUser);
 
+    Map<String, Emote> getEmoteMap();
     Emote getEmote(String emoteName);
     List<Emote> getEmotes();
     void updateEmotes();

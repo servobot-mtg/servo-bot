@@ -64,9 +64,7 @@ public class DiscordChannel implements Channel {
             return members.get(0).getAsMention();
         });
 
-        List<Emote> emotes = serviceHome.getEmotes();
-        Map<String, Emote> emoteMap = new HashMap<>();
-        emotes.forEach(emote -> emoteMap.put(emote.getName(), emote));
+        Map<String, Emote> emoteMap = serviceHome.getEmoteMap();
         return replace(nameReplacedText, EMOTE_PATTERN, matcher -> {
             String name = matcher.group();
             if (name.startsWith(":")) {

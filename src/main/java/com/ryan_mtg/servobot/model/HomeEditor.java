@@ -64,6 +64,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.ryan_mtg.servobot.model.game_queue.GameQueue.EMPTY_QUEUE;
@@ -795,6 +796,32 @@ public class HomeEditor {
         serializers.getGiveawaySerializer().commit(giveawayEdit);
     }
 
+    public Map<String, Emote> getEmoteMap(final int serviceType) {
+        return botHome.getEmoteMap(serviceType);
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    public EmoteLink addEmoteLink(final String twitchEmote, final String discordEmote) throws UserError {
+        EmoteLink emoteLink = new EmoteLink(EmoteLink.UNREGISTERED_ID, twitchEmote, discordEmote);
+        botHome.addEmoteLink(emoteLink);
+        serializers.getEmoteLinkSerializer().save(botHome.getId(), emoteLink);
+        return emoteLink;
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteEmoteLink(final int emoteLinkId) {
+        List<EmoteLink> emoteLinks = botHome.getEmoteLinks();
+        EmoteLink emoteLink =
+                emoteLinks.stream().filter(el -> el.getId() == emoteLinkId).findFirst().orElse(null);
+
+        if (emoteLink == null) {
+            return;
+        }
+
+        emoteLinks.remove(emoteLink);
+        serializers.getEmoteLinkSerializer().delete(emoteLink);
+    }
+
     public String getTwitchChannelName() {
         return botHome.getServiceHome(TwitchService.TYPE).getName();
     }
@@ -825,7 +852,7 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    private void save(final Consumer<BotHomeRow> homeModifier) {
+    void save(final Consumer<BotHomeRow> homeModifier) {
         BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
         BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
         homeModifier.accept(botHomeRow);

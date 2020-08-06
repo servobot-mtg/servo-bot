@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -97,6 +98,9 @@ public class BotHome implements Context {
     private List<Giveaway> giveaways;
 
     @Getter
+    private List<EmoteLink> emoteLinks;
+
+    @Getter
     private boolean active = false;
 
     @Getter
@@ -106,7 +110,7 @@ public class BotHome implements Context {
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
                    final ReactionTable reactionTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final List<GameQueue> gameQueues,
-                   final List<Giveaway> giveaways) throws UserError {
+                   final List<Giveaway> giveaways, final List<EmoteLink> emoteLinks) throws UserError {
         this.id = id;
         this.flags = flags;
         this.name = name;
@@ -121,6 +125,7 @@ public class BotHome implements Context {
         this.serviceHomes = serviceHomes;
         this.gameQueues = gameQueues;
         this.giveaways = giveaways;
+        this.emoteLinks = emoteLinks;
 
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
         Validation.validateStringLength(botName, Validation.MAX_NAME_LENGTH, "Bot name");
@@ -165,6 +170,14 @@ public class BotHome implements Context {
 
     public ServiceHome getServiceHome(final int serviceType) {
         return serviceHomes.get(serviceType);
+    }
+
+    public ServiceHome getTwitchServiceHome() {
+        return getServiceHome(TwitchService.TYPE);
+    }
+
+    public ServiceHome getDiscordServiceHome() {
+        return getServiceHome(DiscordService.TYPE);
     }
 
     public List<AlertGenerator> getAlertGenerators() {
@@ -218,6 +231,51 @@ public class BotHome implements Context {
             serviceHomes.values().forEach(serviceHome -> serviceHome.stop(this));
             alertQueue.remove(this);
         }
+    }
+
+    private Map<Integer, Map<String, Emote>> cachedEmoteMaps;
+
+    public void updateEmoteMaps() {
+        Map<Integer, Map<String, Emote>> emoteMaps = new HashMap<>();
+        for (ServiceHome serviceHome : serviceHomes.values()) {
+            int serviceType = serviceHome.getServiceType();
+            List<Emote> emotes = serviceHome.getEmotes();
+            Map<String, Emote> emoteMap = new HashMap<>();
+            for (Emote emote : emotes) {
+                if (emote.isPermitted()) {
+                    emoteMap.put(emote.getName(), emote);
+                }
+            }
+            emoteMaps.put(serviceType, emoteMap);
+        }
+
+        for (EmoteLink emoteLink : emoteLinks) {
+            String twitchEmoteName = emoteLink.getTwitchEmote();
+            String discordEmoteName = emoteLink.getDiscordEmote();
+            if (twitchEmoteName != null && discordEmoteName != null) {
+                Emote twitchEmote = emoteMaps.get(TwitchService.TYPE).get(twitchEmoteName);
+                Emote discordEmote = emoteMaps.get(DiscordService.TYPE).get(discordEmoteName);
+
+                if (twitchEmote != null && discordEmote != null) {
+                    emoteMaps.get(TwitchService.TYPE).put(discordEmoteName, twitchEmote);
+                    emoteMaps.get(DiscordService.TYPE).put(twitchEmoteName, discordEmote);
+                }
+            }
+        }
+        cachedEmoteMaps = emoteMaps;
+    }
+
+    public Map<String, Emote> getEmoteMap(final int serviceType) {
+        if (cachedEmoteMaps == null) {
+            updateEmoteMaps();
+        }
+
+        return cachedEmoteMaps.get(serviceType);
+    }
+
+    public void addEmoteLink(final EmoteLink emoteLink) {
+        emoteLinks.add(emoteLink);
+        updateEmoteMaps();
     }
 
     private Scope createScope(final Scope botScope) {

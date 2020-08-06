@@ -177,8 +177,10 @@ public class BotEditor {
             List<GameQueue> gameQueues = new ArrayList<>();
             List<Giveaway> giveaways = new ArrayList<>();
             BookTable bookTable = new BookTable();
+            List<EmoteLink> emoteLinks = new ArrayList<>();
             BotHome botHome = new BotHome(botHomeId, BotHome.DEFAULT_FLAGS, homeName, botName, timeZone, homedUserTable,
-                    bookTable, commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
+                    bookTable, commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways,
+                    emoteLinks);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue(), false);
             return botHome;

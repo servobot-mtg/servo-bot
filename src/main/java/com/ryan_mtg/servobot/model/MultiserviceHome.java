@@ -148,6 +148,11 @@ public class MultiserviceHome implements ServiceHome {
     }
 
     @Override
+    public Map<String, Emote> getEmoteMap() {
+        return preferService(TwitchService.TYPE).getEmoteMap();
+    }
+
+    @Override
     public Emote getEmote(final String emoteName) {
         return preferService(DiscordService.TYPE).getEmote(emoteName);
     }

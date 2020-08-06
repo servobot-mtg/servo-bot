@@ -9,7 +9,7 @@
 <body th:with="moderator=${user.roles.contains('ROLE_MOD:' + botHome.id)},
       streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
       privileged=${user.admin || moderator},
-      exalted=${user.admin || streamer}">
+      exalted=${user.admin || streamer}" onload="initializeSettings()">
 <div th:include="fragments :: header" />
 <div class="content">
     <h1 th:text="'Settings for ' + ${botHome.name}"/>
@@ -41,6 +41,56 @@
             <li><div th:include="bot_home_fragments :: bot_name"/></li>
             <li><div th:include="bot_home_fragments :: time_zone"/></li>
         </ul>
+
+        <h2>Emote Links</h2>
+        <table id="emote-link-table" class="data-table">
+            <thead><tr>
+                <th>Twitch</th>
+                <th>Discord</th>
+                <th>Delete</th>
+            </tr></thead>
+            <th:block th:each="emoteLink : ${botHome.emoteLinks}">
+                <tr th:id="'emote-link-' + ${emoteLink.id} + '-row'">
+                    <td th:text="${emoteLink.twitchEmote}"></td>
+                    <td th:text="${emoteLink.discordEmote}"></td>
+                    <td class="pseudo-link"
+                        th:onclick="'deleteEmoteLink(' + ${botHome.id} + ',' + ${emoteLink.id} + ')'">
+                        &#x1F5D1;&#xFE0F;
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+        <div class="add-emote-link">
+            <div id="add-emote-link-button" class="pseudo-link add-button" onclick="showAddEmoteLinkForm()"
+                 title="Add an emote link">+</div>
+            <form id="add-emote-link-form" class="add-form hidden"
+                  th:onsubmit="'addEmoteLink(' + ${botHome.id} + '); return false;'">
+
+                <div id="add-emote-link-twitch-emote-div">
+                    <label id="add-emote-link-twitch-emote-label">Twitch Emote</label><br>
+                    <select id='add-emote-link-twitch-emote-input' onchange="updateAddEmoteLinkTwitchEmoteImage()">
+                        <th:block th:each="emote, status : ${botHome.getTwitchServiceHome().getEmotes()}">
+                            <option th:value="${emote.name}" th:text="${emote.name}" th:selected="${status.index == 0}"
+                                th:attr="data-url=${emote.imageUrl}">
+                            </option>
+                        </th:block>
+                    </select><br>
+                    <img class="emote" id="add-emote-link-twitch-emote-image">
+                </div>
+                <div id="add-emote-link-discord-emote-div">
+                    <label id="add-emote-link-discord-emote-label">Discord Emote</label><br>
+                    <select id='add-emote-link-discord-emote-input' onchange="updateAddEmoteLinkDiscordEmoteImage()">
+                        <th:block th:each="emote, status : ${botHome.getDiscordServiceHome().getEmotes()}">
+                            <option th:value="${emote.name}" th:text="${emote.name}" th:selected="${status.index == 0}"
+                                th:attr="data-url=${emote.imageUrl}">
+                            </option>
+                        </th:block>
+                    </select><br>
+                    <img class="emote" id="add-emote-link-discord-emote-image">
+                </div><br>
+                <input type="submit" value="Create Emote Link">
+            </form>
+        </div>
     </div>
 </div>
 <div th:include="fragments :: footer" />

@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
 import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.model.EmoteLink;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
@@ -133,10 +134,11 @@ public class BotFactory {
                 new HomedUserTable(serializers.getUserSerializer(), serializers.getUserTable(), botHomeId);
         List<Giveaway> giveaways =
                 serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
+        List<EmoteLink> emoteLinks = serializers.getEmoteLinkSerializer().createEmoteLinks(botHomeId);
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
         return SystemError.filter(() -> {
             BotHome botHome = new BotHome(botHomeId, flags, homeName, botName, timeZone, homedUserTable, bookTable,
-                    commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways);
+                    commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways, emoteLinks);
 
             LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
             return botHome;

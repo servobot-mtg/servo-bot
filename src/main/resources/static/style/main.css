@@ -5,6 +5,7 @@
     --alert-color: maroon;
     --book-color: maroon;
     --storage-color: black;
+    --emote-link-color: black;
 }
 
 body {
@@ -462,6 +463,11 @@ table#player-table {
     margin: 12px;
 }
 
+.add-emote-link {
+    --add-button-size: 24px;
+    --add-color: var(--emote-link-color);
+    margin: 12px;
+}
 
 .add-button {
     height: var(--add-button-size, 12px);
