@@ -54,6 +54,12 @@ public class MtgMeleeInformer implements Informer {
     }
 
     @Override
+    public List<Tournament> getTournaments() {
+        return getCurrentTournaments(true).stream().map(meleeTournament -> getTournament(meleeTournament))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public String describeCurrentTournaments() {
         return describeTournaments(MtgMeleeInformer::getNickName, false, true, NO_ACTIVE_TOURNAMENTS);
     }
@@ -105,7 +111,15 @@ public class MtgMeleeInformer implements Informer {
                 Pairings pairings = computePairings(tournament, players, round, pairingsJson);
 
                 if (pairings.isDone()) {
-                    return String.format("%s is %s and round %d has ended.", player.getName(), record, round);
+                    return String.format("%s is %s. Round %d has ended.", player.getName(), record, round);
+                } else if (pairings.hasResult(player)) {
+                    int matchesLeft = pairings.getMatchesLeft();
+                    if (matchesLeft == 1) {
+                        return String.format("%s is %s. There is %d match left in round %d", player.getName(), record,
+                                matchesLeft, round);
+                    }
+                    return String.format("%s is %s. There are %d matches left in round %d", player.getName(), record,
+                        matchesLeft, round);
                 }
 
                 String status = String.format("%s is %s and ", player.getName(), record);
@@ -172,9 +186,9 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private String describeTournaments(final Function<MtgMeleeTournament, String> function, final boolean showHeader,
-                                       final boolean showPunctuation, final String emptyTournamentMessage) {
-        return Informer.describeTournaments(getCurrentTournaments(), MtgMeleeInformer::getNickName, function,
-                showHeader, showPunctuation, emptyTournamentMessage);
+            final boolean showPunctuation, final String emptyTournamentMessage) {
+        return Informer.describeTournaments(getCurrentTournaments(false), MtgMeleeInformer::getNickName,
+                function, showHeader, showPunctuation, emptyTournamentMessage);
     }
 
     private Tournament getTournament(final MtgMeleeTournament tournament) {
@@ -182,6 +196,7 @@ public class MtgMeleeInformer implements Informer {
         result.setRound(getCurrentRound(tournament));
         result.setPairingsUrl(getPairingsUrl(tournament));
         result.setNickName(getNickName(tournament));
+        result.setUrl(String.format("/tournament/melee/%d", tournament.getId()));
         result.setStandingsUrl(getStandingsUrl(tournament));
         result.setDecklistUrl(getDecklistsUrl(tournament));
         result.setStartTime(tournament.getStartTime());
@@ -236,7 +251,7 @@ public class MtgMeleeInformer implements Informer {
         return decklistMap;
     }
 
-    private List<MtgMeleeTournament> getCurrentTournaments() {
+    private List<MtgMeleeTournament> getCurrentTournaments(final boolean includeEarly) {
         TournamentsJson tournamentsJson = client.getTournaments("Star City Games", 500);
 
         List<TournamentJson> filteredTournamentJsons = new ArrayList<>();

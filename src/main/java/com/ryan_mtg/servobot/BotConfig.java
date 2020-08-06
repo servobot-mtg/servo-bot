@@ -50,6 +50,7 @@ public class BotConfig {
         symbolTable.addFunctor("cfbRecords", mfoInformer::getCurrentRecords);
         symbolTable.addValue("cfbRecord", (Function<String, String>) this::getCfbRecord);
 
+        symbolTable.addValue("scgStatus", (Function<String, String>) meleeInformer::getCurrentStatus);
         symbolTable.addFunctor("scgTournaments", meleeInformer::describeCurrentTournaments);
         symbolTable.addFunctor("scgDecklists", meleeInformer::getCurrentDecklists);
         symbolTable.addFunctor("scgDecks", meleeInformer::getCurrentDecklists);

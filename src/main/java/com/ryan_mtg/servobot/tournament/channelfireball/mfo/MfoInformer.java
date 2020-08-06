@@ -85,6 +85,7 @@ public class MfoInformer implements Informer {
         return null;
     }
 
+    @Override
     public List<com.ryan_mtg.servobot.tournament.Tournament> getTournaments() {
         TournamentSeriesList seriesList = mfoClient.getTournamentSeriesList();
         List<com.ryan_mtg.servobot.tournament.Tournament> tournaments = new ArrayList<>();
@@ -295,6 +296,7 @@ public class MfoInformer implements Informer {
         result.setRound(tournament.getCurrentRound());
         result.setPairingsUrl(getPairingsUrl(tournament));
         result.setNickName(getNickName(tournament));
+        result.setUrl(String.format("/tournament/cfb/%d", tournament.getId()));
         result.setStandingsUrl(getStandingsUrl(tournament));
         result.setDecklistUrl(getDecklistsUrl(tournament));
         result.setStartTime(parse(tournament.getStartsAt(), zoneId));

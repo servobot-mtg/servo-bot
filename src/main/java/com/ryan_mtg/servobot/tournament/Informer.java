@@ -10,6 +10,7 @@ import java.util.function.Function;
 public interface Informer {
     String NO_ACTIVE_TOURNAMENTS = "There are no active tournaments.";
 
+    List<Tournament> getTournaments();
     String describeCurrentTournaments();
     String getCurrentDecklists();
     String getCurrentPairings();

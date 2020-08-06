@@ -25,6 +25,9 @@ public class Tournament {
     private String nickName;
 
     @Getter @Setter
+    private String url;
+
+    @Getter @Setter
     private int round;
 
     @Getter @Setter

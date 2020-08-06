@@ -21,10 +21,14 @@ public class Pairings {
 
     private Map<Player, Player> opponentMap = new HashMap<>();
     private Map<Player, PlayerStanding.Result> resultMap = new HashMap<>();
-    private boolean done = true;
+    private int playersLeft = 0;
 
     public boolean isDone() {
-        return done;
+        return playersLeft == 0;
+    }
+
+    public int getMatchesLeft() {
+        return (1 + playersLeft) / 2;
     }
 
     public Player getOpponent(final Player player) {
@@ -46,14 +50,14 @@ public class Pairings {
     public void add(final Player player, final Player opponent, final PlayerStanding.Result result) {
         doAdd(player, opponent);
         if (result == PlayerStanding.Result.NONE) {
-            done = false;
+            playersLeft++;
         }
         resultMap.put(player, result);
     }
 
     public void add(final Player player, final Player opponent) {
         doAdd(player, opponent);
-        done = false;
+        playersLeft++;
     }
 
     public Pairings(final PlayerSet playerSet, final int round, final Instant roundStartTime) {

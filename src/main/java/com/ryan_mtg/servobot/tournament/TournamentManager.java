@@ -17,7 +17,9 @@ public class TournamentManager {
     }
 
     public List<Tournament> getTournaments() {
-        return mfoInformer.getTournaments();
+        List<Tournament> tournaments = mfoInformer.getTournaments();
+        tournaments.addAll(meleeInformer.getTournaments());
+        return tournaments;
     }
 
     public Tournament getTournament(final String name) {
