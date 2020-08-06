@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
+import com.ryan_mtg.servobot.utility.Strings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,11 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiscordChannel implements Channel {
@@ -55,7 +53,7 @@ public class DiscordChannel implements Channel {
 
     private String replaceNames(final String text) {
         Guild guild = serviceHome.getGuild();
-        final String nameReplacedText = replace(text, NAME_PATTERN, matcher -> {
+        final String nameReplacedText = Strings.replace(text, NAME_PATTERN, matcher -> {
             String name = matcher.group().substring(1);
             List<Member> members = guild.getMembersByName(name, true);
             if (members.isEmpty()) {
@@ -65,7 +63,7 @@ public class DiscordChannel implements Channel {
         });
 
         Map<String, Emote> emoteMap = serviceHome.getEmoteMap();
-        return replace(nameReplacedText, EMOTE_PATTERN, matcher -> {
+        return Strings.replace(nameReplacedText, EMOTE_PATTERN, matcher -> {
             String name = matcher.group();
             if (name.startsWith(":")) {
                 name = name.substring(1, name.length() - 1);
@@ -75,28 +73,5 @@ public class DiscordChannel implements Channel {
             }
             return null;
         });
-    }
-
-    private String replace(final String text, final Pattern pattern, final Function<Matcher, String> replaceFunction) {
-        Matcher matcher = pattern.matcher(text);
-        StringBuilder message = new StringBuilder();
-        int index = 0;
-        while(matcher.find(index)) {
-            int start = matcher.start();
-            int end = matcher.end();
-
-            String replacement = replaceFunction.apply(matcher);
-            if (replacement == null) {
-                message.append(text, index, end);
-            } else {
-                message.append(text, index, start);
-                message.append(replacement);
-            }
-
-            index = end;
-        }
-
-        message.append(text.substring(index));
-        return message.toString();
     }
 }

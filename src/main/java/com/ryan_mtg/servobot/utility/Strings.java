@@ -1,6 +1,9 @@
 package com.ryan_mtg.servobot.utility;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Strings {
     public static String join(final List<String> strings) {
@@ -38,5 +41,29 @@ public class Strings {
             return string;
         }
         return Character.toUpperCase(string.charAt(0)) + string.substring(1);
+    }
+
+    public static String replace(final String text, final Pattern pattern,
+            final Function<Matcher, String> replaceFunction) {
+        Matcher matcher = pattern.matcher(text);
+        StringBuilder message = new StringBuilder();
+        int index = 0;
+        while(matcher.find(index)) {
+            int start = matcher.start();
+            int end = matcher.end();
+
+            String replacement = replaceFunction.apply(matcher);
+            if (replacement == null) {
+                message.append(text, index, end);
+            } else {
+                message.append(text, index, start);
+                message.append(replacement);
+            }
+
+            index = end;
+        }
+
+        message.append(text.substring(index));
+        return message.toString();
     }
 }
