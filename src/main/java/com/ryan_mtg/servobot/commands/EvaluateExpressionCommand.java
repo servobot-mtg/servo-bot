@@ -19,13 +19,14 @@ import java.util.regex.Pattern;
 public class EvaluateExpressionCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.EVALUATE_EXPRESSION_COMMAND_TYPE;
     public static final Pattern gabyEasterEggPattern = Pattern.compile("2\\s*\\+\\s*2");
+    public static final Pattern tronEasterEggPattern = Pattern.compile("1\\s*\\+\\s*1\\s*\\+\\s*1");
 
     private static Logger LOGGER = LoggerFactory.getLogger(EvaluateExpressionCommand.class);
-    private boolean gabyEasterEgg;
+    private boolean useEasterEggs;
 
-    public EvaluateExpressionCommand(final int id, CommandSettings commandSettings, final boolean gabyEasterEgg) {
+    public EvaluateExpressionCommand(final int id, CommandSettings commandSettings, final boolean useEasterEggs) {
         super(id, commandSettings);
-        this.gabyEasterEgg = gabyEasterEgg;
+        this.useEasterEggs = useEasterEggs;
     }
 
     @Override
@@ -35,7 +36,7 @@ public class EvaluateExpressionCommand extends InvokedCommand {
             throw new UserError("No expression provided.");
         }
 
-        if (gabyEasterEgg && gabyEasterEggPattern.matcher(expression).matches()) {
+        if (useEasterEggs && gabyEasterEggPattern.matcher(expression).matches()) {
             int serviceType = event.getServiceType();
             if (serviceType == TwitchService.TYPE) {
                 event.say("gabyMath");
@@ -43,8 +44,21 @@ public class EvaluateExpressionCommand extends InvokedCommand {
             } else if (serviceType == DiscordService.TYPE && event instanceof HomeEvent) {
                 Emote emote = ((HomeEvent) event).getServiceHome().getEmote("gabyMath");
                 if (emote != null) {
-                    LOGGER.info("Got an emote!");
-                    event.say(emote.getMessageText());
+                    event.say(emote.getName());
+                    return;
+                }
+            }
+        }
+
+        if (useEasterEggs && tronEasterEggPattern.matcher(expression).matches()) {
+            int serviceType = event.getServiceType();
+            if (serviceType == TwitchService.TYPE) {
+                event.say("7 KARNERS");
+                return;
+            } else if (serviceType == DiscordService.TYPE && event instanceof HomeEvent) {
+                Emote emote = ((HomeEvent) event).getServiceHome().getEmote("karners");
+                if (emote != null) {
+                    event.say(String.format("7 %s", emote.getName()));
                     return;
                 }
             }
