@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class DiscordChannel implements Channel {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscordChannel.class);
-    private static final Pattern NAME_PATTERN = Pattern.compile("@[a-z_A-Z][a-z_A-Z0-9]*");
+    private static final Pattern NAME_PATTERN = Pattern.compile("@[a-z_A-Z][a-z_A-Z0-9-]*");
     private static final Pattern EMOTE_PATTERN =
             Pattern.compile("(\\b[a-z_A-Z][a-z_A-Z0-9]*\\b)|(:[a-z_A-Z][a-z_A-Z0-9]*:)");
     private MessageChannel channel;
