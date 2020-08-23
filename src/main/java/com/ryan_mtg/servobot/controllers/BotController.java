@@ -58,6 +58,7 @@ public class BotController {
 
         if (websiteUser.hasInvite()) {
             model.addAttribute("page", "invite");
+            model.addAttribute("botName", botRegistrar.getDefaultBot().getName());
             model.addAttribute("timeZones", timeZones);
             return "home/invite";
         }

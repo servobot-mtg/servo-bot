@@ -1,4 +1,5 @@
 function submitInvite() {
+    let botName = document.getElementById('bot-name').innerText;
     let timeZone = document.getElementById('time-zone-select').value;
 
     let useAddCommand = document.getElementById('use-add-command-name').checked;
@@ -22,12 +23,12 @@ function submitInvite() {
         }
     }
 
-    postSubmitInvite(timeZone, addCommandName, deleteCommandName, showCommandsName, textCommands);
+    postSubmitInvite(botName, timeZone, addCommandName, deleteCommandName, showCommandsName, textCommands);
 }
 
-async function postSubmitInvite(timeZone, addCommandName, deleteCommandName, showCommandsName, textCommands) {
+async function postSubmitInvite(botName, timeZone, addCommandName, deleteCommandName, showCommandsName, textCommands) {
     const parameters = {timeZone: timeZone, addCommandName: addCommandName, deleteCommandName: deleteCommandName,
-        showCommandsName:showCommandsName, textCommands: textCommands};
+        showCommandsName:showCommandsName, textCommands: textCommands, botName: botName};
 
     let response = await makePost('/api/create_bot_home', parameters, [], false);
     if (response.ok) {
