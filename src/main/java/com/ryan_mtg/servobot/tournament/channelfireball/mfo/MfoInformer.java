@@ -307,6 +307,7 @@ public class MfoInformer implements Informer {
         Standings standings = computeStandings(tournament, pairings);
         PlayerSet playerSet = standings.getPlayerSet();
         result.setStandings(standings);
+        result.setPlayerSet(playerSet);
 
         result.setPairings(computePairings(tournament, pairings, playerSet));
 
@@ -381,7 +382,7 @@ public class MfoInformer implements Informer {
             if (decklistNameCache.containsKey(decklistUrl)) {
                 return decklistNameCache.get(decklistUrl);
             }
-            if (Application.isTesting()) {
+            if (Application.isTesting() && false) {
                 String deckName = "Rakdos Sacrifice (Jegantha)";
                 decklistNameCache.put(decklistUrl, deckName);
                 return deckName;
@@ -397,7 +398,7 @@ public class MfoInformer implements Informer {
             List<String> headers = new ArrayList<>();
             document.select("h1").forEach(header -> headers.add(header.text()));
 
-            if (headers.size() == 3) {
+            if (headers.size() >= 2) {
                 String name = headers.get(1);
 
                 if (Strings.isBlank(name)) {
