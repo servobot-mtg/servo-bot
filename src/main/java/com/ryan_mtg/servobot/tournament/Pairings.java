@@ -79,7 +79,7 @@ public class Pairings {
 
     public String getTimeUntilEndOfRound() {
         if (roundStartTime == null) {
-            return "No clue!";
+            return String.format("%d matches left", getMatchesLeft());
         }
 
         Instant now = Instant.now();
