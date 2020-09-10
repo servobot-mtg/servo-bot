@@ -3,9 +3,12 @@ package com.ryan_mtg.servobot.model;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.RateLimiter;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandPerformer;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
+import com.ryan_mtg.servobot.game.GameManager;
+import com.ryan_mtg.servobot.game.Responder;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
@@ -13,6 +16,7 @@ import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -61,11 +65,14 @@ public class Bot implements Context {
     private StorageTable storageTable;
 
     @Getter
+    private List<GameManager> gameManagers;
+
+    @Getter
     private AlertQueue alertQueue = new AlertQueue(this);
 
     public Bot(final int id, final String name, final Scope globalScope, final Map<Integer, Service> services,
             final SerializerContainer serializers, final CommandTable commandTable, final BookTable bookTable,
-            final StorageTable storageTable) throws UserError {
+            final StorageTable storageTable, final List<GameManager> gameManagers) throws UserError {
         this.id = id;
         this.name = name;
         this.services = services;
@@ -73,6 +80,7 @@ public class Bot implements Context {
         this.commandTable = commandTable;
         this.bookTable = bookTable;
         this.storageTable = storageTable;
+        this.gameManagers = gameManagers;
 
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
 
@@ -80,6 +88,12 @@ public class Bot implements Context {
         botEditor = new BotEditor(this);
         CommandPerformer commandPerformer = new CommandPerformer(new RateLimiter());
         listener = new HomeDelegatingListener(botEditor, homeEditorMap, commandPerformer, commandTable);
+
+        gameManagers.forEach(gameManager -> gameManager.setResponder((user, message) -> {
+            if (user.getDiscordId() != User.UNREGISTERED_ID) {
+                botEditor.sendMessage(user, message, DiscordService.TYPE);
+            }
+        }));
     }
 
     public Service getService(final int serviceType) {

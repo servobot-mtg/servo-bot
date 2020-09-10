@@ -214,6 +214,8 @@
                         <option value="34">Add Statement Command</option>
                         <option value="15">Add Statement by Book Command</option>
                         <option value="19">Math Command</option>
+                        <option value="35">Join Game Command</option>
+                        <option value="35" th:if="${user.admin}">Game Command</option>
                         <option value="33">Score Command</option>
                         <option value="17" th:if="${!container.storageTable.empty}">Show Value Command</option>
                         <option value="18" th:if="${!container.storageTable.empty}">Set Value Command</option>

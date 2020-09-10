@@ -722,6 +722,8 @@ const commandData = [
     {name: 'Card Search Command', parameters: []}, //32
     {name: 'Score Command', parameters: [{id: 'text', name: 'Game Name'}, {id: 'text-2', name: 'Variable Name'}]}, //33
     {name: 'Add Statement Command', parameters: [{id: 'book', name: 'Book'}, {id: 'text', name: 'Response'}]}, //34
+    {name: 'Game Command', parameters: [{id: 'integer', name: 'Game Type'}]}, //35
+    {name: 'Join Game Command', parameters: [{id: 'integer', name: 'Game Type'}]}, //36
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];

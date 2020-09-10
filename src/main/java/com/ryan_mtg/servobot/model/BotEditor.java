@@ -18,7 +18,9 @@ import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
+import com.ryan_mtg.servobot.error.BotError;
 import com.ryan_mtg.servobot.error.UserError;
+import com.ryan_mtg.servobot.game.GameManager;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
@@ -218,6 +220,15 @@ public class BotEditor {
             suggestionRow.setCount(suggestionRow.getCount() + 1);
         }
         suggestionRepository.save(suggestionRow);
+    }
+
+    public GameManager getGameManager(final int gameType) throws BotError {
+        for(GameManager gameManager : bot.getGameManagers()) {
+            if (gameManager.getType() == gameType) {
+                return gameManager;
+            }
+        }
+        throw new BotError("Bot does not have a game type: %d", gameType);
     }
 
     private void validateNewCommandName(final Set<String> commandNames, final String commandName)

@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
+import com.ryan_mtg.servobot.commands.game.GameCommand;
+import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
@@ -192,6 +194,12 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitGameCommand(final GameCommand gameCommand) {
+            description =
+                    String.format("Runs a command through the game engine for game %d", gameCommand.getGameType());
+        }
+
+        @Override
         public void visitGameQueueCommand(final GameQueueCommand gameQueueCommand) {
             description = "Has subcommands to manipulate the game queue";
         }
@@ -217,6 +225,11 @@ public class CommandDescriptor {
         public void visitJailReleaseCommand(final JailReleaseCommand jailReleaseCommand) {
             description =String.format("Releases the users passed in as input out of '%s'",
                     jailReleaseCommand.getPrisonRole());
+        }
+
+        @Override
+        public void visitJoinGameCommand(final JoinGameCommand joinGameCommand) {
+            description = String.format("Lets the user join a game for game %d", joinGameCommand.getGameType());
         }
 
         @Override

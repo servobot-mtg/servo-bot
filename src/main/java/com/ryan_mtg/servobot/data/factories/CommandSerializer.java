@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.AddBookedStatementCommand;
 import com.ryan_mtg.servobot.commands.ScoreCommand;
+import com.ryan_mtg.servobot.commands.game.GameCommand;
+import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
@@ -119,6 +121,9 @@ public class CommandSerializer {
                 case FACTS_COMMAND_TYPE:
                     bookId = (int) (long) commandRow.getLongParameter();
                     return new FactsCommand(id, commandSettings, bookMap.get(bookId));
+                case GAME_COMMAND_TYPE:
+                    int gameType = (int) (long) commandRow.getLongParameter();
+                    return new GameCommand(id, commandSettings, gameType);
                 case GAME_QUEUE_COMMAND_TYPE:
                     int gameQueueId = (int) (long) commandRow.getLongParameter();
                     return new GameQueueCommand(id, commandSettings, gameQueueId);
@@ -131,6 +136,9 @@ public class CommandSerializer {
                             jailThreshold, commandRow.getStringParameter2().trim());
                 case JAIL_RELEASE_COMMAND_TYPE:
                     return new JailReleaseCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
+                case JOIN_GAME_COMMAND_TYPE:
+                    gameType = (int) (long) commandRow.getLongParameter();
+                    return new JoinGameCommand(id, commandSettings, gameType);
                 case JOIN_GAME_QUEUE_COMMAND_TYPE:
                     gameQueueId = (int) (long) commandRow.getLongParameter();
                     return new JoinGameQueueCommand(id, commandSettings, gameQueueId);
@@ -341,6 +349,13 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitGameCommand(final GameCommand gameCommand) {
+            saveCommand(gameCommand, commandRow -> {
+                commandRow.setLongParameter(gameCommand.getGameType());
+            });
+        }
+
+        @Override
         public void visitGameQueueCommand(final GameQueueCommand gameQueueCommand) {
             saveCommand(gameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(gameQueueCommand.getGameQueueId());
@@ -376,6 +391,13 @@ public class CommandSerializer {
         public void visitJailReleaseCommand(final JailReleaseCommand jailReleaseCommand) {
             saveCommand(jailReleaseCommand, commandRow -> {
                 commandRow.setStringParameter(jailReleaseCommand.getPrisonRole());
+            });
+        }
+
+        @Override
+        public void visitJoinGameCommand(final JoinGameCommand joinGameCommand) {
+            saveCommand(joinGameCommand, commandRow -> {
+                commandRow.setLongParameter(joinGameCommand.getGameType());
             });
         }
 

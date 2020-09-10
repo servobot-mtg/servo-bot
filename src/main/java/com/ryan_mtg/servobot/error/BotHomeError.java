@@ -9,10 +9,6 @@ public class BotHomeError extends Exception {
         super(String.format(format, args));
     }
 
-    public interface ThrowingFunction <ReturnType> {
-        ReturnType apply() throws Exception;
-    }
-
     public static <ReturnType> ReturnType filter(final ThrowingFunction<ReturnType> function) throws BotHomeError {
         try {
             return function.apply();

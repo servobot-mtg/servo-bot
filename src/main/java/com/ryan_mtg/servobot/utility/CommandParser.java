@@ -56,6 +56,10 @@ public class CommandParser {
     }
 
     public ParseResult parse(final String input) {
+        if (Strings.isBlank(input)) {
+            return new ParseResult(ParseStatus.NO_COMMAND);
+        }
+
         Scanner scanner = new Scanner(input);
 
         if (!scanner.hasNext()) {
