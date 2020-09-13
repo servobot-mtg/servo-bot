@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.error;
 
-import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

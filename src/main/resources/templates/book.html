@@ -3,10 +3,10 @@
 <head>
     <title>Book</title>
     <div th:replace="fragments :: includes" />
-    <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + contexId)}"
+    <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + contextId)}"
             type="text/javascript" src="/script/privileged.js"></script>
 </head>
-<body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + contexId)}">
+<body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + contextId)}">
     <div th:include="fragments :: header" />
     <div class="content">
         <h1 th:text="${book.name}"/>
@@ -27,7 +27,7 @@
                         <div th:id="${label} + '-edit'" class="hidden">
                             <input type="text" th:value="${statement.text}" th:size="${statement.text.length()}"
                                    th:id="${label} + '-input'"/>
-                            <span class="pseudo-link" th:onclick="'modifyStatement(' + ${contexId} + ', '
+                            <span class="pseudo-link" th:onclick="'modifyStatement(' + ${contextId} + ', '
                                                           + ${book.id} + ', ' + ${statement.id} + ')'">
                                 &#x1F4BE;
                             </span>
@@ -35,7 +35,7 @@
                     </td>
                     <td th:if="${!privileged}" th:text="${statement.text}"/>
                     <td th:if="${privileged}" class="pseudo-link" th:onclick=
-                            "'deleteStatement(' + ${contexId} + ', ' + ${book.id} + ', '+ ${statement.id} + ')'">
+                            "'deleteStatement(' + ${contextId} + ', ' + ${book.id} + ', '+ ${statement.id} + ')'">
                         &#x1F5D1;&#xFE0F;
                     </td>
                 </tr>
@@ -45,7 +45,7 @@
             <div id="add-statement-button" class="pseudo-link add-button" onclick="showAddStatementForm()"
                 title="Add a statement">+</div>
             <form id="add-statement-form" class="hidden add-form"
-                  th:onsubmit="'addStatement(' + ${contexId} + ', ' + ${book.id} + '); return false;'">
+                  th:onsubmit="'addStatement(' + ${contextId} + ', ' + ${book.id} + '); return false;'">
                 <div id="add-statement-text-div">
                     <label>Text</label><BR>
                     <input id="add-statement-text-input" type="text" name="statement"><BR>
