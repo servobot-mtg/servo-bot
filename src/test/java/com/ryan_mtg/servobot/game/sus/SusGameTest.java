@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.game.sus;
 
+import com.ryan_mtg.servobot.game.Responder;
 import com.ryan_mtg.servobot.user.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,12 +17,14 @@ public class SusGameTest {
     private SusGame game;
     private SusGameManager gameManager;
     private User[] players;
+    private Responder responder;
 
     @Before
     public void setUp() {
         gameManager = mock(SusGameManager.class);
         players = new User[SusGame.POD_SIZE];
-        game = new SusGame(gameManager);
+        responder = mock(Responder.class);
+        game = new SusGame(gameManager, responder);
         for (int i = 0; i < players.length; i++) {
             players[i] = mock(User.class);
         }
@@ -33,7 +36,7 @@ public class SusGameTest {
         game.join(player);
 
         assertTrue(game.hasPlayer(player));
-        verify(gameManager).respond(eq(player), contains("in the queue"));
+        verify(responder).respond(eq(player), contains("in the queue"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -48,11 +51,11 @@ public class SusGameTest {
         joinAll();
 
         for (User player : players) {
-            verify(gameManager).respond(eq(player), contains("starting"));
+            verify(responder).respond(eq(player), contains("starting"));
         }
 
-        verify(gameManager, times(SusGame.IMPOSTER_COUNT)).respond(any(User.class), contains("imposter"));
-        verify(gameManager, times(SusGame.CREW_COUNT)).respond(any(User.class), contains("crew"));
+        verify(responder, times(SusGame.IMPOSTER_COUNT)).respond(any(User.class), contains("imposter"));
+        verify(responder, times(SusGame.CREW_COUNT)).respond(any(User.class), contains("crew"));
     }
 
     @Test(expected = IllegalArgumentException.class)
