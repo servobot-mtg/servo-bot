@@ -347,6 +347,11 @@ table#player-table {
     border: 0px solid black;
 }
 
+.bounty {
+    color: red;
+
+}
+
 .follow-row .boldable {
     font-weight: bold;
 }

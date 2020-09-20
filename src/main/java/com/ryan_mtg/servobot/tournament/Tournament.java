@@ -70,7 +70,20 @@ public class Tournament {
         pairingsMap.put(pairings.getRound(), pairings);
     }
 
+    private static final List<String> BOUNTIES = Arrays.asList("AliasV#76549", "Shieldmaiden#51443", "JANYAN#43274",
+            "rileyquarytower#97553", "Yellowhat#43550");
+
     private static final Set<Player> CARE_ABOUTS = new HashSet<>(Arrays.asList(
+        new Player( "AliasV#76549", null, null, "AliasV", null, null),
+        new Player("DanaFischerMTG#46891", null, "Dana Fischer", null, null, null),
+        new Player("themightylinguine#94385", null, "Carolyn Kavanah", null, null, null),
+        new Player("GabySpartz#39839", null, "Gaby Spartz", null, "GabySpartz", "GabySpartz"),
+        new Player("Em_TeeGee#43111", null, "Emma Handy", null, null, null),
+        new Player("rileyquarytower#97553", null, "Riley Knight", null, null, null),
+        new Player("JANYAN#43274", null, "Jana Amari", null, null, null),
+        new Player("Shieldmaiden#51443", null, null, "Ashlizzlle", null, null),
+        new Player("Yellowhat#43550", null, "Gabriel Nassif", null, null, null),
+
         new Player(null, null, "Alexander Hayne", "Alexander Hayne", null, "InsayneHayne"),
         new Player(null, null, "Ally Warfield", "Taco Belle", "mythic_meebo", "MythicMeebo"),
         new Player(null, null, "Andrea Mengucci", "Mengu", "AndreaMengucci", "Mengu09"),
@@ -212,8 +225,9 @@ public class Tournament {
             if (active && mostRecentPairings.hasResult(player)) {
                 result = mostRecentPairings.getResult(player);
             }
+            boolean bounty = BOUNTIES.contains(player.getArenaName());
             players.add(new PlayerStanding(player, rank, isWatchable(player), isLeader(leaderRecord, player), record,
-                    result, decklistMap.get(player), dropped, opponent, opponentDecklist));
+                    result, decklistMap.get(player), dropped, opponent, opponentDecklist, bounty));
         }
 
         Collections.sort(players);

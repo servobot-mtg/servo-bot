@@ -91,7 +91,8 @@
                                     <span th:if="${ps.loss()}">&#x274C;</span>
                                     <span th:if="${ps.drew()}">&#x1F91D;</span>
                                     <span th:if="${ps.hasDropped}">&#x2620;&#xFE0F;</span>
-                                    <span class="boldable" th:text="${ps.player.name}" th:title="${ps.player.realName}">
+                                    <span class="boldable" th:classappend="${ps.bounty} ? 'bounty'"
+                                          th:text="${ps.player.name}" th:title="${ps.player.realName}">
                                     </span>
                                 </td>
                                 <td>

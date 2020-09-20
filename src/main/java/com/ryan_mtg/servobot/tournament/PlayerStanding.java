@@ -15,6 +15,7 @@ public class PlayerStanding implements Comparable<PlayerStanding> {
     private boolean hasDropped;
     private Player opponent;
     private DecklistDescription opponentsDecklist;
+    private boolean bounty;
 
     public enum Result {
         NONE,

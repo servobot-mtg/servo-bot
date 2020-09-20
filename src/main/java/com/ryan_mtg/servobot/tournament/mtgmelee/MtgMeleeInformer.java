@@ -256,6 +256,22 @@ public class MtgMeleeInformer implements Informer {
 
         List<TournamentJson> filteredTournamentJsons = new ArrayList<>();
         Instant now = Instant.now();
+        TournamentType minType = addTournaments(tournamentsJson, now, filteredTournamentJsons);
+        tournamentsJson = client.getTournaments("The Bash Bros Podcast", 500);
+
+        TournamentType tournamentType = addTournaments(tournamentsJson, now, filteredTournamentJsons);
+        if (tournamentType.compareTo(minType) < 0) {
+            minType = tournamentType;
+        }
+
+        final TournamentType filterType = minType;
+        return filteredTournamentJsons.stream()
+                .filter(tournamentJson -> getType(tournamentJson.getName()) == filterType)
+                .map(tournamentJson -> parser.parse(tournamentJson.getId())).collect(Collectors.toList());
+    }
+
+    private TournamentType addTournaments(final TournamentsJson tournamentsJson, final Instant now,
+            final List<TournamentJson> filteredTournamentJsons) {
         TournamentType minType = TournamentType.NONE;
         for (TournamentJson tournamentJson : tournamentsJson.getData()) {
             if (isRecent(tournamentJson, now)) {
@@ -266,11 +282,7 @@ public class MtgMeleeInformer implements Informer {
                 }
             }
         }
-
-        final TournamentType filterType = minType;
-        return filteredTournamentJsons.stream()
-                .filter(tournamentJson -> getType(tournamentJson.getName()) == filterType)
-                .map(tournamentJson -> parser.parse(tournamentJson.getId())).collect(Collectors.toList());
+        return minType;
     }
 
     private boolean isRecent(final TournamentJson tournamentJson, final Instant now) {
@@ -417,6 +429,12 @@ public class MtgMeleeInformer implements Informer {
             int numIndex = tournament.getName().indexOf("#") + 1;
             int qualifierNum = Integer.parseInt(tournament.getName().substring(numIndex));
             return String.format("SCG Qualifier #%d", qualifierNum);
+        }
+
+        if (tournament.getTournamentType() == TournamentType.ONE_OFF) {
+            if (tournament.getName().contains("Bash Bros Battles")) {
+                return "Bash Bros Battles";
+            }
         }
 
         return tournament.getName();

@@ -95,7 +95,7 @@ public class MfoInformer implements Informer {
             Instant endTime = parse(series.getEndDate(), zoneId).plus(2, ChronoUnit.DAYS);
             Instant now = clock.instant();
             if (startTime.compareTo(now) < 0 &&
-                    (now.compareTo(endTime) < 0 || series.getName().contains("Last Chance Qualifiers"))) {
+                    (now.compareTo(endTime) < 0 || series.getName().contains("Showdown"))) {
                 for (Tournament tournament : getCurrentTournaments(zoneId, series.getId())) {
                     tournaments.add(convert(tournament, zoneId));
                 }
@@ -382,7 +382,7 @@ public class MfoInformer implements Informer {
             if (decklistNameCache.containsKey(decklistUrl)) {
                 return decklistNameCache.get(decklistUrl);
             }
-            if (Application.isTesting() && false) {
+            if (Application.isTesting()) {
                 String deckName = "Rakdos Sacrifice (Jegantha)";
                 decklistNameCache.put(decklistUrl, deckName);
                 return deckName;

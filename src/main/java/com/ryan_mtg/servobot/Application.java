@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot;
 
+import com.ryan_mtg.servobot.game.sus.chat.SusResponder;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
@@ -10,6 +11,7 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -49,6 +51,13 @@ public class Application {
                 }
             }
         }
+    }
+
+    @Bean
+    public SusResponder susResponder() {
+        SusResponder susResponder = new SusResponder();
+        susResponder.initalize();
+        return susResponder;
     }
 
     @PostConstruct
