@@ -11,6 +11,8 @@ import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 import com.ryan_mtg.servobot.user.UserTable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +26,7 @@ public class ServiceSerializer {
     private final UserTable userTable;
     private final ScheduledExecutorService executorService;
     private final LoggedMessageSerializer loggedMessageSerializer;
-    private final Map<Integer, Service> serviceMap = new HashMap<>();
+    private final Map<ServiceKey, Service> serviceMap = new HashMap<>();
 
     public ServiceSerializer(final ServiceRepository serviceRepository, final UserTable userTable,
             final ScheduledExecutorService executorService, final LoggedMessageSerializer loggedMessageSerializer) {
@@ -36,25 +38,27 @@ public class ServiceSerializer {
 
     @Bean
     public TwitchService twitchService() {
-        ServiceRow serviceRow = serviceRepository.findByType(TwitchService.TYPE);
-        return (TwitchService)createService(serviceRow);
+        int defaultBotId = 1;
+        ServiceRow serviceRow = serviceRepository.findByBotIdAndType(defaultBotId, TwitchService.TYPE);
+        return (TwitchService)createService(defaultBotId, serviceRow);
     }
 
-    public Map<Integer, Service> getServiceMap() {
+    public Map<Integer, Service> getServiceMap(final int botId) {
         Map<Integer, Service> services = new HashMap<>();
-        Iterable<ServiceRow> serviceRows = serviceRepository.findAll();
+        Iterable<ServiceRow> serviceRows = serviceRepository.findAllByBotId(botId);
         for (ServiceRow serviceRow : serviceRows) {
-            Service service = createService(serviceRow);
+            Service service = createService(botId, serviceRow);
             services.put(service.getType(), service);
         }
         return services;
     }
 
-    public Service createService(final ServiceRow serviceRow) {
+    public Service createService(final int botId, final ServiceRow serviceRow) {
         return SystemError.filter(() -> {
             int serviceType = serviceRow.getType();
-            if (serviceMap.containsKey(serviceType)) {
-                return serviceMap.get(serviceType);
+            ServiceKey key = new ServiceKey(botId, serviceType);
+            if (serviceMap.containsKey(key)) {
+                return serviceMap.get(key);
             }
 
             Service service;
@@ -69,7 +73,7 @@ public class ServiceSerializer {
                 default:
                     throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());
             }
-            serviceMap.put(serviceType, service);
+            serviceMap.put(key, service);
             return service;
         });
     }
@@ -82,5 +86,11 @@ public class ServiceSerializer {
                 return new TwitchServiceHome((TwitchService) service, serviceHomeRow.getLongValue());
         }
         throw new IllegalArgumentException("Unknown ServiceHome type: " + serviceHomeRow.getServiceType());
+    }
+
+    @Data @AllArgsConstructor
+    private static class ServiceKey {
+        private int botId;
+        private int serviceType;
     }
 }

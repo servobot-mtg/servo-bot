@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 import java.util.function.Function;
 
 @Configuration
@@ -65,8 +66,8 @@ public class BotConfig {
 
     @Bean
     public BotRegistrar botRegistrar(@Qualifier("globalScope") final Scope globalScope) {
-        Bot bot = botFactory.createBot(botRepository.findFirst().get(), globalScope);
-        return new BotRegistrar(bot);
+        List<Bot> bots = botFactory.createBots(botRepository.findAll(), globalScope);
+        return new BotRegistrar(bots);
     }
 
     private String getCfbRecord(final String input) {

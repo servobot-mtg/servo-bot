@@ -119,6 +119,7 @@ public class BotEditor {
             BotHomeRow botHomeRow = new BotHomeRow();
             String botName = bot.getName();
             botHomeRow.setBotName(botName);
+            botHomeRow.setBotId(bot.getId());
             String homeName = user.getTwitchUsername();
             botHomeRow.setHomeName(homeName);
             String timeZone = request.getTimeZone();

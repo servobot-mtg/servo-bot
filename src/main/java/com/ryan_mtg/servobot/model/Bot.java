@@ -172,6 +172,9 @@ public class Bot implements Context {
     }
 
     private void startServices() throws InterruptedException {
+        if (services.size() == 0) {
+            return;
+        }
         ExecutorService executor = Executors.newFixedThreadPool(services.size());
 
         for (Service service : services.values()) {

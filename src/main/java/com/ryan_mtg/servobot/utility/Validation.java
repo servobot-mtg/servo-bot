@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.utility;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 
 import java.util.regex.Pattern;
 

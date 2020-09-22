@@ -19,6 +19,9 @@ public class ServiceRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "bot_id")
+    private int botId;
+
     private int type;
 
     @Size(max = Validation.MAX_AUTHENTICATION_TOKEN_LENGTH)

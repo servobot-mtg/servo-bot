@@ -16,6 +16,8 @@ import com.ryan_mtg.servobot.twitch.betterttv.json.EmotesJson;
 import com.ryan_mtg.servobot.twitch.twitchemotes.TwitchEmotesClient;
 import com.ryan_mtg.servobot.twitch.twitchemotes.json.TwitchEmotes;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Assertion;
+import com.ryan_mtg.servobot.utility.Validation;
 import feign.FeignException;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +42,8 @@ public class TwitchServiceHome implements ServiceHome {
     private List<Emote> cachedEmotes;
 
     public TwitchServiceHome(final TwitchService twitchService, final long channelId) {
+        Assertion.assertNotNull(twitchService, "TwitchService");
+
         this.channelId = channelId;
         this.twitchService = twitchService;
     }

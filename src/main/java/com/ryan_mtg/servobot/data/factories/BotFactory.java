@@ -52,13 +52,22 @@ public class BotFactory {
         serializers.setBotFactory(this);
     }
 
-    public Bot createBot(final BotRow botRow, final Scope globalScope) {
+
+    public List<Bot> createBots(List<BotRow> botRows, Scope globalScope) {
+        List<Bot> bots = new ArrayList<>();
+        for (BotRow botRow : botRows) {
+            bots.add(createBot(botRow, globalScope));
+        }
+        return bots;
+    }
+
+    private Bot createBot(final BotRow botRow, final Scope globalScope) {
         return SystemError.filter(() -> {
             LOGGER.info(">>>>>>>>>>>>>>>> Starting bot creation ");
-            ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
-            Map<Integer, Service> services = serviceSerializer.getServiceMap();
-
             int botId = botRow.getId();
+
+            ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
+            Map<Integer, Service> services = serviceSerializer.getServiceMap(botId);
 
             int contextId = -botId;
 
@@ -73,7 +82,7 @@ public class BotFactory {
 
             Bot bot = new Bot(botId, botRow.getName(), globalScope, services, serializers, commandTable, bookTable,
                     storageTable, gameManagers);
-            for (BotHomeRow botHomeRow : serializers.getBotHomeRepository().findAll()) {
+            for (BotHomeRow botHomeRow : serializers.getBotHomeRepository().findAllByBotId(botId)) {
                 bot.addHome(createBotHome(botHomeRow));
             }
 
@@ -90,7 +99,7 @@ public class BotFactory {
     protected BotHome createBotHome(final BotHomeRow botHomeRow) {
         LOGGER.info(">>>>>> Starting bot home creation: {} ", botHomeRow.getHomeName());
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
-        Map<Integer, Service> services = serviceSerializer.getServiceMap();
+        Map<Integer, Service> services = serviceSerializer.getServiceMap(botHomeRow.getId());
         String homeName = botHomeRow.getHomeName();
         int flags = botHomeRow.getFlags();
         String botName = botHomeRow.getBotName();

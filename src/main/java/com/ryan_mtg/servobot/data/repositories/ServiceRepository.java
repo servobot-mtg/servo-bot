@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ServiceRepository extends CrudRepository<ServiceRow, Integer> {
-    ServiceRow findByType(int type);
+    Iterable<ServiceRow> findAllByBotId(int botId);
+    ServiceRow findByBotIdAndType(int botId, int type);
 }

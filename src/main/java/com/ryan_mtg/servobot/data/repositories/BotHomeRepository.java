@@ -10,4 +10,5 @@ public interface BotHomeRepository extends CrudRepository<BotHomeRow, Integer> {
     Iterable<BotHomeRow> findAll();
 
     BotHomeRow findById(int id);
+    BotHomeRow[] findAllByBotId(int botId);
 }

@@ -22,6 +22,9 @@ public class BotHomeRow {
     @Setter(AccessLevel.NONE)
     private int id;
 
+    @Column(name = "bot_id")
+    private int botId;
+
     private int flags;
 
     @Column(name = "name")

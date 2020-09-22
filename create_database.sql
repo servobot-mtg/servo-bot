@@ -3,11 +3,11 @@ USE botdb;
 
 CREATE TABLE IF NOT EXISTS bot (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30));
 
-CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, token VARCHAR(60),
-                                    client_id VARCHAR(30), client_secret VARCHAR(30));
+CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_id INTEGER, type INTEGER,
+                                    token VARCHAR(60), client_id VARCHAR(30), client_secret VARCHAR(30));
 
-CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30), bot_name VARCHAR(30),
-                                 flags INTEGER, time_zone VARCHAR(60));
+CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_id INTEGER, name VARCHAR(30),
+                                 bot_name VARCHAR(30), flags INTEGER, time_zone VARCHAR(60));
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
                                     flags INTEGER, permission INTEGER, stringParameter VARCHAR(200),
@@ -89,3 +89,9 @@ CREATE INDEX spring_session_ix3 ON session (principal_name);
 ALTER TABLE giveaway ADD COLUMN raffle_flags INTEGER, ADD COLUMN select_winner_command_name VARCHAR(30),
         ADD COLUMN select_winner_permission INTEGER, ADD COLUMN select_winner_flags INTEGER,
         ADD COLUMN select_winner_message VARCHAR(200);
+
+ALTER TABLE service ADD COLUMN bot_id INTEGER;
+UPDATE service SET bot_id = 1;
+
+ALTER TABLE home ADD COLUMN bot_id INTEGER;
+UPDATE home SET bot_id = 1;
