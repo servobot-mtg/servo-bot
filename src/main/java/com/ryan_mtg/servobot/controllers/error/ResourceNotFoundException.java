@@ -7,4 +7,8 @@ public class ResourceNotFoundException extends ResponseStatusException {
     public ResourceNotFoundException(final String reason) {
         super(HttpStatus.NOT_FOUND, reason);
     }
+
+    public ResourceNotFoundException(final String reason, final Object... args) {
+        super(HttpStatus.NOT_FOUND, String.format(reason, args));
+    }
 }

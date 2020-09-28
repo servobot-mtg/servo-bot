@@ -66,13 +66,16 @@ public class GameQueueSerializer {
     }
 
     private GameQueueRow createGameQueueRow(final GameQueue gameQueue) {
+        //TODO: fix
         GameQueueRow gameQueueRow = gameQueueRepository.findById(gameQueue.getId());
+        /*
         gameQueueRow.setState(gameQueue.getState());
         gameQueueRow.setCurrentPlayerId(gameQueue.getCurrentPlayerId());
         gameQueueRow.setNext(gameQueue.getNext());
         if (!gameQueue.getName().equals(gameQueueRow.getName())) {
             gameQueueRow.setName(gameQueue.getName());
         }
+         */
         return gameQueueRow;
     }
 

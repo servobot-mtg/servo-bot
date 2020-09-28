@@ -89,43 +89,112 @@ public class BotController {
 
     @GetMapping("/home/{home}")
     public String showHome(final Model model, @PathVariable("home") final String homeName) {
-        model.addAttribute("page", "home");
+        return showHome(model, getBotHome(homeName));
+    }
+
+    @GetMapping("/home/{bot}/{home}")
+    public String showHome(final Model model, @PathVariable("bot") final String botName,
+                           @PathVariable("home") final String homeName) {
+        return showHome(model, getBotHome(botName, homeName));
+    }
+
+    @GetMapping("/home/{home}/settings")
+    public String showHomeSettings(final Model model, @PathVariable("home") final String homeName) {
+        return showHomeSettings(model, getBotHome(homeName));
+    }
+
+    @GetMapping("/home/{bot}/{home}/settings")
+    public String showHomeSettings(final Model model, @PathVariable("bot") final String botName,
+                                   @PathVariable("home") final String homeName) {
+        return showHomeSettings(model, getBotHome(botName, homeName));
+    }
+
+    @GetMapping("/home/{home}/hub")
+    public String showHub(final Model model, @PathVariable("home") final String homeName) {
+        return showHub(model, getBotHome(homeName));
+    }
+
+    @GetMapping("/home/{bot}/{home}/hub")
+    public String showHub(final Model model, @PathVariable("bot") final String botName,
+                          @PathVariable("home") final String homeName) {
+        return showHub(model, getBotHome(botName, homeName));
+    }
+
+    @GetMapping("/home/{home}/users")
+    public String showUsers(final Model model, @PathVariable("home") final String homeName) {
+        return showUsers(model, getBotHome(homeName));
+    }
+
+    @GetMapping("/home/{bot}/{home}/users")
+    public String showUsers(final Model model, @PathVariable("bot") final String botName,
+                            @PathVariable("home") final String homeName) {
+        return showUsers(model, getBotHome(botName, homeName));
+    }
+
+    @GetMapping("/home/{home}/giveaways")
+    public String showGiveaways(final Model model, @PathVariable("home") final String homeName) {
+        return showGiveaways(model, getBotHome(homeName));
+    }
+
+    @GetMapping("/home/{bot}/{home}/giveaways")
+    public String showGiveaways(final Model model, @PathVariable("bot") final String botName,
+                                @PathVariable("home") final String homeName) {
+        return showGiveaways(model, getBotHome(botName, homeName));
+    }
+
+
+    @GetMapping("/home/{home}/book/{book}")
+    public String showBook(final Model model, @PathVariable("home") final String homeName,
+                           @PathVariable("book") final String bookName) {
+        return showBook(model, getBotHome(homeName), bookName);
+    }
+
+    @GetMapping("/home/{bot}/{home}/book/{book}")
+    public String showBook(final Model model, @PathVariable("bot") final String botName,
+                           @PathVariable("home") final String homeName, @PathVariable("book") final String bookName) {
+        return showBook(model, getBotHome(botName, homeName), bookName);
+    }
+
+    private BotHome getBotHome(final String homeName) {
         BotHome botHome = botRegistrar.getBotHome(homeName);
+
         if (botHome == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
+            throw new ResourceNotFoundException("No bot home with name %s", homeName);
         }
+
+        return botHome;
+    }
+
+    private BotHome getBotHome(final String botName, final String homeName) {
+        BotHome botHome = botRegistrar.getBotHome(botName, homeName);
+
+        if (botHome == null) {
+            throw new ResourceNotFoundException("No bot home with bot name %s and home name ", botName, homeName);
+        }
+
+        return botHome;
+    }
+
+    private String showHome(final Model model, final BotHome botHome) {
+        model.addAttribute("page", "home");
 
         addBotHome(model, botHome);
         model.addAttribute("users", botHome.getHomedUserTable().getModerators());
         return "bot_home";
     }
 
-    @GetMapping("/home/{home}/settings")
-    public String showHomeSettings(final Model model, @PathVariable("home") final String homeName) {
+    public String showHomeSettings(final Model model, final BotHome botHome) {
         model.addAttribute("page", "settings");
-
-        BotHome botHome = botRegistrar.getBotHome(homeName);
-        if (botHome == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
-        }
-
         addBotHome(model, botHome);
         model.addAttribute("timeZones", timeZones);
         return "bot_home_settings";
     }
 
-
-    @GetMapping("/home/{home}/hub")
-    public String showHub(final Model model, @PathVariable("home") final String homeName) {
+    public String showHub(final Model model, final BotHome botHome) {
         model.addAttribute("page", "hub");
 
-        BotHome botHome = botRegistrar.getBotHome(homeName);
-        if (botHome == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
-        }
-
         if (!isPrivledged(model, botHome)) {
-            return String.format("redirect:/home/%s", homeName);
+            return String.format("redirect:/home/%s/%s", botHome.getBot().getName(), botHome.getName());
         }
 
         addBotHome(model, botHome);
@@ -133,15 +202,9 @@ public class BotController {
         return "bot_home_hub";
     }
 
-    @GetMapping("/home/{home}/users")
-    public String showUsers(final Model model, @PathVariable("home") final String homeName) {
-        BotHome botHome = botRegistrar.getBotHome(homeName);
-        if (botHome == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
-        }
-
+    public String showUsers(final Model model, final BotHome botHome) {
         if (!isPrivledged(model, botHome)) {
-            return String.format("redirect:/home/%s", homeName);
+            return String.format("redirect:/home/%s/%s", botHome.getBot().getName(), botHome.getName());
         }
 
         model.addAttribute("page", "users");
@@ -151,30 +214,17 @@ public class BotController {
         return "users";
     }
 
-    @GetMapping("/home/{home}/giveaways")
-    public String showGiveaways(final Model model, @PathVariable("home") final String homeName) {
-        BotHome botHome = botRegistrar.getBotHome(homeName);
-        if (botHome == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
-        }
-
+    public String showGiveaways(final Model model, final BotHome botHome) {
         if (!isPrivledged(model, botHome)) {
-            return String.format("redirect:/home/%s", homeName);
+            return String.format("redirect:/home/%s/%s", botHome.getBot().getName(), botHome.getName());
         }
 
         addBotHome(model, botHome);
         return "giveaways";
     }
 
-    @GetMapping("/home/{home}/book/{book}")
-    public String showBook(final Model model, @PathVariable("home") final String homeName,
-                           @PathVariable("book") final String bookName) {
+    public String showBook(final Model model, final BotHome botHome, @PathVariable("book") final String bookName) {
         model.addAttribute("page", "book");
-
-        BotHome botHome = botRegistrar.getBotHome(homeName);
-        if (botHome == null) {
-            throw new ResourceNotFoundException(String.format("No bot home with name %s", homeName));
-        }
         model.addAttribute("contextId", botHome.getContextId());
 
         Optional<Book> book = botHome.getBookTable().getBook(bookName);
@@ -185,6 +235,7 @@ public class BotController {
 
         return "book";
     }
+
 
     @ModelAttribute
     private void addAttributes(final Model model) {

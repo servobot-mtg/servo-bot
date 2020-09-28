@@ -42,6 +42,18 @@ public class BotRegistrar {
         return getBot(botName).getBotEditor();
     }
 
+    public BotHome getBotHome(final String botName, final String botHomeName) {
+        for (Bot bot : bots) {
+            if (bot.getName().equalsIgnoreCase(botName)) {
+                BotHome botHome = bot.getHome(botHomeName);
+                if (botHome != null) {
+                    return botHome;
+                }
+            }
+        }
+        return null;
+    }
+
     public BotHome getBotHome(final String botHomeName) {
         for (Bot bot : bots) {
             BotHome botHome = bot.getHome(botHomeName);

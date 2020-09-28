@@ -5,12 +5,12 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 public class GameQueue {
     public static final int EMPTY_QUEUE = 0;
@@ -21,15 +21,20 @@ public class GameQueue {
     @Getter @Setter
     private String name;
 
-    @Getter
+    private Game game;
+
+    @Getter @Setter
+    private String code;
+
+    @Getter @Setter
+    private String server;
+
+    @Getter @Setter
     private State state;
 
-    private int nextSpot;
+    private int players;
 
-    @Getter
-    private int currentPlayerId;
-
-    private Queue<Entry> queue = new LinkedList<>();
+    private List<Entry> queue = new ArrayList<>();
     private Map<Integer, Entry> userMap = new HashMap<>();
 
     public enum State {
@@ -38,16 +43,20 @@ public class GameQueue {
         CLOSED,
     }
 
-    public GameQueue(final int id, final String name, final State state, final int nextSpot,
-                     final int currentPlayerId) throws UserError {
+    public GameQueue(final int id, final String name, final State state, final String code, final String server)
+            throws UserError {
         this.id = id;
         this.name = name;
         this.state = state;
-        this.nextSpot = nextSpot;
-        this.currentPlayerId = currentPlayerId;
+        this.code = code;
+        this.server = server;
 
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
+        Validation.validateStringLength(code, Validation.MAX_NAME_LENGTH, "Code");
+        Validation.validateStringLength(server, Validation.MAX_NAME_LENGTH, "Server");
     }
+
+    /*
 
     public void setState(final State state) {
         if (this.state == State.IDLE && state == State.PLAYING) {
@@ -99,13 +108,17 @@ public class GameQueue {
         userMap.put(userId, entry);
         nextSpot = Math.max(spot + 1, nextSpot);
     }
+     */
 
     public GameQueueEdit mergeUser(final int newUserId, final List<Integer> oldUserIds) {
+        //TODO: fix
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        /*
         if (oldUserIds.contains(currentPlayerId)) {
             currentPlayerId = newUserId;
             gameQueueEdit.save(this);
         }
+         */
 
         Entry entry = null;
         for (int oldUserId : oldUserIds) {
@@ -136,18 +149,22 @@ public class GameQueue {
         return gameQueueEdit;
     }
 
+    /*
     public boolean contains(final int userId) {
         return currentPlayerId == userId || userMap.containsKey(userId);
     }
+     */
 
     @Getter @Setter
     private static final class Entry {
         private int userId;
         private int spot;
+        private Instant joinTime;
 
-        Entry(final int userId, final int spot) {
+        Entry(final int userId, final int spot, final Instant joinTime) {
             this.userId = userId;
             this.spot = spot;
+            this.joinTime = joinTime;
         }
     }
 }

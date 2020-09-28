@@ -393,6 +393,8 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = Exception.class)
     public User popGameQueue(final int gameQueueId) throws UserError {
+        //TODO: Fix
+        /*
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (gameQueue.getState() == GameQueue.State.IDLE) {
             throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
@@ -405,9 +407,13 @@ public class HomeEditor {
 
         serializers.getGameQueueSerializer().removeEntry(gameQueue, nextPlayer);
         return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
+         */
+        return null;
     }
 
     public User peekGameQueue(final int gameQueueId) throws UserError {
+        //TODO: Fix
+        /*
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (gameQueue.getState() == GameQueue.State.IDLE) {
             throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
@@ -419,10 +425,14 @@ public class HomeEditor {
         }
 
         return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
+         */
+        return null;
     }
 
     @Transactional(rollbackOn = Exception.class)
     public int joinGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player) throws UserError {
+        //TODO: fix
+        /*
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         int playerId = player.getId();
@@ -442,11 +452,14 @@ public class HomeEditor {
 
         serializers.getGameQueueSerializer().addEntry(gameQueue, gameQueueEntry);
         return gameQueueEntry.getPosition();
+         */
+        return 0;
     }
 
     @Transactional(rollbackOn = Exception.class)
     public void removeFromGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
             throws UserError {
+        /*
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         int playerId = player.getId();
@@ -465,6 +478,7 @@ public class HomeEditor {
 
         gameQueue.remove(playerId);
         serializers.getGameQueueSerializer().removeEntry(gameQueue, playerId);
+         */
     }
 
     @Transactional(rollbackOn = Exception.class)
@@ -495,6 +509,8 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = Exception.class)
     public String showGameQueue(final int gameQueueId) throws UserError {
+        //TODO: Fix
+        /*
         GameQueue gameQueue = getGameQueue(gameQueueId);
 
         if (gameQueue.getState() == GameQueue.State.IDLE) {
@@ -528,6 +544,8 @@ public class HomeEditor {
         }
 
         return response.toString();
+         */
+        return null;
     }
 
     public Giveaway getGiveaway(final int giveawayId) {

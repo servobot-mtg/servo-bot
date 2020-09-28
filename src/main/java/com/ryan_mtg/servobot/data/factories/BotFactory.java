@@ -131,6 +131,8 @@ public class BotFactory {
         LOGGER.info("------ Creating Game Queues: {} ", botHomeRow.getHomeName());
         List<GameQueue> gameQueues = new ArrayList<>();
         for (GameQueueRow gameQueueRow : serializers.getGameQueueRepository().findAllByBotHomeId(botHomeId)) {
+            //TODO: fix
+            /*
             GameQueue gameQueue = SystemError.filter(() -> new GameQueue(gameQueueRow.getId(), gameQueueRow.getName(),
                     gameQueueRow.getState(), gameQueueRow.getNext(), gameQueueRow.getCurrentPlayerId()));
 
@@ -141,6 +143,7 @@ public class BotFactory {
             }
 
             gameQueues.add(gameQueue);
+             */
         }
 
         LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
