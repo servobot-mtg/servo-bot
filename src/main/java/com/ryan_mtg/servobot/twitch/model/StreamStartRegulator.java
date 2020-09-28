@@ -7,6 +7,8 @@ import com.ryan_mtg.servobot.twitch.event.TwitchStreamStartEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ public class StreamStartRegulator implements Runnable {
     private EventListener eventListener;
     private Map<Long, BotHome> homeMap;
     private Map<Long, Boolean> isStreamingMap = new HashMap<>();
+    private Map<Long, Instant> previousStartMap = new HashMap<>();
 
     public StreamStartRegulator(final TwitchService twitchService, final Map<Long, BotHome> homeMap) {
         this.twitchService = twitchService;
@@ -82,9 +85,14 @@ public class StreamStartRegulator implements Runnable {
 
                 if (!wasStreaming && isStreaming) {
                     String channelName = homeMap.get(id).getServiceHome(TwitchService.TYPE).getName();
-                    LOGGER.info("Stream is starting for {}", channelName);
-                    eventListener.onStreamStart(
-                            new TwitchStreamStartEvent(client, homeMap.get(id), channelName));
+                    Instant previousStart = previousStartMap.get(id);
+                    Instant now = Instant.now();
+                    if (previousStart == null || Duration.between(previousStart, now).toMinutes() > 5) {
+                        LOGGER.info("Stream is starting for {}", channelName);
+                        eventListener.onStreamStart(
+                                new TwitchStreamStartEvent(client, homeMap.get(id), channelName));
+                        previousStartMap.put(id, now);
+                    }
                 }
             }
         } catch (Exception e) {
