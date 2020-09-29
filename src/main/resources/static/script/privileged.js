@@ -55,7 +55,7 @@ const addCommandFormData = {
              {name: 'book', type: 'select', value: 0, hide: true},
              {name: 'emote', type: 'select', value: 0, hide: true},
              {name: 'role', type: 'select', value: 0, hide: true},
-             {name: 'game-queue', type: 'select', value: 0, hide: true},
+             {name: 'game-type', type: 'select', value: 0, hide: true},
              {name: 'service', type: 'select', value: 0, hide: true},
     ],
 };
@@ -637,7 +637,7 @@ function getParameterName(parameterId) {
             return 'stringParameter2';
         case 'service':
         case 'book':
-        case 'game-queue':
+        case 'game-type':
         case 'integer':
             return 'longParameter';
     }
@@ -690,10 +690,10 @@ const commandData = [
         {id: 'service', name: 'Service'}]}, //4
     {name: 'Add Command', parameters: []}, //5
     {name: 'Delete Command', parameters: []}, //6
-    {name: 'Game Queue Command', parameters: [{id: 'game-queue', name: 'Game Queue'}]}, //7
-    {name: 'Join Game Queue Command', parameters: [{id: 'game-queue', name: 'Game Queue'}]}, //8
-    {name: 'Show Game Queue Command', parameters: [{id: 'game-queue', name: 'Game Queue'}]}, //9
-    {name: 'Remove From Game Queue Command', parameters: [{id: 'game-queue', name: 'Game Queue'}]}, //10
+    {name: 'Game Queue Command', parameters: [{id: 'game-type', name: 'Game Type'}]}, //7
+    {name: 'Join Game Queue Command', parameters: [{id: 'game-type', name: 'Game Queue'}]}, //8 //TODO: fix
+    {name: 'Show Game Queue Command', parameters: [{id: 'game-type', name: 'Game Queue'}]}, //9 //TODO: fix
+    {name: 'Remove From Game Queue Command', parameters: [{id: 'game-type', name: 'Game Queue'}]}, //10 //TODO: fix
     {name: 'Set Arena Username Command', parameters: []}, //11
     {name: 'Show Arena Usernames Command', parameters: []}, //12
     {name: 'Set Role Command', parameters: [{id: 'role', name: 'Role Name'}]}, //13
@@ -796,7 +796,7 @@ function setElementText(elementId, text) {
 }
 
 const addCommandElements = ['add-command-text-div', 'add-command-text-2-div', 'add-command-service-div',
-    'add-command-book-div', 'add-command-role-div', 'add-command-emote-div', 'add-command-game-queue-div',
+    'add-command-book-div', 'add-command-role-div', 'add-command-emote-div', 'add-command-game-type-div',
     'add-command-integer-div'];
 
 function showAddCommandElements(elementIds) {

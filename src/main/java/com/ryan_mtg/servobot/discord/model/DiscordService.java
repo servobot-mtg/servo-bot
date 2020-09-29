@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import net.dv8tion.jda.api.JDA;
@@ -15,7 +16,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -57,6 +57,12 @@ public class DiscordService implements Service {
     @Override
     public String getBotName() {
         return jda.getSelfUser().getName();
+    }
+
+    @Override
+    public User getBotUser() {
+        net.dv8tion.jda.api.entities.User discordUser = jda.getSelfUser();
+        return new DiscordUser(userTable.getByDiscordId(discordUser.getIdLong(), discordUser.getName()), discordUser);
     }
 
     @Override
@@ -109,7 +115,7 @@ public class DiscordService implements Service {
     @Override
     public void whisper(final com.ryan_mtg.servobot.user.User user, final String message) {
         logSendMessage(user, message);
-        User discordUser = jda.getUserById(user.getDiscordId());
+        net.dv8tion.jda.api.entities.User discordUser = jda.getUserById(user.getDiscordId());
         discordUser.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
     }
 

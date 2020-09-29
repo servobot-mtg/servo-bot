@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,16 +209,34 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public User getUser(final long discordId, final String userName) {
+        Member member = guild.getMemberById(discordId);
+        HomedUser homedUser = getHomeEditor().getUserByDiscordId(discordId, userName);
+        return new DiscordHomedUser(homedUser, member);
+    }
+
+    @Override
     public User getUser(final String userName) throws UserError {
         Member member = getMember(userName);
-        HomedUser homedUser = getHomeEditor().getUserByDiscordId(member.getIdLong(), member.getEffectiveName());
-        return new DiscordUser(homedUser, member);
+        return getUser(member.getIdLong(), member.getEffectiveName());
     }
 
     @Override
     public User getUser(final HomedUser homedUser) {
         Member member = guild.getMemberById(homedUser.getDiscordId());
-        return new DiscordUser(homedUser, member);
+        return new DiscordHomedUser(homedUser, member);
+    }
+
+    @Override
+    public Message getSavedMessage(final long channelId, final long messageId) {
+        return new DiscordSavedMessage(this, channelId, messageId);
+    }
+
+    public DiscordMessage getMessage(final long channelId, final long messageId) {
+        net.dv8tion.jda.api.entities.Message message =
+                guild.getTextChannelById(channelId).retrieveMessageById(messageId).complete();
+        Member sender = message.getMember();
+        return new DiscordMessage(getUser(sender.getIdLong(), sender.getEffectiveName()), message);
     }
 
     @Override
@@ -263,11 +283,11 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     private long getDiscordId(final User user) {
-        return ((DiscordUser) user).getDiscordId();
+        return ((DiscordHomedUser) user).getDiscordId();
     }
 
     private Member getMember(final User user) {
-        return ((DiscordUser)user).getMember();
+        return ((DiscordHomedUser)user).getMember();
     }
 
     private Member getMember(final String username) throws UserError {

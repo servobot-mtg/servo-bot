@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model.game_queue;
 
 import com.ryan_mtg.servobot.error.UserError;
+import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,19 +9,16 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class GameQueue {
-    public static final int EMPTY_QUEUE = 0;
-
-    @Getter
-    private int id;
+    public static final int UNREGISTERED_ID = 0;
 
     @Getter @Setter
-    private String name;
+    private int id;
 
+    @Getter
     private Game game;
 
     @Getter @Setter
@@ -32,7 +30,8 @@ public class GameQueue {
     @Getter @Setter
     private State state;
 
-    private int players;
+    @Getter @Setter
+    private Message message;
 
     private List<Entry> queue = new ArrayList<>();
     private Map<Integer, Entry> userMap = new HashMap<>();
@@ -43,15 +42,15 @@ public class GameQueue {
         CLOSED,
     }
 
-    public GameQueue(final int id, final String name, final State state, final String code, final String server)
-            throws UserError {
+    public GameQueue(final int id, final Game game, final State state, final String code, final String server,
+            final Message message) throws UserError {
         this.id = id;
-        this.name = name;
+        this.game = game;
         this.state = state;
         this.code = code;
         this.server = server;
+        this.message = message;
 
-        Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
         Validation.validateStringLength(code, Validation.MAX_NAME_LENGTH, "Code");
         Validation.validateStringLength(server, Validation.MAX_NAME_LENGTH, "Server");
     }

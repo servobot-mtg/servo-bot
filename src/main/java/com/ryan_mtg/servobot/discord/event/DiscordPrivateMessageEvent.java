@@ -29,7 +29,7 @@ public class DiscordPrivateMessageEvent extends DiscordEvent implements MessageE
 
     @Override
     public Message getMessage() {
-        return new DiscordMessage(this, event.getMessage());
+        return new DiscordMessage(sender, event.getMessage());
     }
 
     @Override

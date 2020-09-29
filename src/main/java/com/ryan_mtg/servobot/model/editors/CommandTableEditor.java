@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.model.editors;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
+import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
@@ -9,11 +10,15 @@ import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.CommandSerializer;
 import com.ryan_mtg.servobot.data.factories.CommandTableSerializer;
+import com.ryan_mtg.servobot.data.factories.GameQueueSerializer;
 import com.ryan_mtg.servobot.data.models.CommandRow;
 import com.ryan_mtg.servobot.error.LibraryError;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.game_queue.Game;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 
@@ -26,22 +31,30 @@ public class CommandTableEditor {
     private final CommandTable commandTable;
     private final CommandSerializer commandSerializer;
     private final CommandTableSerializer commandTableSerializer;
+    private final GameQueueEditor gameQueueEditor;
 
     public CommandTableEditor(final BookTable bookTable, final CommandTable commandTable,
-            final CommandSerializer commandSerializer, final CommandTableSerializer commandTableSerializer) {
+            final CommandSerializer commandSerializer, final CommandTableSerializer commandTableSerializer,
+            final GameQueueEditor gameQueueEditor) {
         this.bookTable = bookTable;
         this.commandTable = commandTable;
         this.commandSerializer = commandSerializer;
         this.commandTableSerializer = commandTableSerializer;
+        this.gameQueueEditor = gameQueueEditor;
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public CommandDescriptor addCommand(final CommandRow commandRow) {
-        Command command = commandSerializer.createCommand(commandRow, bookTable.getBookMap());
+    public CommandDescriptor addCommand(final CommandRow commandRow) throws UserError {
+        if (commandRow.getType() == CommandType.GAME_QUEUE_COMMAND_TYPE.getType())  {
+            Game game = Game.get((int)(long) commandRow.getLongParameter());
 
+            gameQueueEditor.createGameQueue(game,
+                    savedGameQueue -> commandRow.setLongParameter(savedGameQueue.getId()));
+        }
+
+        Command command = commandSerializer.createCommand(commandRow, bookTable.getBookMap());
         CommandTableEdit commandTableEdit = commandTable.addCommand(command);
         commandTableSerializer.commit(commandTableEdit);
-
         return new CommandDescriptor(command);
     }
 
@@ -95,11 +108,11 @@ public class CommandTableEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public boolean setCommandService(final int commandId, final int serivceType, final boolean value) {
+    public boolean setCommandService(final int commandId, final int serviceType, final boolean value) {
         Command command = commandTable.getCommand(commandId);
-        command.setService(serivceType, value);
+        command.setService(serviceType, value);
         saveCommand(command);
-        return command.getService(serivceType);
+        return command.getService(serviceType);
     }
 
     @Transactional(rollbackOn = Exception.class)

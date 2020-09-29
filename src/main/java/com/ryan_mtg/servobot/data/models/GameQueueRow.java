@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.AccessLevel;
@@ -20,18 +21,24 @@ import javax.validation.constraints.Size;
 public class GameQueueRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
     private int id;
 
     @Column(name = "bot_home_id")
     private int botHomeId;
 
+    private Game game;
+
     @Size(max = Validation.MAX_NAME_LENGTH)
-    private String name;
+    private String code;
+
+    @Size(max = Validation.MAX_NAME_LENGTH)
+    private String server;
+
+    @Column(name = "message_id")
+    private long messageId;
+
+    @Column(name = "channel_id")
+    private long channelId;
 
     private GameQueue.State state;
-    private int next;
-
-    @Column(name = "current_player_id")
-    private int currentPlayerId;
 }

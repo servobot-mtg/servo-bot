@@ -126,8 +126,7 @@ public class SystemEditor {
 
         List<Integer> gameQueueIds = StreamSupport.stream(gameQueueEntryRows.spliterator(), false)
                 .map(GameQueueEntryRow::getGameQueueId).collect(Collectors.toList());
-        Iterable<GameQueueRow> gameQueueRows = serializers.getGameQueueRepository()
-                .findAllByIdInOrCurrentPlayerIdIn(gameQueueIds, merge.getUsersToDelete());
+        Iterable<GameQueueRow> gameQueueRows = serializers.getGameQueueRepository().findAllByIdIn(gameQueueIds);
 
         Map<Integer, List<Integer>> botHomeIdToGameQueueIdsMap =
                 constructMap(gameQueueRows, GameQueueRow::getBotHomeId, GameQueueRow::getId);
@@ -138,7 +137,7 @@ public class SystemEditor {
             int botHomeId = entry.getKey();
             BotHome botHome = botRegistrar.getBotHome(botHomeId);
             for (int gameQueueId : entry.getValue()) {
-                GameQueue gameQueue = botHome.getGameQueue(gameQueueId);
+                GameQueue gameQueue = botHome.getGameQueueTable().getGameQueue(gameQueueId);
                 gameQueueEdit.merge(gameQueue.mergeUser(mergedUserId, merge.getUsersToDelete()));
             }
         }

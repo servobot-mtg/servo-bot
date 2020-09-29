@@ -220,7 +220,7 @@
                         <option value="17" th:if="${!container.storageTable.empty}">Show Value Command</option>
                         <option value="18" th:if="${!container.storageTable.empty}">Set Value Command</option>
                         <option value="16">Delayed Alert Command</option>
-                        <option value="7" th:if="${contextId > 0 && !container.gameQueues.empty}">Game Queue Command</option>
+                        <option value="7" th:if="${contextId > 0}">Game Queue Command</option>
                         <option value="9" th:if="${contextId > 0 && !container.gameQueues.empty}">Show Game Queue Command</option>
                         <option value="8" th:if="${contextId > 0 && !container.gameQueues.empty}">Join Game Queue Command</option>
                         <option value="10" th:if="${contextId > 0 && !container.gameQueues.empty}">Remove From Game Queue Command</option>
@@ -292,11 +292,11 @@
                         </th:block>
                     </select>
                 </div>
-                <div id="add-command-game-queue-div" class="hidden">
-                    <label id="add-command-game-queue-label">Game Queue</label><br>
-                    <select id="add-command-game-queue-input">
-                        <th:block th:each="queue : ${container.gameQueues}">
-                            <option th:value="${queue.id}" th:text="${queue.name}"/>
+                <div id="add-command-game-type-div" class="hidden">
+                    <label id="add-command-game-type-label">Game Type</label><br>
+                    <select id="add-command-game-type-input">
+                        <th:block th:each="game : ${gameTypes}">
+                            <option th:value="${game.type}" th:text="${game.name}"/>
                         </th:block>
                     </select><br>
                 </div>

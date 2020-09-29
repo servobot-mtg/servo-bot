@@ -302,7 +302,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) {
+    public CommandDescriptor addCommand(@RequestBody final AddCommandRequest request) throws UserError {
         CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
         CommandRow commandRow = new CommandRow();
         commandRow.setType(request.getType());

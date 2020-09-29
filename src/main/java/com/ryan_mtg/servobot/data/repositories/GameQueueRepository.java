@@ -10,5 +10,5 @@ import java.util.List;
 public interface GameQueueRepository extends CrudRepository<GameQueueRow, Integer> {
     GameQueueRow findById(int id);
     Iterable<GameQueueRow> findAllByBotHomeId(int botHomeId);
-    Iterable<GameQueueRow> findAllByIdInOrCurrentPlayerIdIn(List<Integer> gameQueueIds, List<Integer> currentPlayerIds);
+    Iterable<GameQueueRow> findAllByIdIn(List<Integer> gameQueueIds);
 }

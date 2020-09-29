@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.schedule.Schedule;
@@ -92,7 +93,7 @@ public class BotHome implements Context {
     private Map<Integer, ServiceHome> serviceHomes;
 
     @Getter
-    private List<GameQueue> gameQueues;
+    private GameQueueTable gameQueueTable;
 
     @Getter
     private List<Giveaway> giveaways;
@@ -109,7 +110,7 @@ public class BotHome implements Context {
     public BotHome(final int id, final int flags, final String name, final String botName, final String timeZone,
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
                    final ReactionTable reactionTable, final StorageTable storageTable,
-                   final Map<Integer, ServiceHome> serviceHomes, final List<GameQueue> gameQueues,
+                   final Map<Integer, ServiceHome> serviceHomes, final GameQueueTable gameQueueTable,
                    final List<Giveaway> giveaways, final List<EmoteLink> emoteLinks) throws UserError {
         this.id = id;
         this.flags = flags;
@@ -123,7 +124,7 @@ public class BotHome implements Context {
         this.storageTable = storageTable;
         this.schedule = new Schedule(timeZone);
         this.serviceHomes = serviceHomes;
-        this.gameQueues = gameQueues;
+        this.gameQueueTable = gameQueueTable;
         this.giveaways = giveaways;
         this.emoteLinks = emoteLinks;
 
@@ -190,10 +191,6 @@ public class BotHome implements Context {
 
     public void addGiveaway(final Giveaway giveaway) {
         giveaways.add(giveaway);
-    }
-
-    public GameQueue getGameQueue(final int gameQueueId) {
-        return gameQueues.stream().filter(gameQueue -> gameQueue.getId() == gameQueueId).findFirst().orElse(null);
     }
 
     public void start(final HomeEditor homeEditor, final AlertQueue alertQueue, final boolean keepStarted) {

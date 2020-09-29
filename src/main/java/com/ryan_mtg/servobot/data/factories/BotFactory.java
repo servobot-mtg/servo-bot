@@ -2,11 +2,9 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.BotRow;
-import com.ryan_mtg.servobot.data.models.GameQueueEntryRow;
-import com.ryan_mtg.servobot.data.models.GameQueueRow;
 import com.ryan_mtg.servobot.data.models.ServiceHomeRow;
-import com.ryan_mtg.servobot.data.repositories.GameQueueEntryRepository;
 import com.ryan_mtg.servobot.data.repositories.ServiceHomeRepository;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.game.GameManager;
 import com.ryan_mtg.servobot.game.sus.SusGameManager;
@@ -16,8 +14,8 @@ import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
-import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.Service;
@@ -129,22 +127,8 @@ public class BotFactory {
         }
 
         LOGGER.info("------ Creating Game Queues: {} ", botHomeRow.getHomeName());
-        List<GameQueue> gameQueues = new ArrayList<>();
-        for (GameQueueRow gameQueueRow : serializers.getGameQueueRepository().findAllByBotHomeId(botHomeId)) {
-            //TODO: fix
-            /*
-            GameQueue gameQueue = SystemError.filter(() -> new GameQueue(gameQueueRow.getId(), gameQueueRow.getName(),
-                    gameQueueRow.getState(), gameQueueRow.getNext(), gameQueueRow.getCurrentPlayerId()));
-
-            GameQueueEntryRepository gameQueueEntryRepository = serializers.getGameQueueEntryRepository();
-            for (GameQueueEntryRow gameQueueEntryRow :
-                    gameQueueEntryRepository.findByGameQueueIdOrderBySpotAsc(gameQueue.getId())) {
-                gameQueue.enqueue(gameQueueEntryRow.getUserId(), gameQueueEntryRow.getSpot());
-            }
-
-            gameQueues.add(gameQueue);
-             */
-        }
+        GameQueueTable gameQueueTable = serializers.getGameQueueSerializer()
+                .createGameQueueTable(botHomeId, serviceHomes.get(DiscordService.TYPE));
 
         LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
         HomedUserTable homedUserTable =
@@ -157,7 +141,7 @@ public class BotFactory {
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
         return SystemError.filter(() -> {
             BotHome botHome = new BotHome(botHomeId, flags, homeName, botName, timeZone, homedUserTable, bookTable,
-                    commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways, emoteLinks);
+                    commandTable, reactionTable, storageTable, serviceHomes, gameQueueTable, giveaways, emoteLinks);
 
             LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
             return botHome;

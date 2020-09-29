@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
@@ -174,6 +175,12 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public User getUser(final long id, final String userName) {
+        HomedUser homedUser = homeEditor.getUserByTwitchId((int) id, userName);
+        return new TwitchUser(homedUser);
+    }
+
+    @Override
     public User getUser(final String userName) throws UserError {
         com.github.twitch4j.helix.domain.User user = twitchService.fetchUser(userName);
         if (user == null) {
@@ -186,6 +193,11 @@ public class TwitchServiceHome implements ServiceHome {
     @Override
     public User getUser(final HomedUser homedUser) {
         return new TwitchUser(homedUser);
+    }
+
+    @Override
+    public Message getSavedMessage(final long channelId, final long messageId) {
+        return null;
     }
 
     @Override

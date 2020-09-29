@@ -13,6 +13,16 @@ public class TwitchMessage implements Message {
     }
 
     @Override
+    public long getId() {
+        return 0;
+    }
+
+    @Override
+    public long getChannelId() {
+        return 0;
+    }
+
+    @Override
     public String getContent() {
         return messageSentEvent.getContent();
     }

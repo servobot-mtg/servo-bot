@@ -2,7 +2,7 @@ package com.ryan_mtg.servobot.discord.event;
 
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
-import com.ryan_mtg.servobot.discord.model.DiscordUser;
+import com.ryan_mtg.servobot.discord.model.DiscordHomedUser;
 import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -67,7 +67,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (botHome == null) {
             return;
         }
-        DiscordUser sender = getUser(event.getMember(), botHome);
+        DiscordHomedUser sender = getUser(event.getMember(), botHome);
         listener.onMessage(new DiscordMessageSentEvent(event, botHome, sender));
     }
 
@@ -97,7 +97,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (botHome == null) {
             return;
         }
-        DiscordUser member = getUser(event.getMember(), botHome);
+        DiscordHomedUser member = getUser(event.getMember(), botHome);
         listener.onNewUser(new DiscordNewUserEvent(event, botHome, member));
     }
 
@@ -121,7 +121,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
         botHome.getServiceHome(DiscordService.TYPE).updateEmotes();
     }
 
-    private DiscordUser getUser(final Member member, final BotHome botHome) {
+    private DiscordHomedUser getUser(final Member member, final BotHome botHome) {
         boolean isModerator = false;
         for(Role role : member.getRoles()) {
             if (role.getPermissions().contains(Permission.KICK_MEMBERS)) {
@@ -132,6 +132,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
         DiscordUserStatus status = new DiscordUserStatus(isModerator, false, member.isOwner());
         HomedUser user = botHome.getHomedUserTable().getByDiscordId(member.getIdLong(), member.getEffectiveName(),
                 status);
-        return new DiscordUser(user, member);
+        return new DiscordHomedUser(user, member);
     }
 }

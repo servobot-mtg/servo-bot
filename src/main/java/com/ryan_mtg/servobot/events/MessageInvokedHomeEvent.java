@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 
@@ -59,5 +60,10 @@ public class MessageInvokedHomeEvent extends MessageInvokedEvent implements Comm
         messageSymbolTable.addValue("home", getServiceHome().getName());
 
         return new Scope(homeEditor.getScope(), messageSymbolTable);
+    }
+
+    @Override
+    public GameQueueEditor getGameQueueEditor() {
+        return messageHomeEvent.getHomeEditor().getGameQueueEditor();
     }
 }

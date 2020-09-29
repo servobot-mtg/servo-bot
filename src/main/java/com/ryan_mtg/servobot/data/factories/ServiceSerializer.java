@@ -68,7 +68,7 @@ public class ServiceSerializer {
                     break;
                 case TwitchService.TYPE:
                     service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),
-                            serviceRow.getToken(), executorService, loggedMessageSerializer);
+                            serviceRow.getToken(), userTable, executorService, loggedMessageSerializer);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown Service type: " + serviceRow.getType());

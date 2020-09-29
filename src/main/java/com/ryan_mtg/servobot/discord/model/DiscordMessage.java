@@ -1,17 +1,26 @@
 package com.ryan_mtg.servobot.discord.model;
 
-import com.ryan_mtg.servobot.events.MessageEvent;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 
 public class DiscordMessage implements Message {
-    private MessageEvent event;
+    private User sender;
     private net.dv8tion.jda.api.entities.Message message;
 
-    public DiscordMessage(final MessageEvent event, final net.dv8tion.jda.api.entities.Message message) {
-        this.event = event;
+    public DiscordMessage(final User sender, final net.dv8tion.jda.api.entities.Message message) {
+        this.sender = sender;
         this.message = message;
+    }
+
+    @Override
+    public long getId() {
+        return message.getIdLong();
+    }
+
+    @Override
+    public long getChannelId() {
+        return message.getChannel().getIdLong();
     }
 
     @Override
@@ -21,7 +30,7 @@ public class DiscordMessage implements Message {
 
     @Override
     public User getSender() {
-        return event.getSender();
+        return sender;
     }
 
     @Override

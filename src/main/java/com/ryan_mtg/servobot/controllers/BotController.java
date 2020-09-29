@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
+import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -252,6 +254,7 @@ public class BotController {
         model.addAttribute("commandDescriptors",
                 CommandDescriptor.getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
         model.addAttribute("userTable", serializers.getUserTable());
+        model.addAttribute("gameTypes", Arrays.asList(Game.ARENA, Game.AMONG_US));
 
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {

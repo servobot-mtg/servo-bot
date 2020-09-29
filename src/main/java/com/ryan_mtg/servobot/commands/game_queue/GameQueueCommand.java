@@ -4,17 +4,28 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.HomeEditor;
+import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.utility.CommandParser;
+import com.ryan_mtg.servobot.utility.Strings;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.regex.Pattern;
+
 public class GameQueueCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.GAME_QUEUE_COMMAND_TYPE;
+
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("\\w+");
+    private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
 
     private static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
 
@@ -38,11 +49,27 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
-        HomeEditor homeEditor = event.getHomeEditor();
         String arguments = event.getArguments();
-        //TODO: Change to use command parser
+        if (Strings.isBlank(arguments)) {
+            showQueue(event);
+            return;
+        }
 
-        switch (arguments.toLowerCase()) {
+        CommandParser.ParseResult parseResult = COMMAND_PARSER.parse(arguments);
+        String command = parseResult.getCommand();
+        switch (parseResult.getStatus()) {
+            case NO_COMMAND:
+                showQueue(event);
+                return;
+            case COMMAND_MISMATCH:
+                throw new UserError("%s doesn't look like a command.", command);
+        }
+
+        HomeEditor homeEditor = event.getHomeEditor();
+        switch (command) {
+            case "show":
+                showQueue(event);
+                return;
             case "name":
                 homeEditor.setGameQueueName(gameQueueId, "Queue Name");
                 return;
@@ -79,6 +106,17 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 return;
             default:
                 throw new UserError("Invalid Game Queue Command: " + arguments);
+        }
+    }
+
+    private void showQueue(final CommandInvokedHomeEvent event) throws UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
+
+        String text = "The game queue is empty, but has an id of: " + gameQueue.getId();
+        Message message = event.getChannel().sayAndWait(text);
+        if (event.getServiceType() == DiscordService.TYPE) {
+            gameQueueEditor.setMessage(gameQueue, message);
         }
     }
 }

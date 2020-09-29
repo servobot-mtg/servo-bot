@@ -42,9 +42,11 @@ public interface ServiceHome {
     boolean isHigherRanked(User user, User otherUser) throws UserError;
 
     boolean hasUser(String userName);
+    User getUser(long id, String userName);
     User getUser(String userName) throws UserError;
     User getUser(HomedUser homedUser);
 
+    Message getSavedMessage(long channelId, long messageId);
     Map<String, Emote> getEmoteMap();
     Emote getEmote(String emoteName);
     List<Emote> getEmotes();

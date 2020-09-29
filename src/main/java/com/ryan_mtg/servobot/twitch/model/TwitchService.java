@@ -14,6 +14,7 @@ import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
 import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.UserTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +43,18 @@ public class TwitchService implements Service {
     private Map<Long, String> channelNameMap = new HashMap<>();
     private Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
+    private UserTable userTable;
     private ScheduledExecutorService executorService;
     private LoggedMessageSerializer loggedMessageSerializer;
 
-    public TwitchService(final String clientId, final String secret, final String oauthToken,
+    public TwitchService(final String clientId, final String secret, final String oauthToken, final UserTable userTable,
             final ScheduledExecutorService executorService, final LoggedMessageSerializer loggedMessageSerializer)
-            throws UserError {
+                throws UserError {
         this.clientId = clientId;
         this.secret = secret;
         this.oauthToken = oauthToken;
         this.authToken = oauthToken.substring(oauthToken.indexOf(':') + 1);
+        this.userTable = userTable;
         this.executorService = executorService;
         this.regulator = new StreamStartRegulator(this, homeMap);
         this.loggedMessageSerializer = loggedMessageSerializer;
@@ -74,6 +77,11 @@ public class TwitchService implements Service {
     @Override
     public String getBotName() {
         return getUserInfo(authToken).getUsername();
+    }
+
+    @Override
+    public com.ryan_mtg.servobot.model.User getBotUser() {
+        return null;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
+import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Strings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -37,6 +38,13 @@ public class DiscordChannel implements Channel {
         if (!message.isEmpty()) {
             channel.sendMessage(replaceNames(message)).queue();
         }
+    }
+
+    @Override
+    public Message sayAndWait(final String text) {
+        net.dv8tion.jda.api.entities.Message message = channel.sendMessage(replaceNames(text)).complete();
+        Member author = message.getMember();
+        return new DiscordMessage(serviceHome.getUser(author.getIdLong(), author.getEffectiveName()), message);
     }
 
     @Override

@@ -25,7 +25,7 @@ import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
-import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
@@ -68,7 +68,7 @@ public class BotEditor {
         this.bot = bot;
         this.serializers = bot.getSerializers();
         this.commandTableEditor = new CommandTableEditor(bot.getBookTable(), bot.getCommandTable(),
-                serializers.getCommandSerializer(), serializers.getCommandTableSerializer());
+                serializers.getCommandSerializer(), serializers.getCommandTableSerializer(), null);
 
         this.bookTableEditor =
                 new BookTableEditor(-bot.getId(), bot.getBookTable(), serializers.getBookSerializer());
@@ -177,12 +177,12 @@ public class BotEditor {
             homedUser.getUserStatus().update(new TwitchUserStatus(true, false, false, true));
             homedUserTable.save(homedUser);
 
-            List<GameQueue> gameQueues = new ArrayList<>();
+            GameQueueTable gameQueueTable = new GameQueueTable();
             List<Giveaway> giveaways = new ArrayList<>();
             BookTable bookTable = new BookTable();
             List<EmoteLink> emoteLinks = new ArrayList<>();
             BotHome botHome = new BotHome(botHomeId, BotHome.DEFAULT_FLAGS, homeName, botName, timeZone, homedUserTable,
-                    bookTable, commandTable, reactionTable, storageTable, serviceHomes, gameQueues, giveaways,
+                    bookTable, commandTable, reactionTable, storageTable, serviceHomes, gameQueueTable, giveaways,
                     emoteLinks);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue(), false);

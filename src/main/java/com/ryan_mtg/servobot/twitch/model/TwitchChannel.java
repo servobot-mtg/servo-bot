@@ -2,8 +2,10 @@ package com.ryan_mtg.servobot.twitch.model;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
+import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.Map;
@@ -30,6 +32,12 @@ public class TwitchChannel implements Channel {
         if (!message.isEmpty()) {
             twitchChat.sendMessage(channelName, replaceEmotes(message));
         }
+    }
+
+    @Override
+    public Message sayAndWait(final String text) {
+        twitchChat.sendMessage(channelName, replaceEmotes(text));
+        return null;
     }
 
     @Override

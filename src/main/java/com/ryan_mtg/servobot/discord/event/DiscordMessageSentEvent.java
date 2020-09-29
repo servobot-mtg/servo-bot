@@ -26,7 +26,7 @@ public class DiscordMessageSentEvent extends DiscordBotHomeEvent implements Mess
 
     @Override
     public Message getMessage() {
-        return new DiscordMessage(this, event.getMessage());
+        return new DiscordMessage(sender, event.getMessage());
     }
 
     @Override

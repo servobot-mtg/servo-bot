@@ -138,6 +138,11 @@ public class MultiserviceHome implements ServiceHome {
     }
 
     @Override
+    public User getUser(final long id, final String userName) {
+        return preferService(DiscordService.TYPE).getUser(id, userName);
+    }
+
+    @Override
     public User getUser(final String userName) throws UserError {
         return preferService(DiscordService.TYPE).getUser(userName);
     }
@@ -165,6 +170,11 @@ public class MultiserviceHome implements ServiceHome {
     @Override
     public void updateEmotes() {
         serviceHomes.values().forEach(serviceHome -> serviceHome.updateEmotes());
+    }
+
+    @Override
+    public Message getSavedMessage(final long channelId, final long messageId) {
+        return preferService(DiscordService.TYPE).getSavedMessage(channelId, messageId);
     }
 
     private ServiceHome preferService(final int serviceType) {

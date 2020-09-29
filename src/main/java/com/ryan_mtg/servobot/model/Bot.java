@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -116,8 +117,8 @@ public class Bot implements Context {
     }
 
     @Override
-    public Collection<GameQueue> getGameQueues() {
-        return Collections.emptyList();
+    public GameQueueTable getGameQueueTable() {
+        return new GameQueueTable();
     }
 
     public void addHome(final BotHome home) {

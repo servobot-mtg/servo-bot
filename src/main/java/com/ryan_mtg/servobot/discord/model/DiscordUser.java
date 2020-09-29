@@ -3,56 +3,56 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Getter;
-import net.dv8tion.jda.api.entities.Member;
 
 public class DiscordUser implements User {
     @Getter
-    private HomedUser homedUser;
+    private com.ryan_mtg.servobot.user.User user;
 
     @Getter
-    private Member member;
+    private net.dv8tion.jda.api.entities.User discordUser;
 
-    public DiscordUser(final HomedUser homedUser, final Member member) {
-        this.homedUser = homedUser;
-        this.member = member;
+    public DiscordUser(final com.ryan_mtg.servobot.user.User user,
+                            final net.dv8tion.jda.api.entities.User discordUser) {
+        this.user = user;
+        this.discordUser = discordUser;
     }
 
     @Override
     public String getName() {
-        return member.getEffectiveName();
+        return discordUser.getName();
     }
 
     @Override
     public int getId() {
-        return homedUser.getId();
+        return user.getId();
     }
 
     @Override
-    public com.ryan_mtg.servobot.user.User getUser() {
-        return homedUser.getUser();
+    public HomedUser getHomedUser() {
+        return null;
     }
 
     @Override
     public boolean isBot() {
-        return member.getUser().isBot();
+        return discordUser.isBot();
     }
 
     @Override
     public boolean isAdmin() {
-        return homedUser.isAdmin();
+        return user.isAdmin();
     }
 
     @Override
     public boolean isModerator() {
-        return homedUser.isModerator();
+        return false;
     }
 
     @Override
     public boolean isSubscriber() {
-        return homedUser.isSubscriber();
+        return false;
     }
 
     public long getDiscordId() {
-        return member.getIdLong();
+        return discordUser.getIdLong();
     }
 }
