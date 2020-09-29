@@ -126,13 +126,14 @@ public class BotFactory {
             serviceHomes.put(serviceType, serviceHome);
         }
 
-        LOGGER.info("------ Creating Game Queues: {} ", botHomeRow.getHomeName());
-        GameQueueTable gameQueueTable = serializers.getGameQueueSerializer()
-                .createGameQueueTable(botHomeId, serviceHomes.get(DiscordService.TYPE));
-
-        LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
+        LOGGER.info("------ Creating Homed User Table: {} ", botHomeRow.getHomeName());
         HomedUserTable homedUserTable =
                 new HomedUserTable(serializers.getUserSerializer(), serializers.getUserTable(), botHomeId);
+        LOGGER.info("------ Creating Game Queues: {} ", botHomeRow.getHomeName());
+        GameQueueTable gameQueueTable = serializers.getGameQueueSerializer()
+                .createGameQueueTable(botHomeId, homedUserTable, serviceHomes.get(DiscordService.TYPE));
+
+        LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
         List<Giveaway> giveaways =
                 serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
         LOGGER.info("------ Creating emoteLinks: {} ", botHomeRow.getHomeName());

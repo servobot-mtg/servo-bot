@@ -7,11 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface GameQueueEntryRepository
         extends CrudRepository<GameQueueEntryRow, GameQueueEntryRow.GameQueueEntryRowId> {
-    Iterable<GameQueueEntryRow> findByGameQueueIdOrderBySpotAsc(int gameQueueId);
     Iterable<GameQueueEntryRow> findAllByUserIdIn(Iterable<Integer> userIds);
-
-    void deleteAllByGameQueueId(int gameQueueId);
-    void deleteAllByGameQueueIdAndUserId(int gameQueueId, int userId);
-    void deleteAllByGameQueueIdAndSpot(int gameQueueId, int spot);
+    Iterable<GameQueueEntryRow> findByGameQueueId(int id);
 }
 

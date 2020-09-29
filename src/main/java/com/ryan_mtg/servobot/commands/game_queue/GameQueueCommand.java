@@ -8,23 +8,25 @@ import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
-import com.ryan_mtg.servobot.user.User;
+import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class GameQueueCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.GAME_QUEUE_COMMAND_TYPE;
 
     private static final Pattern COMMAND_PATTERN = Pattern.compile("\\w+");
+    private static final Pattern CODE_PATTERN = Pattern.compile("\\w{6}");
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
 
     private static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
@@ -65,47 +67,58 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 throw new UserError("%s doesn't look like a command.", command);
         }
 
-        HomeEditor homeEditor = event.getHomeEditor();
-        switch (command) {
+        switch (command.toLowerCase()) {
             case "show":
                 showQueue(event);
                 return;
-            case "name":
-                homeEditor.setGameQueueName(gameQueueId, "Queue Name");
+            case "server":
+            case "code":
+                setCode(event, command, parseResult.getInput());
                 return;
-            case "start":
-                String responseMessage = homeEditor.startGameQueue(gameQueueId, null);
-                if (responseMessage != null) {
-                    event.say(responseMessage);
-                }
+            case "join":
+            case "queue":
+            case "enqueue":
+            case "enter":
+                enqueueUser(event);
                 return;
-            case "pop":
-            case "next":
-                User nextPlayer = homeEditor.popGameQueue(gameQueueId);
-                String response = String.format("The next player is %s ", nextPlayer.getTwitchUsername());
-                event.say(response);
+            case "dequeue":
+            case "remove":
+            case "leave":
+            case "exit":
+            case "out":
+                dequeueUser(event);
                 return;
-            case "peek":
-            case "playing":
-            case "current":
-                User currentPlayer = homeEditor.peekGameQueue(gameQueueId);
-                response = String.format("The current player is %s ", currentPlayer.getTwitchUsername());
-                event.say(response);
+            case "clear":
+            case "reset":
+                clear(event);
                 return;
-            case "close":
-                responseMessage = homeEditor.closeGameQueue(gameQueueId);
-                if (responseMessage != null) {
-                    event.say(responseMessage);
-                }
+            case "help":
+                help(event);
                 return;
-            case "stop":
-                responseMessage = homeEditor.stopGameQueue(gameQueueId);
-                if (responseMessage != null) {
-                    event.say(responseMessage);
-                }
+
+            /*
+            case "pop": case "next":
                 return;
+            case "peek": case "playing": case "current":
+                return;
+             */
             default:
                 throw new UserError("Invalid Game Queue Command: " + arguments);
+        }
+    }
+
+    private void appendCode(final StringBuilder text, final GameQueue gameQueue) {
+        String code = gameQueue.getCode();
+        String server = gameQueue.getServer();
+        if (code != null) {
+            text.append("🔑 **").append(code).append("**");
+            if (server != null) {
+                text.append(" on 🖥️ ").append(server);
+            }
+        } else if (server != null) {
+            text.append("🖥️ ").append(server);
+        } else {
+            text.append("No game code set.");
         }
     }
 
@@ -113,10 +126,111 @@ public class GameQueueCommand extends InvokedHomedCommand {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
 
-        String text = "The game queue is empty, but has an id of: " + gameQueue.getId();
-        Message message = event.getChannel().sayAndWait(text);
+        StringBuilder text = new StringBuilder();
+        text.append("Game Queue for ").append(gameQueue.getGame().getName());
+
+        text.append("\t\t\t");
+        appendCode(text, gameQueue);
+        text.append("\n\n");
+
+        appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "Players", "No active game.");
+        appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.");
+
+        Message message = event.getChannel().sayAndWait(text.toString());
         if (event.getServiceType() == DiscordService.TYPE) {
             gameQueueEditor.setMessage(gameQueue, message);
         }
+    }
+
+    private void appendPlayerList(final StringBuilder text, final List<HomedUser> players, final String syntax,
+            final String title, final String emptyMessage) {
+        if (players.isEmpty()) {
+            text.append(emptyMessage).append('\n');
+        } else {
+            text.append(title).append(" ```").append(syntax).append('\n');
+            for (HomedUser user : players) {
+                text.append(user.getName()).append('\n');
+            }
+            text.append("```\n");
+        }
+        text.append('\n');
+    }
+
+    private void setCode(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        if (Strings.isBlank(input)) {
+            StringBuilder text = new StringBuilder();
+            appendCode(text, gameQueueEditor.getGameQueue(gameQueueId));
+            event.say(text.toString());
+            return;
+        }
+
+        Scanner scanner = new Scanner(input);
+        String code = null;
+        String server = null;
+
+        while (scanner.hasNext()) {
+            String token = scanner.next();
+            if (CODE_PATTERN.matcher(token).matches()) {
+                code = token;
+                continue;
+            }
+
+            switch (token.toLowerCase()) {
+                case "eu":
+                case "europe":
+                    server = "EU";
+                    continue;
+                case "asia":
+                    server = "ASIA";
+                    continue;
+                case "na":
+                case "north":
+                case "america":
+                    server = "NA";
+                    continue;
+            }
+            throw new UserError("Unrecognized %s: %s", command, token);
+        }
+
+        if (code != null && server != null) {
+            gameQueueEditor.setCodeAndServer(gameQueueId, code, server);
+        } else if (code != null) {
+            gameQueueEditor.setCode(gameQueueId, code);
+        } else if (server != null) {
+            gameQueueEditor.setServer(gameQueueId, server);
+        }
+
+        showQueue(event);
+    }
+
+    private void enqueueUser(final CommandInvokedHomeEvent event) throws UserError {
+        event.getGameQueueEditor().addUser(gameQueueId, event.getSender().getHomedUser());
+        showQueue(event);
+    }
+
+    private void dequeueUser(final CommandInvokedHomeEvent event) throws UserError {
+        event.getGameQueueEditor().dequeueUser(gameQueueId, event.getSender().getHomedUser());
+        showQueue(event);
+    }
+
+    private void clear(final CommandInvokedHomeEvent event) throws UserError {
+        event.getGameQueueEditor().clear(gameQueueId);
+        showQueue(event);
+    }
+
+    private void help(final CommandInvokedHomeEvent event) {
+        StringBuilder text = new StringBuilder();
+        text.append("Command syntax:\n  !").append(event.getCommand()).append(" *command*  [*args*]\n\n");
+        text.append("Where *command*  is one of: ```YAML\n");
+        text.append("show: Displays the full details of the queue.\n");
+        text.append("server: code: Without any arguments, displays the server and code. With arguments, sets the server and/or code.\n");
+        text.append("join: enqueue: Adds you to the queue. With arguments, adds the user specified to the queue.\n");
+        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user specified from the queue.\n");
+        text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
+        text.append("help: Displays this message.\n");
+        text.append("```\n");
+        event.getChannel().say(text.toString());
     }
 }

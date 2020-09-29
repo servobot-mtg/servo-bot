@@ -61,7 +61,6 @@ public class SystemEditor {
         StorageTableEdit storageTableEdit = mergeStorageUser(merge);
         serializers.getStorageTableSerializer().commit(storageTableEdit);
 
-        // update giveaways
         GiveawayEdit giveawayEdit = mergeGiveawayUser(merge);
         serializers.getGiveawaySerializer().commit(giveawayEdit);
 
@@ -138,7 +137,8 @@ public class SystemEditor {
             BotHome botHome = botRegistrar.getBotHome(botHomeId);
             for (int gameQueueId : entry.getValue()) {
                 GameQueue gameQueue = botHome.getGameQueueTable().getGameQueue(gameQueueId);
-                gameQueueEdit.merge(gameQueue.mergeUser(mergedUserId, merge.getUsersToDelete()));
+                gameQueueEdit.merge(gameQueue.mergeUser(botHome.getHomedUserTable(),
+                        mergedUserId, merge.getUsersToDelete()));
             }
         }
         return gameQueueEdit;

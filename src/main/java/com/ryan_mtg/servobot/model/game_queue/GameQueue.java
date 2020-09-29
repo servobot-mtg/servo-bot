@@ -2,15 +2,19 @@ package com.ryan_mtg.servobot.model.game_queue;
 
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GameQueue {
     public static final int UNREGISTERED_ID = 0;
@@ -33,8 +37,9 @@ public class GameQueue {
     @Getter @Setter
     private Message message;
 
-    private List<Entry> queue = new ArrayList<>();
-    private Map<Integer, Entry> userMap = new HashMap<>();
+    private List<GameQueueEntry> playing = new ArrayList<>();
+    private List<GameQueueEntry> waitQueue = new ArrayList<>();
+    private Map<Integer, GameQueueEntry> userMap = new HashMap<>();
 
     public enum State {
         IDLE,
@@ -43,7 +48,7 @@ public class GameQueue {
     }
 
     public GameQueue(final int id, final Game game, final State state, final String code, final String server,
-            final Message message) throws UserError {
+            final Message message, final List<GameQueueEntry> gameQueueEntries) throws UserError {
         this.id = id;
         this.game = game;
         this.state = state;
@@ -53,7 +58,91 @@ public class GameQueue {
 
         Validation.validateStringLength(code, Validation.MAX_NAME_LENGTH, "Code");
         Validation.validateStringLength(server, Validation.MAX_NAME_LENGTH, "Server");
+
+        for (GameQueueEntry gameQueueEntry : gameQueueEntries) {
+            userMap.put(gameQueueEntry.getUser().getId(), gameQueueEntry);
+            switch (gameQueueEntry.getState()) {
+                case WAITING:
+                    waitQueue.add(gameQueueEntry);
+                    break;
+                case PLAYING:
+                    playing.add(gameQueueEntry);
+                    break;
+            }
+        }
     }
+
+    public GameQueueEdit enqueue(final HomedUser player) throws UserError {
+        if (userMap.containsKey(player.getId())) {
+            throw new UserError("%s is already queued.", player.getName());
+        }
+
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.WAITING);
+        gameQueueEdit.save(getId(), newEntry);
+        waitQueue.add(newEntry);
+        userMap.put(player.getId(), newEntry);
+
+        promotePlayersToGame(gameQueueEdit);
+
+        return gameQueueEdit;
+    }
+
+    public GameQueueEdit dequeue(final HomedUser player) throws UserError {
+        int playerId = player.getId();
+        if (!userMap.containsKey(playerId)) {
+            throw new UserError("%s is not already queued.", player.getName());
+        }
+
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        removeEntry(gameQueueEdit, playerId);
+        promotePlayersToGame(gameQueueEdit);
+
+        return gameQueueEdit;
+    }
+
+    public GameQueueEdit clear(final int botHomeId) {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+
+        for (GameQueueEntry entry : userMap.values()) {
+            gameQueueEdit.delete(id, entry);
+        }
+
+        code = null;
+        server = null;
+
+        playing.clear();
+        waitQueue.clear();
+        userMap.clear();
+
+        gameQueueEdit.save(botHomeId, this);
+
+        return gameQueueEdit;
+    }
+
+
+    private void removeEntry(final GameQueueEdit gameQueueEdit, final int playerId) {
+        GameQueueEntry entry = userMap.get(playerId);
+        switch (entry.getState()) {
+            case PLAYING:
+                playing.remove(entry);
+                break;
+            case WAITING:
+                waitQueue.remove(entry);
+                break;
+        }
+        gameQueueEdit.delete(id, entry);
+        userMap.remove(playerId);
+    }
+
+    public List<HomedUser> getGamePlayers() {
+        return makeList(playing);
+    }
+
+    public List<HomedUser> getWaitQueue() {
+        return makeList(waitQueue);
+    }
+
 
     /*
 
@@ -93,14 +182,6 @@ public class GameQueue {
         queue.removeIf(entry -> entry.getUserId() == playerId);
     }
 
-    public GameQueueEntry enqueue(final int userId) {
-        Entry entry = new Entry(userId, nextSpot);
-        queue.add(entry);
-        userMap.put(userId, entry);
-
-        return new GameQueueEntry(userId, nextSpot++, queue.size());
-    }
-
     public void enqueue(final int userId, final int spot) {
         Entry entry = new Entry(userId, spot);
         queue.add(entry);
@@ -109,61 +190,68 @@ public class GameQueue {
     }
      */
 
-    public GameQueueEdit mergeUser(final int newUserId, final List<Integer> oldUserIds) {
-        //TODO: fix
+    public GameQueueEdit mergeUser(final HomedUserTable homedUserTable, final int newUserId,
+            final List<Integer> oldUserIds) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
-        /*
-        if (oldUserIds.contains(currentPlayerId)) {
-            currentPlayerId = newUserId;
-            gameQueueEdit.save(this);
-        }
-         */
 
-        Entry entry = null;
+        Instant minEnqueueTime = Instant.MAX;
+        PlayerState playerState = PlayerState.WAITING;
+        boolean hasOldPlayer = false;
         for (int oldUserId : oldUserIds) {
             if (userMap.containsKey(oldUserId)) {
-                Entry oldEntry = userMap.get(oldUserId);
-                if (entry == null) {
-                    entry = oldEntry;
-                } else {
-                    if (oldEntry.getSpot() < entry.getSpot()) {
-                        Entry temp = oldEntry;
-                        oldEntry = entry;
-                        entry = temp;
+                GameQueueEntry oldEntry = userMap.get(oldUserId);
+                if (oldEntry != null) {
+                    hasOldPlayer = true;
+
+                    if (oldEntry.getEnqueueTime().compareTo(minEnqueueTime) < 0) {
+                        minEnqueueTime = oldEntry.getEnqueueTime();
                     }
 
-                    gameQueueEdit.delete(id, new GameQueueEntry(oldEntry.getUserId(), oldEntry.getSpot(), 0));
+                    if (oldEntry.getState() == PlayerState.PLAYING) {
+                        playerState = PlayerState.PLAYING;
+                    }
+
+                    removeEntry(gameQueueEdit, oldUserId);
                 }
             }
         }
 
-        if (entry != null) {
-            entry.setUserId(newUserId);
-            userMap.put(newUserId, entry);
-            gameQueueEdit.save(id, new GameQueueEntry(newUserId, entry.getSpot(), 0));
-        }
+        if (hasOldPlayer) {
+            GameQueueEntry newEntry = userMap.get(newUserId);
+            if (newEntry == null) {
+                newEntry.setUser(homedUserTable.getById(newUserId));
+                if (minEnqueueTime.compareTo(newEntry.getEnqueueTime()) < 0) {
+                    newEntry.setEnqueueTime(minEnqueueTime);
+                }
 
-        oldUserIds.forEach(oldUserId -> userMap.remove(oldUserId));
+                if (playerState == PlayerState.PLAYING) {
+                    newEntry.setState(playerState);
+                }
+            } else {
+                newEntry = new GameQueueEntry(homedUserTable.getById(newUserId), minEnqueueTime, playerState);
+                userMap.put(newUserId, newEntry);
+            }
+            gameQueueEdit.save(id, newEntry);
+        }
 
         return gameQueueEdit;
     }
 
-    /*
-    public boolean contains(final int userId) {
-        return currentPlayerId == userId || userMap.containsKey(userId);
-    }
-     */
+    private void promotePlayersToGame(final GameQueueEdit gameQueueEdit) {
+        if (waitQueue.size() >= game.getMinPlayers() && playing.isEmpty()) {
+            Collections.sort(waitQueue);
 
-    @Getter @Setter
-    private static final class Entry {
-        private int userId;
-        private int spot;
-        private Instant joinTime;
-
-        Entry(final int userId, final int spot, final Instant joinTime) {
-            this.userId = userId;
-            this.spot = spot;
-            this.joinTime = joinTime;
+            while (!waitQueue.isEmpty() && playing.size() < game.getMaxPlayers()) {
+                GameQueueEntry joiningEntry = waitQueue.remove(0);
+                joiningEntry.setState(PlayerState.PLAYING);
+                gameQueueEdit.save(getId(), joiningEntry);
+                playing.add(joiningEntry);
+            }
         }
+    }
+
+    private List<HomedUser> makeList(final List<GameQueueEntry> gameQueueEntries) {
+        Collections.sort(gameQueueEntries);
+        return gameQueueEntries.stream().map(entry -> entry.getUser()).collect(Collectors.toList());
     }
 }

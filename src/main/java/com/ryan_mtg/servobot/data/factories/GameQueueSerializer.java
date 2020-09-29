@@ -11,9 +11,12 @@ import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEntry;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
+import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.user.HomedUserTable;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,60 +33,28 @@ public class GameQueueSerializer {
         this.gameQueueEntryRepository = gameQueueEntryRepository;
     }
 
-    private Message getMessage(final ServiceHome serviceHome, final GameQueueRow gameQueueRow) {
-        if (gameQueueRow.getMessageId() != 0 && gameQueueRow.getChannelId() != 0) {
-            return serviceHome.getSavedMessage(gameQueueRow.getChannelId(), gameQueueRow.getMessageId());
-        }
-        return null;
-    }
-
-    public GameQueueTable createGameQueueTable(final int botHomeId, final ServiceHome serviceHome) {
+    public GameQueueTable createGameQueueTable(final int botHomeId, final HomedUserTable homedUserTable,
+            final ServiceHome serviceHome) {
         GameQueueTable gameQueueTable = new GameQueueTable();
 
         for (GameQueueRow gameQueueRow : gameQueueRepository.findAllByBotHomeId(botHomeId)) {
             Message message = getMessage(serviceHome, gameQueueRow);
 
-            GameQueue gameQueue = SystemError.filter(() -> new GameQueue(gameQueueRow.getId(), gameQueueRow.getGame(),
-                    gameQueueRow.getState(), gameQueueRow.getCode(), gameQueueRow.getServer(), message));
-            /*
-            GameQueueEntryRepository gameQueueEntryRepository = serializers.getGameQueueEntryRepository();
-            for (GameQueueEntryRow gameQueueEntryRow :
-                    gameQueueEntryRepository.findByGameQueueIdOrderBySpotAsc(gameQueue.getId())) {
-                gameQueue.enqueue(gameQueueEntryRow.getUserId(), gameQueueEntryRow.getSpot());
+            int gameQueueId = gameQueueRow.getId();
+            List<GameQueueEntry> gameQueueEntries = new ArrayList<>();
+            for (GameQueueEntryRow gameQueueEntryRow : gameQueueEntryRepository.findByGameQueueId(gameQueueId)) {
+                gameQueueEntries.add(createGameQueueEntry(homedUserTable, gameQueueEntryRow));
             }
-             */
+
+            GameQueue gameQueue = SystemError.filter(() -> new GameQueue(gameQueueId, gameQueueRow.getGame(),
+                    gameQueueRow.getState(), gameQueueRow.getCode(), gameQueueRow.getServer(), message,
+                    gameQueueEntries));
 
             gameQueueTable.add(gameQueue);
         }
 
         return gameQueueTable;
     }
-
-    /*
-    @Transactional(rollbackOn = Exception.class)
-    private void saveGameQueue(final int botHomeId, final GameQueue gameQueue) {
-        gameQueueRepository.save(createGameQueueRow(botHomeId, gameQueue));
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public void removeEntry(final GameQueue gameQueue, final int userId) {
-        gameQueueEntryRepository.deleteAllByGameQueueIdAndUserId(gameQueue.getId(), userId);
-        saveGameQueue(gameQueue);
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public void addEntry(final GameQueue gameQueue, final GameQueueEntry gameQueueEntry) {
-        gameQueueEntryRepository.save(createGameQueueEntryRow(gameQueue.getId(), gameQueueEntry));
-
-        saveGameQueue(gameQueue);
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public void emptyGameQueue(final GameQueue gameQueue) {
-        gameQueueEntryRepository.deleteAllByGameQueueId(gameQueue.getId());
-        saveGameQueue(gameQueue);
-    }
-     */
 
     @Transactional(rollbackOn = Exception.class)
     public void commit(final GameQueueEdit gameQueueEdit) {
@@ -103,9 +74,11 @@ public class GameQueueSerializer {
             }
         }
 
+        List<GameQueueEntryRow> gameQueueEntryRowsToDelete = new ArrayList<>();
         gameQueueEdit.getDeletedGameQueueEntries().forEach((gameQueueEntry, gameQueueId) -> {
-            gameQueueEntryRepository.deleteAllByGameQueueIdAndSpot(gameQueueId, gameQueueEntry.getSpot());
+            gameQueueEntryRowsToDelete.add(createGameQueueEntryRow(gameQueueId, gameQueueEntry));
         });
+        gameQueueEntryRepository.deleteAll(gameQueueEntryRowsToDelete);
 
         List<GameQueueEntryRow> gameQueueEntryRowsToSave = new ArrayList<>();
         gameQueueEdit.getSavedGameQueueEntries().forEach((gameQueueEntry, gameQueueId) ->
@@ -128,12 +101,27 @@ public class GameQueueSerializer {
         return gameQueueRow;
     }
 
-    public GameQueueEntryRow createGameQueueEntryRow(final int gameQueueId, final GameQueueEntry gameQueueEntry) {
+    private GameQueueEntry createGameQueueEntry(final HomedUserTable homedUserTable,
+            final GameQueueEntryRow gameQueueEntryRow) {
+        HomedUser player = homedUserTable.getById(gameQueueEntryRow.getUserId());
+        Instant enqueueTime = Instant.ofEpochMilli(gameQueueEntryRow.getEnqueueTime());
+        return new GameQueueEntry(player, enqueueTime, gameQueueEntryRow.getState());
+    }
+
+    private GameQueueEntryRow createGameQueueEntryRow(final int gameQueueId, final GameQueueEntry gameQueueEntry) {
         GameQueueEntryRow gameQueueEntryRow = new GameQueueEntryRow();
         gameQueueEntryRow.setGameQueueId(gameQueueId);
-        gameQueueEntryRow.setSpot(gameQueueEntry.getSpot());
-        gameQueueEntryRow.setUserId(gameQueueEntry.getUserId());
+        gameQueueEntryRow.setUserId(gameQueueEntry.getUser().getId());
+        gameQueueEntryRow.setEnqueueTime(gameQueueEntry.getEnqueueTime().toEpochMilli());
+        gameQueueEntryRow.setState(gameQueueEntry.getState());
 
         return gameQueueEntryRow;
+    }
+
+    private Message getMessage(final ServiceHome serviceHome, final GameQueueRow gameQueueRow) {
+        if (gameQueueRow.getMessageId() != 0 && gameQueueRow.getChannelId() != 0) {
+            return serviceHome.getSavedMessage(gameQueueRow.getChannelId(), gameQueueRow.getMessageId());
+        }
+        return null;
     }
 }

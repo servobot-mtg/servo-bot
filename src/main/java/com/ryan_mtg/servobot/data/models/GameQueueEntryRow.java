@@ -1,8 +1,10 @@
 package com.ryan_mtg.servobot.data.models;
 
+import com.ryan_mtg.servobot.model.game_queue.PlayerState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,38 +16,29 @@ import java.io.Serializable;
 @Entity
 @Table(name = "game_queue_entry")
 @IdClass(GameQueueEntryRow.GameQueueEntryRowId.class)
-@Getter
+@Getter @Setter
 public class GameQueueEntryRow {
     @Id
     @Column(name = "game_queue_id")
     private int gameQueueId;
 
     @Id
-    private int spot;
-
     @Column(name = "user_id")
     private int userId;
 
-    public void setGameQueueId(final int gameQueueId) {
-        this.gameQueueId = gameQueueId;
-    }
+    @Column(name = "enqueue_time")
+    private long enqueueTime;
 
-    public void setSpot(final int spot) {
-        this.spot = spot;
-    }
-
-    public void setUserId(final int userId) {
-        this.userId = userId;
-    }
+    private PlayerState state;
 
     @Getter @EqualsAndHashCode @NoArgsConstructor
     public static class GameQueueEntryRowId implements Serializable {
         private int gameQueueId;
-        private int spot;
+        private int userId;
 
-        public GameQueueEntryRowId(final int gameQueueId, final int spot) {
+        public GameQueueEntryRowId(final int gameQueueId, final int userId) {
             this.gameQueueId = gameQueueId;
-            this.spot = spot;
+            this.userId = userId;
         }
     }
 }

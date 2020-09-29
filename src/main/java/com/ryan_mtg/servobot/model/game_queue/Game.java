@@ -5,15 +5,19 @@ import lombok.Getter;
 
 @Getter
 public enum Game {
-    ARENA(1, "MTG Arena"),
-    AMONG_US(2, "Among Us");
+    ARENA(1, "MTG Arena", 1, 1),
+    AMONG_US(2, "Among Us", 9, 10);
 
     private final int type;
     private final String name;
+    private final int minPlayers;
+    private final int maxPlayers;
 
-    Game(final int type, final String name) {
+    Game(final int type, final String name, final int minPlayers, final int maxPlayers) {
         this.type = type;
         this.name = name;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
     }
 
     public static Game get(final int type) {
