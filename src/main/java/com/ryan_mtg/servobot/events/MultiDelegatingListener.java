@@ -29,6 +29,20 @@ public class MultiDelegatingListener implements EventListener {
     }
 
     @Override
+    public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) {
+        for (EventListener listener : getListeners()) {
+            listener.onEmoteAdded(emoteHomeEvent);
+        }
+    }
+
+    @Override
+    public void onEmoteRemoved(final EmoteHomeEvent emoteHomeEvent) {
+        for (EventListener listener : getListeners()) {
+            listener.onEmoteRemoved(emoteHomeEvent);
+        }
+    }
+
+    @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
         for (EventListener listener : getListeners()) {
             listener.onStreamStart(streamStartEvent);

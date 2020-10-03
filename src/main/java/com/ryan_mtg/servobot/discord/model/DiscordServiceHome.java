@@ -296,10 +296,14 @@ public class DiscordServiceHome implements ServiceHome {
         }
 
         List<Member> members = guild.getMembersByEffectiveName(deamp(username), true);
-        if (members.isEmpty()) {
-            throw new UserError(String.format("No user named '%s'.", deamp(username)));
+        if (!members.isEmpty()) {
+            return members.get(0);
         }
-        return members.get(0);
+        members = guild.getMembersByName(deamp(username), true);
+        if (!members.isEmpty()) {
+            return members.get(0);
+        }
+        throw new UserError(String.format("No user named '%s'.", deamp(username)));
     }
 
     private String deamp(final String string) {

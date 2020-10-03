@@ -90,9 +90,3 @@ CREATE INDEX spring_session_ix3 ON session (principal_name);
 ALTER TABLE giveaway ADD COLUMN raffle_flags INTEGER, ADD COLUMN select_winner_command_name VARCHAR(30),
         ADD COLUMN select_winner_permission INTEGER, ADD COLUMN select_winner_flags INTEGER,
         ADD COLUMN select_winner_message VARCHAR(200);
-
-ALTER TABLE service ADD COLUMN bot_id INTEGER;
-UPDATE service SET bot_id = 1;
-
-ALTER TABLE home ADD COLUMN bot_id INTEGER;
-UPDATE home SET bot_id = 1;

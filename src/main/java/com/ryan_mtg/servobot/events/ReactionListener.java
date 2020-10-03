@@ -1,8 +1,12 @@
 package com.ryan_mtg.servobot.events;
 
+import com.ryan_mtg.servobot.commands.game_queue.GameQueueUtils;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.error.BotErrorHandler;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.Emote;
@@ -14,10 +18,13 @@ public class ReactionListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(ReactionListener.class);
     private final ReactionTable reactionTable;
     private final CommandPerformer commandPerformer;
+    private final GameQueueTable gameQueueTable;
 
-    public ReactionListener(final ReactionTable reactionTable, final CommandPerformer commandPerformer) {
+    public ReactionListener(final ReactionTable reactionTable, final CommandPerformer commandPerformer,
+            final GameQueueTable gameQueueTable) {
         this.reactionTable = reactionTable;
         this.commandPerformer = commandPerformer;
+        this.gameQueueTable = gameQueueTable;
     }
 
     @Override
@@ -42,6 +49,36 @@ public class ReactionListener implements EventListener {
                     commandPerformer.perform(messageHomeEvent, command);
                 }
             }
+        }
+    }
+
+    @Override
+    public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) {
+        User reactor = emoteHomeEvent.getSender();
+        if (reactor.isBot()) {
+            return;
+        }
+
+        GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
+        if (gameQueue != null) {
+            BotErrorHandler.handleError(() -> {
+                GameQueueUtils.addEmote(emoteHomeEvent, gameQueue, reactor);
+            });
+        }
+    }
+
+    @Override
+    public void onEmoteRemoved(final EmoteHomeEvent emoteHomeEvent) {
+        User reactor = emoteHomeEvent.getSender();
+        if (reactor.isBot()) {
+            return;
+        }
+
+        GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
+        if (gameQueue != null) {
+            BotErrorHandler.handleError(() -> {
+                GameQueueUtils.removeEmote(emoteHomeEvent, gameQueue, reactor);
+            });
         }
     }
 

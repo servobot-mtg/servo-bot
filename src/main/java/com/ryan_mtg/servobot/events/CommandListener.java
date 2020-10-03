@@ -58,6 +58,12 @@ public class CommandListener implements EventListener {
     }
 
     @Override
+    public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) {}
+
+    @Override
+    public void onEmoteRemoved(final EmoteHomeEvent emoteHomeEvent) {}
+
+    @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
         for (HomeCommand command : commandTable.getCommands(CommandEvent.Type.STREAM_START, HomeCommand.class)) {
             commandPerformer.perform(streamStartEvent, command);

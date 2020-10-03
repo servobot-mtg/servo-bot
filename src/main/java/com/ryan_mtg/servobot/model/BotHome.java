@@ -137,7 +137,7 @@ public class BotHome implements Context {
         CommandPerformer commandPerformer = new CommandPerformer(new RateLimiter());
         eventListener =
                 new MultiDelegatingListener(new CommandListener(commandPerformer, commandTable),
-                        new ReactionListener(reactionTable, commandPerformer));
+                        new ReactionListener(reactionTable, commandPerformer, gameQueueTable));
     }
 
     @Override

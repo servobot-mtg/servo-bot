@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 import com.ryan_mtg.servobot.user.UserTable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+@Slf4j
 @Component
 public class ServiceSerializer {
     private final ServiceRepository serviceRepository;

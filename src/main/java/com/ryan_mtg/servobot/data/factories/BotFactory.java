@@ -97,7 +97,8 @@ public class BotFactory {
     protected BotHome createBotHome(final BotHomeRow botHomeRow) {
         LOGGER.info(">>>>>> Starting bot home creation: {} ", botHomeRow.getHomeName());
         ServiceSerializer serviceSerializer = serializers.getServiceSerializer();
-        Map<Integer, Service> services = serviceSerializer.getServiceMap(botHomeRow.getId());
+
+        Map<Integer, Service> services = serviceSerializer.getServiceMap(botHomeRow.getBotId());
         String homeName = botHomeRow.getHomeName();
         int flags = botHomeRow.getFlags();
         String botName = botHomeRow.getBotName();

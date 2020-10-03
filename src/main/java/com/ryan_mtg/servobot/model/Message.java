@@ -7,4 +7,7 @@ public interface Message {
     User getSender();
     boolean canEmote();
     void addEmote(final Emote emote);
+
+    void updateText(String text);
+    boolean isOld();
 }

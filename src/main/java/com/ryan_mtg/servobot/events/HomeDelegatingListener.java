@@ -80,6 +80,22 @@ public class HomeDelegatingListener implements EventListener {
     }
 
     @Override
+    public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) {
+        EventListener listener = getListener(emoteHomeEvent);
+        if (listener != null) {
+            listener.onEmoteAdded(emoteHomeEvent);
+        }
+    }
+
+    @Override
+    public void onEmoteRemoved(final EmoteHomeEvent emoteHomeEvent) {
+        EventListener listener = getListener(emoteHomeEvent);
+        if (listener != null) {
+            listener.onEmoteRemoved(emoteHomeEvent);
+        }
+    }
+
+    @Override
     public void onStreamStart(final StreamStartEvent streamStartEvent) {
         EventListener listener = getListener(streamStartEvent);
         if (listener != null) {

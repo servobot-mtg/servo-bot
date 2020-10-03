@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.twitch.model;
 
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -40,5 +41,15 @@ public class TwitchMessage implements Message {
     @Override
     public void addEmote(final Emote emote) {
         throw new IllegalStateException("Twitch doesn't have reactions");
+    }
+
+    @Override
+    public void updateText(final String text) {
+        throw new SystemError("Twitch doesn't support updating messages.");
+    }
+
+    @Override
+    public boolean isOld() {
+        return false;
     }
 }

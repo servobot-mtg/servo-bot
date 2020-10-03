@@ -5,6 +5,8 @@ import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 
 public class DiscordMessage implements Message {
+    private static int OLD_LENGTH = 10;
+
     private User sender;
     private net.dv8tion.jda.api.entities.Message message;
 
@@ -40,6 +42,20 @@ public class DiscordMessage implements Message {
 
     @Override
     public void addEmote(final Emote emote) {
-        message.addReaction(((DiscordEmote)emote).getDiscordEmote()).queue();
+        if (emote instanceof DiscordEmote) {
+            message.addReaction(((DiscordEmote)emote).getDiscordEmote()).queue();
+        } else {
+            message.addReaction(emote.getName()).queue();
+        }
+    }
+
+    @Override
+    public void updateText(final String text) {
+        message.editMessage(text).queue();
+    }
+
+    @Override
+    public boolean isOld() {
+        return message.getChannel().getHistoryAfter(message.getId(), OLD_LENGTH).complete().size() >= OLD_LENGTH;
     }
 }

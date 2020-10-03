@@ -1,21 +1,27 @@
 package com.ryan_mtg.servobot.discord.event;
 
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
+import com.ryan_mtg.servobot.discord.model.DiscordEmoji;
+import com.ryan_mtg.servobot.discord.model.DiscordEmote;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.discord.model.DiscordHomedUser;
 import com.ryan_mtg.servobot.discord.model.DiscordUserStatus;
 import com.ryan_mtg.servobot.events.EventListener;
 import com.ryan_mtg.servobot.model.BotHome;
+import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.emote.EmoteAddedEvent;
 import net.dv8tion.jda.api.events.emote.EmoteRemovedEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
@@ -81,12 +87,48 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     @Override
+    public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
+        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+        if (botHome == null) {
+            return;
+        }
+        DiscordHomedUser reactor = getUser(event.getMember(), botHome);
+        MessageReaction.ReactionEmote reactionEmote = event.getReactionEmote();
+        Emote emote;
+        if (reactionEmote.isEmote()) {
+            emote = new DiscordEmote(reactionEmote.getEmote());
+        } else {
+            emote = new DiscordEmoji(reactionEmote.getEmoji());
+        }
+        listener.onEmoteAdded(new DiscordEmoteEvent(event, botHome, reactor, emote));
+    }
+
+    @Override
+    public void onGuildMessageReactionRemove(@Nonnull GuildMessageReactionRemoveEvent event) {
+        BotHome botHome = homeMap.get(event.getGuild().getIdLong());
+        if (botHome == null) {
+            return;
+        }
+        DiscordHomedUser reactor = getUser(event.getMember(), botHome);
+        MessageReaction.ReactionEmote reactionEmote = event.getReactionEmote();
+        Emote emote;
+        if (reactionEmote.isEmote()) {
+            emote = new DiscordEmote(reactionEmote.getEmote());
+        } else {
+            emote = new DiscordEmoji(reactionEmote.getEmoji());
+        }
+        listener.onEmoteRemoved(new DiscordEmoteEvent(event, botHome, reactor, emote));
+    }
+
+
+    @Override
     public void onUserActivityStart(@Nonnull final UserActivityStartEvent event) {
         BotHome botHome = homeMap.get(event.getGuild().getIdLong());
         if (botHome == null) {
             return;
         }
         if (streamStartRegulator.startActivity(event, botHome.getId())) {
+            //Intentionally left commented, because Twitch is a better indicator for stream starting events.
             //listener.onStreamStart(new DiscordStreamStartEvent(event, botHome.getId()));
         }
     }

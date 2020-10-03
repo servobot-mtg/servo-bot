@@ -4,20 +4,22 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
+import com.ryan_mtg.servobot.discord.model.DiscordEmoji;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -28,8 +30,6 @@ public class GameQueueCommand extends InvokedHomedCommand {
     private static final Pattern COMMAND_PATTERN = Pattern.compile("\\w+");
     private static final Pattern CODE_PATTERN = Pattern.compile("\\w{6}");
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
-
-    private static Logger LOGGER = LoggerFactory.getLogger(GameQueueCommand.class);
 
     @Getter
     private int gameQueueId;
@@ -79,14 +79,14 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "queue":
             case "enqueue":
             case "enter":
-                enqueueUser(event);
+                enqueueUser(event, parseResult.getInput());
                 return;
             case "dequeue":
             case "remove":
             case "leave":
             case "exit":
             case "out":
-                dequeueUser(event);
+                dequeueUser(event, parseResult.getInput());
                 return;
             case "clear":
             case "reset":
@@ -96,29 +96,30 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 help(event);
                 return;
 
-            /*
-            case "pop": case "next":
-                return;
-            case "peek": case "playing": case "current":
-                return;
-             */
             default:
                 throw new UserError("Invalid Game Queue Command: " + arguments);
         }
     }
 
-    private void appendCode(final StringBuilder text, final GameQueue gameQueue) {
-        String code = gameQueue.getCode();
-        String server = gameQueue.getServer();
-        if (code != null) {
-            text.append("🔑 **").append(code).append("**");
-            if (server != null) {
-                text.append(" on 🖥️ ").append(server);
+    private void showOrUpdateQueue(final CommandInvokedHomeEvent event, final GameQueueAction action)
+            throws BotHomeError, UserError {
+        GameQueue gameQueue = event.getGameQueueEditor().getGameQueue(gameQueueId);
+        Message message = gameQueue.getMessage();
+        if (message != null && !message.isOld()) {
+            GameQueueUtils.updateMessage(gameQueue, message);
+            switch (action.getEvent()) {
+                case CODE_CHANGED:
+                    event.say(GameQueueUtils.getCodeMessage(action.getCode(), action.getServer()));
+                    break;
+                case PLAYERS_QUEUE:
+                    event.say(GameQueueUtils.getPlayersQueuedMessage(action.getQueuedPlayers()));
+                    break;
+                case PLAYERS_LEAVE:
+                    event.say(GameQueueUtils.getPlayersDequeuedMessage(action.getDequeuedPlayers()));
+                    break;
             }
-        } else if (server != null) {
-            text.append("🖥️ ").append(server);
         } else {
-            text.append("No game code set.");
+            showQueue(event);
         }
     }
 
@@ -126,43 +127,20 @@ public class GameQueueCommand extends InvokedHomedCommand {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
 
-        StringBuilder text = new StringBuilder();
-        text.append("Game Queue for ").append(gameQueue.getGame().getName());
+        String text = GameQueueUtils.createMessage(gameQueue);
 
-        text.append("\t\t\t");
-        appendCode(text, gameQueue);
-        text.append("\n\n");
-
-        appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "Players", "No active game.");
-        appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.");
-
-        Message message = event.getChannel().sayAndWait(text.toString());
+        Message message = event.getChannel().sayAndWait(text);
+        message.addEmote(new DiscordEmoji(GameQueueUtils.DAGGER_EMOTE));
         if (event.getServiceType() == DiscordService.TYPE) {
             gameQueueEditor.setMessage(gameQueue, message);
         }
-    }
-
-    private void appendPlayerList(final StringBuilder text, final List<HomedUser> players, final String syntax,
-            final String title, final String emptyMessage) {
-        if (players.isEmpty()) {
-            text.append(emptyMessage).append('\n');
-        } else {
-            text.append(title).append(" ```").append(syntax).append('\n');
-            for (HomedUser user : players) {
-                text.append(user.getName()).append('\n');
-            }
-            text.append("```\n");
-        }
-        text.append('\n');
     }
 
     private void setCode(final CommandInvokedHomeEvent event, final String command, final String input)
             throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         if (Strings.isBlank(input)) {
-            StringBuilder text = new StringBuilder();
-            appendCode(text, gameQueueEditor.getGameQueue(gameQueueId));
-            event.say(text.toString());
+            event.say(GameQueueUtils.getCodeMessage(gameQueueEditor.getGameQueue(gameQueueId)));
             return;
         }
 
@@ -172,7 +150,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
         while (scanner.hasNext()) {
             String token = scanner.next();
-            if (CODE_PATTERN.matcher(token).matches()) {
+            if (CODE_PATTERN.matcher(token).matches() && !token.equalsIgnoreCase("europe")) {
                 code = token;
                 continue;
             }
@@ -194,25 +172,55 @@ public class GameQueueCommand extends InvokedHomedCommand {
             throw new UserError("Unrecognized %s: %s", command, token);
         }
 
+        GameQueueAction action = null;
         if (code != null && server != null) {
-            gameQueueEditor.setCodeAndServer(gameQueueId, code, server);
+            action = gameQueueEditor.setCodeAndServer(gameQueueId, code, server);
         } else if (code != null) {
-            gameQueueEditor.setCode(gameQueueId, code);
+            action = gameQueueEditor.setCode(gameQueueId, code);
         } else if (server != null) {
-            gameQueueEditor.setServer(gameQueueId, server);
+            action = gameQueueEditor.setServer(gameQueueId, server);
         }
 
-        showQueue(event);
+        showOrUpdateQueue(event, action);
     }
 
-    private void enqueueUser(final CommandInvokedHomeEvent event) throws UserError {
-        event.getGameQueueEditor().addUser(gameQueueId, event.getSender().getHomedUser());
-        showQueue(event);
+    private void enqueueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action;
+        if (Strings.isBlank(input)) {
+            action = gameQueueEditor.addUser(gameQueueId, event.getSender().getHomedUser());
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                gameQueueEditor.addUser(gameQueueId, user);
+            }
+            action = GameQueueAction.playersQueued(users);
+        }
+        showOrUpdateQueue(event, action);
     }
 
-    private void dequeueUser(final CommandInvokedHomeEvent event) throws UserError {
-        event.getGameQueueEditor().dequeueUser(gameQueueId, event.getSender().getHomedUser());
-        showQueue(event);
+    private List<HomedUser> getPlayerList(final ServiceHome serviceHome, final String list) throws UserError {
+        List<HomedUser> users = new ArrayList<>();
+        for(String name : list.split(",")) {
+            users.add(serviceHome.getUser(name.trim()).getHomedUser());
+        }
+        return users;
+    }
+
+    private void dequeueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action;
+        if (Strings.isBlank(input)) {
+            action = gameQueueEditor.dequeueUser(gameQueueId, event.getSender().getHomedUser());
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                gameQueueEditor.dequeueUser(gameQueueId, user);
+            }
+            action = GameQueueAction.playersDequeued(users);
+        }
+
+        showOrUpdateQueue(event, action);
     }
 
     private void clear(final CommandInvokedHomeEvent event) throws UserError {

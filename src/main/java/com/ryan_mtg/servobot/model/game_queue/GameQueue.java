@@ -72,6 +72,10 @@ public class GameQueue {
         }
     }
 
+    public boolean matches(final Message message) {
+        return message.getChannelId() == this.message.getChannelId() && message.getId() == this.message.getId();
+    }
+
     public GameQueueEdit enqueue(final HomedUser player) throws UserError {
         if (userMap.containsKey(player.getId())) {
             throw new UserError("%s is already queued.", player.getName());

@@ -5,6 +5,7 @@ import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -30,6 +31,7 @@ public class GameQueueEditor {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         gameQueueEdit.save(contextId, gameQueue, gameQueueSavedCallback);
         gameQueueSerializer.commit(gameQueueEdit);
+        gameQueueTable.add(gameQueue);
     }
 
     public GameQueue getGameQueue(final int gameQueueId) {
@@ -43,41 +45,46 @@ public class GameQueueEditor {
         gameQueueSerializer.commit(gameQueueEdit);
     }
 
-    public void setCodeAndServer(final int gameQueueId, final String code, final String server) {
+    public GameQueueAction setCodeAndServer(final int gameQueueId, final String code, final String server) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueue gameQueue = getGameQueue(gameQueueId);
         gameQueue.setCode(code);
         gameQueue.setServer(server);
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer());
     }
 
-    public void setCode(final int gameQueueId, final String code) {
+    public GameQueueAction setCode(final int gameQueueId, final String code) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueue gameQueue = getGameQueue(gameQueueId);
         gameQueue.setCode(code);
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer());
     }
 
-    public void setServer(final int gameQueueId, final String server) {
+    public GameQueueAction setServer(final int gameQueueId, final String server) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueue gameQueue = getGameQueue(gameQueueId);
         gameQueue.setServer(server);
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer());
     }
 
-    public void addUser(final int gameQueueId, final HomedUser player) throws UserError {
+    public GameQueueAction addUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit gameQueueEdit = gameQueue.enqueue(player);
         gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.playerQueued(player);
     }
 
-    public void dequeueUser(final int gameQueueId, final HomedUser player) throws UserError {
+    public GameQueueAction dequeueUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit gameQueueEdit = gameQueue.dequeue(player);
         gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.playerDequeued(player);
     }
 
     public void clear(final int gameQueueId) {

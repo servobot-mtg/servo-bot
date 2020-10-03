@@ -46,6 +46,16 @@ public class DiscordSavedMessage implements Message {
         resolveMessage().addEmote(emote);
     }
 
+    @Override
+    public void updateText(final String text) {
+        resolveMessage().updateText(text);
+    }
+
+    @Override
+    public boolean isOld() {
+        return resolveMessage().isOld();
+    }
+
     private Message resolveMessage() {
         if (message != null) {
             return message;
