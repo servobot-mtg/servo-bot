@@ -74,7 +74,7 @@ public class MtgMeleeWebParser {
             Map<String, String> data = button.dataset();
             if (data != null && data.get("is-started").equals("True")) {
                 String name = button.text();
-                if (name.contains("Swiss") || name.contains("Day")) {
+                if (name.contains("Swiss") || name.contains("Day") || name.contains("Round")) {
                     standingsId = Integer.parseInt(data.get("id"));
                 }
             }
