@@ -132,7 +132,9 @@ public class MfoInformer implements Informer {
         return resolve(String.format("/deck/%d", tournament.getId()));
     }
 
-    public String getCurrentDecklist(final String arenaName) {
+    @Override
+    public String getCurrentDecklist(final String arenaName, final boolean hasFallback) {
+        String emptyTournamentMessage =  hasFallback ? null : String.format("%s is not in the tournament.", arenaName);
         return describeTournaments(tournament -> {
             Standings standings = computeStandings(tournament);
             Player player = standings.getPlayerSet().findByArenaName(arenaName);
@@ -140,7 +142,7 @@ public class MfoInformer implements Informer {
                 return null;
             }
             return parseDecklistsFor(player, tournament.getId());
-        }, true, false, String.format("%s is not in the tournament.", arenaName));
+        }, true, false, emptyTournamentMessage);
     }
 
     public String getCurrentPairings() {

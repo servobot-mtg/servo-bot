@@ -149,7 +149,8 @@ public class MtgMeleeInformer implements Informer {
         }, true, true, String.format("There are no current tournaments for %s.", name));
     }
 
-    public String getCurrentDecklist(final String name) {
+    public String getCurrentDecklist(final String name, final boolean hasFallback) {
+        String emptyTournamentMessage = hasFallback ? null : String.format("%s is not in the tournament.", name);
         return describeTournaments(tournament -> {
             PlayerSet players = new PlayerSet();
             PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(1), 500);
@@ -161,7 +162,7 @@ public class MtgMeleeInformer implements Informer {
 
             DecklistDescription description = decklistMap.get(player);
             return String.format("%s (%s)", description.getUrl(), description.getName());
-        }, true, false, String.format("%s is not in the tournament.", name));
+        }, true, false, emptyTournamentMessage);
     }
 
     @Override

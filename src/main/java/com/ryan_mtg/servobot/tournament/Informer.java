@@ -19,7 +19,7 @@ public interface Informer {
     String getCurrentRecords();
     String getCurrentStatus(final String name);
     String getCurrentRecord(final String name);
-    String getCurrentDecklist(final String name);
+    String getCurrentDecklist(final String name, final boolean hasFallback);
     Tournament getTournament(int tournamentId);
 
     static <TournamentType> String describeTournaments(final Collection<TournamentType> tournaments,

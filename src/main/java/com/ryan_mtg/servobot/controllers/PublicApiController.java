@@ -78,7 +78,7 @@ public class PublicApiController {
                 if (Strings.isBlank(arenaName)) {
                     return informer.getCurrentDecklists();
                 } else {
-                    return informer.getCurrentDecklist(arenaName);
+                    return informer.getCurrentDecklist(arenaName, false);
                 }
             case "pairings":
                 return informer.getCurrentPairings();
@@ -100,7 +100,8 @@ public class PublicApiController {
 
     @GetMapping("/melee")
     public String evaluateMeleeExpression(@RequestParam final String query,
-            @RequestParam(required = false) final String name, final MtgMeleeInformer informer) {
+            @RequestParam(required = false) final String name, @RequestParam(required = false) final String fallback,
+            final MtgMeleeInformer informer) {
         switch (query) {
             case "tournaments":
                 return informer.describeCurrentTournaments();
@@ -110,7 +111,15 @@ public class PublicApiController {
                 if (Strings.isBlank(name)) {
                     return informer.getCurrentDecklists();
                 } else {
-                    return informer.getCurrentDecklist(name);
+                    String decklist = informer.getCurrentDecklist(name, fallback != null);
+                    if (decklist == null) {
+                        if (fallback.startsWith("cbl-")) {
+                            return String.format("https://app.cardboard.live/s/%s", fallback.substring(4));
+                        } else {
+                            return "";
+                        }
+                    }
+                    return decklist;
                 }
             case "pairings":
                 String description = informer.getCurrentPairings();
