@@ -75,6 +75,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "code":
                 setCode(event, command, parseResult.getInput());
                 return;
+            case "add":
             case "join":
             case "queue":
             case "enqueue":
@@ -91,6 +92,15 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "clear":
             case "reset":
                 clear(event);
+                return;
+            case "ready":
+            case "here":
+                ready(event, parseResult.getInput());
+                return;
+            case "last":
+            case "lg":
+            case "done":
+                lg(event, parseResult.getInput());
                 return;
             case "help":
                 help(event);
@@ -117,6 +127,12 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 case PLAYERS_LEAVE:
                     event.say(GameQueueUtils.getPlayersDequeuedMessage(action.getDequeuedPlayers()));
                     break;
+                case PLAYERS_READY:
+                    event.say(GameQueueUtils.getPlayersReadiedMessage(action.getDequeuedPlayers()));
+                    break;
+                case PLAYERS_LG:
+                    event.say(GameQueueUtils.getPlayersLgedMessage(action.getDequeuedPlayers()));
+                    break;
             }
         } else {
             showQueue(event);
@@ -130,7 +146,11 @@ public class GameQueueCommand extends InvokedHomedCommand {
         String text = GameQueueUtils.createMessage(gameQueue);
 
         Message message = event.getChannel().sayAndWait(text);
+        message.addEmote(new DiscordEmoji(GameQueueUtils.REFRESH_EMOTE));
         message.addEmote(new DiscordEmoji(GameQueueUtils.DAGGER_EMOTE));
+        message.addEmote(new DiscordEmoji(GameQueueUtils.READY_EMOTE));
+        message.addEmote(new DiscordEmoji(GameQueueUtils.LG_EMOTE));
+        message.addEmote(new DiscordEmoji(GameQueueUtils.LEAVE_EMOTE));
         if (event.getServiceType() == DiscordService.TYPE) {
             gameQueueEditor.setMessage(gameQueue, message);
         }
@@ -199,6 +219,36 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showOrUpdateQueue(event, action);
     }
 
+    private void ready(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action;
+        if (Strings.isBlank(input)) {
+            action = gameQueueEditor.readyUser(gameQueueId, event.getSender().getHomedUser());
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                gameQueueEditor.readyUser(gameQueueId, user);
+            }
+            action = GameQueueAction.playersReadied(users);
+        }
+        showOrUpdateQueue(event, action);
+    }
+
+    private void lg(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action;
+        if (Strings.isBlank(input)) {
+            action = gameQueueEditor.lgUser(gameQueueId, event.getSender().getHomedUser());
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                gameQueueEditor.lgUser(gameQueueId, user);
+            }
+            action = GameQueueAction.playersLged(users);
+        }
+        showOrUpdateQueue(event, action);
+    }
+
     private List<HomedUser> getPlayerList(final ServiceHome serviceHome, final String list) throws UserError {
         List<HomedUser> users = new ArrayList<>();
         for(String name : list.split(",")) {
@@ -234,8 +284,10 @@ public class GameQueueCommand extends InvokedHomedCommand {
         text.append("Where *command*  is one of: ```YAML\n");
         text.append("show: Displays the full details of the queue.\n");
         text.append("server: code: Without any arguments, displays the server and code. With arguments, sets the server and/or code.\n");
-        text.append("join: enqueue: Adds you to the queue. With arguments, adds the user specified to the queue.\n");
-        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user specified from the queue.\n");
+        text.append("join: enqueue: Adds you to the queue. With arguments, adds the user(s) specified to the queue.\n");
+        text.append("ready: Adds you to the game if you are on deck. With arguments, adds the user(s) specified to the game.\n");
+        text.append("last: LG: Marks you as being in your last game. With arguments, marks the user(s) specified as being in their last game.\n");
+        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
         text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
         text.append("help: Displays this message.\n");
         text.append("```\n");

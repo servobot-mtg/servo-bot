@@ -5,7 +5,7 @@ import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 
 public class DiscordMessage implements Message {
-    private static int OLD_LENGTH = 10;
+    private static int OLD_LENGTH = 8;
 
     private User sender;
     private net.dv8tion.jda.api.entities.Message message;

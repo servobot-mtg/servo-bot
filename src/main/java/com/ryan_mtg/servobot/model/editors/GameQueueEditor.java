@@ -92,4 +92,18 @@ public class GameQueueEditor {
         GameQueueEdit gameQueueEdit = gameQueue.clear(contextId);
         gameQueueSerializer.commit(gameQueueEdit);
     }
+
+    public GameQueueAction readyUser(final int gameQueueId, final HomedUser player) throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit gameQueueEdit = gameQueue.ready(player);
+        gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.playerReadied(player);
+    }
+
+    public GameQueueAction lgUser(final int gameQueueId, final HomedUser player) throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit gameQueueEdit = gameQueue.lg(player);
+        gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.playerLged(player);
+    }
 }

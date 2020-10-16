@@ -12,7 +12,9 @@ public class GameQueueAction {
     public enum Event {
         CODE_CHANGED,
         PLAYERS_QUEUE,
+        PLAYERS_READY,
         PLAYERS_LEAVE,
+        PLAYERS_LG,
     }
 
     @Getter
@@ -29,6 +31,12 @@ public class GameQueueAction {
 
     @Getter
     private List<HomedUser> dequeuedPlayers;
+
+    @Getter
+    private List<HomedUser> readiedPlayers;
+
+    @Getter
+    private List<HomedUser> lgedPlayers;
 
     public static GameQueueAction codeChanged(final String code, final String server) {
         return GameQueueAction.builder().event(Event.CODE_CHANGED).code(code).server(server).build();
@@ -50,5 +58,22 @@ public class GameQueueAction {
     public static GameQueueAction playerDequeued(final HomedUser player) {
         return GameQueueAction.builder().event(Event.PLAYERS_LEAVE)
                 .dequeuedPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playersReadied(final List<HomedUser> players) {
+        return GameQueueAction.builder().event(Event.PLAYERS_READY).readiedPlayers(players).build();
+    }
+
+    public static GameQueueAction playerReadied(final HomedUser player) {
+        return GameQueueAction.builder().event(Event.PLAYERS_READY)
+                .readiedPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playersLged(final List<HomedUser> players) {
+        return GameQueueAction.builder().event(Event.PLAYERS_LG).lgedPlayers(players).build();
+    }
+
+    public static GameQueueAction playerLged(final HomedUser player) {
+        return GameQueueAction.builder().event(Event.PLAYERS_LG).lgedPlayers(Collections.singletonList(player)).build();
     }
 }

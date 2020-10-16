@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public enum Game {
     ARENA(1, "MTG Arena", 1, 1),
-    AMONG_US(2, "Among Us", 9, 10);
+    AMONG_US(2, "Among Us", 6, 10);
 
     private final int type;
     private final String name;

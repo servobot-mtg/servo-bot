@@ -1,6 +1,9 @@
 package com.ryan_mtg.servobot.model.game_queue;
 
 public enum PlayerState {
+    RSVPED,
     WAITING,
-    PLAYING;
+    ON_DECK,
+    PLAYING,
+    LG;
 }
