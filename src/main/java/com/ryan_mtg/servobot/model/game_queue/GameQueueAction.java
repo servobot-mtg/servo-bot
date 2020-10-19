@@ -4,76 +4,98 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Builder
 public class GameQueueAction {
-    public enum Event {
-        CODE_CHANGED,
-        PLAYERS_QUEUE,
-        PLAYERS_READY,
-        PLAYERS_LEAVE,
-        PLAYERS_LG,
-    }
-
-    @Getter
-    private Event event;
-
     @Getter
     private String code;
 
     @Getter
     private String server;
 
-    @Getter
-    private List<HomedUser> queuedPlayers;
+    @Getter @Builder.Default
+    private List<HomedUser> queuedPlayers = new ArrayList<>();
 
-    @Getter
-    private List<HomedUser> dequeuedPlayers;
+    @Getter @Builder.Default
+    private List<HomedUser> dequeuedPlayers = new ArrayList<>();
 
-    @Getter
-    private List<HomedUser> readiedPlayers;
+    @Getter @Builder.Default
+    private List<HomedUser> onDeckedPlayers = new ArrayList<>();
 
-    @Getter
-    private List<HomedUser> lgedPlayers;
+    @Getter @Builder.Default
+    private List<HomedUser> readiedPlayers = new ArrayList<>();
+
+    @Getter @Builder.Default
+    private List<HomedUser> lgedPlayers = new ArrayList<>();
+
+    @Getter @Builder.Default
+    private List<HomedUser> movedPlayers = new ArrayList<>();
+
+    public void merge(final GameQueueAction action) {
+        if (action.code != null) {
+            code = action.code;
+        }
+        if (action.server != null) {
+            server = action.server;
+        }
+        queuedPlayers = merge(queuedPlayers, action.queuedPlayers);
+        dequeuedPlayers = merge(dequeuedPlayers, action.dequeuedPlayers);
+        onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
+        readiedPlayers = merge(readiedPlayers, action.readiedPlayers);
+        lgedPlayers = merge(lgedPlayers, action.lgedPlayers);
+        movedPlayers = merge(movedPlayers, action.movedPlayers);
+    }
+
+    public static GameQueueAction emptyAction() {
+        return GameQueueAction.builder().build();
+    }
 
     public static GameQueueAction codeChanged(final String code, final String server) {
-        return GameQueueAction.builder().event(Event.CODE_CHANGED).code(code).server(server).build();
+        return GameQueueAction.builder().code(code).server(server).build();
     }
 
     public static GameQueueAction playersQueued(final List<HomedUser> players) {
-        return GameQueueAction.builder().event(Event.PLAYERS_QUEUE).queuedPlayers(players).build();
+        return GameQueueAction.builder().queuedPlayers(players).build();
     }
 
     public static GameQueueAction playerQueued(final HomedUser player) {
-        return GameQueueAction.builder().event(Event.PLAYERS_QUEUE)
-                .queuedPlayers(Collections.singletonList(player)).build();
-    }
-
-    public static GameQueueAction playersDequeued(final List<HomedUser> players) {
-        return GameQueueAction.builder().event(Event.PLAYERS_LEAVE).dequeuedPlayers(players).build();
+        return GameQueueAction.builder().queuedPlayers(Collections.singletonList(player)).build();
     }
 
     public static GameQueueAction playerDequeued(final HomedUser player) {
-        return GameQueueAction.builder().event(Event.PLAYERS_LEAVE)
-                .dequeuedPlayers(Collections.singletonList(player)).build();
-    }
-
-    public static GameQueueAction playersReadied(final List<HomedUser> players) {
-        return GameQueueAction.builder().event(Event.PLAYERS_READY).readiedPlayers(players).build();
+        return GameQueueAction.builder().dequeuedPlayers(Collections.singletonList(player)).build();
     }
 
     public static GameQueueAction playerReadied(final HomedUser player) {
-        return GameQueueAction.builder().event(Event.PLAYERS_READY)
-                .readiedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().readiedPlayers(Collections.singletonList(player)).build();
     }
 
-    public static GameQueueAction playersLged(final List<HomedUser> players) {
-        return GameQueueAction.builder().event(Event.PLAYERS_LG).lgedPlayers(players).build();
+    public static GameQueueAction playerOnDecked(final HomedUser player) {
+        return GameQueueAction.builder().onDeckedPlayers(Collections.singletonList(player)).build();
     }
 
     public static GameQueueAction playerLged(final HomedUser player) {
-        return GameQueueAction.builder().event(Event.PLAYERS_LG).lgedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().lgedPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playerMoved(final HomedUser player) {
+        return GameQueueAction.builder().movedPlayers(Collections.singletonList(player)).build();
+    }
+
+    private static List<HomedUser> merge(final List<HomedUser> a, final List<HomedUser> b) {
+        if (a == null) {
+            return b;
+        }
+
+        if (b == null) {
+            return a;
+        }
+
+        return Stream.concat(a.stream(), b.stream()).collect(Collectors.toList());
     }
 }

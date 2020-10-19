@@ -88,36 +88,93 @@ public class GameQueue {
         return false;
     }
 
-    public GameQueueEdit enqueue(final HomedUser player) throws UserError {
+    public GameQueueAction enqueue(final HomedUser player, final GameQueueEdit edit) throws UserError {
         if (userMap.containsKey(player.getId())) {
             throw new UserError("%s is already queued.", player.getName());
         }
 
-        GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.WAITING);
-        gameQueueEdit.save(getId(), newEntry);
+        edit.save(getId(), newEntry);
         waitQueue.add(newEntry);
         userMap.put(player.getId(), newEntry);
 
-        promotePlayersToOnDeck(gameQueueEdit);
+        GameQueueAction action = GameQueueAction.playerQueued(player);
 
-        return gameQueueEdit;
+        promotePlayersToOnDeck(edit, action);
+
+        return action;
     }
 
-    public GameQueueEdit dequeue(final HomedUser player) throws UserError {
+    public GameQueueAction dequeue(final HomedUser player, final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
         if (!userMap.containsKey(playerId)) {
             throw new UserError("%s is not in the queue.", player.getName());
         }
 
+        removeEntry(edit, playerId);
+        GameQueueAction action = GameQueueAction.playerDequeued(player);
+        promotePlayersToOnDeck(edit, action);
+
+        return action;
+    }
+
+    public GameQueueAction rotate(final HomedUser player, final GameQueueEdit edit) throws UserError {
+        int playerId = player.getId();
+        if (!userMap.containsKey(playerId)) {
+            return enqueue(player, edit);
+        }
+
+        GameQueueEntry entry = userMap.get(playerId);
+        removeFromLists(entry);
+        entry.setState(PlayerState.WAITING);
+        entry.setEnqueueTime(Instant.now());
+        waitQueue.add(entry);
+        edit.save(getId(), entry);
+        GameQueueAction action = GameQueueAction.playerQueued(player);
+        promotePlayersToOnDeck(edit, action);
+
+        return action;
+    }
+
+    public GameQueueEdit move(final HomedUser player, final int position) throws UserError {
+        int playerId = player.getId();
+        GameQueueEntry entry = userMap.get(playerId);
+        if (!userMap.containsKey(playerId) || entry.getState() != PlayerState.WAITING) {
+            throw new UserError("%s is not in the queue.", player.getName());
+        }
+
+        if (position < 1) {
+            throw new UserError("Position %d is too low.", position);
+        }
+
+        if (position > waitQueue.size()) {
+            throw new UserError("Position %d is too high.", position);
+        }
+
+        if (waitQueue.get(position-1).getUser().getId() == playerId) {
+            throw new UserError("%s is already in position %d.", player.getName(), position);
+        }
+
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
-        removeEntry(gameQueueEdit, playerId);
-        promotePlayersToOnDeck(gameQueueEdit);
+
+        if (position == 1) {
+            entry.setEnqueueTime(Instant.ofEpochMilli(waitQueue.get(0).getEnqueueTime().toEpochMilli() - 512));
+        } else if (position == waitQueue.size()) {
+            entry.setEnqueueTime(Instant.ofEpochMilli(waitQueue.get(position-1).getEnqueueTime().toEpochMilli() + 512));
+        } else {
+            long beforeTime = waitQueue.get(position-2).getEnqueueTime().toEpochMilli();
+            long afterTime = waitQueue.get(position-1).getEnqueueTime().toEpochMilli();
+            long setTime = (beforeTime + afterTime) / 2;
+            entry.setEnqueueTime(Instant.ofEpochMilli(setTime));
+        }
+        Collections.sort(waitQueue);
+        gameQueueEdit.save(getId(), entry);
 
         return gameQueueEdit;
     }
 
-    public GameQueueEdit ready(final HomedUser player) throws UserError {
+
+    public GameQueueAction ready(final HomedUser player, final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
         if (!userMap.containsKey(playerId) || userMap.get(playerId).getState() != PlayerState.ON_DECK) {
             throw new UserError("%s is not on deck.", player.getName());
@@ -127,17 +184,16 @@ public class GameQueue {
             throw new UserError("Not enough room in the game for %s.", player.getName());
         }
 
-        GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueueEntry entry = userMap.get(playerId);
         entry.setState(PlayerState.PLAYING);
-        gameQueueEdit.save(getId(), entry);
+        edit.save(getId(), entry);
         playing.add(entry);
         onDeck.remove(entry);
 
-        return gameQueueEdit;
+        return GameQueueAction.playerReadied(player);
     }
 
-    public GameQueueEdit lg(final HomedUser player) throws UserError {
+    public GameQueueAction lg(final HomedUser player, final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
         if (userMap.containsKey(playerId) && userMap.get(playerId).getState() == PlayerState.LG) {
             throw new UserError("%s is already marked LG.", player.getName());
@@ -147,13 +203,13 @@ public class GameQueue {
             throw new UserError("%s is not playing.", player.getName());
         }
 
-        GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueueEntry entry = userMap.get(playerId);
         entry.setState(PlayerState.LG);
-        gameQueueEdit.save(getId(), entry);
-        promotePlayersToOnDeck(gameQueueEdit);
+        edit.save(getId(), entry);
+        GameQueueAction action = GameQueueAction.playerLged(player);
+        promotePlayersToOnDeck(edit, action);
 
-        return gameQueueEdit;
+        return action;
     }
 
 
@@ -177,9 +233,14 @@ public class GameQueue {
         return gameQueueEdit;
     }
 
-
     private void removeEntry(final GameQueueEdit gameQueueEdit, final int playerId) {
         GameQueueEntry entry = userMap.get(playerId);
+        removeFromLists(entry);
+        gameQueueEdit.delete(id, entry);
+        userMap.remove(playerId);
+    }
+
+    private void removeFromLists(GameQueueEntry entry) {
         switch (entry.getState()) {
             case PLAYING:
             case LG:
@@ -192,8 +253,6 @@ public class GameQueue {
                 waitQueue.remove(entry);
                 break;
         }
-        gameQueueEdit.delete(id, entry);
-        userMap.remove(playerId);
     }
 
     public List<HomedUser> getGamePlayers() {
@@ -255,7 +314,7 @@ public class GameQueue {
         return gameQueueEdit;
     }
 
-    private void promotePlayersToOnDeck(final GameQueueEdit gameQueueEdit) {
+    private void promotePlayersToOnDeck(final GameQueueEdit gameQueueEdit, final GameQueueAction action) {
         int playingCount = getPlayingCount();
 
         if (waitQueue.size() + onDeck.size() + playingCount >= game.getMinPlayers()) {
@@ -265,6 +324,7 @@ public class GameQueue {
                 GameQueueEntry joiningEntry = waitQueue.remove(0);
                 joiningEntry.setState(PlayerState.ON_DECK);
                 gameQueueEdit.save(getId(), joiningEntry);
+                action.merge(GameQueueAction.playerOnDecked(joiningEntry.getUser()));
                 onDeck.add(joiningEntry);
             }
         }

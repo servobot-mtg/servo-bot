@@ -102,10 +102,17 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "done":
                 lg(event, parseResult.getInput());
                 return;
+            case "move":
+            case "position":
+                move(event, command, parseResult.getInput());
+                break;
+            case "rotate":
+            case "requeue":
+                rotate(event, parseResult.getInput());
+                break;
             case "help":
                 help(event);
                 return;
-
             default:
                 throw new UserError("Invalid Game Queue Command: " + arguments);
         }
@@ -116,24 +123,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         GameQueue gameQueue = event.getGameQueueEditor().getGameQueue(gameQueueId);
         Message message = gameQueue.getMessage();
         if (message != null && !message.isOld()) {
-            GameQueueUtils.updateMessage(gameQueue, message);
-            switch (action.getEvent()) {
-                case CODE_CHANGED:
-                    event.say(GameQueueUtils.getCodeMessage(action.getCode(), action.getServer()));
-                    break;
-                case PLAYERS_QUEUE:
-                    event.say(GameQueueUtils.getPlayersQueuedMessage(action.getQueuedPlayers()));
-                    break;
-                case PLAYERS_LEAVE:
-                    event.say(GameQueueUtils.getPlayersDequeuedMessage(action.getDequeuedPlayers()));
-                    break;
-                case PLAYERS_READY:
-                    event.say(GameQueueUtils.getPlayersReadiedMessage(action.getDequeuedPlayers()));
-                    break;
-                case PLAYERS_LG:
-                    event.say(GameQueueUtils.getPlayersLgedMessage(action.getDequeuedPlayers()));
-                    break;
-            }
+            GameQueueUtils.updateMessage(event, gameQueue, message, action, true);
         } else {
             showQueue(event);
         }
@@ -142,6 +132,8 @@ public class GameQueueCommand extends InvokedHomedCommand {
     private void showQueue(final CommandInvokedHomeEvent event) throws UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
+
+        Message previousMessage = gameQueue.getMessage();
 
         String text = GameQueueUtils.createMessage(gameQueue);
 
@@ -153,6 +145,10 @@ public class GameQueueCommand extends InvokedHomedCommand {
         message.addEmote(new DiscordEmoji(GameQueueUtils.LEAVE_EMOTE));
         if (event.getServiceType() == DiscordService.TYPE) {
             gameQueueEditor.setMessage(gameQueue, message);
+        }
+
+        if (previousMessage != null) {
+            previousMessage.updateText("The game queue has been displayed below.");
         }
     }
 
@@ -206,45 +202,42 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
     private void enqueueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
-        GameQueueAction action;
+        GameQueueAction action = GameQueueAction.emptyAction();
         if (Strings.isBlank(input)) {
-            action = gameQueueEditor.addUser(gameQueueId, event.getSender().getHomedUser());
+            action.merge(gameQueueEditor.addUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
             List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
             for(HomedUser user : users) {
-                gameQueueEditor.addUser(gameQueueId, user);
+                action.merge(gameQueueEditor.addUser(gameQueueId, user));
             }
-            action = GameQueueAction.playersQueued(users);
         }
         showOrUpdateQueue(event, action);
     }
 
     private void ready(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
-        GameQueueAction action;
+        GameQueueAction action = GameQueueAction.emptyAction();
         if (Strings.isBlank(input)) {
-            action = gameQueueEditor.readyUser(gameQueueId, event.getSender().getHomedUser());
+            action.merge(gameQueueEditor.readyUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
             List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
             for(HomedUser user : users) {
-                gameQueueEditor.readyUser(gameQueueId, user);
+                action.merge(gameQueueEditor.readyUser(gameQueueId, user));
             }
-            action = GameQueueAction.playersReadied(users);
         }
         showOrUpdateQueue(event, action);
     }
 
     private void lg(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
-        GameQueueAction action;
+        GameQueueAction action = GameQueueAction.emptyAction();
         if (Strings.isBlank(input)) {
-            action = gameQueueEditor.lgUser(gameQueueId, event.getSender().getHomedUser());
+            action.merge(gameQueueEditor.lgUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
             List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
             for(HomedUser user : users) {
-                gameQueueEditor.lgUser(gameQueueId, user);
+                action.merge(gameQueueEditor.lgUser(gameQueueId, user));
             }
-            action = GameQueueAction.playersLged(users);
         }
         showOrUpdateQueue(event, action);
     }
@@ -252,22 +245,56 @@ public class GameQueueCommand extends InvokedHomedCommand {
     private List<HomedUser> getPlayerList(final ServiceHome serviceHome, final String list) throws UserError {
         List<HomedUser> users = new ArrayList<>();
         for(String name : list.split(",")) {
-            users.add(serviceHome.getUser(name.trim()).getHomedUser());
+            users.add(getUser(serviceHome, name));
         }
         return users;
     }
 
     private void dequeueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
-        GameQueueAction action;
+
+        GameQueueAction action = GameQueueAction.emptyAction();
         if (Strings.isBlank(input)) {
-            action = gameQueueEditor.dequeueUser(gameQueueId, event.getSender().getHomedUser());
+            action.merge(gameQueueEditor.dequeueUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
             List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
             for(HomedUser user : users) {
-                gameQueueEditor.dequeueUser(gameQueueId, user);
+                action.merge(gameQueueEditor.dequeueUser(gameQueueId, user));
             }
-            action = GameQueueAction.playersDequeued(users);
+        }
+        showOrUpdateQueue(event, action);
+    }
+
+    private void move(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        String trailingInt = extractTrailingInt(input);
+        if (Strings.isBlank(trailingInt)) {
+            throw new UserError("%s needs a position to move to.", command);
+        }
+
+        GameQueueAction action;
+        int position = Integer.parseInt(trailingInt);
+        if (trailingInt.length() < input.length()) {
+            String name = input.substring(0, input.length() - trailingInt.length());
+            action = gameQueueEditor.moveUser(gameQueueId, getUser(event.getServiceHome(), name), position);
+        } else {
+            action = gameQueueEditor.moveUser(gameQueueId, event.getSender().getHomedUser(), position);
+        }
+
+        showOrUpdateQueue(event, action);
+    }
+
+    private void rotate(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = GameQueueAction.emptyAction();
+        if (Strings.isBlank(input)) {
+            action.merge(gameQueueEditor.rotateUser(gameQueueId, event.getSender().getHomedUser()));
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                action.merge(gameQueueEditor.rotateUser(gameQueueId, user));
+            }
         }
 
         showOrUpdateQueue(event, action);
@@ -287,10 +314,28 @@ public class GameQueueCommand extends InvokedHomedCommand {
         text.append("join: enqueue: Adds you to the queue. With arguments, adds the user(s) specified to the queue.\n");
         text.append("ready: Adds you to the game if you are on deck. With arguments, adds the user(s) specified to the game.\n");
         text.append("last: LG: Marks you as being in your last game. With arguments, marks the user(s) specified as being in their last game.\n");
+        text.append("rotate: Moves you to the end of the queue. With arguments, moves the user(s) specified to the end of the queue.\n");
+        text.append("move: Moves you to the position specified. With more arguments, moves the user specified to the given position.\n");
         text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
         text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
         text.append("help: Displays this message.\n");
         text.append("```\n");
         event.getChannel().say(text.toString());
+    }
+
+    private HomedUser getUser(final ServiceHome serviceHome, final String name) throws UserError {
+        return serviceHome.getUser(name.trim()).getHomedUser();
+    }
+
+    private String extractTrailingInt(final String input) {
+        if (input == null) {
+            return null;
+        }
+        int trailingCharacters = 0;
+        int len = input.length();
+        while (trailingCharacters < len && Character.isDigit(input.charAt(len - 1 - trailingCharacters))) {
+            trailingCharacters++;
+        }
+        return input.substring(len - trailingCharacters);
     }
 }

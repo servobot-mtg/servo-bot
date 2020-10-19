@@ -75,16 +75,18 @@ public class GameQueueEditor {
 
     public GameQueueAction addUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
-        GameQueueEdit gameQueueEdit = gameQueue.enqueue(player);
-        gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.playerQueued(player);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.enqueue(player, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
     }
 
     public GameQueueAction dequeueUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
-        GameQueueEdit gameQueueEdit = gameQueue.dequeue(player);
-        gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.playerDequeued(player);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.dequeue(player, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
     }
 
     public void clear(final int gameQueueId) {
@@ -95,15 +97,33 @@ public class GameQueueEditor {
 
     public GameQueueAction readyUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
-        GameQueueEdit gameQueueEdit = gameQueue.ready(player);
-        gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.playerReadied(player);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.ready(player, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
     }
 
     public GameQueueAction lgUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
-        GameQueueEdit gameQueueEdit = gameQueue.lg(player);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.lg(player, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
+    }
+
+    public GameQueueAction rotateUser(final int gameQueueId, final HomedUser player) throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.rotate(player, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
+    }
+
+    public GameQueueAction moveUser(final int gameQueueId, final HomedUser player, final int position)
+            throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit gameQueueEdit = gameQueue.move(player, position);
         gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.playerLged(player);
+        return GameQueueAction.playerMoved(player);
     }
 }

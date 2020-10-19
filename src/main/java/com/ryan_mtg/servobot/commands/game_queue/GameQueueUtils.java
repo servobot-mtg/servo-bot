@@ -1,12 +1,16 @@
 package com.ryan_mtg.servobot.commands.game_queue;
 
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EmoteHomeEvent;
+import com.ryan_mtg.servobot.events.MessageEvent;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
+import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -23,22 +27,21 @@ public class GameQueueUtils {
             GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
             String emoteName = event.getEmote().getName();
             if (emoteName.equals(DAGGER_EMOTE)) {
-                gameQueueEditor.addUser(gameQueue.getId(), reactor.getHomedUser());
-                updateMessage(gameQueue, event.getMessage());
+                GameQueueAction action = gameQueueEditor.addUser(gameQueue.getId(), reactor.getHomedUser());
+                updateMessage(event, gameQueue, event.getMessage(), action, false);
             } else if (emoteName.equals(REFRESH_EMOTE)) {
-                updateMessage(gameQueue, event.getMessage());
+                updateMessage(event, gameQueue, event.getMessage(), GameQueueAction.emptyAction(), false);
             } else if (emoteName.equals(READY_EMOTE)) {
-                gameQueueEditor.readyUser(gameQueue.getId(), reactor.getHomedUser());
-                updateMessage(gameQueue, event.getMessage());
+                GameQueueAction action = gameQueueEditor.readyUser(gameQueue.getId(), reactor.getHomedUser());
+                updateMessage(event, gameQueue, event.getMessage(), action, false);
             } else if (emoteName.equals(LG_EMOTE)) {
-                gameQueueEditor.lgUser(gameQueue.getId(), reactor.getHomedUser());
-                updateMessage(gameQueue, event.getMessage());
+                GameQueueAction action = gameQueueEditor.lgUser(gameQueue.getId(), reactor.getHomedUser());
+                updateMessage(event, gameQueue, event.getMessage(), action, false);
             } else if (emoteName.equals(LEAVE_EMOTE)) {
-                gameQueueEditor.dequeueUser(gameQueue.getId(), reactor.getHomedUser());
-                updateMessage(gameQueue, event.getMessage());
+                GameQueueAction action = gameQueueEditor.dequeueUser(gameQueue.getId(), reactor.getHomedUser());
+                updateMessage(event, gameQueue, event.getMessage(), action, false);
             }
-    } catch (UserError e) {
-            return;
+        } catch (UserError | BotHomeError e) {
         }
     }
 
@@ -47,19 +50,52 @@ public class GameQueueUtils {
             GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
             String emoteName = event.getEmote().getName();
             if (emoteName.equals(DAGGER_EMOTE)) {
-                gameQueueEditor.dequeueUser(gameQueue.getId(), reactor.getHomedUser());
-                updateMessage(gameQueue, event.getMessage());
+                GameQueueAction action = gameQueueEditor.dequeueUser(gameQueue.getId(), reactor.getHomedUser());
+                updateMessage(event, gameQueue, event.getMessage(), action, false);
             } else if (emoteName.equals(REFRESH_EMOTE)) {
-                updateMessage(gameQueue, event.getMessage());
+                updateMessage(event, gameQueue, event.getMessage(), GameQueueAction.emptyAction(), false);
             }
-        } catch (UserError e) {
-            return;
+        } catch (UserError | BotHomeError e) {
         }
     }
 
-    public static void updateMessage(final GameQueue gameQueue, final Message message) {
+    public static void updateMessage(final MessageEvent event, final GameQueue gameQueue, final Message message,
+            final GameQueueAction action, final boolean verbose) throws BotHomeError {
         String text = createMessage(gameQueue);
         message.updateText(text);
+        respondToAction(event, action, verbose);
+    }
+
+    public static void respondToAction(final MessageEvent event, final GameQueueAction action, final boolean verbose)
+            throws BotHomeError {
+        String response = "";
+        if (!action.getQueuedPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersQueuedMessage(action.getQueuedPlayers()));
+        }
+
+        if (!action.getDequeuedPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersDequeuedMessage(action.getDequeuedPlayers()));
+        }
+
+        if (!action.getReadiedPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersReadyMessage(action.getReadiedPlayers()));
+        }
+
+        if (!action.getLgedPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersLgedMessage(action.getLgedPlayers()));
+        }
+
+        if (!action.getOnDeckedPlayers().isEmpty()) {
+            response = combine(response, GameQueueUtils.getPlayersOnDeckedMessage(action.getOnDeckedPlayers()));
+        }
+
+        if ((action.getCode() != null || action.getServer() != null) && verbose) {
+            response = combine(response, GameQueueUtils.getCodeMessage(action.getCode(), action.getServer()));
+        }
+
+        if (!Strings.isBlank(response)) {
+            event.say(response);
+        }
     }
 
     public static String createMessage(final GameQueue gameQueue) {
@@ -130,7 +166,11 @@ public class GameQueueUtils {
         return getPlayersMessage("Marked ", "as LG.", players);
     }
 
-    public static String getPlayersReadiedMessage(final List<HomedUser> players) {
+    public static String getPlayersReadyMessage(final List<HomedUser> players) {
+        return getPlayersMessage(null, (players.size() > 1 ? "are": "is") + " ready to play.", players);
+    }
+
+    public static String getPlayersOnDeckedMessage(final List<HomedUser> players) {
         StringBuilder text = new StringBuilder();
         appendPlayerList(text, players, true);
         if (players.size() > 1) {
@@ -138,13 +178,15 @@ public class GameQueueUtils {
         } else {
             text.append(" is");
         }
-        text.append(" on deck and should get ready to play!");
+        text.append(" on deck and should react to the queue with " + READY_EMOTE + " when they are ready to play!");
         return text.toString();
     }
 
     private static String getPlayersMessage(final String action, final String message, final List<HomedUser> players) {
         StringBuilder text = new StringBuilder();
-        text.append(action).append(' ');
+        if (action != null) {
+            text.append(action).append(' ');
+        }
         appendPlayerList(text, players, false);
         text.append(' ').append(message);
         return text.toString();
@@ -183,11 +225,18 @@ public class GameQueueUtils {
                 }
                 text.append(user.getName());
                 if (isLg != null && isLg.test(user)) {
-                    text.append(" (LG)");
+                    text.append(" (LG " + LG_EMOTE + ")");
                 }
                 text.append('\n');
             }
             text.append("```\n");
         }
+    }
+
+    private static String combine(final String a, final String b) {
+        if (Strings.isBlank(a)) {
+            return b;
+        }
+        return a + " " + b;
     }
 }
