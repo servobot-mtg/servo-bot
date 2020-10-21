@@ -529,7 +529,7 @@
         Time Zone
         <select th:onchange="'updateTimeZone(event, ' + ${botHome.id} + ', \'time-zone-updated\')'">
             <th:block th:each="timeZone : ${timeZones}">
-                <option th:value="${timeZone.value}" th:text="${timeZone.display}"
+                <option th:value="${timeZone.value}" th:text="${timeZone.name}"
                         th:selected="${timeZone.value == botHome.timeZone}"/>
             </th:block>
         </select> <span id="time-zone-updated" />

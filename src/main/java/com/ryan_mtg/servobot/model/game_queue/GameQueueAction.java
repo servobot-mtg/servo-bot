@@ -36,6 +36,12 @@ public class GameQueueAction {
     @Getter @Builder.Default
     private List<HomedUser> movedPlayers = new ArrayList<>();
 
+    @Getter @Builder.Default
+    private List<HomedUser> rsvpedPlayers = new ArrayList<>();
+
+    @Getter @Builder.Default
+    private List<HomedUser> rsvpExpiredPlayers = new ArrayList<>();
+
     public void merge(final GameQueueAction action) {
         if (action.code != null) {
             code = action.code;
@@ -49,6 +55,8 @@ public class GameQueueAction {
         readiedPlayers = merge(readiedPlayers, action.readiedPlayers);
         lgedPlayers = merge(lgedPlayers, action.lgedPlayers);
         movedPlayers = merge(movedPlayers, action.movedPlayers);
+        rsvpedPlayers = merge(rsvpedPlayers, action.rsvpedPlayers);
+        rsvpExpiredPlayers = merge(rsvpExpiredPlayers, action.rsvpExpiredPlayers);
     }
 
     public static GameQueueAction emptyAction() {
@@ -85,6 +93,14 @@ public class GameQueueAction {
 
     public static GameQueueAction playerMoved(final HomedUser player) {
         return GameQueueAction.builder().movedPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playerRsvped(final HomedUser player) {
+        return GameQueueAction.builder().rsvpedPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playerReservationExpired(final HomedUser player) {
+        return GameQueueAction.builder().rsvpExpiredPlayers(Collections.singletonList(player)).build();
     }
 
     private static List<HomedUser> merge(final List<HomedUser> a, final List<HomedUser> b) {

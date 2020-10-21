@@ -1,13 +1,13 @@
 package com.ryan_mtg.servobot.model.game_queue;
 
+import com.ryan_mtg.servobot.Application;
 import com.ryan_mtg.servobot.error.SystemError;
 import lombok.Getter;
 
 @Getter
 public enum Game {
     ARENA(1, "MTG Arena", 1, 1),
-    //AMONG_US(2, "Among Us", 9, 10);
-    AMONG_US(2, "Among Us", 2, 3);
+    AMONG_US(2, "Among Us", Application.isTesting() ? 2 : 9, Application.isTesting() ? 3 :10);
 
     private final int type;
     private final String name;

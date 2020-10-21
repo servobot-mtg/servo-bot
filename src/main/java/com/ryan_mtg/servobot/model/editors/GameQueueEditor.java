@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.user.HomedUser;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -125,5 +126,14 @@ public class GameQueueEditor {
         GameQueueEdit gameQueueEdit = gameQueue.move(player, position);
         gameQueueSerializer.commit(gameQueueEdit);
         return GameQueueAction.playerMoved(player);
+    }
+
+    public GameQueueAction rsvpUser(final int gameQueueId, final HomedUser player, final Instant rsvpTime)
+            throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.rsvp(player, rsvpTime, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
     }
 }

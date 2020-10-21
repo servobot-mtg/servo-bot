@@ -12,35 +12,28 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.security.WebsiteUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.ryan_mtg.servobot.utility.TimeZoneDescriptor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 public class BotController {
-    private static Logger LOGGER = LoggerFactory.getLogger(BotController.class);
-
     private final BotRegistrar botRegistrar;
     private final SerializerContainer serializers;
-    private final List<TimeZoneDescriptor> timeZones = new ArrayList<>();
+    private final List<TimeZoneDescriptor> timeZones;
 
     public BotController(final BotRegistrar botRegistrar, final SerializerContainer serializers) {
         this.botRegistrar = botRegistrar;
         this.serializers = serializers;
 
-        timeZones.add(new TimeZoneDescriptor("America/New_York", "Eastern"));
-        timeZones.add(new TimeZoneDescriptor("America/Chicago", "Central"));
-        timeZones.add(new TimeZoneDescriptor("America/Denver", "Mountain"));
-        timeZones.add(new TimeZoneDescriptor("America/Vancouver", "Pacific"));
+        timeZones = TimeZoneDescriptor.TIME_ZONES;
     }
 
     @GetMapping({"/", "/index.html"})
@@ -265,24 +258,6 @@ public class BotController {
             model.addAttribute("emotes", Lists.newArrayList());
             model.addAttribute("roles", Lists.newArrayList());
             model.addAttribute("channels", Lists.newArrayList());
-        }
-    }
-
-    public static class TimeZoneDescriptor {
-        private String value;
-        private String display;
-
-        public TimeZoneDescriptor(final String value, final String display)  {
-            this.value = value;
-            this.display = display;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public String getDisplay() {
-            return display;
         }
     }
 

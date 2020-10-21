@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EmoteHomeEvent;
 import com.ryan_mtg.servobot.events.MessageEvent;
+import com.ryan_mtg.servobot.events.MessageHomeEvent;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
@@ -11,9 +12,12 @@ import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Strings;
+import com.ryan_mtg.servobot.utility.Time;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class GameQueueUtils {
     public static final String REFRESH_EMOTE = "🔄";
@@ -59,9 +63,9 @@ public class GameQueueUtils {
         }
     }
 
-    public static void updateMessage(final MessageEvent event, final GameQueue gameQueue, final Message message,
+    public static void updateMessage(final MessageHomeEvent event, final GameQueue gameQueue, final Message message,
             final GameQueueAction action, final boolean verbose) throws BotHomeError {
-        String text = createMessage(gameQueue);
+        String text = createMessage(gameQueue, event.getHomeEditor().getTimeZone());
         message.updateText(text);
         respondToAction(event, action, verbose);
     }
@@ -85,8 +89,16 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getPlayersLgedMessage(action.getLgedPlayers()));
         }
 
+        if (!action.getRsvpedPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersRsvpedMessage(action.getRsvpedPlayers()));
+        }
+
         if (!action.getOnDeckedPlayers().isEmpty()) {
             response = combine(response, GameQueueUtils.getPlayersOnDeckedMessage(action.getOnDeckedPlayers()));
+        }
+
+        if (!action.getRsvpExpiredPlayers().isEmpty()) {
+            response = combine(response, GameQueueUtils.getPlayersReservationExpiredMessage(action.getRsvpExpiredPlayers()));
         }
 
         if ((action.getCode() != null || action.getServer() != null) && verbose) {
@@ -98,7 +110,7 @@ public class GameQueueUtils {
         }
     }
 
-    public static String createMessage(final GameQueue gameQueue) {
+    public static String createMessage(final GameQueue gameQueue, final String timeZone) {
         StringBuilder text = new StringBuilder();
         text.append("Game Queue for ").append(gameQueue.getGame().getName());
 
@@ -107,16 +119,38 @@ public class GameQueueUtils {
         text.append("\n\n");
 
         appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "Players", "No active game.", '#',
-                homedUser -> gameQueue.isLg(homedUser));
+            (player, t) -> {
+                if (gameQueue.isLg(player)) {
+                    t.append(" (LG " + LG_EMOTE + ")");
+                }
+            });
 
         List<HomedUser> onDeck = gameQueue.getOnDeck();
         if (!onDeck.isEmpty()) {
-            appendPlayerList(text, onDeck, "Diff", "On Deck", "No one is waiting.", '-', null);
+            appendPlayerList(text, onDeck, "Diff", "On Deck", null, '-', null);
         }
 
         List<HomedUser> waitQueue = gameQueue.getWaitQueue();
         if (!waitQueue.isEmpty() || onDeck.isEmpty()) {
             appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.", '#', null);
+        }
+
+        List<HomedUser> rsvpList = gameQueue.getRsvpList();
+
+        if (!rsvpList.isEmpty()) {
+            appendPlayerList(text, gameQueue.getRsvpList(), "HTTP", "Reservations", null, '#',
+                (player, t) -> {
+                    try {
+                        Instant rsvpTime = gameQueue.getRsvpTime(player);
+                        if (Instant.now().compareTo(rsvpTime) < 0) {
+                            ZonedDateTime time = ZonedDateTime.ofInstant(rsvpTime, ZoneId.of(timeZone));
+                            t.append(" (").append(Time.toReadableString(time)).append(')');
+                        } else {
+                            t.append(" (late)");
+                        }
+                    } catch (UserError e) {
+                    }
+                });
         }
 
         text.append("React with:\n");
@@ -170,6 +204,10 @@ public class GameQueueUtils {
         return getPlayersMessage(null, (players.size() > 1 ? "are": "is") + " ready to play.", players);
     }
 
+    public static String getPlayersRsvpedMessage(final List<HomedUser> players) {
+        return getPlayersMessage(null, (players.size() > 1 ? "have": "has") + " made a reservation.", players);
+    }
+
     public static String getPlayersOnDeckedMessage(final List<HomedUser> players) {
         StringBuilder text = new StringBuilder();
         appendPlayerList(text, players, true);
@@ -179,6 +217,18 @@ public class GameQueueUtils {
             text.append(" is");
         }
         text.append(" on deck and should react to the queue with " + READY_EMOTE + " when they are ready to play!");
+        return text.toString();
+    }
+
+    public static String getPlayersReservationExpiredMessage(final List<HomedUser> players) {
+        StringBuilder text = new StringBuilder();
+        appendPlayerList(text, players, true);
+        if (players.size() > 1) {
+            text.append(" have");
+        } else {
+            text.append(" has");
+        }
+        text.append(" a reservation and should react to the queue with " + DAGGER_EMOTE + " when they are ready to play!");
         return text.toString();
     }
 
@@ -210,22 +260,27 @@ public class GameQueueUtils {
         }
     }
 
+    private interface AdditionalPlayerInfo {
+        void appendInfo(HomedUser player, StringBuilder text);
+    }
+
     private static void appendPlayerList(final StringBuilder text, final List<HomedUser> players, final String syntax,
-            final String title, final String emptyMessage, final char playerPrefix, final Predicate<HomedUser> isLg) {
+            final String title, final String emptyMessage, final char playerPrefix,
+            final AdditionalPlayerInfo additionalInfo) {
         if (players.isEmpty()) {
             text.append(emptyMessage).append("\n\n");
         } else {
             text.append(title).append(" ```").append(syntax).append('\n');
             int count = 1;
-            for (HomedUser user : players) {
+            for (HomedUser player : players) {
                 if (playerPrefix == '#') {
                     text.append(count++).append(") ");
                 } else if (playerPrefix == '-') {
                     text.append("- ");
                 }
-                text.append(user.getName());
-                if (isLg != null && isLg.test(user)) {
-                    text.append(" (LG " + LG_EMOTE + ")");
+                text.append(player.getName());
+                if (additionalInfo != null) {
+                    additionalInfo.appendInfo(player, text);
                 }
                 text.append('\n');
             }

@@ -17,11 +17,16 @@ import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Strings;
+import com.ryan_mtg.servobot.utility.TimeZoneDescriptor;
 import lombok.Getter;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameQueueCommand extends InvokedHomedCommand {
@@ -110,6 +115,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "requeue":
                 rotate(event, parseResult.getInput());
                 break;
+            case "rsvp":
+                rsvp(event, command, parseResult.getInput());
+                break;
             case "help":
                 help(event);
                 return;
@@ -135,7 +143,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
         Message previousMessage = gameQueue.getMessage();
 
-        String text = GameQueueUtils.createMessage(gameQueue);
+        String text = GameQueueUtils.createMessage(gameQueue, event.getHomeEditor().getTimeZone());
 
         Message message = event.getChannel().sayAndWait(text);
         message.addEmote(new DiscordEmoji(GameQueueUtils.REFRESH_EMOTE));
@@ -300,6 +308,87 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showOrUpdateQueue(event, action);
     }
 
+    private static final Pattern RSVP_PATTERN =
+            Pattern.compile("(?<hour>\\d?\\d):(?<minute>\\d\\d)(?<ampm>\\s*(A|P|a|p)(m|M))?(?<zone>\\s+\\w+(\\s+\\w+)?)?");
+
+    private void rsvp(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+
+        if (Strings.isBlank(input)) {
+            throw new UserError("%s command requires a time formatted as HH:MM PM <time zone>", command);
+        }
+
+        System.out.println(String.format("'%s'", input));
+        Matcher matcher = RSVP_PATTERN.matcher(input);
+        if (!matcher.matches()) {
+            throw new UserError("%s command requires a time formatted as HH:MM PM <time zone>", command);
+        }
+
+        int hour = Integer.parseInt(matcher.group("hour"));
+        int minutes = Integer.parseInt(matcher.group("minute"));
+        if (minutes >= 60) {
+            throw new UserError("Minutes must be less than 60");
+        }
+
+        String ampm = matcher.group("ampm");
+        if (!Strings.isBlank(ampm)) {
+            ampm = ampm.trim();
+            if (hour > 12) {
+                throw new UserError("Cannot have an hour higher than 12 when supplying {}", ampm);
+            }
+
+            if (hour == 12) {
+                hour = 0;
+            }
+
+            if (ampm.toLowerCase().charAt(0) == 'p') {
+                hour += 12;
+            }
+        } else {
+            if (hour > 24) {
+                throw new UserError("Cannot have an hour higher than 24", ampm);
+            }
+
+            if (hour == 24) {
+                hour = 0;
+            }
+        }
+
+        String timeZone = matcher.group("zone");
+        if (Strings.isBlank(timeZone)) {
+            timeZone = event.getHomeEditor().getTimeZone();
+        } else {
+            timeZone = timeZone.trim();
+            boolean found = false;
+            for (TimeZoneDescriptor descriptor : TimeZoneDescriptor.TIME_ZONES) {
+                if (timeZone.equalsIgnoreCase(descriptor.getName()) || timeZone.equalsIgnoreCase(descriptor.getAbbreviation())) {
+                    timeZone = descriptor.getValue();
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                throw new UserError("Unknown time zone: {}", timeZone);
+            }
+        }
+
+        LocalTime time = LocalTime.of(hour, minutes);
+
+        ZoneId zoneId = ZoneId.of(timeZone);
+        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        ZonedDateTime rsvpTime = ZonedDateTime.of(now.toLocalDate(), time, zoneId);
+        if (rsvpTime.compareTo(now) <= 0) {
+            rsvpTime = rsvpTime.plusDays(1);
+        }
+
+        GameQueueAction action =
+                gameQueueEditor.rsvpUser(gameQueueId, event.getSender().getHomedUser(), rsvpTime.toInstant());
+
+        showOrUpdateQueue(event, action);
+    }
+
     private void clear(final CommandInvokedHomeEvent event) throws UserError {
         event.getGameQueueEditor().clear(gameQueueId);
         showQueue(event);
@@ -317,6 +406,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         text.append("rotate: Moves you to the end of the queue. With arguments, moves the user(s) specified to the end of the queue.\n");
         text.append("move: Moves you to the position specified. With more arguments, moves the user specified to the given position.\n");
         text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
+        text.append("rsvp: Makes a reservation for you to play at the specified time. The time should be formatted similar to 2:30 PM PT");
         text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
         text.append("help: Displays this message.\n");
         text.append("```\n");

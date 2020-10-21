@@ -39,6 +39,7 @@ public class GameQueue {
 
     private List<GameQueueEntry> playing = new ArrayList<>();
     private List<GameQueueEntry> waitQueue = new ArrayList<>();
+    private List<GameQueueEntry> rsvped = new ArrayList<>();
     private List<GameQueueEntry> onDeck = new ArrayList<>();
     private Map<Integer, GameQueueEntry> userMap = new HashMap<>();
 
@@ -73,6 +74,10 @@ public class GameQueue {
                 case LG:
                     playing.add(gameQueueEntry);
                     break;
+                case RSVPED:
+                case RSVP_EXPIRED:
+                    rsvped.add(gameQueueEntry);
+                    break;
             }
         }
     }
@@ -82,15 +87,43 @@ public class GameQueue {
     }
 
     public boolean isLg(final HomedUser player) {
-        if (userMap.containsKey(player.getId())) {
-            return userMap.get(player.getId()).getState() == PlayerState.LG;
+        int playerId = player.getId();
+        if (userMap.containsKey(playerId)) {
+            return userMap.get(playerId).getState() == PlayerState.LG;
         }
         return false;
     }
 
+    public Instant getRsvpTime(final HomedUser player) throws UserError {
+        int playerId = player.getId();
+        if (!userMap.containsKey(playerId)) {
+            throw new UserError("%s is not in the queue.", player.getName());
+        }
+
+        GameQueueEntry entry = userMap.get(playerId);
+
+        if (entry.getState() != PlayerState.RSVPED && entry.getState() != PlayerState.RSVP_EXPIRED) {
+            throw new UserError("%s has not made a reservation.", player.getName());
+        }
+
+        return entry.getEnqueueTime();
+    }
+
     public GameQueueAction enqueue(final HomedUser player, final GameQueueEdit edit) throws UserError {
-        if (userMap.containsKey(player.getId())) {
-            throw new UserError("%s is already queued.", player.getName());
+        int playerId = player.getId();
+        if (userMap.containsKey(playerId)) {
+            GameQueueEntry entry = userMap.get(playerId);
+
+            if (entry.getState() == PlayerState.RSVPED) {
+
+                edit.save(getId(), entry);
+                GameQueueAction action = GameQueueAction.playerQueued(player);
+                promotePlayersToOnDeck(edit, action);
+                checkForRsvpExpirations(edit, action);
+                return action;
+            } else {
+                throw new UserError("%s is already queued.", player.getName());
+            }
         }
 
         GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.WAITING);
@@ -99,9 +132,8 @@ public class GameQueue {
         userMap.put(player.getId(), newEntry);
 
         GameQueueAction action = GameQueueAction.playerQueued(player);
-
         promotePlayersToOnDeck(edit, action);
-
+        checkForRsvpExpirations(edit, action);
         return action;
     }
 
@@ -114,6 +146,7 @@ public class GameQueue {
         removeEntry(edit, playerId);
         GameQueueAction action = GameQueueAction.playerDequeued(player);
         promotePlayersToOnDeck(edit, action);
+        checkForRsvpExpirations(edit, action);
 
         return action;
     }
@@ -132,6 +165,7 @@ public class GameQueue {
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerQueued(player);
         promotePlayersToOnDeck(edit, action);
+        checkForRsvpExpirations(edit, action);
 
         return action;
     }
@@ -189,8 +223,10 @@ public class GameQueue {
         edit.save(getId(), entry);
         playing.add(entry);
         onDeck.remove(entry);
+        GameQueueAction action = GameQueueAction.playerReadied(player);
+        checkForRsvpExpirations(edit, action);
 
-        return GameQueueAction.playerReadied(player);
+        return action;
     }
 
     public GameQueueAction lg(final HomedUser player, final GameQueueEdit edit) throws UserError {
@@ -208,10 +244,39 @@ public class GameQueue {
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerLged(player);
         promotePlayersToOnDeck(edit, action);
+        checkForRsvpExpirations(edit, action);
 
         return action;
     }
 
+    public GameQueueAction rsvp(final HomedUser player, final Instant rsvpTime, final GameQueueEdit edit)
+            throws UserError {
+        int playerId = player.getId();
+        GameQueueEntry entry;
+        if (userMap.containsKey(playerId)) {
+            entry = userMap.get(playerId);
+            switch (entry.getState()) {
+                case PLAYING:
+                case LG:
+                    throw new UserError("%s is already playing.", player.getName());
+                case ON_DECK:
+                case WAITING:
+                    throw new UserError("%s is already in the queue.", player.getName());
+            }
+            entry.setState(PlayerState.RSVPED);
+            entry.setEnqueueTime(rsvpTime);
+        } else {
+            entry = new GameQueueEntry(player, rsvpTime, PlayerState.RSVPED);
+            userMap.put(playerId, entry);
+            rsvped.add(entry);
+        }
+
+        edit.save(getId(), entry);
+        GameQueueAction action = GameQueueAction.playerRsvped(player);
+        checkForRsvpExpirations(edit, action);
+
+        return action;
+    }
 
     public GameQueueEdit clear(final int botHomeId) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
@@ -252,6 +317,10 @@ public class GameQueue {
             case WAITING:
                 waitQueue.remove(entry);
                 break;
+            case RSVPED:
+            case RSVP_EXPIRED:
+                rsvped.remove(entry);
+                break;
         }
     }
 
@@ -265,6 +334,10 @@ public class GameQueue {
 
     public List<HomedUser> getOnDeck() {
         return makeList(onDeck);
+    }
+
+    public List<HomedUser> getRsvpList() {
+        return makeList(rsvped);
     }
 
     public GameQueueEdit mergeUser(final HomedUserTable homedUserTable, final int newUserId,
@@ -326,6 +399,17 @@ public class GameQueue {
                 gameQueueEdit.save(getId(), joiningEntry);
                 action.merge(GameQueueAction.playerOnDecked(joiningEntry.getUser()));
                 onDeck.add(joiningEntry);
+            }
+        }
+    }
+
+    private void checkForRsvpExpirations(final GameQueueEdit gameQueueEdit, final GameQueueAction action) {
+        Instant now = Instant.now();
+        for (GameQueueEntry entry : rsvped) {
+            if (entry.getState() == PlayerState.RSVPED && entry.getEnqueueTime().compareTo(now) < 0) {
+                gameQueueEdit.save(getId(), entry);
+                entry.setState(PlayerState.RSVP_EXPIRED);
+                action.merge(GameQueueAction.playerReservationExpired(entry.getUser()));
             }
         }
     }

@@ -103,6 +103,10 @@ public class HomeEditor {
                 serializers.getStorageValueSerializer());
     }
 
+    public String getTimeZone() {
+        return botHome.getTimeZone();
+    }
+
     public Scope getScope() {
         return botHome.getBotHomeScope();
     }
@@ -890,7 +894,7 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    void save(final Consumer<BotHomeRow> homeModifier) {
+    private void save(final Consumer<BotHomeRow> homeModifier) {
         BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
         BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
         homeModifier.accept(botHomeRow);
