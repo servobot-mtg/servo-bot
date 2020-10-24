@@ -406,7 +406,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         text.append("rotate: Moves you to the end of the queue. With arguments, moves the user(s) specified to the end of the queue.\n");
         text.append("move: Moves you to the position specified. With more arguments, moves the user specified to the given position.\n");
         text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
-        text.append("rsvp: Makes a reservation for you to play at the specified time. The time should be formatted similar to 2:30 PM PT");
+        text.append("rsvp: Makes a reservation for you to play at the specified time. The time should be formatted similar to 2:30 PM PT\n");
         text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
         text.append("help: Displays this message.\n");
         text.append("```\n");

@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -85,7 +86,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager(null))
-            .and().oauth2Login().loginPage("/oauth2/authorization/twitch").successHandler(new RefererSuccessHandler())
+            .and().oauth2Login().loginPage("/oauth2/authorization/twitch")
+                .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
             .and().logout().logoutSuccessUrl("/").permitAll()
             .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(twitchService, userTable));
     }

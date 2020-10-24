@@ -21,7 +21,7 @@
                 <label>Time Zone</label><br>
                 <select id="time-zone-select">
                     <th:block th:each="timeZone : ${timeZones}">
-                        <option th:value="${timeZone.value}" th:text="${timeZone.display}"/>
+                        <option th:value="${timeZone.value}" th:text="${timeZone.name}"/>
                     </th:block>
                 </select>
             </div><br>
