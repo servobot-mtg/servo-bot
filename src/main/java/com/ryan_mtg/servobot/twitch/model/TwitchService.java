@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
+import com.ryan_mtg.servobot.model.UserInfo;
 import com.ryan_mtg.servobot.twitch.event.TwitchEventGenerator;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
@@ -33,10 +34,10 @@ public class TwitchService implements Service {
     public static final int TYPE = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitchService.class);
 
-    private String clientId;
-    private String secret;
-    private String oauthToken;
-    private String authToken;
+    private final String clientId;
+    private final String secret;
+    private final String oauthToken;
+    private final String authToken;
     private TwitchEventGenerator generator;
     private StreamStartRegulator regulator;
     private Map<Long, BotHome> homeMap = new HashMap<>();
@@ -89,16 +90,19 @@ public class TwitchService implements Service {
         return getChannelImageUrl(getUserInfo(authToken).getId());
     }
 
-    public TwitchUserInfo getUserInfo(final String auth) {
+    @Override
+    public UserInfo getUserInfo(final String auth) {
         com.github.twitch4j.helix.domain.User user =
                 client.getHelix().getUsers(auth, null, null).execute().getUsers().get(0);
-        return new TwitchUserInfo(Integer.parseInt(user.getId()), user.getLogin());
+        return new UserInfo(Integer.parseInt(user.getId()), user.getLogin());
     }
 
+    @Override
     public String getClientId() {
         return clientId;
     }
 
+    @Override
     public String getSecret() {
         return secret;
     }

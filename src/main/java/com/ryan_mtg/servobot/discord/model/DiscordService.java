@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
+import com.ryan_mtg.servobot.model.UserInfo;
 import com.ryan_mtg.servobot.user.UserTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import net.dv8tion.jda.api.JDA;
@@ -26,6 +27,8 @@ import java.util.Map;
 public class DiscordService implements Service {
     public static final int TYPE = 2;
 
+    private final String clientId;
+    private final String secret;
     private JDA jda;
     private final String token;
 
@@ -33,14 +36,19 @@ public class DiscordService implements Service {
     private final Map<Long, BotHome> homeMap = new HashMap<>();
     private final UserTable userTable;
     private final LoggedMessageSerializer loggedMessageSerializer;
-    private StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
+    private final StreamStartRegulator streamStartRegulator = new StreamStartRegulator();
+    private final DiscordClient discordClient = DiscordClient.newClient();
 
-    public DiscordService(final String token, final UserTable userTable,
+    public DiscordService(final String clientId, final String secret, final String token, final UserTable userTable,
             final LoggedMessageSerializer loggedMessageSerializer) throws UserError {
+        this.clientId = clientId;
+        this.secret = secret;
         this.token = token;
         this.userTable = userTable;
         this.loggedMessageSerializer = loggedMessageSerializer;
 
+        Validation.validateStringLength(clientId, Validation.MAX_CLIENT_ID_LENGTH, "Client ID");
+        Validation.validateStringLength(secret, Validation.MAX_CLIENT_SECRET_LENGTH, "Client Secret");
         Validation.validateStringLength(token, Validation.MAX_AUTHENTICATION_TOKEN_LENGTH, "Token");
     }
 
@@ -57,6 +65,22 @@ public class DiscordService implements Service {
     @Override
     public String getBotName() {
         return jda.getSelfUser().getName();
+    }
+
+    @Override
+    public String getClientId() {
+        return clientId;
+    }
+
+    @Override
+    public String getSecret() {
+        return secret;
+    }
+
+    @Override
+    public UserInfo getUserInfo(final String auth) {
+        DiscordUserJson discordUser = discordClient.getUser(auth);
+        return new UserInfo(Long.parseLong(discordUser.getId()), discordUser.getUsername());
     }
 
     @Override

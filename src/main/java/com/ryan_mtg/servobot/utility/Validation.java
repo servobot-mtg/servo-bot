@@ -3,7 +3,6 @@ package com.ryan_mtg.servobot.utility;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
-import com.ryan_mtg.servobot.twitch.model.TwitchService;
 
 import java.util.regex.Pattern;
 
@@ -19,7 +18,7 @@ public class Validation {
     public static final int MAX_PATTERN_LENGTH = 30;
     public static final int MAX_AUTHENTICATION_TOKEN_LENGTH = 60;
     public static final int MAX_CLIENT_ID_LENGTH = 30;
-    public static final int MAX_CLIENT_SECRET_LENGTH = 30;
+    public static final int MAX_CLIENT_SECRET_LENGTH = 32;
     public static final int MAX_STATEMENT_LENGTH = 256;
     public static final int MAX_USERNAME_LENGTH = 50;
 

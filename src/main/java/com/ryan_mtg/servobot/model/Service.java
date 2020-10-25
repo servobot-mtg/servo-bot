@@ -9,6 +9,10 @@ public interface Service {
     int getType();
     String getName();
     String getBotName();
+    String getClientId();
+    String getSecret();
+    UserInfo getUserInfo(final String auth);
+
     com.ryan_mtg.servobot.model.User getBotUser();
     String getImageUrl();
     void register(BotHome botHome);

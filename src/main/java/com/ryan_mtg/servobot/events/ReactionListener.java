@@ -41,7 +41,7 @@ public class ReactionListener implements EventListener {
                 String emoteName = reaction.getEmoteName();
                 Emote emote = serviceHome.getEmote(emoteName);
                 if (emote != null) {
-                    LOGGER.info("Adding a " + emoteName + " reaction to " + sender + "'s message.");
+                    LOGGER.info("Adding a {} reaction to {}'s message.", emoteName, sender.getName());
                     message.addEmote(emote);
                 }
 

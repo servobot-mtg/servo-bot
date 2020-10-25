@@ -55,8 +55,8 @@ public class BotWebSecurityExpressionHandler extends DefaultWebSecurityExpressio
             return websiteUser.hasInvite();
         }
 
-        public boolean isPrivileged(final String botHomeName) {
-            BotHome botHome = botRegistrar.getBotHome(botHomeName);
+        public boolean isPrivileged(final String botName, final String botHomeName) {
+            BotHome botHome = botRegistrar.getBotHome(botName, botHomeName);
             return websiteUser.isPrivileged(botHome);
         }
     }

@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.security;
 
+import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.error.SystemError;
+import com.ryan_mtg.servobot.model.UserInfo;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchUserInfo;
 import com.ryan_mtg.servobot.user.User;
@@ -21,9 +24,12 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
     public static final String USER_ID_PROPERTY = "servobot:userId";
     private final UserTable userTable;
     private final TwitchService twitchService;
+    private final DiscordService discordService;
 
-    public TwitchUserService(final TwitchService twitchService, final UserTable userTable) {
+    public TwitchUserService(final TwitchService twitchService, final DiscordService discordService,
+                             final UserTable userTable) {
         this.twitchService = twitchService;
+        this.discordService = discordService;
         this.userTable = userTable;
     }
 
@@ -31,8 +37,17 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
     public OAuth2User loadUser(final OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         Map<String, Object> attributes = new HashMap<>();
 
-        TwitchUserInfo twitchUserInfo = twitchService.getUserInfo(userRequest.getAccessToken().getTokenValue());
-        User user = userTable.getByTwitchId(twitchUserInfo.getId(), twitchUserInfo.getUsername());
+        User user;
+        String registrar = userRequest.getClientRegistration().getRegistrationId();
+        if (registrar.equals("twitch")) {
+            UserInfo userInfo = twitchService.getUserInfo(userRequest.getAccessToken().getTokenValue());
+            user = userTable.getByTwitchId((int) userInfo.getId(), userInfo.getUsername());
+        } else if (registrar.equals("discord")) {
+            UserInfo userInfo = discordService.getUserInfo(userRequest.getAccessToken().getTokenValue());
+            user = userTable.getByDiscordId(userInfo.getId(), userInfo.getUsername());
+        } else {
+            throw new SystemError("Unknown service: %s", registrar);
+        }
 
         List<GrantedAuthority> authorityList =
                 AuthorityUtils.createAuthorityList("ROLE_USER", String.format("ROLE_ID:%d", user.getId()));
@@ -51,7 +66,7 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
 
         attributes.put(USER_ID_PROPERTY, user.getId());
         attributes.put("oauth_token", userRequest.getAccessToken().getTokenValue());
-        attributes.put("name", twitchUserInfo.getUsername());
+        attributes.put("name", user.getName());
 
         return new DefaultOAuth2User(authorityList, attributes, "name");
     }

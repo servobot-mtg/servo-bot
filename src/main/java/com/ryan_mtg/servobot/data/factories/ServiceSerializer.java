@@ -42,7 +42,14 @@ public class ServiceSerializer {
     public TwitchService twitchService() {
         int defaultBotId = 1;
         ServiceRow serviceRow = serviceRepository.findByBotIdAndType(defaultBotId, TwitchService.TYPE);
-        return (TwitchService)createService(defaultBotId, serviceRow);
+        return (TwitchService) createService(defaultBotId, serviceRow);
+    }
+
+    @Bean
+    public DiscordService discordService() {
+        int defaultBotId = 1;
+        ServiceRow serviceRow = serviceRepository.findByBotIdAndType(defaultBotId, DiscordService.TYPE);
+        return (DiscordService) createService(defaultBotId, serviceRow);
     }
 
     public Map<Integer, Service> getServiceMap(final int botId) {
@@ -66,7 +73,8 @@ public class ServiceSerializer {
             Service service;
             switch (serviceType) {
                 case DiscordService.TYPE:
-                    service = new DiscordService(serviceRow.getToken(), userTable, loggedMessageSerializer);
+                    service = new DiscordService(serviceRow.getClientId(), serviceRow.getClientSecret(),
+                            serviceRow.getToken(), userTable, loggedMessageSerializer);
                     break;
                 case TwitchService.TYPE:
                     service = new TwitchService(serviceRow.getClientId(), serviceRow.getClientSecret(),

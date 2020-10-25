@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.security;
 
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -21,7 +22,6 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,17 +36,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserTable userTable;
     private final WebsiteUserFactory websiteUserFactory;
     private final TwitchService twitchService;
+    private final DiscordService discordService;
 
     public SecurityConfig(final UserTable userTable, final WebsiteUserFactory websiteUserFactory,
-            final TwitchService twitchService) {
+            final TwitchService twitchService, final DiscordService discordService) {
         this.userTable = userTable;
         this.websiteUserFactory = websiteUserFactory;
         this.twitchService = twitchService;
+        this.discordService = discordService;
     }
 
     @Bean
-    public ClientRegistrationRepository clientRegistrationRepository(final ClientRegistration clientRegistration) {
-        return new InMemoryClientRegistrationRepository(clientRegistration);
+    public ClientRegistrationRepository clientRegistrationRepository(final List<ClientRegistration> clientRegistrations) {
+        return new InMemoryClientRegistrationRepository(clientRegistrations);
     }
 
     @Bean
@@ -56,6 +58,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
         filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return filterRegistrationBean;
+    }
+
+    @Bean
+    public ClientRegistration discordClientRegistration(final DiscordService discordService) {
+        return ClientRegistration.withRegistrationId(discordService.getName().toLowerCase())
+                .clientId(discordService.getClientId())
+                .clientSecret(discordService.getSecret())
+                .clientAuthenticationMethod(ClientAuthenticationMethod.POST)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .scope("identify")
+                .redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+                .authorizationUri("https://discord.com/api/oauth2/authorize")
+                .tokenUri("https://discord.com/api/oauth2/token")
+                .userNameAttributeName("data")
+                .clientName(discordService.getName())
+                .build();
     }
 
     @Bean
@@ -79,17 +97,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/admin**", "/admin/**", "/script/admin.js").access("hasRole('ADMIN')")
             .antMatchers("/script/privileged.js").access("isPrivileged()")
             .antMatchers("/script/invite.js").access("isInvited()")
-            .antMatchers("/home/{home}").permitAll()
-            .antMatchers("/home/{home}/**").access("isPrivileged(#home)")
-            .antMatchers("/login**", "/images/**", "/script/**", "/style/**", "/home", "favicon.ico",
+            .antMatchers("/home/{bot}/{home}").permitAll()
+            .antMatchers("/home/{bot}/{home}/**").access("isPrivileged(#bot, #home)")
+            .antMatchers("/", "/login**", "/images/**", "/script/**", "/style/**", "/home", "favicon.ico",
                     "/api/public/**", "/help", "/help/**", "/tournament**", "/tournament/**")
                 .permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager(null))
             .and().oauth2Login().loginPage("/oauth2/authorization/twitch")
-                .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
+                .successHandler(new RefererSuccessHandler())
             .and().logout().logoutSuccessUrl("/").permitAll()
-            .and().oauth2Login().userInfoEndpoint().userService(new TwitchUserService(twitchService, userTable));
+            .and().oauth2Login().userInfoEndpoint()
+                .userService(new TwitchUserService(twitchService, discordService, userTable));
     }
 
     @ModelAttribute
@@ -107,7 +126,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new AffirmativeBased(decisionVoters);
     }
 
-    private static class RefererSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    private static class RefererSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
         public RefererSuccessHandler() {
             super();
             setUseReferer(true);

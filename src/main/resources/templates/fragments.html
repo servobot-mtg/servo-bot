@@ -45,6 +45,12 @@
                     </a>
                 </div></li>
 
+                <li class="right" th:if="${!user.authenticated}"><div class="navitem discord">
+                    <a th:href="@{/oauth2/authorization/discord}">
+                        <img src="/images/discord.png" alt="Discord" height="28" width="32">
+                    </a>
+                </div></li>
+
                 <li class="right" th:if="${user.authenticated}"><div class="navitem">
                     <a href="/logout" th:href="@{#}" onclick="logout('logout-form')">
                         Logout

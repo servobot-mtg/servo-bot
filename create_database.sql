@@ -4,7 +4,7 @@ USE botdb;
 CREATE TABLE IF NOT EXISTS bot (id INTEGER AUTO_INCREMENT PRIMARY KEY, name VARCHAR(30));
 
 CREATE TABLE IF NOT EXISTS service (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_id INTEGER, type INTEGER,
-                                    token VARCHAR(60), client_id VARCHAR(30), client_secret VARCHAR(30));
+                                    token VARCHAR(60), client_id VARCHAR(30), client_secret VARCHAR(32));
 
 CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_id INTEGER, name VARCHAR(30),
                                  bot_name VARCHAR(30), flags INTEGER, time_zone VARCHAR(60));
