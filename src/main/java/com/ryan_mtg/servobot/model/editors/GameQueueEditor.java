@@ -112,6 +112,14 @@ public class GameQueueEditor {
         return action;
     }
 
+    public GameQueueAction permanentUser(final int gameQueueId, final HomedUser player) throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.permanent(player, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
+    }
+
     public GameQueueAction rotateUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();

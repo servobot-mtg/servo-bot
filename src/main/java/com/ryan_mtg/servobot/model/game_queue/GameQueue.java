@@ -70,6 +70,7 @@ public class GameQueue {
                 case ON_DECK:
                     onDeck.add(gameQueueEntry);
                     break;
+                case PERMANENT:
                 case PLAYING:
                 case LG:
                     playing.add(gameQueueEntry);
@@ -90,6 +91,14 @@ public class GameQueue {
         int playerId = player.getId();
         if (userMap.containsKey(playerId)) {
             return userMap.get(playerId).getState() == PlayerState.LG;
+        }
+        return false;
+    }
+
+    public boolean isPermanent(final HomedUser player) {
+        int playerId = player.getId();
+        if (userMap.containsKey(playerId)) {
+            return userMap.get(playerId).getState() == PlayerState.PERMANENT;
         }
         return false;
     }
@@ -235,7 +244,7 @@ public class GameQueue {
             throw new UserError("%s is already marked LG.", player.getName());
         }
 
-        if (!userMap.containsKey(playerId) || userMap.get(playerId).getState() != PlayerState.PLAYING) {
+        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isPlaying()) {
             throw new UserError("%s is not playing.", player.getName());
         }
 
@@ -249,6 +258,26 @@ public class GameQueue {
         return action;
     }
 
+    public GameQueueAction permanent(final HomedUser player, final GameQueueEdit edit) throws UserError {
+        int playerId = player.getId();
+        if (userMap.containsKey(playerId) && userMap.get(playerId).getState() == PlayerState.PERMANENT) {
+            throw new UserError("%s is already marked LG.", player.getName());
+        }
+
+        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isPlaying()) {
+            throw new UserError("%s is not playing.", player.getName());
+        }
+
+        GameQueueEntry entry = userMap.get(playerId);
+        entry.setState(PlayerState.PERMANENT);
+        edit.save(getId(), entry);
+        GameQueueAction action = GameQueueAction.playerPermanented(player);
+        promotePlayersToOnDeck(edit, action);
+        checkForRsvpExpirations(edit, action);
+
+        return action;
+    }
+
     public GameQueueAction rsvp(final HomedUser player, final Instant rsvpTime, final GameQueueEdit edit)
             throws UserError {
         int playerId = player.getId();
@@ -256,6 +285,7 @@ public class GameQueue {
         if (userMap.containsKey(playerId)) {
             entry = userMap.get(playerId);
             switch (entry.getState()) {
+                case PERMANENT:
                 case PLAYING:
                 case LG:
                     throw new UserError("%s is already playing.", player.getName());
@@ -307,6 +337,7 @@ public class GameQueue {
 
     private void removeFromLists(GameQueueEntry entry) {
         switch (entry.getState()) {
+            case PERMANENT:
             case PLAYING:
             case LG:
                 playing.remove(entry);

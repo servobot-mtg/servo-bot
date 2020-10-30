@@ -5,6 +5,11 @@ public enum PlayerState {
     RSVP_EXPIRED,
     WAITING,
     ON_DECK,
+    PERMANENT,
     PLAYING,
     LG;
+
+    public boolean isPlaying() {
+        return this == LG || this == PERMANENT || this == PLAYING;
+    }
 }

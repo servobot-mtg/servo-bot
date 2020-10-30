@@ -16,7 +16,11 @@ public class GameQueueEntry implements Comparable<GameQueueEntry> {
 
     @Override
     public int compareTo(final GameQueueEntry o) {
-        int result = enqueueTime.compareTo(o.enqueueTime);
+        int result = state.compareTo(o.state);
+        if (result != 0) {
+            return result;
+        }
+        result = enqueueTime.compareTo(o.enqueueTime);
         if (result != 0) {
             return  result;
         }

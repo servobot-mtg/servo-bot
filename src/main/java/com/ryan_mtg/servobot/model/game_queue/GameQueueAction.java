@@ -42,6 +42,9 @@ public class GameQueueAction {
     @Getter @Builder.Default
     private List<HomedUser> rsvpExpiredPlayers = new ArrayList<>();
 
+    @Getter @Builder.Default
+    private List<HomedUser> permanentPlayers = new ArrayList<>();
+
     public void merge(final GameQueueAction action) {
         if (action.code != null) {
             code = action.code;
@@ -54,6 +57,7 @@ public class GameQueueAction {
         onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
         readiedPlayers = merge(readiedPlayers, action.readiedPlayers);
         lgedPlayers = merge(lgedPlayers, action.lgedPlayers);
+        permanentPlayers = merge(permanentPlayers, action.permanentPlayers);
         movedPlayers = merge(movedPlayers, action.movedPlayers);
         rsvpedPlayers = merge(rsvpedPlayers, action.rsvpedPlayers);
         rsvpExpiredPlayers = merge(rsvpExpiredPlayers, action.rsvpExpiredPlayers);
@@ -101,6 +105,10 @@ public class GameQueueAction {
 
     public static GameQueueAction playerReservationExpired(final HomedUser player) {
         return GameQueueAction.builder().rsvpExpiredPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playerPermanented(final HomedUser player) {
+        return GameQueueAction.builder().permanentPlayers(Collections.singletonList(player)).build();
     }
 
     private static List<HomedUser> merge(final List<HomedUser> a, final List<HomedUser> b) {

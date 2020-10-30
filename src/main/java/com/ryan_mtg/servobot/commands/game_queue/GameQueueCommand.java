@@ -107,6 +107,10 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "done":
                 lg(event, parseResult.getInput());
                 return;
+            case "permanent":
+            case "streaming":
+                permanent(event, parseResult.getInput());
+                return;
             case "move":
             case "position":
                 move(event, command, parseResult.getInput());
@@ -245,6 +249,20 @@ public class GameQueueCommand extends InvokedHomedCommand {
             List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.lgUser(gameQueueId, user));
+            }
+        }
+        showOrUpdateQueue(event, action);
+    }
+
+    private void permanent(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = GameQueueAction.emptyAction();
+        if (Strings.isBlank(input)) {
+            action.merge(gameQueueEditor.permanentUser(gameQueueId, event.getSender().getHomedUser()));
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                action.merge(gameQueueEditor.permanentUser(gameQueueId, user));
             }
         }
         showOrUpdateQueue(event, action);

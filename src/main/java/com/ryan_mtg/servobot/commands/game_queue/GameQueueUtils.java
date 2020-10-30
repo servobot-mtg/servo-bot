@@ -25,6 +25,7 @@ public class GameQueueUtils {
     public static final String READY_EMOTE = "👋";
     public static final String LG_EMOTE = "😴";
     public static final String LEAVE_EMOTE = "🏠";
+    public static final String STREAMING_EMOTE = "📺";
 
     public static void addEmote(final EmoteHomeEvent event, final GameQueue gameQueue, final User reactor) {
         try {
@@ -80,6 +81,10 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getPlayersLgedMessage(action.getLgedPlayers()));
         }
 
+        if (!action.getPermanentPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersPermanentMessage(action.getPermanentPlayers()));
+        }
+
         if (!action.getRsvpedPlayers().isEmpty() && verbose) {
             response = combine(response, GameQueueUtils.getPlayersRsvpedMessage(action.getRsvpedPlayers()));
         }
@@ -113,6 +118,8 @@ public class GameQueueUtils {
             (player, t) -> {
                 if (gameQueue.isLg(player)) {
                     t.append(" (LG " + LG_EMOTE + ")");
+                } else if (gameQueue.isPermanent(player)) {
+                    t.append(" (" + STREAMING_EMOTE + ")");
                 }
             });
 
@@ -189,7 +196,11 @@ public class GameQueueUtils {
     }
 
     public static String getPlayersLgedMessage(final List<HomedUser> players) {
-        return getPlayersMessage("Marked ", "as LG.", players);
+        return getPlayersMessage("Marked", "as LG.", players);
+    }
+
+    public static String getPlayersPermanentMessage(final List<HomedUser> players) {
+        return getPlayersMessage("Marked", "as permanent.", players);
     }
 
     public static String getPlayersReadyMessage(final List<HomedUser> players) {
