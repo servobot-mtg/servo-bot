@@ -63,11 +63,15 @@ public class DiscordChannel implements Channel {
         Guild guild = serviceHome.getGuild();
         final String nameReplacedText = Strings.replace(text, NAME_PATTERN, matcher -> {
             String name = matcher.group().substring(1);
-            List<Member> members = guild.getMembersByName(name, true);
-            if (members.isEmpty()) {
-                return null;
+            List<Member> members = guild.getMembersByEffectiveName(name, true);
+            if (!members.isEmpty()) {
+                return members.get(0).getAsMention();
             }
-            return members.get(0).getAsMention();
+            members = guild.getMembersByName(name, true);
+            if (!members.isEmpty()) {
+                return members.get(0).getAsMention();
+            }
+            return null;
         });
 
         Map<String, Emote> emoteMap = serviceHome.getEmoteMap();

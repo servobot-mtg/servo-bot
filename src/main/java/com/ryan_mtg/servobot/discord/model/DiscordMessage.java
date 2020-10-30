@@ -3,6 +3,7 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
+import net.dv8tion.jda.api.entities.Member;
 
 public class DiscordMessage implements Message {
     private static int OLD_LENGTH = 8;
@@ -46,6 +47,16 @@ public class DiscordMessage implements Message {
             message.addReaction(((DiscordEmote)emote).getDiscordEmote()).queue();
         } else {
             message.addReaction(emote.getName()).queue();
+        }
+    }
+
+    @Override
+    public void removeEmote(final Emote emote, final User user) {
+        Member member = message.getGuild().getMemberById(user.getHomedUser().getDiscordId());
+        if (emote instanceof DiscordEmote) {
+            message.removeReaction(((DiscordEmote)emote).getDiscordEmote(), member.getUser()).queue();
+        } else {
+            message.removeReaction(emote.getName(), member.getUser()).queue();
         }
     }
 

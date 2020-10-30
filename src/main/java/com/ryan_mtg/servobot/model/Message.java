@@ -6,7 +6,8 @@ public interface Message {
     String getContent();
     User getSender();
     boolean canEmote();
-    void addEmote(final Emote emote);
+    void addEmote(Emote emote);
+    void removeEmote(Emote emote, User user);
 
     void updateText(String text);
     boolean isOld();

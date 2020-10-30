@@ -12,11 +12,14 @@ import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.UserInfo;
 import com.ryan_mtg.servobot.user.UserTable;
 import com.ryan_mtg.servobot.utility.Validation;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class DiscordService implements Service {
     public static final int TYPE = 2;
 
@@ -117,7 +121,9 @@ public class DiscordService implements Service {
 
     @Override
     public void start(final EventListener eventListener) throws Exception {
-        JDABuilder builder = new JDABuilder(token);
+        JDABuilder builder = JDABuilder.createDefault(token);
+        builder.enableIntents(GatewayIntent.GUILD_MEMBERS).enableIntents(GatewayIntent.GUILD_PRESENCES);
+        builder.setMemberCachePolicy(MemberCachePolicy.ONLINE);
         builder.setActivity(Activity.playing("Beta: " + now()));
 
         builder.addEventListeners(new DiscordEventAdapter(this, eventListener, homeMap,
@@ -159,6 +165,9 @@ public class DiscordService implements Service {
         }
         Guild guild = jda.getGuildById(guildId);
         Member owner = guild.getOwner();
+        if (owner == null) {
+            owner = guild.retrieveOwner().complete();
+        }
         for(Activity activity : owner.getActivities()) {
             if (activity.getType() == Activity.ActivityType.STREAMING) {
                 return true;

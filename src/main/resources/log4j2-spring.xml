@@ -8,7 +8,7 @@
 
 <Loggers>
     <!-- LOG everything at WARN level -->
-    <Root level="debug">
+    <Root level="info">
         <AppenderRef ref="console"/>
     </Root>
 

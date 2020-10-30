@@ -20,7 +20,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public class GameQueueUtils {
-    public static final String REFRESH_EMOTE = "🔄";
+    public static final String ROTATE_EMOTE = "🔄";
     public static final String DAGGER_EMOTE = "🗡️";
     public static final String READY_EMOTE = "👋";
     public static final String LG_EMOTE = "😴";
@@ -33,8 +33,9 @@ public class GameQueueUtils {
             if (emoteName.equals(DAGGER_EMOTE)) {
                 GameQueueAction action = gameQueueEditor.addUser(gameQueue.getId(), reactor.getHomedUser());
                 updateMessage(event, gameQueue, event.getMessage(), action, false);
-            } else if (emoteName.equals(REFRESH_EMOTE)) {
-                updateMessage(event, gameQueue, event.getMessage(), GameQueueAction.emptyAction(), false);
+            } else if (emoteName.equals(ROTATE_EMOTE)) {
+                GameQueueAction action = gameQueueEditor.rotateUser(gameQueue.getId(), reactor.getHomedUser());
+                updateMessage(event, gameQueue, event.getMessage(), action, false);
             } else if (emoteName.equals(READY_EMOTE)) {
                 GameQueueAction action = gameQueueEditor.readyUser(gameQueue.getId(), reactor.getHomedUser());
                 updateMessage(event, gameQueue, event.getMessage(), action, false);
@@ -46,22 +47,12 @@ public class GameQueueUtils {
                 updateMessage(event, gameQueue, event.getMessage(), action, false);
             }
         } catch (UserError | BotHomeError e) {
+        } finally {
+            event.getMessage().removeEmote(event.getEmote(), reactor);
         }
     }
 
-    public static void removeEmote(final EmoteHomeEvent event, final GameQueue gameQueue, final User reactor) {
-        try {
-            GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
-            String emoteName = event.getEmote().getName();
-            if (emoteName.equals(DAGGER_EMOTE)) {
-                GameQueueAction action = gameQueueEditor.dequeueUser(gameQueue.getId(), reactor.getHomedUser());
-                updateMessage(event, gameQueue, event.getMessage(), action, false);
-            } else if (emoteName.equals(REFRESH_EMOTE)) {
-                updateMessage(event, gameQueue, event.getMessage(), GameQueueAction.emptyAction(), false);
-            }
-        } catch (UserError | BotHomeError e) {
-        }
-    }
+    public static void removeEmote(final EmoteHomeEvent event, final GameQueue gameQueue, final User reactor) {}
 
     public static void updateMessage(final MessageHomeEvent event, final GameQueue gameQueue, final Message message,
             final GameQueueAction action, final boolean verbose) throws BotHomeError {
@@ -154,8 +145,9 @@ public class GameQueueUtils {
         }
 
         text.append("React with:\n");
-        text.append(DAGGER_EMOTE + ": To join the queue \t\t" + READY_EMOTE + ": To join game when on deck\n");
-        text.append(LG_EMOTE + ": When it's your LG \t\t" + LEAVE_EMOTE + ": To leave the game and queue\n");
+        text.append(DAGGER_EMOTE + ": To join the queue\t\t" + READY_EMOTE + ": To join game when on deck\t\t"
+                        + ROTATE_EMOTE + ": To rotate (leave and rejoin queue)\n");
+        text.append(LG_EMOTE + ": When it's your LG\t\t" + LEAVE_EMOTE + ": To leave the game and queue\n");
         return text.toString();
     }
 

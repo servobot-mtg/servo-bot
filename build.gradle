@@ -28,7 +28,7 @@ dependencies {
     compile 'com.github.twitch4j:twitch4j:1.0.0-alpha.20'
     compile 'mysql:mysql-connector-java:8.0.16'
 
-    compile ('net.dv8tion:JDA:4.0.0_52') {
+    compile ('net.dv8tion:JDA:4.2.0_168') {
         exclude module: 'opus-java'
     }
 
