@@ -18,6 +18,9 @@ public class GameQueueAction {
     @Getter
     private String server;
 
+    @Getter
+    private Boolean onBeta;
+
     @Getter @Builder.Default
     private List<HomedUser> queuedPlayers = new ArrayList<>();
 
@@ -52,6 +55,9 @@ public class GameQueueAction {
         if (action.server != null) {
             server = action.server;
         }
+        if (action.onBeta != null) {
+            onBeta = action.onBeta;
+        }
         queuedPlayers = merge(queuedPlayers, action.queuedPlayers);
         dequeuedPlayers = merge(dequeuedPlayers, action.dequeuedPlayers);
         onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
@@ -67,12 +73,8 @@ public class GameQueueAction {
         return GameQueueAction.builder().build();
     }
 
-    public static GameQueueAction codeChanged(final String code, final String server) {
-        return GameQueueAction.builder().code(code).server(server).build();
-    }
-
-    public static GameQueueAction playersQueued(final List<HomedUser> players) {
-        return GameQueueAction.builder().queuedPlayers(players).build();
+    public static GameQueueAction codeChanged(final String code, final String server, final boolean isOnBeta) {
+        return GameQueueAction.builder().code(code).server(server).onBeta(isOnBeta).build();
     }
 
     public static GameQueueAction playerQueued(final HomedUser player) {

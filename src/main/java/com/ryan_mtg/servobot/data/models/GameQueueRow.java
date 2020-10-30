@@ -28,6 +28,8 @@ public class GameQueueRow {
 
     private Game game;
 
+    private int flags;
+
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String code;
 

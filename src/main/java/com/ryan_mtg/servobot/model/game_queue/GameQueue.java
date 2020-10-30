@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.HomedUserTable;
+import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,11 +20,16 @@ import java.util.stream.Collectors;
 public class GameQueue {
     public static final int UNREGISTERED_ID = 0;
 
+    private static int ON_BETA_FLAG = 1;
+
     @Getter @Setter
     private int id;
 
     @Getter
     private Game game;
+
+    @Getter @Setter
+    private int flags;
 
     @Getter @Setter
     private String code;
@@ -49,8 +55,8 @@ public class GameQueue {
         CLOSED,
     }
 
-    public GameQueue(final int id, final Game game, final State state, final String code, final String server,
-            final Message message, final List<GameQueueEntry> gameQueueEntries) throws UserError {
+    public GameQueue(final int id, final Game game, final int flags, final State state, final String code,
+             final String server, final Message message, final List<GameQueueEntry> gameQueueEntries) throws UserError {
         this.id = id;
         this.game = game;
         this.state = state;
@@ -81,6 +87,14 @@ public class GameQueue {
                     break;
             }
         }
+    }
+
+    public boolean isOnBeta() {
+        return Flags.hasFlag(flags, ON_BETA_FLAG);
+    }
+
+    public void setVersion(final boolean onBeta) {
+        flags = Flags.setFlag(flags, ON_BETA_FLAG, onBeta);
     }
 
     public boolean matches(final Message message) {

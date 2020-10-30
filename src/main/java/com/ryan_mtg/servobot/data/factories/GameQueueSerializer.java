@@ -47,8 +47,8 @@ public class GameQueueSerializer {
             }
 
             GameQueue gameQueue = SystemError.filter(() -> new GameQueue(gameQueueId, gameQueueRow.getGame(),
-                    gameQueueRow.getState(), gameQueueRow.getCode(), gameQueueRow.getServer(), message,
-                    gameQueueEntries));
+                    gameQueueRow.getFlags(), gameQueueRow.getState(), gameQueueRow.getCode(), gameQueueRow.getServer(),
+                    message, gameQueueEntries));
 
             gameQueueTable.add(gameQueue);
         }
@@ -92,6 +92,7 @@ public class GameQueueSerializer {
         gameQueueRow.setId(gameQueue.getId());
         gameQueueRow.setBotHomeId(botHomeId);
         gameQueueRow.setGame(gameQueue.getGame());
+        gameQueueRow.setFlags(gameQueue.getFlags());
         gameQueueRow.setState(gameQueue.getState());
         gameQueueRow.setCode(gameQueue.getCode());
         gameQueueRow.setServer(gameQueue.getServer());

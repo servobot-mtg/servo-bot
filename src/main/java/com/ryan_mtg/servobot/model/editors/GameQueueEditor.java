@@ -27,7 +27,7 @@ public class GameQueueEditor {
     }
 
     public void createGameQueue(final Game game, final Consumer<GameQueue> gameQueueSavedCallback) throws UserError {
-        GameQueue gameQueue = new GameQueue(GameQueue.UNREGISTERED_ID, game, GameQueue.State.IDLE,
+        GameQueue gameQueue = new GameQueue(GameQueue.UNREGISTERED_ID, game, 0, GameQueue.State.IDLE,
                 null, null, null, Arrays.asList());
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         gameQueueEdit.save(contextId, gameQueue, gameQueueSavedCallback);
@@ -46,32 +46,22 @@ public class GameQueueEditor {
         gameQueueSerializer.commit(gameQueueEdit);
     }
 
-    public GameQueueAction setCodeAndServer(final int gameQueueId, final String code, final String server) {
+    public GameQueueAction setCode(final int gameQueueId, final String code, final String server,
+                                   final Boolean onBeta) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueue gameQueue = getGameQueue(gameQueueId);
-        gameQueue.setCode(code);
-        gameQueue.setServer(server);
+        if (code != null) {
+            gameQueue.setCode(code);
+        }
+        if (server != null) {
+            gameQueue.setServer(server);
+        }
+        if (onBeta != null) {
+            gameQueue.setVersion(onBeta);
+        }
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer());
-    }
-
-    public GameQueueAction setCode(final int gameQueueId, final String code) {
-        GameQueueEdit gameQueueEdit = new GameQueueEdit();
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-        gameQueue.setCode(code);
-        gameQueueEdit.save(contextId, gameQueue);
-        gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer());
-    }
-
-    public GameQueueAction setServer(final int gameQueueId, final String server) {
-        GameQueueEdit gameQueueEdit = new GameQueueEdit();
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-        gameQueue.setServer(server);
-        gameQueueEdit.save(contextId, gameQueue);
-        gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer());
+        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
     }
 
     public GameQueueAction addUser(final int gameQueueId, final HomedUser player) throws UserError {

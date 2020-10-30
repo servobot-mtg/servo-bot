@@ -78,6 +78,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 return;
             case "server":
             case "code":
+            case "version":
                 setCode(event, command, parseResult.getInput());
                 return;
             case "add":
@@ -175,6 +176,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         Scanner scanner = new Scanner(input);
         String code = null;
         String server = null;
+        Boolean onBeta = null;
 
         while (scanner.hasNext()) {
             String token = scanner.next();
@@ -196,19 +198,17 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 case "america":
                     server = "NA";
                     continue;
+                case "beta":
+                    onBeta = true;
+                    continue;
+                case "main":
+                    onBeta = false;
+                    continue;
             }
             throw new UserError("Unrecognized %s: %s", command, token);
         }
 
-        GameQueueAction action = null;
-        if (code != null && server != null) {
-            action = gameQueueEditor.setCodeAndServer(gameQueueId, code, server);
-        } else if (code != null) {
-            action = gameQueueEditor.setCode(gameQueueId, code);
-        } else if (server != null) {
-            action = gameQueueEditor.setServer(gameQueueId, server);
-        }
-
+        GameQueueAction action = gameQueueEditor.setCode(gameQueueId, code, server, onBeta);
         showOrUpdateQueue(event, action);
     }
 

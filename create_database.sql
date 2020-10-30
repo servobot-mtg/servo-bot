@@ -40,8 +40,9 @@ CREATE TABLE IF NOT EXISTS statement (id INTEGER AUTO_INCREMENT PRIMARY KEY, boo
 
 CREATE TABLE IF NOT EXISTS suggestion (id INTEGER AUTO_INCREMENT PRIMARY KEY, count INTEGER, alias VARCHAR(30));
 
-CREATE TABLE IF NOT EXISTS game_queue (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, game INTEGER,
-                    code VARCHAR(30), server VARCHAR(30), state INTEGER, message_id BIGINT, channel_id BIGINT);
+CREATE TABLE IF NOT EXISTS game_queue (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, flags INTEGER,
+                    game INTEGER, code VARCHAR(30), server VARCHAR(30), state INTEGER, message_id BIGINT,
+                    channel_id BIGINT);
 
 CREATE TABLE IF NOT EXISTS game_queue_entry (game_queue_id INTEGER, user_id INTEGER, enqueue_time BIGINT,
                     state INTEGER);

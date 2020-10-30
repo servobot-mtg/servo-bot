@@ -97,8 +97,9 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getPlayersReservationExpiredMessage(action.getRsvpExpiredPlayers()));
         }
 
-        if ((action.getCode() != null || action.getServer() != null) && verbose) {
-            response = combine(response, GameQueueUtils.getCodeMessage(action.getCode(), action.getServer()));
+        if ((action.getCode() != null || action.getServer() != null || action.getOnBeta() != null) && verbose) {
+            response = combine(response,
+                    GameQueueUtils.getCodeMessage(action.getCode(), action.getServer(), action.getOnBeta()));
         }
 
         if (!Strings.isBlank(response)) {
@@ -111,7 +112,7 @@ public class GameQueueUtils {
         text.append("Game Queue for ").append(gameQueue.getGame().getName());
 
         text.append("\t\t\t");
-        appendCode(text, gameQueue.getCode(), gameQueue.getServer());
+        appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
         text.append("\n\n");
 
         appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "Players", "No active game.", '#',
@@ -159,22 +160,23 @@ public class GameQueueUtils {
     }
 
     public static String getCodeMessage(final GameQueue gameQueue) {
-        return getCodeMessage(gameQueue.getCode(), gameQueue.getServer());
+        return getCodeMessage(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
     }
 
-    public static String getCodeMessage(final String code, final String server) {
+    public static String getCodeMessage(final String code, final String server, final Boolean isOnBeta) {
         StringBuilder text = new StringBuilder();
         if (code != null) {
             text.append("The code is ");
         } else if (server != null) {
             text.append("The server is ");
         }
-        appendCode(text, code, server);
+        appendCode(text, code, server, isOnBeta);
         text.append('.');
         return text.toString();
     }
 
-    public static void appendCode(final StringBuilder text, final String code, final String server) {
+    public static void appendCode(final StringBuilder text, final String code, final String server,
+            final Boolean isOnBeta) {
         if (code != null) {
             text.append("🔑 **").append(code).append("**");
             if (server != null) {
@@ -184,6 +186,13 @@ public class GameQueueUtils {
             text.append("🖥️ ").append(server);
         } else {
             text.append("No code set");
+        }
+        if (isOnBeta != null) {
+            if (isOnBeta) {
+                text.append(". Use the **Beta**");
+            } else {
+                text.append(". Do **not** use the Beta");
+            }
         }
     }
 
