@@ -26,6 +26,7 @@ public class GameQueueUtils {
     public static final String LG_EMOTE = "😴";
     public static final String LEAVE_EMOTE = "🏠";
     public static final String STREAMING_EMOTE = "📺";
+    public static final String ON_CALL_EMOTE = "📞";
 
     public static void addEmote(final EmoteHomeEvent event, final GameQueue gameQueue, final User reactor) {
         try {
@@ -77,12 +78,20 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getPlayersReadyMessage(action.getReadiedPlayers()));
         }
 
+        if (!action.getUnreadiedPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersUnreadyMessage(action.getUnreadiedPlayers()));
+        }
+
         if (!action.getLgedPlayers().isEmpty() && verbose) {
             response = combine(response, GameQueueUtils.getPlayersLgedMessage(action.getLgedPlayers()));
         }
 
         if (!action.getPermanentPlayers().isEmpty() && verbose) {
             response = combine(response, GameQueueUtils.getPlayersPermanentMessage(action.getPermanentPlayers()));
+        }
+
+        if (!action.getOnCallPlayers().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getPlayersOnCallMessage(action.getOnCallPlayers()));
         }
 
         if (!action.getRsvpedPlayers().isEmpty() && verbose) {
@@ -131,7 +140,12 @@ public class GameQueueUtils {
 
         List<HomedUser> waitQueue = gameQueue.getWaitQueue();
         if (!waitQueue.isEmpty() || onDeck.isEmpty()) {
-            appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.", '#', null);
+            appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.", '#',
+            (player, t) -> {
+                if (gameQueue.isOnCall(player)) {
+                    t.append(" (if needed " + ON_CALL_EMOTE + ")");
+                }
+            });
         }
 
         List<HomedUser> rsvpList = gameQueue.getRsvpList();
@@ -208,12 +222,20 @@ public class GameQueueUtils {
         return getPlayersMessage("Marked", "as LG.", players);
     }
 
+    public static String getPlayersOnCallMessage(final List<HomedUser> players) {
+        return getPlayersMessage("Marked", "as if needed.", players);
+    }
+
     public static String getPlayersPermanentMessage(final List<HomedUser> players) {
         return getPlayersMessage("Marked", "as permanent.", players);
     }
 
     public static String getPlayersReadyMessage(final List<HomedUser> players) {
         return getPlayersMessage(null, (players.size() > 1 ? "are": "is") + " ready to play.", players);
+    }
+
+    public static String getPlayersUnreadyMessage(final List<HomedUser> players) {
+        return getPlayersMessage(null, (players.size() > 1 ? "were": "has been") + " put back into the queue.", players);
     }
 
     public static String getPlayersRsvpedMessage(final List<HomedUser> players) {

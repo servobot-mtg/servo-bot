@@ -34,6 +34,9 @@ public class GameQueueAction {
     private List<HomedUser> readiedPlayers = new ArrayList<>();
 
     @Getter @Builder.Default
+    private List<HomedUser> unreadiedPlayers = new ArrayList<>();
+
+    @Getter @Builder.Default
     private List<HomedUser> lgedPlayers = new ArrayList<>();
 
     @Getter @Builder.Default
@@ -47,6 +50,9 @@ public class GameQueueAction {
 
     @Getter @Builder.Default
     private List<HomedUser> permanentPlayers = new ArrayList<>();
+
+    @Getter @Builder.Default
+    private List<HomedUser> onCallPlayers = new ArrayList<>();
 
     public void merge(final GameQueueAction action) {
         if (action.code != null) {
@@ -62,8 +68,10 @@ public class GameQueueAction {
         dequeuedPlayers = merge(dequeuedPlayers, action.dequeuedPlayers);
         onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
         readiedPlayers = merge(readiedPlayers, action.readiedPlayers);
+        unreadiedPlayers = merge(unreadiedPlayers, action.unreadiedPlayers);
         lgedPlayers = merge(lgedPlayers, action.lgedPlayers);
         permanentPlayers = merge(permanentPlayers, action.permanentPlayers);
+        onCallPlayers = merge(onCallPlayers, action.onCallPlayers);
         movedPlayers = merge(movedPlayers, action.movedPlayers);
         rsvpedPlayers = merge(rsvpedPlayers, action.rsvpedPlayers);
         rsvpExpiredPlayers = merge(rsvpExpiredPlayers, action.rsvpExpiredPlayers);
@@ -89,6 +97,10 @@ public class GameQueueAction {
         return GameQueueAction.builder().readiedPlayers(Collections.singletonList(player)).build();
     }
 
+    public static GameQueueAction playerUnreadied(final HomedUser player) {
+        return GameQueueAction.builder().unreadiedPlayers(Collections.singletonList(player)).build();
+    }
+
     public static GameQueueAction playerOnDecked(final HomedUser player) {
         return GameQueueAction.builder().onDeckedPlayers(Collections.singletonList(player)).build();
     }
@@ -111,6 +123,10 @@ public class GameQueueAction {
 
     public static GameQueueAction playerPermanented(final HomedUser player) {
         return GameQueueAction.builder().permanentPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playerOnCalled(final HomedUser player) {
+        return GameQueueAction.builder().onCallPlayers(Collections.singletonList(player)).build();
     }
 
     private static List<HomedUser> merge(final List<HomedUser> a, final List<HomedUser> b) {

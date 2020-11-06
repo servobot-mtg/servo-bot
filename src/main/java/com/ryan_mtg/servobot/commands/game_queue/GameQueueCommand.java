@@ -99,9 +99,17 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "reset":
                 clear(event);
                 return;
+            case "unready":
+                unready(event, parseResult.getInput());
+                return;
             case "ready":
             case "here":
                 ready(event, parseResult.getInput());
+                return;
+            case "cut":
+            case "rig":
+            case "rigged":
+                cut(event, parseResult.getInput());
                 return;
             case "last":
             case "lg":
@@ -129,6 +137,10 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "rsvp":
                 rsvp(event, command, parseResult.getInput());
                 break;
+            case "ifneeded":
+            case "oncall":
+                onCall(event, parseResult.getInput());
+                return;
             case "help":
                 help(event);
                 return;
@@ -246,6 +258,34 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showOrUpdateQueue(event, action);
     }
 
+    private void unready(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = GameQueueAction.emptyAction();
+        if (Strings.isBlank(input)) {
+            action.merge(gameQueueEditor.unreadyUser(gameQueueId, event.getSender().getHomedUser()));
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                action.merge(gameQueueEditor.unreadyUser(gameQueueId, user));
+            }
+        }
+        showOrUpdateQueue(event, action);
+    }
+
+    private void cut(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = GameQueueAction.emptyAction();
+        if (Strings.isBlank(input)) {
+            action.merge(gameQueueEditor.cutUser(gameQueueId, event.getSender().getHomedUser()));
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                action.merge(gameQueueEditor.cutUser(gameQueueId, user));
+            }
+        }
+        showOrUpdateQueue(event, action);
+    }
+
     private void lg(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         GameQueueAction action = GameQueueAction.emptyAction();
@@ -279,6 +319,20 @@ public class GameQueueCommand extends InvokedHomedCommand {
             List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.permanentUser(gameQueueId, user));
+            }
+        }
+        showOrUpdateQueue(event, action);
+    }
+
+    private void onCall(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = GameQueueAction.emptyAction();
+        if (Strings.isBlank(input)) {
+            action.merge(gameQueueEditor.onCallUser(gameQueueId, event.getSender().getHomedUser()));
+        } else {
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            for(HomedUser user : users) {
+                action.merge(gameQueueEditor.onCallUser(gameQueueId, user));
             }
         }
         showOrUpdateQueue(event, action);
@@ -440,19 +494,23 @@ public class GameQueueCommand extends InvokedHomedCommand {
     private void help(final CommandInvokedHomeEvent event) {
         StringBuilder text = new StringBuilder();
         text.append("Command syntax:\n  !").append(event.getCommand()).append(" *command*  [*args*]\n\n");
-        text.append("Where *command*  is one of: ```YAML\n");
+        text.append("Where *command*  for players is one of: ```YAML\n");
         text.append("show: Displays the full details of the queue.\n");
         text.append("code: server: version: Without any arguments, displays the code and server. With arguments, sets the server, code, and/or version.\n");
-        text.append("join: enqueue: Adds you to the queue. With arguments, adds the user(s) specified to the queue.\n");
-        text.append("ready: Adds you to the game if you are on deck. With arguments, adds the user(s) specified to the game.\n");
-        text.append("last: LG: Marks you as being in your last game. With arguments, marks the user(s) specified as being in their last game.\n");
-        text.append("rotate: Moves you to the end of the queue. With arguments, moves the user(s) specified to the end of the queue.\n");
-        text.append("move: Moves you to the position specified. With more arguments, moves the user specified to the given position.\n");
-        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
+        text.append("join: enqueue: Adds you or the user(s) specified to the queue.\n");
         text.append("rsvp: Makes a reservation for you to play at the specified time. The time should be formatted similar to 2:30 PM PT\n");
-        text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
         text.append("help: Displays this message.\n");
         text.append("```\n");
+        text.append("For mods: ```YAML\n");
+        text.append("move: Moves you or the user specified to the given position in the queue.\n");
+        text.append("ready: Adds you or the user(s) specified to the game if they are on deck.\n");
+        text.append("unready: Returns you or the users(s) specified to the queue if they are on deck or in the game.\n");
+        text.append("cut: Moves you or the user(s) specified to the deck.\n");
+        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
+        text.append("last: LG: Marks you or the user(s) specified as being in their last game. all is a special user which LGs everyone playing.\n");
+        text.append("rotate: Moves you or the user(s) specified to the end of the queue. lg is a special user which rotates everyone marked LG.\n");
+        text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
+        text.append("```");
         event.getChannel().say(text.toString());
     }
 

@@ -72,6 +72,7 @@ public class GameQueue {
             userMap.put(gameQueueEntry.getUser().getId(), gameQueueEntry);
             switch (gameQueueEntry.getState()) {
                 case WAITING:
+                case ON_CALL:
                     waitQueue.add(gameQueueEntry);
                     break;
                 case ON_DECK:
@@ -103,17 +104,21 @@ public class GameQueue {
     }
 
     public boolean isLg(final HomedUser player) {
-        int playerId = player.getId();
-        if (userMap.containsKey(playerId)) {
-            return userMap.get(playerId).getState() == PlayerState.LG;
-        }
-        return false;
+        return isStatus(player, PlayerState.LG);
+    }
+
+    public boolean isOnCall(final HomedUser player) {
+        return isStatus(player, PlayerState.ON_CALL);
     }
 
     public boolean isPermanent(final HomedUser player) {
+        return isStatus(player, PlayerState.PERMANENT);
+    }
+
+    private boolean isStatus(final HomedUser player, final PlayerState state) {
         int playerId = player.getId();
         if (userMap.containsKey(playerId)) {
-            return userMap.get(playerId).getState() == PlayerState.PERMANENT;
+            return userMap.get(playerId).getState() == state;
         }
         return false;
     }
@@ -282,6 +287,41 @@ public class GameQueue {
         return action;
     }
 
+    public GameQueueAction unready(final HomedUser player, final GameQueueEdit edit) throws UserError {
+        int playerId = player.getId();
+        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isReady()) {
+            throw new UserError("%s is neither playing nor on deck.", player.getName());
+        }
+
+        GameQueueEntry entry = userMap.get(playerId);
+        removeFromLists(entry);
+        entry.setState(PlayerState.WAITING);
+        waitQueue.add(entry);
+        edit.save(getId(), entry);
+        GameQueueAction action = GameQueueAction.playerUnreadied(player);
+        checkForRsvpExpirations(edit, action);
+
+        return action;
+    }
+
+    public GameQueueAction cut(final HomedUser player, final GameQueueEdit edit) throws UserError {
+        int playerId = player.getId();
+        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isWaiting()) {
+            throw new UserError("%s is not in the queue.", player.getName());
+        }
+
+        GameQueueEntry entry = userMap.get(playerId);
+        removeFromLists(entry);
+        entry.setState(PlayerState.ON_DECK);
+        onDeck.add(entry);
+        edit.save(getId(), entry);
+        GameQueueAction action = GameQueueAction.playerOnDecked(player);
+        checkForRsvpExpirations(edit, action);
+
+        return action;
+    }
+
+
     public GameQueueAction lg(final HomedUser player, final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
         if (userMap.containsKey(playerId) && userMap.get(playerId).getState() == PlayerState.LG) {
@@ -353,6 +393,26 @@ public class GameQueue {
         return action;
     }
 
+    public GameQueueAction onCall(final HomedUser player, final GameQueueEdit edit) throws UserError {
+        int playerId = player.getId();
+        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isWaiting()) {
+            throw new UserError("%s not in the queue.", player.getName());
+        }
+
+        if (userMap.get(playerId).getState() == PlayerState.ON_CALL) {
+            throw new UserError("%s is already on call.", player.getName());
+        }
+
+        GameQueueEntry entry = userMap.get(playerId);
+        entry.setState(PlayerState.ON_CALL);
+        edit.save(getId(), entry);
+        GameQueueAction action = GameQueueAction.playerOnCalled(player);
+        promotePlayersToOnDeck(edit, action);
+        checkForRsvpExpirations(edit, action);
+
+        return action;
+    }
+
     public GameQueueAction rsvp(final HomedUser player, final Instant rsvpTime, final GameQueueEdit edit)
             throws UserError {
         int playerId = player.getId();
@@ -366,6 +426,7 @@ public class GameQueue {
                     throw new UserError("%s is already playing.", player.getName());
                 case ON_DECK:
                 case WAITING:
+                case ON_CALL:
                     throw new UserError("%s is already in the queue.", player.getName());
             }
             entry.setState(PlayerState.RSVPED);
@@ -421,6 +482,7 @@ public class GameQueue {
                 onDeck.remove(entry);
                 break;
             case WAITING:
+            case ON_CALL:
                 waitQueue.remove(entry);
                 break;
             case RSVPED:
