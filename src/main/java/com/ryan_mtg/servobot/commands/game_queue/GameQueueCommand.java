@@ -108,6 +108,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "done":
                 lg(event, parseResult.getInput());
                 return;
+            case "lgall":
+                lgAll(event);
+                return;
             case "permanent":
             case "streaming":
                 permanent(event, parseResult.getInput());
@@ -115,6 +118,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "move":
             case "position":
                 move(event, command, parseResult.getInput());
+                break;
+            case "rotatelg":
+                rotateLg(event);
                 break;
             case "rotate":
             case "requeue":
@@ -246,11 +252,21 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.lgUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
-            for(HomedUser user : users) {
-                action.merge(gameQueueEditor.lgUser(gameQueueId, user));
+            if (input.equalsIgnoreCase("all")) {
+                action.merge(gameQueueEditor.lgAll(gameQueueId));
+            } else {
+                List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+                for(HomedUser user : users) {
+                    action.merge(gameQueueEditor.lgUser(gameQueueId, user));
+                }
             }
         }
+        showOrUpdateQueue(event, action);
+    }
+
+    private void lgAll(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = gameQueueEditor.lgAll(gameQueueId);
         showOrUpdateQueue(event, action);
     }
 
@@ -317,12 +333,21 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.rotateUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
-            for(HomedUser user : users) {
-                action.merge(gameQueueEditor.rotateUser(gameQueueId, user));
+            if (input.equalsIgnoreCase("lg")) {
+                action.merge(gameQueueEditor.rotateLg(gameQueueId));
+            } else {
+                List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+                for(HomedUser user : users) {
+                    action.merge(gameQueueEditor.rotateUser(gameQueueId, user));
+                }
             }
         }
+        showOrUpdateQueue(event, action);
+    }
 
+    private void rotateLg(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = gameQueueEditor.rotateLg(gameQueueId);
         showOrUpdateQueue(event, action);
     }
 
@@ -417,7 +442,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         text.append("Command syntax:\n  !").append(event.getCommand()).append(" *command*  [*args*]\n\n");
         text.append("Where *command*  is one of: ```YAML\n");
         text.append("show: Displays the full details of the queue.\n");
-        text.append("server: code: Without any arguments, displays the server and code. With arguments, sets the server and/or code.\n");
+        text.append("code: server: version: Without any arguments, displays the code and server. With arguments, sets the server, code, and/or version.\n");
         text.append("join: enqueue: Adds you to the queue. With arguments, adds the user(s) specified to the queue.\n");
         text.append("ready: Adds you to the game if you are on deck. With arguments, adds the user(s) specified to the game.\n");
         text.append("last: LG: Marks you as being in your last game. With arguments, marks the user(s) specified as being in their last game.\n");

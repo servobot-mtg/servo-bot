@@ -58,6 +58,7 @@ public class GameQueue {
     public GameQueue(final int id, final Game game, final int flags, final State state, final String code,
              final String server, final Message message, final List<GameQueueEntry> gameQueueEntries) throws UserError {
         this.id = id;
+        this.flags = flags;
         this.game = game;
         this.state = state;
         this.code = code;
@@ -193,6 +194,35 @@ public class GameQueue {
         return action;
     }
 
+    public GameQueueAction rotateLg(final GameQueueEdit edit) throws UserError {
+        List<GameQueueEntry> playersToRotate = new ArrayList<>();
+        for (GameQueueEntry entry : playing) {
+            if (entry.getState() == PlayerState.LG) {
+                playersToRotate.add(entry);
+            }
+        }
+
+        if (playing.isEmpty()) {
+            throw new UserError("There is no one playing.");
+        } else if (playersToRotate.isEmpty()) {
+            throw new UserError("No players have been marked LG. ");
+        }
+
+        GameQueueAction action = GameQueueAction.emptyAction();
+        for (GameQueueEntry entry : playersToRotate) {
+            removeFromLists(entry);
+            entry.setState(PlayerState.WAITING);
+            entry.setEnqueueTime(Instant.now());
+            waitQueue.add(entry);
+            edit.save(getId(), entry);
+            action.merge(GameQueueAction.playerQueued(entry.getUser()));
+        }
+
+        promotePlayersToOnDeck(edit, action);
+        checkForRsvpExpirations(edit, action);
+        return action;
+    }
+
     public GameQueueEdit move(final HomedUser player, final int position) throws UserError {
         int playerId = player.getId();
         GameQueueEntry entry = userMap.get(playerId);
@@ -271,6 +301,37 @@ public class GameQueue {
 
         return action;
     }
+
+    public GameQueueAction lgAll(final GameQueueEdit edit) throws UserError {
+        int changed = 0;
+        int lged = 0;
+        GameQueueAction action = GameQueueAction.emptyAction();
+        for (GameQueueEntry entry : playing) {
+            if (entry.getState() == PlayerState.PLAYING) {
+                changed++;
+                entry.setState(PlayerState.LG);
+                edit.save(getId(), entry);
+                action.merge(GameQueueAction.playerLged(entry.getUser()));
+            } else if (entry.getState() == PlayerState.LG) {
+                lged++;
+            }
+        }
+        if (changed == 0) {
+            if (playing.size() == 0) {
+                throw new UserError("There is no one playing.");
+            } else if (lged == 0) {
+                throw new UserError("All players are permanent.");
+            } else {
+                throw new UserError("All players have already been marked LG.");
+            }
+        }
+
+        promotePlayersToOnDeck(edit, action);
+        checkForRsvpExpirations(edit, action);
+
+        return action;
+    }
+
 
     public GameQueueAction permanent(final HomedUser player, final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
