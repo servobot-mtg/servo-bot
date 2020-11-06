@@ -44,6 +44,9 @@ public class GameQueueUtils {
             } else if (emoteName.equals(LG_EMOTE)) {
                 GameQueueAction action = gameQueueEditor.lgUser(gameQueue.getId(), reactor.getHomedUser());
                 updateMessage(event, gameQueue, event.getMessage(), action, false);
+            } else if (emoteName.equals(ON_CALL_EMOTE)) {
+                GameQueueAction action = gameQueueEditor.onCallUser(gameQueue.getId(), reactor.getHomedUser());
+                updateMessage(event, gameQueue, event.getMessage(), action, false);
             } else if (emoteName.equals(LEAVE_EMOTE)) {
                 GameQueueAction action = gameQueueEditor.dequeueUser(gameQueue.getId(), reactor.getHomedUser());
                 updateMessage(event, gameQueue, event.getMessage(), action, false);
@@ -167,9 +170,10 @@ public class GameQueueUtils {
         }
 
         text.append("React with:\n");
-        text.append(DAGGER_EMOTE + ": To join the queue\t\t" + READY_EMOTE + ": To join game when on deck\t\t"
+        text.append(DAGGER_EMOTE + ": To join the queue\t\t" + ON_CALL_EMOTE + ": To join queue only if needed\t\t"
                         + ROTATE_EMOTE + ": To rotate (leave and rejoin queue)\n");
-        text.append(LG_EMOTE + ": When it's your LG\t\t" + LEAVE_EMOTE + ": To leave the game and queue\n");
+        text.append(LG_EMOTE + ": When it's your LG\t\t" + ROTATE_EMOTE + ": To rotate (leave and rejoin queue)\t\t"
+                + LEAVE_EMOTE + ": To leave the game and queue\n");
         return text.toString();
     }
 
