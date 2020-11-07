@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fragments</title>
+</head>
+<body>
+    <!-- header -->
+    <div th:fragment="playerTable (players)">
+        <table class="player-table">
+            <col>
+            <col>
+            <col>
+            <thead><tr>
+                <th class="pad-horizontal">Name</th>
+                <th class="pad-horizontal">Socials</th>
+                <th class="pad-horizontal">Starting Points</th>
+                <th class="pad-horizontal">Deck</th>
+            </tr></thead>
+            <tbody>
+            <th:block th:each="player : ${players}">
+                <tr>
+                    <td th:text="${player.name}"></td>
+                    <td>
+                        <a th:if="${player.twitchName}" target="_blank"
+                           th:href="'https://www.twitch.tv/' + ${player.twitchName}"
+                           th:title="${player.twitchName}"
+                        ><img class="icon" src="/images/twitch.ico"></a>
+
+                        <a th:if="${player.twitterName}" target="_blank"
+                           th:href="'https://www.twitter.com/' + ${player.twitterName}"
+                           th:title="${player.twitterName}"
+                        ><img class="icon" src="/images/twitter.ico"></a>
+                    </td>
+                    <td class="center" th:text="${player.startPoints}"></td>
+                    <td>
+                        <a th:if="${player.deckLink}" th:href="${player.deckLink}" th:text="${player.deckName}"
+                            target="_blank"></a>
+                        <span th:if="!${player.deckLink}">Unknown</span>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

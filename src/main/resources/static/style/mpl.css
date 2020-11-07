@@ -1,0 +1,12 @@
+
+.main-tab {
+    padding: 40px;
+}
+
+.player-table td {
+    padding-left: 10px;
+    padding-right: 15px;
+    border-collapse: collapse;
+    border: 0px solid black;
+}
+

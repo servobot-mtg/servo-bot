@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>League Weekend</title>
+    <div th:replace="fragments :: includes (description='MPL And Rivals League Weekend')"></div>
+    <script type="text/javascript" src="/script/mpl.js"> </script>
+    <link href="/style/mpl.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="content">
+    <h1>MPL League Weekend</h1>
+    <!-- Round: <span class="wide-padded" th:text="${round}"></span> -->
+
+    <a class="wide-padded" href="https://magic.gg/league?activeLeague=01SUSCOjZwTSbSXNHvwr4L&activeEvent=7oD3uQZsEh5snBpLIVk9vQ&activeTab=results"
+       target="_blank">MPL Pairings</a>
+    <a class="wide-padded" href="https://magic.gg/decklists/november-zendikar-rising-league-weekend-mpl-decklists"
+       target="_blank">MPL Decklists</a>
+    <a class="wide-padded" href="https://magic.gg/standings" target="_blank">Official Standings</a>
+    <a class="wide-padded" href="https://magic.gg/league?activeLeague=ePxsGwEv75LcohyKuElmt&activeEvent=4kQMCqGaWzEbcrMp4BwXaZ&activeTab=results"
+       target="_blank">Rivals Pairings</a>
+    <a class="wide-padded"
+       href="https://magic.gg/decklists/november-zendikar-rising-league-weekend-rivals-league-decklists"
+       target="_blank">Rivals Decklists</a>
+    <hr>
+
+    <button onclick="showTab('mpl-standings')">MPL Standings</button>
+    <button onclick="showTab('rivals-standings')">Rivals Standings</button>
+
+    <div id="mpl-standings" class="main-tab">
+        <div th:replace="mpl/fragments :: playerTable (players=${mpl.players})">
+        </div>
+    </div>
+
+    <div id="rivals-standings" class="main-tab hidden">
+        <div th:replace="mpl/fragments :: playerTable (players=${rivals.players})">
+        </div>
+    </div>
+</div>
+</body>
+</html>
