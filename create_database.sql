@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS suggestion (id INTEGER AUTO_INCREMENT PRIMARY KEY, co
 
 CREATE TABLE IF NOT EXISTS game_queue (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, flags INTEGER,
                     game INTEGER, code VARCHAR(30), server VARCHAR(30), state INTEGER, message_id BIGINT,
-                    channel_id BIGINT);
+                    channel_id BIGINT, start_time BIGINT);
 
 CREATE TABLE IF NOT EXISTS game_queue_entry (game_queue_id INTEGER, user_id INTEGER, enqueue_time BIGINT,
                     state INTEGER);

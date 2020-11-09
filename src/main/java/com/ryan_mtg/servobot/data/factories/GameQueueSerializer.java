@@ -46,9 +46,11 @@ public class GameQueueSerializer {
                 gameQueueEntries.add(createGameQueueEntry(homedUserTable, gameQueueEntryRow));
             }
 
+            Instant startTime = gameQueueRow.getStartTime() == null ? null :
+                    Instant.ofEpochMilli(gameQueueRow.getStartTime());
             GameQueue gameQueue = SystemError.filter(() -> new GameQueue(gameQueueId, gameQueueRow.getGame(),
                     gameQueueRow.getFlags(), gameQueueRow.getState(), gameQueueRow.getCode(), gameQueueRow.getServer(),
-                    message, gameQueueEntries));
+                    startTime, message, gameQueueEntries));
 
             gameQueueTable.add(gameQueue);
         }
@@ -94,6 +96,7 @@ public class GameQueueSerializer {
         gameQueueRow.setGame(gameQueue.getGame());
         gameQueueRow.setFlags(gameQueue.getFlags());
         gameQueueRow.setState(gameQueue.getState());
+        gameQueueRow.setStartTime(gameQueue.getStartTime() == null ? null : gameQueue.getStartTime().toEpochMilli());
         gameQueueRow.setCode(gameQueue.getCode());
         gameQueueRow.setServer(gameQueue.getServer());
         Message message = gameQueue.getMessage();

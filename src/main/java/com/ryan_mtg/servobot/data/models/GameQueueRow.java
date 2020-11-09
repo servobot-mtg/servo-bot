@@ -30,6 +30,9 @@ public class GameQueueRow {
 
     private int flags;
 
+    @Column(name = "start_time")
+    private Long startTime;
+
     @Size(max = Validation.MAX_NAME_LENGTH)
     private String code;
 

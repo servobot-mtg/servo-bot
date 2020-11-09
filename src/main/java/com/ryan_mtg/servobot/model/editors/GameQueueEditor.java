@@ -28,7 +28,7 @@ public class GameQueueEditor {
 
     public void createGameQueue(final Game game, final Consumer<GameQueue> gameQueueSavedCallback) throws UserError {
         GameQueue gameQueue = new GameQueue(GameQueue.UNREGISTERED_ID, game, 0, GameQueue.State.IDLE,
-                null, null, null, Arrays.asList());
+                null, null, null, null, Arrays.asList());
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         gameQueueEdit.save(contextId, gameQueue, gameQueueSavedCallback);
         gameQueueSerializer.commit(gameQueueEdit);
@@ -67,7 +67,7 @@ public class GameQueueEditor {
     public GameQueueAction addUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.enqueue(player, edit);
+        GameQueueAction action = gameQueue.enqueue(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -75,7 +75,7 @@ public class GameQueueEditor {
     public GameQueueAction dequeueUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.dequeue(player, edit);
+        GameQueueAction action = gameQueue.dequeue(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -113,7 +113,7 @@ public class GameQueueEditor {
     public GameQueueAction lgUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.lg(player, edit);
+        GameQueueAction action = gameQueue.lg(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -121,7 +121,7 @@ public class GameQueueEditor {
     public GameQueueAction lgAll(final int gameQueueId) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.lgAll(edit);
+        GameQueueAction action = gameQueue.lgAll(contextId, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -129,7 +129,7 @@ public class GameQueueEditor {
     public GameQueueAction permanentUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.permanent(player, edit);
+        GameQueueAction action = gameQueue.permanent(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -137,7 +137,7 @@ public class GameQueueEditor {
     public GameQueueAction onCallUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.onCall(player, edit);
+        GameQueueAction action = gameQueue.onCall(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -145,7 +145,7 @@ public class GameQueueEditor {
     public GameQueueAction rotateUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.rotate(player, edit);
+        GameQueueAction action = gameQueue.rotate(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -153,7 +153,7 @@ public class GameQueueEditor {
     public GameQueueAction rotateLg(final int gameQueueId) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.rotateLg(edit);
+        GameQueueAction action = gameQueue.rotateLg(contextId, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -172,6 +172,24 @@ public class GameQueueEditor {
         GameQueueEdit edit = new GameQueueEdit();
         GameQueueAction action = gameQueue.rsvp(player, rsvpTime, edit);
         gameQueueSerializer.commit(edit);
+        return action;
+    }
+
+    public GameQueueAction schedule(final int gameQueueId, final Instant startTime) {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        gameQueue.setStartTime(startTime);
+
+        gameQueueEdit.save(contextId, gameQueue);
+        gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.startTimeChanged(gameQueue.getStartTime());
+    }
+
+    public GameQueueAction start(final int gameQueueId) throws UserError {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueAction action = gameQueue.start(contextId, gameQueueEdit);
+        gameQueueSerializer.commit(gameQueueEdit);
         return action;
     }
 }

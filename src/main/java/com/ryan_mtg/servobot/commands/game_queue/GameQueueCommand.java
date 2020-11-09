@@ -137,6 +137,12 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "rsvp":
                 rsvp(event, command, parseResult.getInput());
                 break;
+            case "start":
+                start(event);
+                break;
+            case "schedule":
+                schedule(event, command, parseResult.getInput());
+                break;
             case "ifneeded":
             case "oncall":
                 onCall(event, parseResult.getInput());
@@ -406,19 +412,87 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showOrUpdateQueue(event, action);
     }
 
-    private static final Pattern RSVP_PATTERN =
+    private static final Pattern TIME_PATTERN =
             Pattern.compile("(?<hour>\\d?\\d):(?<minute>\\d\\d)(?<ampm>\\s*(A|P|a|p)(m|M))?(?<zone>\\s+\\w+(\\s+\\w+)?)?");
 
     private void rsvp(final CommandInvokedHomeEvent event, final String command, final String input)
             throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
 
+        ZonedDateTime rsvpTime = parseTime(event, command, input);
+
+        GameQueueAction action =
+                gameQueueEditor.rsvpUser(gameQueueId, event.getSender().getHomedUser(), rsvpTime.toInstant());
+
+        showOrUpdateQueue(event, action);
+    }
+
+    private void schedule(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        ZonedDateTime scheduledTime = parseTime(event, command, input);
+        GameQueueAction action = gameQueueEditor.schedule(gameQueueId, scheduledTime.toInstant());
+
+        showOrUpdateQueue(event, action);
+    }
+
+    private void start(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = gameQueueEditor.start(gameQueueId);
+        showOrUpdateQueue(event, action);
+    }
+
+    private void clear(final CommandInvokedHomeEvent event) throws UserError {
+        event.getGameQueueEditor().clear(gameQueueId);
+        showQueue(event);
+    }
+
+    private void help(final CommandInvokedHomeEvent event) {
+        StringBuilder text = new StringBuilder();
+        text.append("Command syntax:\n  !").append(event.getCommand()).append(" *command*  [*args*]\n\n");
+        text.append("Where *command*  for players is one of: ```YAML\n");
+        text.append("show: Displays the full details of the queue.\n");
+        text.append("code: server: version: Without any arguments, displays the code and server. With arguments, sets the server, code, and/or version.\n");
+        text.append("join: enqueue: Adds you or the user(s) specified to the queue.\n");
+        text.append("rsvp: Makes a reservation for you to play at the specified time. The time should be formatted similar to 2:30 PM PT\n");
+        text.append("help: Displays this message.\n");
+        text.append("```\n");
+        text.append("For mods: ```YAML\n");
+        text.append("move: Moves you or the user specified to the given position in the queue.\n");
+        text.append("ready: Adds you or the user(s) specified to the game if they are on deck.\n");
+        text.append("unready: Returns you or the users(s) specified to the queue if they are on deck or in the game.\n");
+        text.append("cut: Moves you or the user(s) specified to the deck.\n");
+        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
+        text.append("last: LG: Marks you or the user(s) specified as being in their last game. all is a special user which LGs everyone playing.\n");
+        text.append("rotate: Moves you or the user(s) specified to the end of the queue. lg is a special user which rotates everyone marked LG.\n");
+        text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
+        text.append("```");
+        event.getChannel().say(text.toString());
+    }
+
+    private HomedUser getUser(final ServiceHome serviceHome, final String name) throws UserError {
+        return serviceHome.getUser(name.trim()).getHomedUser();
+    }
+
+    private String extractTrailingInt(final String input) {
+        if (input == null) {
+            return null;
+        }
+        int trailingCharacters = 0;
+        int len = input.length();
+        while (trailingCharacters < len && Character.isDigit(input.charAt(len - 1 - trailingCharacters))) {
+            trailingCharacters++;
+        }
+        return input.substring(len - trailingCharacters);
+    }
+
+    private ZonedDateTime parseTime(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws UserError {
         if (Strings.isBlank(input)) {
             throw new UserError("%s command requires a time formatted as HH:MM PM <time zone>", command);
         }
 
-        System.out.println(String.format("'%s'", input));
-        Matcher matcher = RSVP_PATTERN.matcher(input);
+        Matcher matcher = TIME_PATTERN.matcher(input);
         if (!matcher.matches()) {
             throw new UserError("%s command requires a time formatted as HH:MM PM <time zone>", command);
         }
@@ -476,58 +550,10 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
         ZoneId zoneId = ZoneId.of(timeZone);
         ZonedDateTime now = ZonedDateTime.now(zoneId);
-        ZonedDateTime rsvpTime = ZonedDateTime.of(now.toLocalDate(), time, zoneId);
-        if (rsvpTime.compareTo(now) <= 0) {
-            rsvpTime = rsvpTime.plusDays(1);
+        ZonedDateTime dateTime = ZonedDateTime.of(now.toLocalDate(), time, zoneId);
+        if (dateTime.compareTo(now) <= 0) {
+            dateTime = dateTime.plusDays(1);
         }
-
-        GameQueueAction action =
-                gameQueueEditor.rsvpUser(gameQueueId, event.getSender().getHomedUser(), rsvpTime.toInstant());
-
-        showOrUpdateQueue(event, action);
-    }
-
-    private void clear(final CommandInvokedHomeEvent event) throws UserError {
-        event.getGameQueueEditor().clear(gameQueueId);
-        showQueue(event);
-    }
-
-    private void help(final CommandInvokedHomeEvent event) {
-        StringBuilder text = new StringBuilder();
-        text.append("Command syntax:\n  !").append(event.getCommand()).append(" *command*  [*args*]\n\n");
-        text.append("Where *command*  for players is one of: ```YAML\n");
-        text.append("show: Displays the full details of the queue.\n");
-        text.append("code: server: version: Without any arguments, displays the code and server. With arguments, sets the server, code, and/or version.\n");
-        text.append("join: enqueue: Adds you or the user(s) specified to the queue.\n");
-        text.append("rsvp: Makes a reservation for you to play at the specified time. The time should be formatted similar to 2:30 PM PT\n");
-        text.append("help: Displays this message.\n");
-        text.append("```\n");
-        text.append("For mods: ```YAML\n");
-        text.append("move: Moves you or the user specified to the given position in the queue.\n");
-        text.append("ready: Adds you or the user(s) specified to the game if they are on deck.\n");
-        text.append("unready: Returns you or the users(s) specified to the queue if they are on deck or in the game.\n");
-        text.append("cut: Moves you or the user(s) specified to the deck.\n");
-        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
-        text.append("last: LG: Marks you or the user(s) specified as being in their last game. all is a special user which LGs everyone playing.\n");
-        text.append("rotate: Moves you or the user(s) specified to the end of the queue. lg is a special user which rotates everyone marked LG.\n");
-        text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
-        text.append("```");
-        event.getChannel().say(text.toString());
-    }
-
-    private HomedUser getUser(final ServiceHome serviceHome, final String name) throws UserError {
-        return serviceHome.getUser(name.trim()).getHomedUser();
-    }
-
-    private String extractTrailingInt(final String input) {
-        if (input == null) {
-            return null;
-        }
-        int trailingCharacters = 0;
-        int len = input.length();
-        while (trailingCharacters < len && Character.isDigit(input.charAt(len - 1 - trailingCharacters))) {
-            trailingCharacters++;
-        }
-        return input.substring(len - trailingCharacters);
+        return dateTime;
     }
 }

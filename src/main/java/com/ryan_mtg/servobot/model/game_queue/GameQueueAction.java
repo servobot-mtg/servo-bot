@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +21,12 @@ public class GameQueueAction {
 
     @Getter
     private Boolean onBeta;
+
+    @Getter
+    private Instant startTime;
+
+    @Getter
+    private boolean gameStarted;
 
     @Getter @Builder.Default
     private List<HomedUser> queuedPlayers = new ArrayList<>();
@@ -64,6 +71,12 @@ public class GameQueueAction {
         if (action.onBeta != null) {
             onBeta = action.onBeta;
         }
+        if (action.startTime != null) {
+            startTime = action.startTime;
+        }
+        if (action.gameStarted) {
+            gameStarted = true;
+        }
         queuedPlayers = merge(queuedPlayers, action.queuedPlayers);
         dequeuedPlayers = merge(dequeuedPlayers, action.dequeuedPlayers);
         onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
@@ -81,8 +94,16 @@ public class GameQueueAction {
         return GameQueueAction.builder().build();
     }
 
+    public static GameQueueAction gameStarted() {
+        return GameQueueAction.builder().gameStarted(true).build();
+    }
+
     public static GameQueueAction codeChanged(final String code, final String server, final boolean isOnBeta) {
         return GameQueueAction.builder().code(code).server(server).onBeta(isOnBeta).build();
+    }
+
+    public static GameQueueAction startTimeChanged(final Instant startTime) {
+        return GameQueueAction.builder().startTime(startTime).build();
     }
 
     public static GameQueueAction playerQueued(final HomedUser player) {

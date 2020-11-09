@@ -3,7 +3,6 @@ package com.ryan_mtg.servobot.commands.game_queue;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EmoteHomeEvent;
-import com.ryan_mtg.servobot.events.MessageEvent;
 import com.ryan_mtg.servobot.events.MessageHomeEvent;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
@@ -66,9 +65,14 @@ public class GameQueueUtils {
         respondToAction(event, action, verbose);
     }
 
-    public static void respondToAction(final MessageEvent event, final GameQueueAction action, final boolean verbose)
-            throws BotHomeError {
+    public static void respondToAction(final MessageHomeEvent event, final GameQueueAction action,
+            final boolean verbose) throws BotHomeError {
         String response = "";
+
+        if (action.isGameStarted() && verbose) {
+            response = combine(response, "The game is about to start!");
+        }
+
         if (!action.getQueuedPlayers().isEmpty() && verbose) {
             response = combine(response, GameQueueUtils.getPlayersQueuedMessage(action.getQueuedPlayers()));
         }
@@ -114,6 +118,11 @@ public class GameQueueUtils {
                     GameQueueUtils.getCodeMessage(action.getCode(), action.getServer(), action.getOnBeta()));
         }
 
+        if (action.getStartTime() != null && verbose) {
+            response = combine(response, GameQueueUtils.getStartTimeScheduledMessage(action.getStartTime(),
+                    event.getHomeEditor().getTimeZone()));
+        }
+
         if (!Strings.isBlank(response)) {
             event.say(response);
         }
@@ -122,6 +131,11 @@ public class GameQueueUtils {
     public static String createMessage(final GameQueue gameQueue, final String timeZone) {
         StringBuilder text = new StringBuilder();
         text.append("Game Queue for ").append(gameQueue.getGame().getName());
+
+        if (gameQueue.getStartTime() != null) {
+            ZonedDateTime time = ZonedDateTime.ofInstant(gameQueue.getStartTime(), ZoneId.of(timeZone));
+            text.append(" scheduled to start at ⏰ ").append(Time.toReadableString(time));
+        }
 
         text.append("\t\t\t");
         appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
@@ -172,13 +186,18 @@ public class GameQueueUtils {
         text.append("React with:\n");
         text.append(DAGGER_EMOTE + ": To join the queue\t\t" + ON_CALL_EMOTE + ": To join queue only if needed\t\t"
                         + ROTATE_EMOTE + ": To rotate (leave and rejoin queue)\n");
-        text.append(LG_EMOTE + ": When it's your LG\t\t" + ROTATE_EMOTE + ": To rotate (leave and rejoin queue)\t\t"
+        text.append(LG_EMOTE + ": When it's your LG\t\t" + READY_EMOTE + ": To join game when on deck\t\t"
                 + LEAVE_EMOTE + ": To leave the game and queue\n");
         return text.toString();
     }
 
     public static String getCodeMessage(final GameQueue gameQueue) {
         return getCodeMessage(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+    }
+
+    public static String getStartTimeScheduledMessage(final Instant startTime, final String timeZone) {
+        ZonedDateTime time = ZonedDateTime.ofInstant(startTime, ZoneId.of(timeZone));
+        return String.format("A game is scheduled to start at %s", Time.toReadableString(time));
     }
 
     public static String getCodeMessage(final String code, final String server, final Boolean isOnBeta) {
