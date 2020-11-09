@@ -4,7 +4,19 @@
     <title>Fragments</title>
 </head>
 <body>
-    <!-- header -->
+    <!-- twitchLink -->
+    <a th:fragment="twitchLink (name)" th:if="${name}" target="_blank"
+           th:href="'https://www.twitch.tv/' + ${name}"
+           th:title="${name}"
+        ><img class="icon" src="/images/twitch.ico"></a>
+
+    <!-- twitterLink -->
+    <a th:fragment="twitterLink (name)" th:if="${name}" target="_blank"
+       th:href="'https://www.twitter.com/' + ${name}"
+       th:title="${name}"
+    ><img class="icon" src="/images/twitter.ico"></a>
+
+    <!-- playerTable -->
     <div th:fragment="playerTable (players)">
         <table class="player-table">
             <col>
@@ -21,16 +33,9 @@
                 <tr>
                     <td th:text="${player.name}"></td>
                     <td>
-                        <a th:if="${player.twitchName}" target="_blank"
-                           th:href="'https://www.twitch.tv/' + ${player.twitchName}"
-                           th:title="${player.twitchName}"
-                        ><img class="icon" src="/images/twitch.ico"></a>
-
-                        <a th:if="${player.twitterName}" target="_blank"
-                           th:href="'https://www.twitter.com/' + ${player.twitterName}"
-                           th:title="${player.twitterName}"
-                        ><img class="icon" src="/images/twitter.ico"></a>
-                    </td>
+                        <div th:replace="mpl/fragments :: twitchLink (name=${player.twitchName})"></div>
+                        <div th:replace="mpl/fragments :: twitterLink (name=${player.twitterName})"></div>
+                   </td>
                     <td class="center" th:text="${player.startPoints}"></td>
                     <td>
                         <a th:if="${player.deckLink}" th:href="${player.deckLink}" th:text="${player.deckName}"
@@ -42,5 +47,30 @@
             </tbody>
         </table>
     </div>
+
+    <!-- matchRow -->
+    <tr th:fragment="matchRow (match)">
+        <td th:text="${match.player1.name}"></td>
+        <td>
+            <div th:replace="mpl/fragments :: twitchLink (name=${match.player1.twitchName})"></div>
+            <div th:replace="mpl/fragments :: twitterLink (name=${match.player1.twitterName})"></div>
+        </td>
+        <td>
+            <a th:if="${match.player1.deckLink}" th:href="${match.player1.deckLink}"
+               th:text="${match.player1.deckName}" target="_blank"></a>
+            <span th:if="!${match.player1.deckLink}">Unknown</span>
+        </td>
+
+        <td th:text="${match.player2.name}"></td>
+        <td>
+            <div th:replace="mpl/fragments :: twitchLink (name=${match.player2.twitchName})"></div>
+            <div th:replace="mpl/fragments :: twitterLink (name=${match.player2.twitterName})"></div>
+        </td>
+        <td>
+            <a th:if="${match.player2.deckLink}" th:href="${match.player2.deckLink}"
+               th:text="${match.player2.deckName}" target="_blank"></a>
+            <span th:if="!${match.player2.deckLink}">Unknown</span>
+        </td>
+    </tr>
 </body>
 </html>

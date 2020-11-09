@@ -25,16 +25,50 @@
 
     <button onclick="showTab('mpl-standings')">MPL Standings</button>
     <button onclick="showTab('rivals-standings')">Rivals Standings</button>
+    <br>
+    <th:block th:each="round : ${mplRounds}">
+        <button th:onclick="'showRound(' + ${round.number} + ')'" th:text="'Round ' + ${round.number}"></button>
+    </th:block>
 
     <div id="mpl-standings" class="main-tab">
-        <div th:replace="mpl/fragments :: playerTable (players=${mpl.players})">
-        </div>
+        <h2>MPL Standings</h2>
+        <div th:replace="mpl/fragments :: playerTable (players=${mpl.players})"></div>
     </div>
 
     <div id="rivals-standings" class="main-tab hidden">
-        <div th:replace="mpl/fragments :: playerTable (players=${rivals.players})">
-        </div>
+        <h2>Rivals Standings</h2>
+        <div th:replace="mpl/fragments :: playerTable (players=${rivals.players})"></div>
     </div>
+
+    <th:block th:each="round : ${mplRounds}">
+        <div th:id="'round-' + ${round.number}" class="main-tab hidden">
+            <h2 th:text="'Round ' + ${round.number}"></h2>
+
+            <table class="match-table">
+                <col>
+                <col>
+                <col>
+                <thead><tr>
+                    <th class="pad-horizontal">Name</th>
+                    <th class="pad-horizontal">Socials</th>
+                    <th class="pad-horizontal">Deck</th>
+                    <th class="pad-horizontal">Name</th>
+                    <th class="pad-horizontal">Socials</th>
+                    <th class="pad-horizontal">Deck</th>
+                </tr></thead>
+                <tbody>
+                    <th:block th:each="match : ${round.matches}">
+                        <tr th:replace="mpl/fragments :: matchRow (match=${match})"></tr>
+                    </th:block>
+
+                    <th:block th:each="match : ${league.getRivalsRound(round.number).matches}">
+                        <tr th:replace="mpl/fragments :: matchRow (match=${match})"></tr>
+                    </th:block>
+                </tbody>
+            </table>
+
+        </div>
+    </th:block>
 </div>
 </body>
 </html>

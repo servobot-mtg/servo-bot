@@ -1,9 +1,17 @@
 
 .main-tab {
-    padding: 40px;
+    padding: 20px;
+    padding-top: 0;
 }
 
 .player-table td {
+    padding-left: 10px;
+    padding-right: 15px;
+    border-collapse: collapse;
+    border: 0px solid black;
+}
+
+.match-table td {
     padding-left: 10px;
     padding-right: 15px;
     border-collapse: collapse;

@@ -8,9 +8,11 @@ import java.util.Map;
 
 public class PlayerSet {
     private Map<String, Player> byNameMap;
+    private Map<String, String> aliasMap;
 
-    public PlayerSet(final Map<String, Player> byNameMap) {
+    public PlayerSet(final Map<String, Player> byNameMap, final Map<String, String> aliasMap) {
         this.byNameMap = byNameMap;
+        this.aliasMap = aliasMap;
     }
 
     public Collection<Player> getPlayers() {
@@ -19,7 +21,15 @@ public class PlayerSet {
         return players;
     }
 
-    public static int compare(Player a, Player b) {
+    public Player getByName(final String name) {
+        if (!byNameMap.containsKey(name)) {
+            return byNameMap.get(aliasMap.get(name));
+        }
+
+        return byNameMap.get(name);
+    }
+
+    public static int compare(final Player a, final Player b) {
         return b.getStartPoints() - a.getStartPoints();
     }
 }

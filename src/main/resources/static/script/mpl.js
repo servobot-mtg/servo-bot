@@ -10,3 +10,7 @@ function showTab(tabId) {
     }
 }
 
+function showRound(round) {
+    showTab('round-' + round);
+}
+

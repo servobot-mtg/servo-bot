@@ -15,7 +15,10 @@ public class MplController {
     @GetMapping("")
     public String showTournaments(final Model model) {
         model.addAttribute("mpl", leagueManager.getMpl());
+        model.addAttribute("mplRounds", leagueManager.getMplRounds());
         model.addAttribute("rivals", leagueManager.getRivals());
+        model.addAttribute("league", leagueManager);
+        model.addAttribute("schedules", leagueManager.getSchedules());
         return "mpl/home";
     }
 }
