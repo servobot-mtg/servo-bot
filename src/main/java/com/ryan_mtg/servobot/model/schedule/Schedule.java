@@ -4,7 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class Schedule {
@@ -25,6 +25,7 @@ public class Schedule {
     }
 
     private List<WeeklyTime> getDefaultWeeklyStreamTimes() {
-        return Collections.singletonList(new WeeklyTime(DayOfWeek.WEDNESDAY, LocalTime.of(19, 00)));
+        return Arrays.asList(new WeeklyTime(DayOfWeek.WEDNESDAY, LocalTime.of(18, 00)),
+                new WeeklyTime(DayOfWeek.SATURDAY, LocalTime.of(19, 00)));
     }
 }

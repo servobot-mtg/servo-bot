@@ -813,10 +813,12 @@ public class HomeEditor {
         for (Prize prize : raffle.getPrizes()) {
             HomedUser winner = prize.getWinner();
             if (winner != null && winner.getDiscordId() != 0) {
+                /* TODO: turned off because of a raffle with no code, this should be configurable
                 String prizeMessage = String.format("Congratulations %s, your code is: %s", winner.getDiscordUsername(),
                         prize.getReward());
                 whisperMessage(DiscordService.TYPE, winner, prizeMessage);
                 prize.bestowTo(winner);
+                 */
             }
         }
         serializers.getGiveawaySerializer().commit(giveawayEdit);
