@@ -12,10 +12,10 @@ import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
-import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.roles.RoleTable;
 import com.ryan_mtg.servobot.model.schedule.Schedule;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
@@ -84,6 +84,9 @@ public class BotHome implements Context {
     private ReactionTable reactionTable;
 
     @Getter
+    private RoleTable roleTable;
+
+    @Getter
     private StorageTable storageTable;
 
     @Getter
@@ -109,7 +112,7 @@ public class BotHome implements Context {
 
     public BotHome(final int id, final int flags, final String name, final String botName, final String timeZone,
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
-                   final ReactionTable reactionTable, final StorageTable storageTable,
+                   final ReactionTable reactionTable, final RoleTable roleTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final GameQueueTable gameQueueTable,
                    final List<Giveaway> giveaways, final List<EmoteLink> emoteLinks) throws UserError {
         this.id = id;
@@ -121,6 +124,7 @@ public class BotHome implements Context {
         this.bookTable = bookTable;
         this.commandTable = commandTable;
         this.reactionTable = reactionTable;
+        this.roleTable = roleTable;
         this.storageTable = storageTable;
         this.schedule = new Schedule(timeZone);
         this.serviceHomes = serviceHomes;
@@ -137,7 +141,7 @@ public class BotHome implements Context {
         CommandPerformer commandPerformer = new CommandPerformer(new RateLimiter());
         eventListener =
                 new MultiDelegatingListener(new CommandListener(commandPerformer, commandTable),
-                        new ReactionListener(reactionTable, commandPerformer, gameQueueTable));
+                        new ReactionListener(reactionTable, roleTable, commandPerformer, gameQueueTable));
     }
 
     @Override

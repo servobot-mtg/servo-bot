@@ -18,7 +18,6 @@ import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
-import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.LibraryError;
 import com.ryan_mtg.servobot.error.SystemError;
@@ -31,6 +30,7 @@ import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
+import com.ryan_mtg.servobot.model.editors.RoleTableEditor;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEntry;
@@ -45,6 +45,9 @@ import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
+import com.ryan_mtg.servobot.model.roles.Role;
+import com.ryan_mtg.servobot.model.roles.RoleTable;
+import com.ryan_mtg.servobot.model.roles.RoleTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
@@ -78,6 +81,9 @@ public class HomeEditor {
     private CommandTableEditor commandTableEditor;
 
     @Getter
+    private RoleTableEditor roleTableEditor;
+
+    @Getter
     private BookTableEditor bookTableEditor;
 
     @Getter
@@ -97,6 +103,7 @@ public class HomeEditor {
         this.commandTableEditor = new CommandTableEditor(botHome.getBookTable(), botHome.getCommandTable(),
                 serializers.getCommandSerializer(), serializers.getCommandTableSerializer(),
                 gameQueueEditor);
+        this.roleTableEditor = new RoleTableEditor(botHome.getRoleTable(), serializers.getRoleTableSerializer());
         this.bookTableEditor =
                 new BookTableEditor(botHome.getId(), botHome.getBookTable(), serializers.getBookSerializer());
         this.storageValueEditor =new StorageValueEditor(botHome.getId(), botHome.getStorageTable(),
@@ -164,7 +171,7 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = Exception.class)
     public Reaction addReaction(final String emote, final boolean secure) throws UserError {
-        Reaction  reaction = new Reaction(Reaction.UNREGISTERED_ID, emote, secure, new AlwaysReact(), new ArrayList<>(),
+        Reaction reaction = new Reaction(Reaction.UNREGISTERED_ID, emote, secure, new AlwaysReact(), new ArrayList<>(),
                 new ArrayList<>());
         ReactionTable reactionTable = botHome.getReactionTable();
         ReactionTableEdit reactionTableEdit = reactionTable.addReaction(reaction);

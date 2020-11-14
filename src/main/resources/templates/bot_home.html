@@ -15,10 +15,11 @@
         <div th:if="${privileged}">
             <h2>Links</h2>
             <ul>
-                <li th:if="${exalted}"><a th:href="'/home/' + ${botHome.name} + '/settings'">Settings</a></li>
-                <li><a th:href="'/home/' + ${botHome.name} + '/hub'">Moderation Hub</a></li>
-                <li><a th:href="'/home/' + ${botHome.name} + '/users'">Users</a></li>
-                <li><a th:href="'/home/' + ${botHome.name} + '/giveaways'">Giveaways</a></li>
+                <li th:if="${exalted}"><a th:href="'/home/' + ${bot.name} + '/' + ${botHome.name} + '/settings'">
+                    Settings</a></li>
+                <li><a th:href="'/home/' + ${bot.name} + '/' + ${botHome.name} + '/hub'">Moderation Hub</a></li>
+                <li><a th:href="'/home/' + ${bot.name} + '/' + ${botHome.name} + '/users'">Users</a></li>
+                <li><a th:href="'/home/' + ${bot.name} + '/' + ${botHome.name} + '/giveaways'">Giveaways</a></li>
             </ul>
         </div>
 

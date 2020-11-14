@@ -45,6 +45,7 @@ public interface ServiceHome {
     User getUser(long id, String userName);
     User getUser(String userName) throws UserError;
     User getUser(HomedUser homedUser);
+    void setNickName(User user, String nickName);
 
     Message getSavedMessage(long channelId, long messageId);
     Map<String, Emote> getEmoteMap();

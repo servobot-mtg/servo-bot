@@ -17,6 +17,7 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
+import com.ryan_mtg.servobot.model.roles.RoleTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -112,9 +113,11 @@ public class BotFactory {
         LOGGER.info("------ Creating CommandTable: {} ", botHomeRow.getHomeName());
         CommandTable commandTable =
                 serializers.getCommandTableSerializer().createCommandTable(botHomeId, bookMap);
+
         LOGGER.info("------ Creating ReactionTable: {} ", botHomeRow.getHomeName());
         ReactionTable reactionTable =
                 serializers.getReactionTableSerializer().createReactionTable(botHomeId, commandTable);
+
         LOGGER.info("------ Creating StorageTable: {} ", botHomeRow.getHomeName());
         StorageTable storageTable = serializers.getStorageTableSerializer().createStorageTable(botHomeId);
 
@@ -126,6 +129,10 @@ public class BotFactory {
             ServiceHome serviceHome = serviceSerializer.createServiceHome(serviceHomeRow, service);
             serviceHomes.put(serviceType, serviceHome);
         }
+
+        LOGGER.info("------ Creating RoleTable: {} ", botHomeRow.getHomeName());
+        RoleTable roleTable = serializers.getRoleTableSerializer()
+                .createRoleTable(botHomeId, serviceHomes.get(DiscordService.TYPE));
 
         LOGGER.info("------ Creating Homed User Table: {} ", botHomeRow.getHomeName());
         HomedUserTable homedUserTable =
@@ -143,7 +150,8 @@ public class BotFactory {
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
         return SystemError.filter(() -> {
             BotHome botHome = new BotHome(botHomeId, flags, homeName, botName, timeZone, homedUserTable, bookTable,
-                    commandTable, reactionTable, storageTable, serviceHomes, gameQueueTable, giveaways, emoteLinks);
+                    commandTable, reactionTable, roleTable, storageTable, serviceHomes, gameQueueTable, giveaways,
+                    emoteLinks);
 
             LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
             return botHome;

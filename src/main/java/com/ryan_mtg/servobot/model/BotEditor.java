@@ -28,6 +28,7 @@ import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
+import com.ryan_mtg.servobot.model.roles.RoleTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -180,10 +181,11 @@ public class BotEditor {
             GameQueueTable gameQueueTable = new GameQueueTable();
             List<Giveaway> giveaways = new ArrayList<>();
             BookTable bookTable = new BookTable();
+            RoleTable roleTable = new RoleTable(RoleTable.UNREGISTERED_ID, botHomeId, null);
             List<EmoteLink> emoteLinks = new ArrayList<>();
             BotHome botHome = new BotHome(botHomeId, BotHome.DEFAULT_FLAGS, homeName, botName, timeZone, homedUserTable,
-                    bookTable, commandTable, reactionTable, storageTable, serviceHomes, gameQueueTable, giveaways,
-                    emoteLinks);
+                    bookTable, commandTable, reactionTable, roleTable, storageTable, serviceHomes, gameQueueTable,
+                    giveaways, emoteLinks);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue(), false);
             return botHome;

@@ -20,12 +20,14 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.model.editors.RoleTableEditor;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
 import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
+import com.ryan_mtg.servobot.model.roles.Role;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
@@ -400,6 +402,28 @@ public class ApiController {
         private int patternId;
     }
 
+    @PostMapping(value = "/add_role", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Role addRole(@RequestBody final AddRoleRequest request) throws UserError {
+        RoleTableEditor roleTableEditor = getRoleTableEditor(request.getBotHomeId());
+        return roleTableEditor.addRole(request.getRole(), request.getEmote(), request.isAppend());
+    }
+
+    @Getter
+    public static class AddRoleRequest extends BotHomeRequest {
+        private String role;
+        private String emote;
+        private boolean append;
+    }
+
+    @PostMapping(value = "/delete_role", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteRole(@RequestBody final DeleteHomedObjectRequest request) {
+        RoleTableEditor roleTableEditor = getRoleTableEditor(request.getBotHomeId());
+        roleTableEditor.deleteRole(request.getObjectId());
+        return true;
+    }
+
     @PostMapping(value = "/add_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public AlertGenerator addAlert(@RequestBody final AddAlertRequest request) throws UserError {
@@ -643,6 +667,13 @@ public class ApiController {
             return botRegistrar.getHomeEditor(contextId).getBookTableEditor();
         }
         return botRegistrar.getBotEditor(contextId).getBookTableEditor();
+    }
+
+    private RoleTableEditor getRoleTableEditor(final int contextId) {
+        if (contextId > 0) {
+            return botRegistrar.getHomeEditor(contextId).getRoleTableEditor();
+        }
+        return null;
     }
 
     @ExceptionHandler(BotHomeError.class)

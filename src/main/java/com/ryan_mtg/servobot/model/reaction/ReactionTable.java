@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model.reaction;
 
 import com.ryan_mtg.servobot.error.UserError;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ReactionTable implements Iterable<Reaction> {
+    @Getter
     private List<Reaction> reactions = new ArrayList<>();
 
     public void registerReaction(final Reaction reaction) {
@@ -20,10 +22,6 @@ public class ReactionTable implements Iterable<Reaction> {
     @Override
     public Iterator<Reaction> iterator() {
         return reactions.iterator();
-    }
-
-    public List<Reaction> getReactions() {
-        return reactions;
     }
 
     public void setTimeZone(final String timeZone) {

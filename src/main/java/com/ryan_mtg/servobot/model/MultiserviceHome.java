@@ -153,6 +153,11 @@ public class MultiserviceHome implements ServiceHome {
     }
 
     @Override
+    public void setNickName(final User user, final String nickName) {
+        preferService(DiscordService.TYPE).setNickName(user, nickName);
+    }
+
+    @Override
     public Map<String, Emote> getEmoteMap() {
         return preferService(TwitchService.TYPE).getEmoteMap();
     }

@@ -226,6 +226,7 @@
                         <option value="11">Set Arena Username Command</option>
                         <option value="12">Show Arena Usernames Command</option>
                         <option value="3">Friendship Tier Command</option>
+                        <option value="37">Make Role Message Command</option>
                         <option value="13">Set Role Command</option>
                         <option value="27">Set User's Role Command</option>
                         <option value="14">Set Status Command</option>
@@ -389,6 +390,59 @@
             </form>
         </div>
     </div>
+
+    <!-- roles -->
+    <div th:fragment="roles">
+        <h2>Roles</h2>
+        <table id="role-table" class="role data-table">
+            <thead><tr>
+                <th>Role</th>
+                <th>Emote</th>
+                <th>Append to Name</th>
+                <th th:if="${privileged}">Delete</th>
+            </tr></thead>
+            <th:block th:each="role : ${botHome.roleTable.roles}">
+                <tr th:with="label=${'role-' + role.id}" th:id="${label + '-row'}">
+                    <td th:text="${role.role}"/>
+                    <td th:text="${role.emote}"/>
+                    <td>
+                        <input type="checkbox" th:checked="${role.appendEmote}" onclick="return false;">
+                    </td>
+                    <td th:if="${privileged}" class="pseudo-link"
+                        th:onclick="'deleteRole(' + ${botHome.id} + ',' + ${role.id} + ')'">
+                        &#x1F5D1;&#xFE0F;
+                    </td>
+                </tr>
+            </th:block>
+        </table>
+
+        <div th:if="${privileged && !roles.empty}" class="add-role">
+            <div id="add-role-button" class="pseudo-link add-button" onclick="showAddRoleForm()"
+                 title="Add a role">+</div>
+            <form id="add-role-form" class="add-form hidden"
+                  th:onsubmit="'addRole(' + ${botHome.id} + '); return false;'">
+                <div>
+                    <label>Role</label><br>
+                    <select id='add-role-role-input'>
+                        <th:block th:each="role, status : ${roles}">
+                            <option th:value="${role}" th:text="${role}" th:selected="${status.index == 0}"/>
+                        </th:block>
+                    </select>
+                </div>
+                <div>
+                    <label>Role Emote</label><br>
+                    <input type="text" id="add-role-emote-input" class="emote"><br>
+                    </select>
+                </div>
+                <div>
+                    <label>Append to Name</label><br>
+                    <input type="checkbox" id="add-role-append-input"><br>
+                </div><br>
+                <input type="submit" value="Create Role">
+            </form>
+        </div>
+    </div>
+
 
     <!-- alerts -->
     <div th:fragment="alerts">

@@ -23,6 +23,7 @@ public enum CommandType {
     JAIL_RELEASE_COMMAND_TYPE(29, "Jail Release Command"),
     JOIN_GAME_COMMAND_TYPE(36, "Join Game Command"),
     JOIN_GAME_QUEUE_COMMAND_TYPE(8, "Join Game Queue Command"),
+    MAKE_ROLE_MESSAGE_COMMAND_TYPE( 37, "Make Role Message Command"),
     MESSAGE_CHANNEL_COMMAND_TYPE(4, "Message Channel Command"),
     REMOVE_FROM_GAME_QUEUE_COMMAND_TYPE(10, "Remove From Game Queue Command"),
     REQUEST_PRIZE_COMMAND_TYPE(28, "Request Prize Command"),

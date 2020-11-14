@@ -12,11 +12,12 @@ import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.data.repositories.UserHomeRepository;
 import com.ryan_mtg.servobot.user.UserTable;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Component
-@Getter
+@Getter @RequiredArgsConstructor
 public class SerializerContainer {
     @Setter
     private BotFactory botFactory;
@@ -35,6 +36,7 @@ public class SerializerContainer {
     private final PrizeRepository prizeRepository;
     private final ReactionSerializer reactionSerializer;
     private final ReactionTableSerializer reactionTableSerializer;
+    private final RoleTableSerializer roleTableSerializer;
     private final ServiceHomeRepository serviceHomeRepository;
     private final ServiceSerializer serviceSerializer;
     private final StatementRepository statementRepository;
@@ -45,44 +47,4 @@ public class SerializerContainer {
     private final UserHomeRepository userHomeRepository;
     private final UserSerializer userSerializer;
     private final UserTable userTable;
-
-    public SerializerContainer(final AlertGeneratorSerializer alertGeneratorSerializer,
-            final BookSerializer bookSerializer, final BotHomeRepository botHomeRepository,
-            final CommandSerializer commandSerializer, final CommandTableSerializer commandTableSerializer,
-            final EmoteLinkSerializer emoteLinkSerializer, final GameQueueRepository gameQueueRepository,
-            final GameQueueSerializer gameQueueSerializer, final GameQueueEntryRepository gameQueueEntryRepository,
-            final GiveawayRepository giveawayRepository, final GiveawaySerializer giveawaySerializer,
-            final PrizeRepository prizeRepository, final ReactionSerializer reactionSerializer,
-            final ReactionTableSerializer reactionTableSerializer, final ServiceHomeRepository serviceHomeRepository,
-            final ServiceSerializer serviceSerializer, final StatementRepository statementRepository,
-            final StorageTableSerializer storageTableSerializer, final StorageValueRepository storageValueRepository,
-            final StorageValueSerializer storageValueSerializer, final SuggestionRepository suggestionRepository,
-            final UserHomeRepository userHomeRepository, final UserSerializer userSerializer,
-            final UserTable userTable) {
-
-        this.alertGeneratorSerializer = alertGeneratorSerializer;
-        this.bookSerializer = bookSerializer;
-        this.botHomeRepository = botHomeRepository;
-        this.commandSerializer = commandSerializer;
-        this.commandTableSerializer = commandTableSerializer;
-        this.emoteLinkSerializer = emoteLinkSerializer;
-        this.gameQueueRepository = gameQueueRepository;
-        this.gameQueueSerializer = gameQueueSerializer;
-        this.gameQueueEntryRepository = gameQueueEntryRepository;
-        this.giveawayRepository = giveawayRepository;
-        this.giveawaySerializer = giveawaySerializer;
-        this.prizeRepository = prizeRepository;
-        this.reactionSerializer = reactionSerializer;
-        this.reactionTableSerializer = reactionTableSerializer;
-        this.serviceHomeRepository = serviceHomeRepository;
-        this.serviceSerializer = serviceSerializer;
-        this.statementRepository = statementRepository;
-        this.storageTableSerializer = storageTableSerializer;
-        this.storageValueRepository = storageValueRepository;
-        this.storageValueSerializer = storageValueSerializer;
-        this.suggestionRepository = suggestionRepository;
-        this.userHomeRepository = userHomeRepository;
-        this.userSerializer = userSerializer;
-        this.userTable = userTable;
-    }
 }

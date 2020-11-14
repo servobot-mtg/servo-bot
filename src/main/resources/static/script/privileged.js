@@ -74,6 +74,15 @@ const addReactionFormData = {
     ],
 };
 
+const addRoleFormData = {
+    focus: 'role',
+    getInputBlock: getInputId,
+    inputs: [{name: 'role', type: 'select', value: 0, hide: false},
+        {name: 'emote', type: 'value', value: '', hide: false},
+        {name: 'append', type: 'checkbox', value: false, hide: false},
+    ],
+};
+
 const addAlertFormData = {
     focus: 'type',
     getInputBlock: getInputDiv,
@@ -724,6 +733,7 @@ const commandData = [
     {name: 'Add Statement Command', parameters: [{id: 'book', name: 'Book'}, {id: 'text', name: 'Response'}]}, //34
     {name: 'Game Command', parameters: [{id: 'integer', name: 'Game Type'}]}, //35
     {name: 'Join Game Command', parameters: [{id: 'integer', name: 'Game Type'}]}, //36
+    {name: 'Make Role Message Command', parameters: []}, //37
 ];
 
 const permissions = ['ADMIN', 'STREAMER', 'MOD', 'SUB', 'ANYONE'];
@@ -1051,6 +1061,57 @@ function addReactionRow(reaction, botHomeId) {
     addDeleteCell(row, trashcanIcon, function () {
         deleteReaction(botHomeId, reaction.id);
     });
+}
+
+function showAddRoleForm() {
+    showForm('add-role', addRoleFormData);
+}
+
+function addRole(botHomeId) {
+    //TODO
+    const role = document.getElementById('add-role-role-input').value;
+    const emote = document.getElementById('add-role-emote-input').value;
+    const append = document.getElementById('add-role-append-input').checked;
+    postAddRole(botHomeId, role, emote, append);
+}
+
+async function postAddRole(botHomeId, roleName, emote, append) {
+    const label = 'add-role';
+    const parameters = {botHomeId: botHomeId, role: roleName, emote: emote, append: append};
+    let response = await makePost('/api/add_role', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let role = await response.json();
+        addRoleRow(role, botHomeId);
+    }
+}
+
+function addRoleRow(role, botHomeId) {
+    let roleTable = document.getElementById('role-table');
+    let row = roleTable.insertRow();
+
+    const label = 'role-' + role.id;
+    row.id = label + '-row';
+
+    addTextCell(row, role.role);
+    addTextCell(row, role.emote);
+
+    let appendEmoteCell = row.insertCell();
+    appendEmoteCell.appendChild(createInput({type: 'checkbox', checked: role.appendEmote, onclick: function () {
+        return false;
+    }}));
+
+    addDeleteCell(row, trashcanIcon, function () {
+        deleteRole(botHomeId, row.id);
+    });
+}
+
+function deleteRole(botHomeId, roleId) {
+    const parameters = {botHomeId: botHomeId, objectId: roleId};
+    postDelete('/api/delete_role', parameters, 'role-' + roleId + '-row');
 }
 
 function showAddAlertForm() {

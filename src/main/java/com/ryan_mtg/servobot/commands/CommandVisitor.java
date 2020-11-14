@@ -23,6 +23,9 @@ import com.ryan_mtg.servobot.commands.jail.JailCommand;
 import com.ryan_mtg.servobot.commands.jail.JailReleaseCommand;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
+import com.ryan_mtg.servobot.commands.roles.MakeRoleMessageCommand;
+import com.ryan_mtg.servobot.commands.roles.SetRoleCommand;
+import com.ryan_mtg.servobot.commands.roles.SetUsersRoleCommand;
 
 public interface CommandVisitor {
     void visitAddBookedStatementCommand(AddBookedStatementCommand addBookedStatementCommand);
@@ -44,6 +47,7 @@ public interface CommandVisitor {
     void visitJailReleaseCommand(JailReleaseCommand jailReleaseCommand);
     void visitJoinGameCommand(JoinGameCommand joinGameCommand);
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
+    void visitMakeRoleMessageCommand(MakeRoleMessageCommand makeRoleMessageCommand);
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
     void visitRequestPrizeCommand(RequestPrizeCommand requestPrizeCommand);

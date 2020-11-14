@@ -227,6 +227,12 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public void setNickName(final User user, final String nickName) {
+        Member member = guild.getMemberById(user.getHomedUser().getDiscordId());
+        member.modifyNickname(nickName).queue();
+    }
+
+    @Override
     public Message getSavedMessage(final long channelId, final long messageId) {
         return new DiscordSavedMessage(this, channelId, messageId);
     }

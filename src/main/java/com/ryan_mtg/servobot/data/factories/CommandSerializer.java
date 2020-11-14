@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
 import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
+import com.ryan_mtg.servobot.commands.roles.MakeRoleMessageCommand;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlert;
 import com.ryan_mtg.servobot.commands.trigger.CommandAlias;
 import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
@@ -30,9 +31,9 @@ import com.ryan_mtg.servobot.commands.game_queue.RemoveFromGameQueueCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RequestPrizeCommand;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.SetArenaUsernameCommand;
-import com.ryan_mtg.servobot.commands.SetRoleCommand;
+import com.ryan_mtg.servobot.commands.roles.SetRoleCommand;
 import com.ryan_mtg.servobot.commands.SetStatusCommand;
-import com.ryan_mtg.servobot.commands.SetUsersRoleCommand;
+import com.ryan_mtg.servobot.commands.roles.SetUsersRoleCommand;
 import com.ryan_mtg.servobot.commands.SetValueCommand;
 import com.ryan_mtg.servobot.commands.ShowArenaUsernamesCommand;
 import com.ryan_mtg.servobot.commands.game_queue.ShowGameQueueCommand;
@@ -142,6 +143,8 @@ public class CommandSerializer {
                 case JOIN_GAME_QUEUE_COMMAND_TYPE:
                     gameQueueId = (int) (long) commandRow.getLongParameter();
                     return new JoinGameQueueCommand(id, commandSettings, gameQueueId);
+                case MAKE_ROLE_MESSAGE_COMMAND_TYPE:
+                    return new MakeRoleMessageCommand(id, commandSettings);
                 case MESSAGE_CHANNEL_COMMAND_TYPE:
                     return new MessageChannelCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
                             Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
@@ -406,6 +409,11 @@ public class CommandSerializer {
             saveCommand(joinGameQueueCommand, commandRow -> {
                 commandRow.setLongParameter(joinGameQueueCommand.getGameQueueId());
             });
+        }
+
+        @Override
+        public void visitMakeRoleMessageCommand(final MakeRoleMessageCommand makeRoleMessageCommand) {
+            saveCommand(makeRoleMessageCommand, commandRow -> {});
         }
 
         @Override

@@ -196,6 +196,11 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public void setNickName(final User user, final String nickName) {
+        throw new SystemError("Twitch doesn't allow setting nicknames");
+    }
+
+    @Override
     public Message getSavedMessage(final long channelId, final long messageId) {
         return null;
     }

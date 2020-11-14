@@ -1,5 +1,7 @@
-package com.ryan_mtg.servobot.commands;
+package com.ryan_mtg.servobot.commands.roles;
 
+import com.ryan_mtg.servobot.commands.CommandType;
+import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;

@@ -2,6 +2,7 @@
     --giveaway-color: goldenrod;
     --command-color: navy;
     --reaction-color: darkgreen;
+    --role-color: orange;
     --alert-color: maroon;
     --book-color: maroon;
     --storage-color: black;
@@ -443,6 +444,16 @@ table#player-table {
     margin: 12px;
 }
 
+.role {
+    border: 3px solid var(--role-color);
+}
+
+.add-role {
+    --add-button-size: 24px;
+    --add-color: var(--role-color);
+    margin: 12px;
+}
+
 .alert {
     border: 3px solid var(--alert-color);
 }
@@ -510,7 +521,7 @@ table#player-table {
 .add-form div {
     display: inline-block;
     margin-bottom: 10px;
-    margin-right: 5em;
+    margin-right: 3em;
 }
 
 .add-form input[type=submit] {
@@ -554,6 +565,11 @@ table#player-table {
 input[type=text].name {
     box-sizing: border-box;
     min-width: 17em;
+}
+
+input[type=text].emote {
+    box-sizing: border-box;
+    min-width: 3em;
 }
 
 .add-giveaway {

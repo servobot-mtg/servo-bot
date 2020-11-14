@@ -16,6 +16,12 @@ CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type 
 CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emote VARCHAR(30), secure BIT,
                                      filter INTEGER, filter_value INTEGER, bot_home_id INTEGER);
 
+CREATE TABLE IF NOT EXISTS role (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, flags INTEGER,
+                                 role VARCHAR(50), emote VARCHAR(30));
+
+CREATE TABLE IF NOT EXISTS role_table (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, channel_id BIGINT,
+                                       message_id BIGINT);
+
 CREATE TABLE IF NOT EXISTS reaction_pattern (id INTEGER AUTO_INCREMENT PRIMARY KEY, reaction_id INTEGER,
                                              pattern VARCHAR(30));
 

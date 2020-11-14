@@ -11,20 +11,23 @@ import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.model.roles.RoleTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReactionListener implements EventListener {
     private static Logger LOGGER = LoggerFactory.getLogger(ReactionListener.class);
     private final ReactionTable reactionTable;
+    private final RoleTable roleTable;
     private final CommandPerformer commandPerformer;
     private final GameQueueTable gameQueueTable;
 
-    public ReactionListener(final ReactionTable reactionTable, final CommandPerformer commandPerformer,
-            final GameQueueTable gameQueueTable) {
+    public ReactionListener(final ReactionTable reactionTable, final RoleTable roleTable,
+            final CommandPerformer commandPerformer, final GameQueueTable gameQueueTable) {
         this.reactionTable = reactionTable;
         this.commandPerformer = commandPerformer;
         this.gameQueueTable = gameQueueTable;
+        this.roleTable = roleTable;
     }
 
     @Override
@@ -59,12 +62,16 @@ public class ReactionListener implements EventListener {
             return;
         }
 
-        GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
-        if (gameQueue != null) {
-            BotErrorHandler.handleError(() -> {
-                GameQueueUtils.addEmote(emoteHomeEvent, gameQueue, reactor);
-            });
-        }
+        BotErrorHandler.handleError(() -> {
+            GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
+            if (gameQueue != null) {
+                BotErrorHandler.handleError(() -> {
+                    GameQueueUtils.addEmote(emoteHomeEvent, gameQueue, reactor);
+                });
+            }
+
+            roleTable.onEmoteAdded(emoteHomeEvent);
+        });
     }
 
     @Override
@@ -74,12 +81,16 @@ public class ReactionListener implements EventListener {
             return;
         }
 
-        GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
-        if (gameQueue != null) {
-            BotErrorHandler.handleError(() -> {
-                GameQueueUtils.removeEmote(emoteHomeEvent, gameQueue, reactor);
-            });
-        }
+        BotErrorHandler.handleError(() -> {
+            GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
+            if (gameQueue != null) {
+                BotErrorHandler.handleError(() -> {
+                    GameQueueUtils.removeEmote(emoteHomeEvent, gameQueue, reactor);
+                });
+            }
+
+            roleTable.onEmoteRemoved(emoteHomeEvent);
+        });
     }
 
     @Override

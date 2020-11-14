@@ -243,6 +243,7 @@ public class BotController {
     }
 
     private void addBotHome(final Model model, final BotHome botHome) {
+        model.addAttribute("bot", botHome.getBot());
         model.addAttribute("botHome", botHome);
         model.addAttribute("commandDescriptors",
                 CommandDescriptor.getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
