@@ -147,8 +147,8 @@ input[type=number] {
 
 .icon {
     display: inline;
-    width: 20px;
-    height: 20px;
+    max-width: 20px;
+    max-height: 20px;
 }
 
 .emote {

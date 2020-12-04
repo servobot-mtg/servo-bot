@@ -63,6 +63,11 @@ public class PlayerSet implements Iterable<Player> {
         merge(foundPlayer::getNickName, foundPlayer::setNickName, player.getNickName());
         merge(foundPlayer::getTwitchName, foundPlayer::setTwitchName, player.getTwitchName());
         merge(foundPlayer::getTwitterName, foundPlayer::setTwitterName, player.getTwitterName());
+        merge(foundPlayer::getIcon, foundPlayer::setIcon, player.getIcon());
+
+        if (foundPlayer.getLeague() == Player.League.NONE) {
+            foundPlayer.setLeague(player.getLeague());
+        }
         return foundPlayer;
     }
 

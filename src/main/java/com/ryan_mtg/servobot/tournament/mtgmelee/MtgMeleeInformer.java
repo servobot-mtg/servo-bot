@@ -234,9 +234,12 @@ public class MtgMeleeInformer implements Informer {
             result.setStandings(standings);
             result.setDecklistMap(computeDecklistMap(playerSet, standingsJson));
         } else {
-            int round = result.getMostRecentPairings().getRound();
-            PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(round), 500);
-            result.setDecklistMap(computeDecklistMap(playerSet, pairingsJson, tournament.getFormat()));
+            Pairings pairings = result.getMostRecentPairings();
+            if (pairings != null) {
+                int round = pairings.getRound();
+                PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(round), 500);
+                result.setDecklistMap(computeDecklistMap(playerSet, pairingsJson, tournament.getFormat()));
+            }
         }
 
         return result;
@@ -253,7 +256,8 @@ public class MtgMeleeInformer implements Informer {
     private DecklistMap computeDecklistMap(final PlayerSet playerSet, final StandingsJson standingsJson) {
         DecklistMap decklistMap = new DecklistMap();
         for (PlayerInfo playerInfo : standingsJson.getData()) {
-            Player player = Player.createFromName(playerInfo.getName(), playerInfo.getTwitchChannel());
+            Player player = Player.createFromSocials(playerInfo.getName(), playerInfo.getTwitchChannel(),
+                    playerInfo.getTwitterHandle());
             player = playerSet.merge(player);
             for (DecklistJson decklistJson : playerInfo.getDecklists()) {
                 decklistMap.put(player, decklistJson.getFormat(),
@@ -365,7 +369,8 @@ public class MtgMeleeInformer implements Informer {
         }
 
         for (PlayerInfo playerInfo : standingsJson.getData()) {
-            Player player = Player.createFromName(playerInfo.getName(), playerInfo.getTwitchChannel());
+            Player player = Player.createFromSocials(playerInfo.getName(), playerInfo.getTwitchChannel(),
+                    playerInfo.getTwitterHandle());
 
             player = playerSet.merge(player);
             boolean dropped = pairings.hasDropped(player);
@@ -499,7 +504,7 @@ public class MtgMeleeInformer implements Informer {
         if (name == null && arenaName == null) {
             return Player.BYE;
         }
-        Player player = new Player(arenaName, discordName, name, null, twitchName, null);
+        Player player = new Player(arenaName, discordName, name, null, twitchName, null, null, Player.League.NONE);
         return players.merge(player);
     }
 }
