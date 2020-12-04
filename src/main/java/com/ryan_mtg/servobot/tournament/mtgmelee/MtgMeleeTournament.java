@@ -14,4 +14,5 @@ public class MtgMeleeTournament {
     private Map<Integer, Integer> pairingsIdMap;
     private Instant startTime;
     private TournamentType tournamentType;
+    private String format;
 }

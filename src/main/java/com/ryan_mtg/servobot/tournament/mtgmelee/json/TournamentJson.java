@@ -16,4 +16,13 @@ public class TournamentJson {
 
     @JsonProperty("StartDate")
     private String startTime;
+
+    @JsonProperty("Status")
+    private String status;
+
+    @JsonProperty("OrganizationName")
+    private String organization;
+
+    @JsonProperty("Format")
+    private String format;
 }

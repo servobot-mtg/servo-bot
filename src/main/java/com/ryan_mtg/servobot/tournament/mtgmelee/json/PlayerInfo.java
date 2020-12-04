@@ -6,44 +6,43 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class PlayerInfo {
     @JsonProperty("Name")
-    String name;
+    private String name;
 
     @JsonProperty("Username")
-    String username;
+    private String username;
 
     @JsonProperty("Points")
-    int points;
+    private int points;
 
     @JsonProperty("Rank")
-    int rank;
+    private int rank;
 
-    @JsonProperty("DecklistId")
-    int decklistId;
-
-    @JsonProperty("DecklistName")
-    String decklistName;
+    @JsonProperty("Decklists")
+    private List<DecklistJson> decklists;
 
     @JsonProperty("TwitchChannel")
-    String twitchChannel;
+    private String twitchChannel;
 
     @JsonProperty("FacebookPage")
-    String facebookPage;
+    private String facebookPage;
 
     @JsonProperty("YouTubeChannel")
-    String youTubeChannel;
+    private String youTubeChannel;
 
     @JsonProperty("TwitterHandle")
-    String twitterHandle;
+    private String twitterHandle;
 
     @JsonProperty("MatchWins")
-    int wins;
+    private int wins;
 
     @JsonProperty("MatchLoses")
-    int losses;
+    private int losses;
 
     @JsonProperty("MatchDraws")
-    int draws;
+    private int draws;
 }

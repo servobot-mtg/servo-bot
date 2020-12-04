@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.tournament.channelfireball.mfo;
 
 import com.ryan_mtg.servobot.Application;
 import com.ryan_mtg.servobot.tournament.DecklistDescription;
+import com.ryan_mtg.servobot.tournament.DecklistMap;
 import com.ryan_mtg.servobot.tournament.Informer;
 import com.ryan_mtg.servobot.tournament.Pairings;
 import com.ryan_mtg.servobot.tournament.Player;
@@ -263,7 +264,7 @@ public class MfoInformer implements Informer {
         return standings;
     }
 
-    public Map<Player, DecklistDescription> parseDecklistsFor(final PlayerSet players, final int tournamentId) {
+    public DecklistMap parseDecklistsFor(final PlayerSet players, final int tournamentId) {
         try {
             String url = String.format("https://my.cfbevents.com/deck/%d", tournamentId);
             HttpClient httpClient = HttpClients.createDefault();
@@ -272,7 +273,7 @@ public class MfoInformer implements Informer {
 
             Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
 
-            Map<Player, DecklistDescription> decklistDescriptionMap = new HashMap<>();
+            DecklistMap decklistMap = new DecklistMap();
             document.select("tr").forEach(row -> {
                 if(!row.parent().nodeName().equals("thead")) {
                     String arenaName = row.child(0).text();
@@ -281,12 +282,12 @@ public class MfoInformer implements Informer {
                         Element anchor = row.child(2).child(0);
                         String decklistUrl = anchor.attr("href");
                         String decklistName = getDecklistName(decklistUrl);
-                        decklistDescriptionMap.put(player, new DecklistDescription(decklistName, decklistUrl));
+                        decklistMap.put(player, "Standard", new DecklistDescription(decklistName, decklistUrl));
                     }
                 }
             });
 
-            return decklistDescriptionMap;
+            return decklistMap;
         } catch (IOException e) {
             return null;
         }
@@ -320,7 +321,7 @@ public class MfoInformer implements Informer {
     private Pairings computePairings(final Tournament tournament, final PairingsJson pairingsJson,
                                      final PlayerSet playerSet) {
         Instant roundStartTime = parse(tournament.getPairingsLastUpdated());
-        Pairings pairings = new Pairings(playerSet, pairingsJson.getCurrentRound(), roundStartTime);
+        Pairings pairings = new Pairings(playerSet, pairingsJson.getCurrentRound(), roundStartTime, "Standard");
 
         for (Pairing pairing : pairingsJson.getData()) {
             PlayerStanding playerStanding = pairing.getPlayer();

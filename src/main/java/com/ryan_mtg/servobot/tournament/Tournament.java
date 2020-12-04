@@ -54,10 +54,13 @@ public class Tournament {
     @Getter @Setter
     private TournamentType type;
 
+    @Getter @Setter
+    private List<String> formats;
+
     private Informer informer;
 
     @Setter
-    private Map<Player, DecklistDescription> decklistMap;
+    private DecklistMap decklistMap;
     private int id;
 
     public Tournament(final Informer informer, final String name, final int id) {
@@ -70,8 +73,7 @@ public class Tournament {
         pairingsMap.put(pairings.getRound(), pairings);
     }
 
-    private static final List<String> BOUNTIES = Arrays.asList("AliasV#76549", "Shieldmaiden#51443", "JANYAN#43274",
-            "rileyquarytower#97553", "Yellowhat#43550");
+    private static final List<String> BOUNTIES = Arrays.asList();
 
     private static final Set<Player> CARE_ABOUTS = new HashSet<>(Arrays.asList(
         new Player( "AliasV#76549", null, null, "AliasV", null, null),
@@ -85,7 +87,7 @@ public class Tournament {
         new Player("Yellowhat#43550", null, "Gabriel Nassif", null, null, null),
 
         new Player(null, null, "Alexander Hayne", "Alexander Hayne", null, "InsayneHayne"),
-        new Player(null, null, "Ally Warfield", "Taco Belle", "mythic_meebo", "MythicMeebo"),
+        new Player(null, null, "Ally Warfield", "Meebo", "mythic_meebo", "MythicMeebo"),
         new Player(null, null, "Andrea Mengucci", "Mengu", "AndreaMengucci", "Mengu09"),
         new Player(null, null, "Autumn Burchett", null, "autumnlilymtg", "AutumnLilyMTG"),
         new Player(null, null, "Benjamin Weitz", "Ben Weitz", null, "bsweitz123"),
@@ -215,8 +217,9 @@ public class Tournament {
 
         for (Player player : playerSet) {
             Pairings mostRecentPairings = getMostRecentPairings();
+            String format = mostRecentPairings.getFormat();
             Player opponent = active ? mostRecentPairings.getOpponent(player) : null;
-            DecklistDescription opponentDecklist = active ? decklistMap.get(opponent) : null;
+            DecklistDescription opponentDecklist = active ? decklistMap.get(opponent, format) : null;
 
             int rank = standings != null ? standings.getRank(player) : 0;
             Record record = standings != null ? standings.getRecord(player) : Record.newRecord(0, 0);
@@ -227,7 +230,7 @@ public class Tournament {
             }
             boolean bounty = BOUNTIES.contains(player.getArenaName());
             players.add(new PlayerStanding(player, rank, isWatchable(player), isLeader(leaderRecord, player), record,
-                    result, decklistMap.get(player), dropped, opponent, opponentDecklist, bounty));
+                    result, decklistMap.get(player, format), dropped, opponent, opponentDecklist, bounty));
         }
 
         Collections.sort(players);
@@ -242,12 +245,12 @@ public class Tournament {
         return !getMostRecentPairings().isDone();
     }
 
-    public List<ArchetypeDescription> getMetagameBreakdown() {
+    public List<ArchetypeDescription> getMetagameBreakdown(final String format) {
         Map<String, Integer> archetypeCount = new HashMap<>();
         int count = 0;
-        for (Map.Entry<Player, DecklistDescription> entry : decklistMap.entrySet()) {
-            Player player = entry.getKey();
-            String decklistName = entry.getValue().getName();
+        for (PlayerDecklist decklist : decklistMap.getDecklists(format)) {
+            Player player = decklist.getPlayer();
+            String decklistName = decklist.getDecklistDescription().getName();
             Record record = standings.getRecord(player);
             int minPoints = (standings.getRound() - 4) * 3;
             if (record.getPoints() >= minPoints) {

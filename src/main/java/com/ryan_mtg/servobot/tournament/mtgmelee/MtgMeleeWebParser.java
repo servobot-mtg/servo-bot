@@ -50,6 +50,12 @@ public class MtgMeleeWebParser {
             tournament.setStandingsId(getStandingsId(document));
             tournament.setStartTime(startTime);
 
+            Element headline = document.getElementById("tournament-headline-registration");
+            String headlineText = headline.text();
+            int formatIndex = headlineText.indexOf("Format:");
+            int endIndex = headlineText.indexOf('|', formatIndex);
+            tournament.setFormat(headlineText.substring(formatIndex + 8, endIndex).trim());
+
             tournament.setTournamentType(getTournamentType(tournament.getName()));
 
             return tournament;
@@ -59,7 +65,7 @@ public class MtgMeleeWebParser {
     }
 
     private TournamentType getTournamentType(final String name) {
-        return MtgMeleeInformer.getType(name);
+        return MtgMeleeInformer.guessType(name);
     }
 
     private int getStandingsId(final Document document) {

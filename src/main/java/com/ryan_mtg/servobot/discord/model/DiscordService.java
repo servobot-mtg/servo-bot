@@ -123,7 +123,7 @@ public class DiscordService implements Service {
     public void start(final EventListener eventListener) throws Exception {
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS).enableIntents(GatewayIntent.GUILD_PRESENCES);
-        builder.setMemberCachePolicy(MemberCachePolicy.ONLINE);
+        builder.setMemberCachePolicy(MemberCachePolicy.ALL);
         builder.setActivity(Activity.playing("Beta: " + now()));
 
         builder.addEventListeners(new DiscordEventAdapter(this, eventListener, homeMap,

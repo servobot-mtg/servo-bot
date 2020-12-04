@@ -3,7 +3,6 @@ package com.ryan_mtg.servobot.tournament.mtgmelee;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.FeatureTournamentJson;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PairingsJson;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.StandingsJson;
-import com.ryan_mtg.servobot.tournament.mtgmelee.json.TournamentJson;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.TournamentsJson;
 import feign.Body;
 import feign.Feign;

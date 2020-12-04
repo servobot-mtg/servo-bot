@@ -19,6 +19,9 @@ public class Pairings {
     @Getter
     private Instant roundStartTime;
 
+    @Getter
+    private String format;
+
     private Map<Player, Player> opponentMap = new HashMap<>();
     private Map<Player, PlayerStanding.Result> resultMap = new HashMap<>();
     private int playersLeft = 0;
@@ -60,10 +63,11 @@ public class Pairings {
         playersLeft++;
     }
 
-    public Pairings(final PlayerSet playerSet, final int round, final Instant roundStartTime) {
+    public Pairings(final PlayerSet playerSet, final int round, final Instant roundStartTime, final String format) {
         this.playerSet = playerSet;
         this.round = round;
         this.roundStartTime = roundStartTime;
+        this.format = format;
     }
 
     public Instant getRoundEndTime() {

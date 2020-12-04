@@ -32,14 +32,16 @@
                         </th:block>
                     </ul>
                 </div>
-                <h3>Round Start</h3>
-                <span th:text="${tournament.mostRecentPairings.timeSinceStartOfRound}"></span>
-                <h3>Until Round End</h3>
-                <span th:text="${tournament.mostRecentPairings.timeUntilEndOfRound}"></span>
+                <div th:if="${tournament.mostRecentPairings.roundStartTime}">
+                    <h3>Round Start</h3>
+                    <span th:text="${tournament.mostRecentPairings.timeSinceStartOfRound}"></span>
+                    <h3>Until Round End</h3>
+                    <span th:text="${tournament.mostRecentPairings.timeUntilEndOfRound}"></span>
+                </div>
 
                 <h3 class="pad-row-top">Metagame</h3>
                 <ul>
-                    <th:block th:each="archetype : ${tournament.metagameBreakdown}">
+                    <th:block th:each="archetype : ${tournament.getMetagameBreakdown(tournament.formats.get(0))}">
                         <li th:text="${archetype.name + ': ' + archetype.count
                             + (archetype.count > 5 ? ' (' + #numbers.formatDecimal(100 * archetype.percentage, 1, 1) + '%)' : '')}"></li>
                     </th:block>

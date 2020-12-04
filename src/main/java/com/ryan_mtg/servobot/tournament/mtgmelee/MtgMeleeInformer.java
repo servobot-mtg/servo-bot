@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.tournament.mtgmelee;
 
 import com.ryan_mtg.servobot.tournament.DecklistDescription;
+import com.ryan_mtg.servobot.tournament.DecklistMap;
 import com.ryan_mtg.servobot.tournament.Informer;
 import com.ryan_mtg.servobot.tournament.Pairings;
 import com.ryan_mtg.servobot.tournament.Player;
@@ -11,6 +12,7 @@ import com.ryan_mtg.servobot.tournament.RecordCount;
 import com.ryan_mtg.servobot.tournament.Standings;
 import com.ryan_mtg.servobot.tournament.Tournament;
 import com.ryan_mtg.servobot.tournament.TournamentType;
+import com.ryan_mtg.servobot.tournament.mtgmelee.json.DecklistJson;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PairingInfo;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PairingsJson;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PlayerInfo;
@@ -29,9 +31,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,6 +39,12 @@ import java.util.stream.Collectors;
 public class MtgMeleeInformer implements Informer {
     public static final String STANDINGS_ID = "standings";
     public static final String PAIRINGS_ID = "pairings";
+
+    private static final String WOTC = "Magic Esports";
+    private static final String SCG = "Star City Games";
+    private static final String CFB = "Channelfireball";
+    private static final String BBP = "The Bash Bros Podcast";
+
     private MtgMeleeWebParser parser;
     private MtgMeleeClient client;
     private Clock clock;
@@ -127,8 +133,8 @@ public class MtgMeleeInformer implements Informer {
                 if (pairings.getOpponent(player) == Player.BYE) {
                     return status + String.format("has a bye.", player.getName());
                 } else {
-                    Map<Player, DecklistDescription> decklistMap = computeDecklistMap(players, pairingsJson);
-                    DecklistDescription opponentDeck = decklistMap.get(opponent);
+                    DecklistMap decklistMap = computeDecklistMap(players, pairingsJson, tournament.getFormat());
+                    DecklistDescription opponentDeck = decklistMap.get(opponent, tournament.getFormat());
                     return status + String.format("playing against %s on %s, %s", opponent.getName(),
                             opponentDeck.getName(), opponentDeck.getUrl());
                 }
@@ -154,13 +160,13 @@ public class MtgMeleeInformer implements Informer {
         return describeTournaments(tournament -> {
             PlayerSet players = new PlayerSet();
             PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(1), 500);
-            Map<Player, DecklistDescription> decklistMap = computeDecklistMap(players, pairingsJson);
+            DecklistMap decklistMap = computeDecklistMap(players, pairingsJson, tournament.getFormat());
             Player player = players.findByName(name);
             if (player == null) {
                 return null;
             }
 
-            DecklistDescription description = decklistMap.get(player);
+            DecklistDescription description = decklistMap.get(player, tournament.getFormat());
             return String.format("%s (%s)", description.getUrl(), description.getName());
         }, true, false, emptyTournamentMessage);
     }
@@ -170,7 +176,7 @@ public class MtgMeleeInformer implements Informer {
         return getTournament(parser.parse(tournamentId));
     }
 
-    public static TournamentType getType(final String name) {
+    public static TournamentType guessType(final String name) {
         if (name.startsWith("Players Tour Finals")) {
             return TournamentType.PLAYERS_TOUR_FINALS;
         }
@@ -183,7 +189,20 @@ public class MtgMeleeInformer implements Informer {
             return TournamentType.WEEKLY;
         }
 
+        if (name.endsWith("Championship")) {
+            return TournamentType.PLAYERS_TOUR;
+        }
+
         return TournamentType.ONE_OFF;
+    }
+
+    private static TournamentType getType(final TournamentJson tournamentJson) {
+        String name = tournamentJson.getName();
+        if (name.endsWith("Championship") && tournamentJson.getOrganization().equals(WOTC)) {
+            return TournamentType.PLAYERS_TOUR;
+        }
+
+        return guessType(name);
     }
 
     private String describeTournaments(final Function<MtgMeleeTournament, String> function, final boolean showHeader,
@@ -202,6 +221,7 @@ public class MtgMeleeInformer implements Informer {
         result.setDecklistUrl(getDecklistsUrl(tournament));
         result.setStartTime(tournament.getStartTime());
         result.setType(tournament.getTournamentType());
+        result.setFormats(getFormats(tournament));
 
         PlayerSet playerSet = new PlayerSet();
         result.setPlayerSet(playerSet);
@@ -214,38 +234,49 @@ public class MtgMeleeInformer implements Informer {
             result.setStandings(standings);
             result.setDecklistMap(computeDecklistMap(playerSet, standingsJson));
         } else {
-            result.setDecklistMap(new HashMap<>());
+            int round = result.getMostRecentPairings().getRound();
+            PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(round), 500);
+            result.setDecklistMap(computeDecklistMap(playerSet, pairingsJson, tournament.getFormat()));
         }
 
         return result;
     }
 
-    private Map<Player, DecklistDescription> computeDecklistMap(final PlayerSet playerSet,
-            final StandingsJson standingsJson) {
-        Map<Player, DecklistDescription> decklistMap = new HashMap<>();
+    private List<String> getFormats(final MtgMeleeTournament tournament) {
+        List<String> formats = new ArrayList<>();
+        for (String format : tournament.getFormat().split(",")) {
+            formats.add(format.trim());
+        }
+        return formats;
+    }
+
+    private DecklistMap computeDecklistMap(final PlayerSet playerSet, final StandingsJson standingsJson) {
+        DecklistMap decklistMap = new DecklistMap();
         for (PlayerInfo playerInfo : standingsJson.getData()) {
             Player player = Player.createFromName(playerInfo.getName(), playerInfo.getTwitchChannel());
             player = playerSet.merge(player);
-            decklistMap.put(player, new DecklistDescription(playerInfo.getDecklistName(),
-                    getDecklistUrl(playerInfo.getDecklistId())));
+            for (DecklistJson decklistJson : playerInfo.getDecklists()) {
+                decklistMap.put(player, decklistJson.getFormat(),
+                        new DecklistDescription(decklistJson.getName(), getDecklistUrl(decklistJson.getId())));
+            }
         }
         return decklistMap;
     }
 
-    private Map<Player, DecklistDescription> computeDecklistMap(final PlayerSet players,
-            final PairingsJson pairingsJson) {
-        Map<Player, DecklistDescription> decklistMap = new HashMap<>();
+    private DecklistMap computeDecklistMap(final PlayerSet players, final PairingsJson pairingsJson,
+            final String format) {
+        DecklistMap decklistMap = new DecklistMap();
         for (PairingInfo pairing : pairingsJson.getData()) {
             Player player = createPlayer(players, pairing.getPlayer1Name(), pairing.getPlayer1ArenaName(),
                     pairing.getPlayer1Discord(), pairing.getPlayer1Twitch());
             player = players.merge(player);
-            decklistMap.put(player, new DecklistDescription(pairing.getPlayer1DecklistName(),
+            decklistMap.put(player, format, new DecklistDescription(pairing.getPlayer1DecklistName(),
                     getDecklistUrl(pairing.getPlayer1DecklistId())));
             Player opponent = createPlayer(players, pairing.getPlayer2Name(), pairing.getPlayer2ArenaName(),
                     pairing.getPlayer2Discord(), pairing.getPlayer2Twitch());
             opponent = players.merge(opponent);
             if (opponent != Player.BYE) {
-                decklistMap.put(opponent, new DecklistDescription(pairing.getPlayer2DecklistName(),
+                decklistMap.put(opponent, format, new DecklistDescription(pairing.getPlayer2DecklistName(),
                         getDecklistUrl(pairing.getPlayer2DecklistId())));
             }
         }
@@ -253,22 +284,24 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private List<MtgMeleeTournament> getCurrentTournaments(final boolean includeEarly) {
-        TournamentsJson tournamentsJson = client.getTournaments("Star City Games", 500);
-
-        List<TournamentJson> filteredTournamentJsons = new ArrayList<>();
-        Instant now = Instant.now();
-        TournamentType minType = addTournaments(tournamentsJson, now, filteredTournamentJsons);
-        tournamentsJson = client.getTournaments("The Bash Bros Podcast", 500);
-
-        TournamentType tournamentType = addTournaments(tournamentsJson, now, filteredTournamentJsons);
-        if (tournamentType.compareTo(minType) < 0) {
-            minType = tournamentType;
-        }
-
-        final TournamentType filterType = minType;
-        return filteredTournamentJsons.stream()
-                .filter(tournamentJson -> getType(tournamentJson.getName()) == filterType)
+        return findTournaments(SCG, BBP, WOTC, CFB).stream()
                 .map(tournamentJson -> parser.parse(tournamentJson.getId())).collect(Collectors.toList());
+    }
+
+    private List<TournamentJson> findTournaments(final String... searchTerms) {
+        Instant now = Instant.now();
+        TournamentType minType = TournamentType.NONE;
+        List<TournamentJson> tournaments = new ArrayList<>();
+        for (String searchTerm : searchTerms) {
+            TournamentsJson tournamentsJson = client.getTournaments(searchTerm, 500);
+            TournamentType tournamentType = addTournaments(tournamentsJson, now, tournaments);
+            if (tournamentType.compareTo(minType) < 0) {
+                minType = tournamentType;
+            }
+        }
+        final TournamentType filterType = minType;
+        return tournaments.stream().filter(tournamentJson -> getType(tournamentJson) == filterType)
+                .collect(Collectors.toList());
     }
 
     private TournamentType addTournaments(final TournamentsJson tournamentsJson, final Instant now,
@@ -277,7 +310,7 @@ public class MtgMeleeInformer implements Informer {
         for (TournamentJson tournamentJson : tournamentsJson.getData()) {
             if (isRecent(tournamentJson, now)) {
                 filteredTournamentJsons.add(tournamentJson);
-                TournamentType tournamentType = getType(tournamentJson.getName());
+                TournamentType tournamentType = getType(tournamentJson);
                 if (tournamentType.compareTo(minType) < 0) {
                     minType = tournamentType;
                 }
@@ -287,10 +320,13 @@ public class MtgMeleeInformer implements Informer {
     }
 
     private boolean isRecent(final TournamentJson tournamentJson, final Instant now) {
+        if (tournamentJson.getStatus().equals("Ended")) {
+            return false;
+        }
+
         Instant startTime = LocalDateTime.parse(tournamentJson.getStartTime(),
                 DateTimeFormatter.ISO_LOCAL_DATE_TIME).toInstant(ZoneOffset.UTC);
-        int length = getLengthInHours(getType(tournamentJson.getName()));
-        return Duration.between(startTime, now).toHours() < length;
+        return Duration.between(startTime, now).toDays() < 4;
     }
 
     private static int getLengthInHours(final TournamentType tournamentType) {
@@ -387,7 +423,16 @@ public class MtgMeleeInformer implements Informer {
 
     private Pairings computePairings(final MtgMeleeTournament tournament, final PlayerSet players, final int round,
             final PairingsJson pairingsJson) {
-        Pairings pairings = new Pairings(players, round, null);
+        String format = tournament.getFormat();
+        if (format.indexOf(',') >= 0) {
+            String[] formats = format.split(",");
+            if (round <= 3 || 8 <= round && round <= 11) {
+                format = formats[0].trim();
+            } else {
+                format = formats[1].trim();
+            }
+        }
+        Pairings pairings = new Pairings(players, round, null, format);
 
         for (PairingInfo pairing : pairingsJson.getData()) {
             Player player = createPlayer(players, pairing.getPlayer1Name(), pairing.getPlayer1ArenaName(),
