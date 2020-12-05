@@ -59,7 +59,7 @@ public class Tournament {
 
     private Informer informer;
 
-    @Setter
+    @Getter @Setter
     private DecklistMap decklistMap;
     private int id;
 
@@ -75,6 +75,10 @@ public class Tournament {
 
     private static final List<String> BOUNTIES = Arrays.asList();
 
+    private static final Set<Player> ICONS = new HashSet<>(Arrays.asList(
+            Player.createFromName("Kaya Gregg", "🍜")
+    ));
+
     private static final Set<Player> CARE_ABOUTS = new HashSet<>(Arrays.asList(
             Player.createFromName("Carolyn Kavanagh", "🦌"),
             Player.createFromName("Andrew Baeckstrom"),
@@ -83,6 +87,7 @@ public class Tournament {
             Player.createFromName("Michael Bonde"),
             Player.createFromName("Simon Nielsen"),
             Player.createFromName("Ben Weitz"),
+            Player.createFromName("Nicholas Price"),
 
             Player.createFromName("Brian Braun-Duin", Player.League.MPL),
             Player.createFromName("Autumn Burchett", Player.League.MPL),
@@ -111,7 +116,7 @@ public class Tournament {
 
             Player.createFromName("Matthieu Avignon", Player.League.RIVALS),
             Player.createFromName("Frederico Bastos", Player.League.RIVALS),
-            Player.createFromName("Chris Botelho", Player.League.RIVALS),
+            Player.createFromName("Chris Botelho", "😺", Player.League.RIVALS),
             Player.createFromName("Kai Budde", "🎖️", Player.League.RIVALS),
             Player.createFromName("Corey Burkhart", Player.League.RIVALS),
             Player.createFromName("Austin Bursavich", Player.League.RIVALS),
@@ -140,7 +145,7 @@ public class Tournament {
             Player.createFromName("Noah Ma", Player.League.RIVALS),
             Player.createFromName("Luca Magni", Player.League.RIVALS),
             Player.createFromName("Theo Moutier", Player.League.RIVALS),
-            Player.createFromName("Matt Nass", "🍅", Player.League.RIVALS),
+            Player.createFromName("Matt Nass", Player.League.RIVALS),
             Player.createFromName("Gregory Orange", "🍊", Player.League.RIVALS),
             Player.createFromName("Sebastián Pozzo", Player.League.RIVALS),
             Player.createFromName("John Rolf", Player.League.RIVALS),
@@ -295,6 +300,7 @@ public class Tournament {
     public List<PlayerStanding> getPlayers() {
         List<PlayerStanding> players = new ArrayList<>();
         mergeCareAbouts(playerSet, CARE_ABOUTS);
+        mergeCareAbouts(playerSet, ICONS);
 
         Record leaderRecord = getLeaderRecord();
         boolean active = isRoundActive();
@@ -306,6 +312,9 @@ public class Tournament {
             DecklistDescription opponentDecklist = active ? decklistMap.get(opponent, format) : null;
 
             int rank = standings != null ? standings.getRank(player) : 0;
+            if (rank == Standings.UNKNOWN_RANK) {
+                rank = 0;
+            }
             Record record = standings != null ? standings.getRecord(player) : Record.newRecord(0, 0);
             boolean dropped = mostRecentPairings.hasDropped(player);
             PlayerStanding.Result result = PlayerStanding.Result.NONE;

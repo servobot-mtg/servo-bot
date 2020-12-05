@@ -32,7 +32,7 @@
                         </th:block>
                     </ul>
                 </div>
-                <div th:if="${tournament.mostRecentPairings.roundStartTime}">
+                <div th:if="${tournament.mostRecentPairings != null && tournament.mostRecentPairings.roundStartTime != null}">
                     <h3>Round Start</h3>
                     <span th:text="${tournament.mostRecentPairings.timeSinceStartOfRound}"></span>
                     <h3>Until Round End</h3>
@@ -88,7 +88,7 @@
                         <th:block th:each="ps, stat : ${players}">
                             <tr th:attr="data-arena-name=${ps.player.arenaName},data-leader=${ps.leader},data-points=${ps.record.points}"
                                 th:classappend="${!ps.important && !ps.leader} ? 'collapsed'">
-                                <td class="pad-horizontal" th:text="${ps.rank}">&;</td>
+                                <td class="pad-horizontal"><span th:text="${ps.rank}" th:if="${ps.rank > 0}"></span></td>
                                 <td class="pad-horizontal" th:text="${ps.record}"></td>
                                 <td class="center"><input type="checkbox" th:checked="${ps.important}"></td>
                                 <td>

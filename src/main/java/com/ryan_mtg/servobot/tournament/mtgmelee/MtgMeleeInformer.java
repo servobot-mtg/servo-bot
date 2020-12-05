@@ -159,6 +159,7 @@ public class MtgMeleeInformer implements Informer {
         String emptyTournamentMessage = hasFallback ? null : String.format("%s is not in the tournament.", name);
         return describeTournaments(tournament -> {
             PlayerSet players = new PlayerSet();
+            //TODO: this gets round 1, not the current round or all decks :(
             PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(1), 500);
             DecklistMap decklistMap = computeDecklistMap(players, pairingsJson, tournament.getFormat());
             Player player = players.findByName(name);
@@ -233,12 +234,13 @@ public class MtgMeleeInformer implements Informer {
             Standings standings = computeStandings(tournament, playerSet, standingsJson, result);
             result.setStandings(standings);
             result.setDecklistMap(computeDecklistMap(playerSet, standingsJson));
-        } else {
+        }
+        if (result.getDecklistMap() == null || result.getDecklistMap().isEmpty()) {
             Pairings pairings = result.getMostRecentPairings();
             if (pairings != null) {
                 int round = pairings.getRound();
                 PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(round), 500);
-                result.setDecklistMap(computeDecklistMap(playerSet, pairingsJson, tournament.getFormat()));
+                result.setDecklistMap(computeDecklistMap(playerSet, pairingsJson, pairings.getFormat()));
             }
         }
 

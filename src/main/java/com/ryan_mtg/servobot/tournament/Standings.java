@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Standings {
-    private static final int UNKNOWN_RANK = 999999;
+    public static final int UNKNOWN_RANK = 999999;
 
     @Getter
     private PlayerSet playerSet;

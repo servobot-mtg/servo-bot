@@ -19,6 +19,10 @@ public class DecklistMap {
         return map.get(new DecklistKey(player, format));
     }
 
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
     public Set<PlayerDecklist> getDecklists(final String format) {
         Set<PlayerDecklist> decklists = new HashSet<>();
         for (Map.Entry<DecklistKey, DecklistDescription> entry : map.entrySet()) {
