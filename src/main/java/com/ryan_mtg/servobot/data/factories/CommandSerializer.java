@@ -106,7 +106,9 @@ public class CommandSerializer {
                     return new ArrestCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
                             Strings.trim(commandRow.getStringParameter2()));
                 case CARD_SEARCH_COMMAND_TYPE:
-                    return new CardSearchCommand(id, commandSettings, scryfallQuerier);
+                    boolean usesEasterEggs = commandRow.getLongParameter() != null
+                            && commandRow.getLongParameter() != 0;
+                    return new CardSearchCommand(id, commandSettings, usesEasterEggs, scryfallQuerier);
                 case DELAYED_ALERT_COMMAND_TYPE:
                     return new DelayedAlertCommand(id, commandSettings, Duration.ofSeconds(commandRow.getLongParameter()),
                             Strings.trim(commandRow.getStringParameter()));
@@ -315,7 +317,9 @@ public class CommandSerializer {
 
         @Override
         public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
-            saveCommand(cardSearchCommand, commandRow -> {});
+            saveCommand(cardSearchCommand, commandRow -> {
+                commandRow.setLongParameter(cardSearchCommand.getUsesEasterEggs() ? 1 : 0);
+            });
         }
 
         @Override
