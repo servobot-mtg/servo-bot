@@ -18,10 +18,17 @@ public class CardSearchCommand extends InvokedCommand {
 
     private ScryfallQuerier scryfallQuerier;
 
-    public CardSearchCommand(final int id, final CommandSettings commandSettings,
-                             final ScryfallQuerier scryfallQuerier) {
+    private boolean usesEasterEggs;
+
+    public CardSearchCommand(final int id, final CommandSettings commandSettings, final boolean usesEasterEggs,
+            final ScryfallQuerier scryfallQuerier) {
         super(id, commandSettings);
         this.scryfallQuerier = scryfallQuerier;
+        this.usesEasterEggs = usesEasterEggs;
+    }
+
+    public boolean getUsesEasterEggs() {
+        return usesEasterEggs;
     }
 
     @Override
@@ -31,7 +38,7 @@ public class CardSearchCommand extends InvokedCommand {
             throw new UserError("No search term provided.");
         }
 
-        CardQuery cardQuery = CardUtil.resolveNickName(query);
+        CardQuery cardQuery = CardUtil.resolveNickName(query, usesEasterEggs);
 
         try {
             Card card = scryfallQuerier.searchForCardByName(cardQuery);
