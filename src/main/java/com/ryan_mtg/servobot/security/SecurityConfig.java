@@ -47,12 +47,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public ClientRegistrationRepository clientRegistrationRepository(final List<ClientRegistration> clientRegistrations) {
-        return new InMemoryClientRegistrationRepository(clientRegistrations);
+    public ClientRegistrationRepository clientRegistrationRepository(final List<ClientRegistration> registrations) {
+        return new InMemoryClientRegistrationRepository(registrations);
     }
 
     @Bean
-    FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
+    public FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
         // For the redirectUriTemplate to use the proper URL, because the server is behind a proxy
         final FilterRegistrationBean<ForwardedHeaderFilter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
