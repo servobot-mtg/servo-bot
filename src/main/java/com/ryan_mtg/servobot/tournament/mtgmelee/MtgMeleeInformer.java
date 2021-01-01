@@ -11,6 +11,7 @@ import com.ryan_mtg.servobot.tournament.Record;
 import com.ryan_mtg.servobot.tournament.RecordCount;
 import com.ryan_mtg.servobot.tournament.Standings;
 import com.ryan_mtg.servobot.tournament.Tournament;
+import com.ryan_mtg.servobot.tournament.TournamentManager;
 import com.ryan_mtg.servobot.tournament.TournamentType;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.DecklistJson;
 import com.ryan_mtg.servobot.tournament.mtgmelee.json.PairingInfo;
@@ -59,9 +60,15 @@ public class MtgMeleeInformer implements Informer {
         this.clock = clock;
     }
 
+    public List<Tournament> findTournaments(final TournamentManager tournamentManager) {
+        return findTournaments(SCG, BBP, WOTC, CFB).stream()
+                .filter(tournamentJson -> tournamentManager.getScgTournament(tournamentJson.getId()) == null)
+                .map(tournamentJson -> createTournament(tournamentJson)).collect(Collectors.toList());
+    }
+
     @Override
     public List<Tournament> getTournaments() {
-        return getCurrentTournaments(true).stream().map(meleeTournament -> getTournament(meleeTournament))
+        return getCurrentTournaments(true).stream().map(meleeTournament -> createTournament(meleeTournament))
                 .collect(Collectors.toList());
     }
 
@@ -174,7 +181,7 @@ public class MtgMeleeInformer implements Informer {
 
     @Override
     public Tournament getTournament(int tournamentId) {
-        return getTournament(parser.parse(tournamentId));
+        return createTournament(parser.parse(tournamentId));
     }
 
     public static TournamentType guessType(final String name) {
@@ -212,7 +219,7 @@ public class MtgMeleeInformer implements Informer {
                 function, showHeader, showPunctuation, emptyTournamentMessage);
     }
 
-    private Tournament getTournament(final MtgMeleeTournament tournament) {
+    private Tournament createTournament(final MtgMeleeTournament tournament) {
         Tournament result = new Tournament(this, tournament.getName(), tournament.getId());
         result.setRound(getCurrentRound(tournament));
         result.setPairingsUrl(getPairingsUrl(tournament));
@@ -292,6 +299,14 @@ public class MtgMeleeInformer implements Informer {
     private List<MtgMeleeTournament> getCurrentTournaments(final boolean includeEarly) {
         return findTournaments(SCG, BBP, WOTC, CFB).stream()
                 .map(tournamentJson -> parser.parse(tournamentJson.getId())).collect(Collectors.toList());
+    }
+
+    private MtgMeleeTournament createMeleeTournament(final TournamentJson tournamentJson) {
+        return parser.parse(tournamentJson.getId());
+    }
+
+    private Tournament createTournament(final TournamentJson tournamentJson) {
+        return createTournament(createMeleeTournament(tournamentJson));
     }
 
     private List<TournamentJson> findTournaments(final String... searchTerms) {

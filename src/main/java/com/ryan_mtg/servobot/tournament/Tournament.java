@@ -61,6 +61,8 @@ public class Tournament {
 
     @Getter @Setter
     private DecklistMap decklistMap;
+
+    @Getter
     private int id;
 
     public Tournament(final Informer informer, final String name, final int id) {
