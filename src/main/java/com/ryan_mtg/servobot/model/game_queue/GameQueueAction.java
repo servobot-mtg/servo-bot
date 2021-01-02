@@ -20,6 +20,9 @@ public class GameQueueAction {
     private String server;
 
     @Getter
+    private String proximityServer;
+
+    @Getter
     private Boolean onBeta;
 
     @Getter
@@ -68,6 +71,9 @@ public class GameQueueAction {
         if (action.server != null) {
             server = action.server;
         }
+        if (action.proximityServer != null) {
+            server = action.proximityServer;
+        }
         if (action.onBeta != null) {
             onBeta = action.onBeta;
         }
@@ -100,6 +106,10 @@ public class GameQueueAction {
 
     public static GameQueueAction codeChanged(final String code, final String server, final boolean isOnBeta) {
         return GameQueueAction.builder().code(code).server(server).onBeta(isOnBeta).build();
+    }
+
+    public static GameQueueAction proximityServerChanged(final String proximityServer) {
+        return GameQueueAction.builder().proximityServer(proximityServer).build();
     }
 
     public static GameQueueAction startTimeChanged(final Instant startTime) {

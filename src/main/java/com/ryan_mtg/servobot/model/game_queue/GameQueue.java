@@ -38,6 +38,9 @@ public class GameQueue {
     private String server;
 
     @Getter @Setter
+    private String proximityServer;
+
+    @Getter @Setter
     private State state;
 
     @Getter @Setter
@@ -59,7 +62,7 @@ public class GameQueue {
     }
 
     public GameQueue(final int id, final Game game, final int flags, final State state, final String code,
-             final String server, final Instant startTime, final Message message,
+             final String server, final String proximityServer, final Instant startTime, final Message message,
              final List<GameQueueEntry> gameQueueEntries) throws UserError {
         this.id = id;
         this.flags = flags;
@@ -67,11 +70,13 @@ public class GameQueue {
         this.state = state;
         this.code = code;
         this.server = server;
+        this.proximityServer = proximityServer;
         this.startTime = startTime;
         this.message = message;
 
         Validation.validateStringLength(code, Validation.MAX_NAME_LENGTH, "Code");
         Validation.validateStringLength(server, Validation.MAX_NAME_LENGTH, "Server");
+        Validation.validateStringLength(proximityServer, Validation.MAX_CHANNEL_NAME_LENGTH, "Proximity Server");
 
         for (GameQueueEntry gameQueueEntry : gameQueueEntries) {
             userMap.put(gameQueueEntry.getUser().getId(), gameQueueEntry);
@@ -417,15 +422,28 @@ public class GameQueue {
     public GameQueueAction onCall(final int botHomeId, final HomedUser player, final GameQueueEdit edit)
             throws UserError {
         int playerId = player.getId();
-        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isWaiting()) {
-            throw new UserError("%s not in the queue.", player.getName());
-        }
 
-        if (userMap.get(playerId).getState() == PlayerState.ON_CALL) {
-            throw new UserError("%s is already on call.", player.getName());
+        if (!userMap.containsKey(playerId)) {
+            GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.ON_CALL);
+            edit.save(getId(), newEntry);
+            waitQueue.add(newEntry);
+            userMap.put(player.getId(), newEntry);
+
+            GameQueueAction action = GameQueueAction.playerQueued(player);
+            promotePlayersToOnDeck(botHomeId, edit, action);
+            checkForRsvpExpirations(edit, action);
+            return action;
         }
 
         GameQueueEntry entry = userMap.get(playerId);
+        if (!entry.getState().isWaiting()) {
+            throw new UserError("%s not in the queue.", player.getName());
+        }
+
+        if (entry.getState() == PlayerState.ON_CALL) {
+            throw new UserError("%s is already on call.", player.getName());
+        }
+
         entry.setState(PlayerState.ON_CALL);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerOnCalled(player);

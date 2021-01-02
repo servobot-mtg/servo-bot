@@ -28,7 +28,7 @@ public class GameQueueEditor {
 
     public void createGameQueue(final Game game, final Consumer<GameQueue> gameQueueSavedCallback) throws UserError {
         GameQueue gameQueue = new GameQueue(GameQueue.UNREGISTERED_ID, game, 0, GameQueue.State.IDLE,
-                null, null, null, null, Arrays.asList());
+                null, null, null, null, null, Arrays.asList());
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         gameQueueEdit.save(contextId, gameQueue, gameQueueSavedCallback);
         gameQueueSerializer.commit(gameQueueEdit);
@@ -62,6 +62,18 @@ public class GameQueueEditor {
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);
         return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+    }
+
+    public GameQueueAction setProximityServer(final int gameQueueId, final String proximityServer) {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        gameQueue.setProximityServer(proximityServer);
+        gameQueueEdit.save(contextId, gameQueue);
+        gameQueueSerializer.commit(gameQueueEdit);
+        if (proximityServer == null) {
+            return GameQueueAction.proximityServerChanged("turned off");
+        }
+        return GameQueueAction.proximityServerChanged(gameQueue.getProximityServer());
     }
 
     public GameQueueAction addUser(final int gameQueueId, final HomedUser player) throws UserError {

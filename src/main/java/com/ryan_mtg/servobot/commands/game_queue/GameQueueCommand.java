@@ -81,6 +81,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "version":
                 setCode(event, command, parseResult.getInput());
                 return;
+            case "proximity":
+                setProximityServer(event, command, parseResult.getInput());
+                return;
             case "add":
             case "join":
             case "queue":
@@ -236,6 +239,28 @@ public class GameQueueCommand extends InvokedHomedCommand {
         GameQueueAction action = gameQueueEditor.setCode(gameQueueId, code, server, onBeta);
         showOrUpdateQueue(event, action);
     }
+
+    private void setProximityServer(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        if (Strings.isBlank(input)) {
+            event.say(GameQueueUtils.getProximityServerMessage(
+                    gameQueueEditor.getGameQueue(gameQueueId).getProximityServer()));
+            return;
+        }
+
+        switch (input.toLowerCase()) {
+            case "off":
+            case "disable":
+                GameQueueAction action = gameQueueEditor.setProximityServer(gameQueueId, null);
+                showOrUpdateQueue(event, action);
+                return;
+        }
+
+        GameQueueAction action = gameQueueEditor.setProximityServer(gameQueueId, input);
+        showOrUpdateQueue(event, action);
+    }
+
 
     private void enqueueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();

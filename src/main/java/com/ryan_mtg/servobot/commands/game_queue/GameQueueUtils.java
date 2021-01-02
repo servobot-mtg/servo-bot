@@ -118,6 +118,11 @@ public class GameQueueUtils {
                     GameQueueUtils.getCodeMessage(action.getCode(), action.getServer(), action.getOnBeta()));
         }
 
+        if (action.getProximityServer() != null && verbose) {
+            response = combine(response,
+                    GameQueueUtils.getProximityServerMessage(action.getProximityServer()));
+        }
+
         if (action.getStartTime() != null && verbose) {
             response = combine(response, GameQueueUtils.getStartTimeScheduledMessage(action.getStartTime(),
                     event.getHomeEditor().getTimeZone()));
@@ -139,6 +144,9 @@ public class GameQueueUtils {
 
         text.append("\t\t\t");
         appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+        if (gameQueue.getProximityServer() != null) {
+            text.append(". The proximity voice server is `").append(gameQueue.getProximityServer()).append("`.");
+        }
         text.append("\n\n");
 
         appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "Players", "No active game.", '#',
@@ -183,6 +191,11 @@ public class GameQueueUtils {
                 });
         }
 
+        if (gameQueue.getCode() != null) {
+            appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+            text.append("\n\n");
+        }
+
         text.append("React with:\n");
         text.append(DAGGER_EMOTE + ": To join the queue\t\t" + ON_CALL_EMOTE + ": To join queue only if needed\t\t"
                         + ROTATE_EMOTE + ": To rotate (leave and rejoin queue)\n");
@@ -193,6 +206,14 @@ public class GameQueueUtils {
 
     public static String getCodeMessage(final GameQueue gameQueue) {
         return getCodeMessage(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+    }
+
+    public static String getProximityServerMessage(final String proximityServer) {
+        if (proximityServer == null)  {
+            return "There is not a proximity voice server.";
+        }
+
+        return String.format("The proximity voice server is `%s`", proximityServer);
     }
 
     public static String getStartTimeScheduledMessage(final Instant startTime, final String timeZone) {
@@ -215,7 +236,7 @@ public class GameQueueUtils {
     public static void appendCode(final StringBuilder text, final String code, final String server,
             final Boolean isOnBeta) {
         if (code != null) {
-            text.append("🔑 **").append(code).append("**");
+            text.append("🔑 **").append(code.toUpperCase()).append("**");
             if (server != null) {
                 text.append(" on 🖥️ ").append(server);
             }
