@@ -7,26 +7,23 @@
     </head>
     <body>
         <div th:include="fragments :: header"/>
-        <th:block th:each="bot : ${bots}">
-            <div class="content">
-                <h1 th:text="${bot.name}"/>
-                <th:block th:each="home : ${bot.homes}" th:with="url='/home/' + ${bot.name} + '/' + ${home.name}">
-                        <span th:if="${home.imageUrl != null}">
-                            <a href="${url}"><img class="user-image" th:src="${home.imageUrl}"></a>
-                        </span>
-                        <a th:href="${url}" th:text="${home.name}"></a><br>
-                </th:block>
-            </div>
-            <hr>
-        </th:block>
         <div class="content">
-            <h1>ServoBot Features</h1>
+            <div th:if="${!user.aStreamer}">
+                <h1>Add Servobot to Your Channel</h1>
+                <p class="indented">Servobot is now in beta, so anyone can add it to their Twitch channel.
+                    Some features, such as the giveaways, are still experimental.</p>
+                <p th:if="${user.authenticated}" class="indented">To add the bot to your channel, fill out the form
+                    <a href="/home">here</a>.</p>
+                <p th:if="${!user.authenticated}" class="indented">To add the bot to your channel, you must first
+                    <a th:href="@{/oauth2/authorization/twitch}">log in</a> with Twitch.</p>
+            </div>
+            <h1>Features</h1>
             <ul>
                 <li>Discord & Twitch integration</li>
                 <li>Custom commands</li>
-                <li>Alerts</li>
+                <li>Automatic chat alerts</li>
                 <li>Runs giveaways</li>
-                <li>Queue for challenging viewers on Arena</li>
+                <li>Discord queue for Among Us</li>
                 <li>Special features available upon request</li>
             </ul>
 
@@ -36,6 +33,19 @@
                 <li>Quick Start <a href="/help/quick_start">Guide</a></li>
                 <li th:if="${user.admin}">Streaming <a href="/help/streaming">Guide</a></li>
             </ul>
+
+            <th:block th:each="bot : ${bots}">
+                <hr>
+                <div class="content">
+                    <h1 th:text="${bot.name}"/>
+                    <th:block th:each="home : ${bot.homes}" th:with="url='/home/' + ${bot.name} + '/' + ${home.name}">
+                        <span th:if="${home.imageUrl != null}">
+                            <a href="${url}"><img class="user-image" th:src="${home.imageUrl}"></a>
+                        </span>
+                        <a th:href="${url}" th:text="${home.name}"></a><br>
+                    </th:block>
+                </div>
+            </th:block>
         </div>
         <div th:include="fragments :: footer"/>
     </body>

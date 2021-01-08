@@ -6,6 +6,7 @@ import java.util.List;
 
 public class BotRegistrar {
     private static int DEFAULT_BOT_CONTEXT_ID = -1;
+    private static int INVITE_BOT_CONTEXT_ID = -2;
 
     private List<Bot> bots;
 
@@ -17,6 +18,14 @@ public class BotRegistrar {
         Bot bot = getBot(DEFAULT_BOT_CONTEXT_ID);
         if (bot == null) {
             throw new SystemError("No default Bot?");
+        }
+        return bot;
+    }
+
+    public Bot getInviteBot() {
+        Bot bot = getBot(INVITE_BOT_CONTEXT_ID);
+        if (bot == null) {
+            throw new SystemError("No invite Bot?");
         }
         return bot;
     }

@@ -1,5 +1,5 @@
 function submitInvite() {
-    let botName = document.getElementById('bot-name').innerText;
+    let botName = document.getElementById('bot-name-input').value;
     let timeZone = document.getElementById('time-zone-select').value;
 
     let useAddCommand = document.getElementById('use-add-command-name').checked;

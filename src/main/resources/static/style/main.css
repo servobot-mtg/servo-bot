@@ -315,6 +315,10 @@ input[type=number] {
     float: right;
 }
 
+.indented {
+    margin-left: 2em;
+}
+
 .navbar li span {
     display: block;
 }

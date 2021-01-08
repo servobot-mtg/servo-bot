@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -50,13 +51,6 @@ public class BotController {
             return "home/homeless";
         }
 
-        if (websiteUser.hasInvite()) {
-            model.addAttribute("page", "invite");
-            model.addAttribute("botName", botRegistrar.getDefaultBot().getName());
-            model.addAttribute("timeZones", timeZones);
-            return "home/invite";
-        }
-
         if (websiteUser.isAStreamer()) {
             model.addAttribute("page", "control");
             BotHome botHome = botRegistrar.getBotHome(websiteUser.getBotHomeId());
@@ -65,8 +59,17 @@ public class BotController {
             return "home/control";
         }
 
-        model.addAttribute("page", "wandering");
-        return "home/wandering";
+        model.addAttribute("page", "invite");
+        List<String> botNames = new ArrayList<>();
+        botNames.add(botRegistrar.getDefaultBot().getName());
+        if (websiteUser.hasInvite()) {
+            String inviteBot = botRegistrar.getInviteBot().getName();
+            botNames.add(inviteBot);
+            model.addAttribute("inviteBot", inviteBot);
+        }
+        model.addAttribute("botNames", botNames);
+        model.addAttribute("timeZones", timeZones);
+        return "home/invite";
     }
 
     @GetMapping("/help")

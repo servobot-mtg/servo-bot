@@ -8,14 +8,21 @@
 <body th:with="privledged=true">
     <div th:include="fragments :: header" />
     <div class="content">
-        <h1>Bot Invitation</h1>
-        <p>Hello <span th:text="${user.name}"></span>, you have been given a special invite for
-            <span th:text="${botName}"></span> Just fill out a few pieces of information for it to join your channel.
+        <h1>Bot Add Form</h1>
+        <p th:if="${inviteBot}">Hello <span th:text="${user.name}"></span>, you have been given a special invite for
+            <span th:text="${inviteBot}"></span> Just fill out a few pieces of information for it to join your channel.
         </p>
+        <p th:if="!${inviteBot}">Fill out a few pieces of information for it to join your channel.</p>
         <form class="invite-form">
             <div>
                 <label>Bot</label><br>
-                <span id="bot-name" th:text="${botName}"></span>
+                <select th:if="${botNames.size() > 1}" id="bot-name-input">
+                    <th:block th:each="botName : ${botNames}">
+                        <option th:value="${botName}" th:text="${botName}" th:selected="${botName == inviteBot}"/>
+                    </th:block>
+                </select>
+                <input th:if="${botNames.size() == 1}" id="bot-name-input" type="text" th:value="${botNames.get(0)}"
+                       readonly>
             </div>
             <div>
                 <label>Time Zone</label><br>
