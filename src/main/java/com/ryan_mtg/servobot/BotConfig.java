@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 
 @Configuration
@@ -41,6 +42,8 @@ public class BotConfig {
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         Function<Book, String> randomStatement = Book::randomStatement;
         symbolTable.addValue("randomStatement", randomStatement);
+        Function<Integer, Integer> random = this::random;
+        symbolTable.addValue("random", random);
 
         symbolTable.addFunctor("cfbTournaments", mfoInformer::describeCurrentTournaments);
         symbolTable.addFunctor("cfbDecklists", mfoInformer::getCurrentDecklists);
@@ -88,5 +91,9 @@ public class BotConfig {
         }
 
         return meleeInformer.getCurrentRecords();
+    }
+
+    private int random(final int bound) {
+        return new Random().nextInt(bound);
     }
 }
