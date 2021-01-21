@@ -23,8 +23,8 @@ public class GameQueueEditor {
     private final StorageValueEditor storageValueEditor;
 
     public void createGameQueue(final Game game, final Consumer<GameQueue> gameQueueSavedCallback) throws UserError {
-        GameQueue gameQueue = new GameQueue(GameQueue.UNREGISTERED_ID, game, 0, GameQueue.State.IDLE,
-                null, null, null, null, null, null, Arrays.asList());
+        GameQueue gameQueue = new GameQueue(GameQueue.UNREGISTERED_ID, game, 0, game.getMinPlayers(),
+                game.getMaxPlayers(), GameQueue.State.IDLE, null, null, null, null, null, null, Arrays.asList());
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         gameQueueEdit.save(contextId, gameQueue, gameQueueSavedCallback);
         gameQueueSerializer.commit(gameQueueEdit);
@@ -223,5 +223,23 @@ public class GameQueueEditor {
         } catch (UserError e) {
             return null;
         }
+    }
+
+    public GameQueueAction setMinimumPlayers(final int gameQueueId, final int minimum, final boolean check)
+            throws UserError {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueAction action = gameQueue.setMinimumPlayers(contextId, gameQueueEdit, minimum, check);
+        gameQueueSerializer.commit(gameQueueEdit);
+        return action;
+    }
+
+    public GameQueueAction setMaximumPlayers(final int gameQueueId, final int maximum, final boolean check)
+            throws UserError {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueAction action = gameQueue.setMaximumPlayers(contextId, gameQueueEdit, maximum, check);
+        gameQueueSerializer.commit(gameQueueEdit);
+        return action;
     }
 }

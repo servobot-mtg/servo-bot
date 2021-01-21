@@ -32,6 +32,12 @@ public class GameQueue {
     private int flags;
 
     @Getter @Setter
+    private Integer maxPlayers;
+
+    @Getter @Setter
+    private Integer minPlayers;
+
+    @Getter @Setter
     private String code;
 
     @Getter @Setter
@@ -64,11 +70,14 @@ public class GameQueue {
         CLOSED,
     }
 
-    public GameQueue(final int id, final Game game, final int flags, final State state, final String code,
-             final String server, final String proximityServer, final String gamerTagVariable, final Instant startTime,
-             final Message message, final List<GameQueueEntry> gameQueueEntries) throws UserError {
+    public GameQueue(final int id, final Game game, final int flags, final int minPlayers, final int maxPlayers,
+             final State state, final String code, final String server, final String proximityServer,
+             final String gamerTagVariable, final Instant startTime, final Message message,
+             final List<GameQueueEntry> gameQueueEntries) throws UserError {
         this.id = id;
         this.flags = flags;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
         this.game = game;
         this.state = state;
         this.code = code;
@@ -150,6 +159,39 @@ public class GameQueue {
         }
 
         return entry.getEnqueueTime();
+    }
+
+    public GameQueueAction setMinimumPlayers(final int botHomeId, final GameQueueEdit edit, final int minimum,
+            final boolean check) throws UserError {
+        if (minimum < 0) {
+            throw new UserError("Minimum number of players must be positive.");
+        }
+        if (check && minimum > getMaxPlayers()) {
+            throw new UserError(
+                "Minimum number of players must be less than or equal to the maximum number of players %d.",
+                getMaxPlayers());
+        }
+
+        this.minPlayers = minimum;
+        edit.save(botHomeId, this);
+        GameQueueAction action = GameQueueAction.setMinimumPlayers(minimum);
+        promotePlayersToOnDeck(botHomeId, edit, action);
+        return action;
+    }
+
+    public GameQueueAction setMaximumPlayers(final int botHomeId, final GameQueueEdit edit, final int maximum,
+            final boolean check) throws UserError {
+        if (check && maximum < getMinPlayers()) {
+            throw new UserError(
+                    "Maximum number of players must be greater than or equal to the minimum number of players %d.",
+                    getMinPlayers());
+        }
+
+        this.maxPlayers = maximum;
+        edit.save(botHomeId, this);
+        GameQueueAction action = GameQueueAction.setMaximumPlayers(maximum);
+        promotePlayersToOnDeck(botHomeId, edit, action);
+        return action;
     }
 
     public GameQueueAction start(final int botHomeId, final GameQueueEdit edit) throws UserError {
@@ -294,14 +336,13 @@ public class GameQueue {
         return gameQueueEdit;
     }
 
-
     public GameQueueAction ready(final HomedUser player, final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
         if (!userMap.containsKey(playerId) || userMap.get(playerId).getState() != PlayerState.ON_DECK) {
             throw new UserError("%s is not on deck.", player.getName());
         }
 
-        if (getPlayingCount() >= game.getMaxPlayers()) {
+        if (getPlayingCount() >= getMaxPlayers()) {
             throw new UserError("Not enough room in the game for %s.", player.getName());
         }
 
@@ -612,10 +653,10 @@ public class GameQueue {
             }
         }
 
-        if (waitQueue.size() + onDeck.size() + playingCount >= game.getMinPlayers()) {
+        if (waitQueue.size() + onDeck.size() + playingCount >= getMinPlayers()) {
             Collections.sort(waitQueue);
 
-            while (!waitQueue.isEmpty() && playingCount + onDeck.size() < game.getMaxPlayers()) {
+            while (!waitQueue.isEmpty() && playingCount + onDeck.size() < getMaxPlayers()) {
                 GameQueueEntry joiningEntry = waitQueue.remove(0);
                 joiningEntry.setState(PlayerState.ON_DECK);
                 gameQueueEdit.save(getId(), joiningEntry);

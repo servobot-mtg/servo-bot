@@ -146,6 +146,12 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 return (event, parsedCommand) -> setGamerTag(event, command, parseResult.getInput());
             case "variable":
                 return (event, parsedCommand) -> setGamerTagVariable(event, command, parseResult.getInput());
+            case "minPlayers":
+            case "min":
+                return (event, parsedCommand) -> setMinimumPlayers(event, command, parseResult.getInput());
+            case "maxPlayers":
+            case "max":
+                return (event, parsedCommand) -> setMaximumPlayers(event, command, parseResult.getInput());
             case "help":
                 return (event, parsedCommand) -> help(event);
         }
@@ -158,6 +164,19 @@ public class GameQueueCommand extends InvokedHomedCommand {
                     return (event, parsedCommand) -> setCode(event, command, parseResult.getInput());
                 case "proximity":
                     return (event, parsedCommand) -> setProximityServer(event, command, parseResult.getInput());
+            }
+        }
+
+        if (gameQueue.getGame() == Game.BATTLEGROUNDS) {
+            switch (command.toLowerCase()) {
+                case "full":
+                case "eight":
+                case "8":
+                    return (event, parsedCommand) -> setLobby(event, 8, 8);
+                case "partial":
+                case "four":
+                case "4":
+                    return (event, parsedCommand) -> setLobby(event, 2, 4);
             }
         }
 
@@ -288,6 +307,48 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
         GameQueueAction action = gameQueueEditor.setGamerTagVariable(gameQueueId, input);
         GameQueueUtils.respondToAction(event, gameQueueEditor.getGameQueue(gameQueueId), action, true);
+    }
+
+    private void setMinimumPlayers(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        if (Strings.isBlank(input)) {
+            throw new UserError("%s command requires an argument for the minimum number of players.", command);
+        }
+
+        int minimum = getInteger(command, input);
+        GameQueueAction action = gameQueueEditor.setMinimumPlayers(gameQueueId, minimum, true);
+        showOrUpdateQueue(event, action);
+    }
+
+    private void setMaximumPlayers(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        if (Strings.isBlank(input)) {
+            throw new UserError("%s command requires an argument for the maximum number of players.", command);
+        }
+
+        int maximum = getInteger(command, input);
+        GameQueueAction action = gameQueueEditor.setMaximumPlayers(gameQueueId, maximum, true);
+        showOrUpdateQueue(event, action);
+    }
+
+    private void setLobby(final CommandInvokedHomeEvent event, final int minPlayers, final int maxPlayers)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+
+        GameQueueAction action = gameQueueEditor.setMinimumPlayers(gameQueueId, minPlayers, false);
+        action.merge(gameQueueEditor.setMaximumPlayers(gameQueueId, maxPlayers, false));
+        showOrUpdateQueue(event, action);
+    }
+
+
+    private int getInteger(final String command, final String input) throws UserError {
+        try {
+            return Integer.parseInt(input);
+        } catch (Exception e) {
+            throw new UserError("The argument to the %s command must be a positive integer.", command);
+        }
     }
 
     private void enqueueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {

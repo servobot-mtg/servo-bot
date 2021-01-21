@@ -71,8 +71,16 @@ public class GameQueueUtils {
             final GameQueueAction action, final boolean verbose) throws BotHomeError {
         String response = "";
 
-        if (action.isGameStarted() && verbose) {
+        if (action.hasEvent(GameQueueAction.Event.GAME_STARTED) && verbose) {
             response = combine(response, "The game is about to start!");
+        }
+
+        if (action.hasEvent(GameQueueAction.Event.MIN_PLAYERS) && verbose) {
+            response = combine(response, GameQueueUtils.getMinimumPlayersSetMessage(action.getMiniumumPlayers()));
+        }
+
+        if (action.hasEvent(GameQueueAction.Event.MAX_PLAYERS) && verbose) {
+            response = combine(response, GameQueueUtils.getMaximumPlayersSetMessage(action.getMaximumPlayers()));
         }
 
         if (!action.getQueuedPlayers().isEmpty() && verbose) {
@@ -120,14 +128,14 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getGamerTagsChangedMessage(action.getGamerTagMap()));
         }
 
-        if (action.getGamerTagVariable() != null && verbose) {
+        if (action.hasEvent(GameQueueAction.Event.GAMER_TAG_VARIABLE) && verbose) {
             response =
                     combine(response, GameQueueUtils.getGamerTagVariableChangedMessage(action.getGamerTagVariable()));
         }
 
         response = combine(response, gameQueue.getGame().getGameBehavior().respondToAction(action, verbose));
 
-        if (action.getStartTime() != null && verbose) {
+        if (action.hasEvent(GameQueueAction.Event.START_TIME) && verbose) {
             response = combine(response, GameQueueUtils.getStartTimeScheduledMessage(action.getStartTime(),
                     event.getHomeEditor().getTimeZone()));
         }
@@ -215,6 +223,14 @@ public class GameQueueUtils {
         }
 
         return String.format("The proximity voice server is `%s`", proximityServer);
+    }
+
+    public static String getMinimumPlayersSetMessage(final int minPlayers) {
+        return String.format("The minimum number of players has been set to %d.", minPlayers);
+    }
+
+    public static String getMaximumPlayersSetMessage(final int maxPlayers) {
+        return String.format("The maximum number of players has been set to %d.", maxPlayers);
     }
 
     public static String getStartTimeScheduledMessage(final Instant startTime, final String timeZone) {

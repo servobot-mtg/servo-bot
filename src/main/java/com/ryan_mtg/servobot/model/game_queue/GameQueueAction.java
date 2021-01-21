@@ -15,6 +15,20 @@ import java.util.stream.Stream;
 
 @Builder
 public class GameQueueAction {
+    public enum Event {
+        CODE,
+        SERVER,
+        PROXIMITY_SERVER,
+        GAMER_TAG,
+        GAMER_TAG_VARIABLE,
+        ON_BETA,
+        START_TIME,
+        GAME_STARTED,
+        MIN_PLAYERS,
+        MAX_PLAYERS,
+    }
+
+    /*
     @Getter
     private String code;
 
@@ -25,9 +39,6 @@ public class GameQueueAction {
     private String proximityServer;
 
     @Getter
-    private String gamerTagVariable;
-
-    @Getter
     private Boolean onBeta;
 
     @Getter
@@ -35,6 +46,7 @@ public class GameQueueAction {
 
     @Getter
     private boolean gameStarted;
+     */
 
     @Getter @Builder.Default
     private List<HomedUser> queuedPlayers = new ArrayList<>();
@@ -72,28 +84,47 @@ public class GameQueueAction {
     @Getter @Builder.Default
     private Map<HomedUser, String> gamerTagMap = new HashMap<>();
 
+    @Builder.Default
+    private Map<Event, Object> eventMap = new HashMap<>();
+
+    public boolean hasEvent(final Event event) {
+        return eventMap.containsKey(event);
+    }
+
+    public String getGamerTagVariable() {
+        return (String) eventMap.get(Event.GAMER_TAG_VARIABLE);
+    }
+
+    public int getMiniumumPlayers() {
+        return (Integer) eventMap.get(Event.MIN_PLAYERS);
+    }
+
+    public int getMaximumPlayers() {
+        return (Integer) eventMap.get(Event.MAX_PLAYERS);
+    }
+
+    public Instant getStartTime() {
+        return (Instant) eventMap.get(Event.START_TIME);
+    }
+
+    public String getCode() {
+        return (String) eventMap.get(Event.CODE);
+    }
+
+    public String getServer() {
+        return (String) eventMap.get(Event.SERVER);
+    }
+
+    public String getProximityServer() {
+        return (String) eventMap.get(Event.PROXIMITY_SERVER);
+    }
+
+    public Boolean getOnBeta() {
+        return (Boolean) eventMap.get(Event.ON_BETA);
+    }
+
     public void merge(final GameQueueAction action) {
-        if (action.code != null) {
-            code = action.code;
-        }
-        if (action.server != null) {
-            server = action.server;
-        }
-        if (action.proximityServer != null) {
-            server = action.proximityServer;
-        }
-        if (action.gamerTagVariable != null) {
-            server = action.gamerTagVariable;
-        }
-        if (action.onBeta != null) {
-            onBeta = action.onBeta;
-        }
-        if (action.startTime != null) {
-            startTime = action.startTime;
-        }
-        if (action.gameStarted) {
-            gameStarted = true;
-        }
+        eventMap.putAll(action.eventMap);
         queuedPlayers = merge(queuedPlayers, action.queuedPlayers);
         dequeuedPlayers = merge(dequeuedPlayers, action.dequeuedPlayers);
         onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
@@ -113,19 +144,30 @@ public class GameQueueAction {
     }
 
     public static GameQueueAction gameStarted() {
-        return GameQueueAction.builder().gameStarted(true).build();
+        return GameQueueAction.builder().eventMap(createMap(Event.GAME_STARTED, null)).build();
     }
 
     public static GameQueueAction codeChanged(final String code, final String server, final boolean isOnBeta) {
-        return GameQueueAction.builder().code(code).server(server).onBeta(isOnBeta).build();
+        Map<Event, Object> eventMap = createMap(Event.CODE, code);
+        eventMap.put(Event.SERVER, server);
+        eventMap.put(Event.ON_BETA, isOnBeta);
+        return GameQueueAction.builder().eventMap(eventMap).build();
     }
 
     public static GameQueueAction proximityServerChanged(final String proximityServer) {
-        return GameQueueAction.builder().proximityServer(proximityServer).build();
+        return GameQueueAction.builder().eventMap(createMap(Event.PROXIMITY_SERVER, proximityServer)).build();
     }
 
     public static GameQueueAction startTimeChanged(final Instant startTime) {
-        return GameQueueAction.builder().startTime(startTime).build();
+        return GameQueueAction.builder().eventMap(createMap(Event.START_TIME, startTime)).build();
+    }
+
+    public static GameQueueAction setMinimumPlayers(final int minPlayers) {
+        return GameQueueAction.builder().eventMap(createMap(Event.MIN_PLAYERS, minPlayers)).build();
+    }
+
+    public static GameQueueAction setMaximumPlayers(final int maxPlayers) {
+        return GameQueueAction.builder().eventMap(createMap(Event.MAX_PLAYERS, maxPlayers)).build();
     }
 
     public static GameQueueAction playerQueued(final HomedUser player) {
@@ -173,7 +215,7 @@ public class GameQueueAction {
     }
 
     public static GameQueueAction gamerTagVariableChanged(final String gamerTagVariable) {
-        return GameQueueAction.builder().gamerTagVariable(gamerTagVariable).build();
+        return GameQueueAction.builder().eventMap(createMap(Event.GAMER_TAG_VARIABLE, gamerTagVariable)).build();
     }
 
     public static GameQueueAction gamerTagChanged(HomedUser user, String gamerTag) {
@@ -190,5 +232,11 @@ public class GameQueueAction {
         }
 
         return Stream.concat(a.stream(), b.stream()).collect(Collectors.toList());
+    }
+
+    private static Map<Event, Object> createMap(final Event action, final Object value) {
+        Map<Event, Object> map = new HashMap<>();
+        map.put(action, value);
+        return map;
     }
 }

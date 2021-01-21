@@ -30,6 +30,12 @@ public class GameQueueRow {
 
     private int flags;
 
+    @Column(name = "min_players")
+    private int minPlayers;
+
+    @Column(name = "max_players")
+    private int maxPlayers;
+
     @Column(name = "start_time")
     private Long startTime;
 

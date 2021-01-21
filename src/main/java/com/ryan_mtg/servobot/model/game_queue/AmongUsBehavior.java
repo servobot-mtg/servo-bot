@@ -7,12 +7,13 @@ public class AmongUsBehavior implements GameBehavior {
     public String respondToAction(final GameQueueAction action, final boolean verbose) {
         String response = "";
 
-        if ((action.getCode() != null || action.getServer() != null || action.getOnBeta() != null) && verbose) {
+        if ((action.hasEvent(GameQueueAction.Event.CODE) || action.hasEvent(GameQueueAction.Event.SERVER)
+                || action.hasEvent(GameQueueAction.Event.ON_BETA) ) && verbose) {
             response = GameQueueUtils.combine(response,
                     getCodeMessage(action.getCode(), action.getServer(), action.getOnBeta()));
         }
 
-        if (action.getProximityServer() != null && verbose) {
+        if (action.hasEvent(GameQueueAction.Event.PROXIMITY_SERVER) && verbose) {
             response = GameQueueUtils.combine(response,
                     GameQueueUtils.getProximityServerMessage(action.getProximityServer()));
         }

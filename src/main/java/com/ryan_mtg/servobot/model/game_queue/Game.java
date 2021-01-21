@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum Game {
     ARENA(1, "MTG Arena", 1, 1, new ArenaBehavior()),
     AMONG_US(2, "Among Us", Application.isTesting() ? 2 : 9, Application.isTesting() ? 3 :10, new AmongUsBehavior()),
-    BATTLEGROUNDS(3, "Battlegrounds", 2, 4, new BattleGroundsBehavior());
+    BATTLEGROUNDS(3, "Battlegrounds", 2, 8, new BattleGroundsBehavior());
 
     private final int type;
     private final String name;
