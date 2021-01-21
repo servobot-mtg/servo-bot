@@ -5,11 +5,13 @@ import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
+import com.ryan_mtg.servobot.model.storage.StringStorageValue;
+import com.ryan_mtg.servobot.user.HomedUser;
 
 import javax.transaction.Transactional;
 
 public class StorageValueEditor {
-    private int contextId;
+    private final int contextId;
     private final StorageTable storageTable;
     private final StorageValueSerializer storageValueSerializer;
 
@@ -17,6 +19,15 @@ public class StorageValueEditor {
         this.contextId = contextId;
         this.storageTable = storageTable;
         this.storageValueSerializer = storageValueSerializer;
+    }
+
+    public StorageValue getStorageValue(final HomedUser user, final String name) throws UserError {
+        StorageValue.validateName(name);
+        StorageValue storageValue = storageTable.getStorage(user.getId(), name);
+        if (storageValue == null) {
+            throw new UserError(String.format("No value with name %s.", name));
+        }
+        return storageValue;
     }
 
     public StorageValue getStorageValue(final String name) throws UserError {
@@ -55,5 +66,26 @@ public class StorageValueEditor {
             throw new UserError("%s has an unknown type of value.", storageValue.getName());
         }
         return storageValue;
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    public StorageValue setStorageValue(final int userId, final String name, final String value) throws UserError {
+        StorageValue.validateName(name);
+        StorageValue storageValue = storageTable.getStorage(userId, name);
+        if (storageValue == null) {
+            StringStorageValue newValue =
+                    new StringStorageValue(StorageValue.UNREGISTERED_ID, userId, name, value);
+            storageTable.registerValue(newValue);
+            storageValueSerializer.save(newValue, contextId);
+            return newValue;
+        } else {
+            if (!(storageValue instanceof StringStorageValue)) {
+                throw new UserError("%s has a non-string value.", name);
+            }
+
+            ((StringStorageValue) storageValue).setValue(value);
+            storageValueSerializer.save(storageValue, contextId);
+            return storageValue;
+        }
     }
 }

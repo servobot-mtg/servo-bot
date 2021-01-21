@@ -12,6 +12,8 @@ import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
+import com.ryan_mtg.servobot.model.game_queue.AmongUsBehavior;
+import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -72,90 +74,94 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 throw new UserError("%s doesn't look like a command.", command);
         }
 
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
+
+        GameQueueSubCommand subCommand = getSubCommand(gameQueue, parseResult);
+        if (subCommand == null) {
+            throw new UserError("Invalid Game Queue Command: " + arguments);
+        }
+
+        subCommand.execute(event, parseResult);
+    }
+
+    private GameQueueSubCommand getSubCommand(final GameQueue gameQueue, final CommandParser.ParseResult parseResult) {
+        String command = parseResult.getCommand();
+
         switch (command.toLowerCase()) {
             case "show":
-                showQueue(event);
-                return;
-            case "server":
-            case "code":
-            case "version":
-                setCode(event, command, parseResult.getInput());
-                return;
-            case "proximity":
-                setProximityServer(event, command, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> showQueue(event);
             case "add":
             case "join":
             case "queue":
             case "enqueue":
             case "enter":
-                enqueueUser(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> enqueueUser(event, parseResult.getInput());
             case "dequeue":
             case "remove":
             case "leave":
             case "exit":
             case "out":
-                dequeueUser(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> dequeueUser(event, parseResult.getInput());
             case "clear":
             case "reset":
-                clear(event);
-                return;
+                return (event, parsedCommand) -> clear(event);
             case "unready":
-                unready(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> unready(event, parseResult.getInput());
             case "ready":
             case "here":
-                ready(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> ready(event, parseResult.getInput());
             case "cut":
             case "rig":
             case "rigged":
-                cut(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> cut(event, parseResult.getInput());
             case "last":
             case "lg":
             case "done":
-                lg(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> lg(event, parseResult.getInput());
             case "lgall":
-                lgAll(event);
-                return;
+                return (event, parsedCommand) -> lgAll(event);
             case "permanent":
             case "streaming":
-                permanent(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> permanent(event, parseResult.getInput());
             case "move":
             case "position":
-                move(event, command, parseResult.getInput());
-                break;
+                return (event, parsedCommand) -> move(event, command, parseResult.getInput());
             case "rotatelg":
-                rotateLg(event);
-                break;
+                return (event, parsedCommand) -> rotateLg(event);
             case "rotate":
             case "requeue":
-                rotate(event, parseResult.getInput());
-                break;
+                return (event, parsedCommand) -> rotate(event, parseResult.getInput());
             case "rsvp":
-                rsvp(event, command, parseResult.getInput());
-                break;
+                return (event, parsedCommand) -> rsvp(event, command, parseResult.getInput());
             case "start":
-                start(event);
-                break;
+                return (event, parsedCommand) -> start(event);
             case "schedule":
-                schedule(event, command, parseResult.getInput());
-                break;
+                return (event, parsedCommand) -> schedule(event, command, parseResult.getInput());
             case "ifneeded":
             case "oncall":
-                onCall(event, parseResult.getInput());
-                return;
+                return (event, parsedCommand) -> onCall(event, parseResult.getInput());
+            case "name":
+            case "tag":
+                return (event, parsedCommand) -> setGamerTag(event, command, parseResult.getInput());
+            case "variable":
+                return (event, parsedCommand) -> setGamerTagVariable(event, command, parseResult.getInput());
             case "help":
-                help(event);
-                return;
-            default:
-                throw new UserError("Invalid Game Queue Command: " + arguments);
+                return (event, parsedCommand) -> help(event);
         }
+
+        if (gameQueue.getGame() == Game.AMONG_US) {
+            switch (command.toLowerCase()) {
+                case "server":
+                case "code":
+                case "version":
+                    return (event, parsedCommand) -> setCode(event, command, parseResult.getInput());
+                case "proximity":
+                    return (event, parsedCommand) -> setProximityServer(event, command, parseResult.getInput());
+            }
+        }
+
+        return null;
     }
 
     private void showOrUpdateQueue(final CommandInvokedHomeEvent event, final GameQueueAction action)
@@ -175,7 +181,8 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
         Message previousMessage = gameQueue.getMessage();
 
-        String text = GameQueueUtils.createMessage(gameQueue, event.getHomeEditor().getTimeZone());
+        String text = GameQueueUtils.createMessage(event.getGameQueueEditor(), gameQueue,
+                event.getHomeEditor().getTimeZone());
 
         Message message = event.getChannel().sayAndWait(text);
         message.addEmote(new DiscordEmoji(GameQueueUtils.DAGGER_EMOTE));
@@ -197,7 +204,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
             throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         if (Strings.isBlank(input)) {
-            event.say(GameQueueUtils.getCodeMessage(gameQueueEditor.getGameQueue(gameQueueId)));
+            event.say(AmongUsBehavior.getCodeMessage(gameQueueEditor.getGameQueue(gameQueueId)));
             return;
         }
 
@@ -261,6 +268,27 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showOrUpdateQueue(event, action);
     }
 
+    private void setGamerTag(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        if (Strings.isBlank(input)) {
+            throw new UserError("%s command requires an argument.", command);
+        }
+
+        GameQueueAction action = gameQueueEditor.setGamerTag(gameQueueId, event.getSender().getHomedUser(), input);
+        showOrUpdateQueue(event, action);
+    }
+
+    private void setGamerTagVariable(final CommandInvokedHomeEvent event, final String command, final String input)
+            throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        if (Strings.isBlank(input)) {
+            throw new UserError("%s command requires an argument.", command);
+        }
+
+        GameQueueAction action = gameQueueEditor.setGamerTagVariable(gameQueueId, input);
+        GameQueueUtils.respondToAction(event, gameQueueEditor.getGameQueue(gameQueueId), action, true);
+    }
 
     private void enqueueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();

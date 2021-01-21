@@ -7,7 +7,9 @@ import lombok.Getter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +23,9 @@ public class GameQueueAction {
 
     @Getter
     private String proximityServer;
+
+    @Getter
+    private String gamerTagVariable;
 
     @Getter
     private Boolean onBeta;
@@ -64,6 +69,9 @@ public class GameQueueAction {
     @Getter @Builder.Default
     private List<HomedUser> onCallPlayers = new ArrayList<>();
 
+    @Getter @Builder.Default
+    private Map<HomedUser, String> gamerTagMap = new HashMap<>();
+
     public void merge(final GameQueueAction action) {
         if (action.code != null) {
             code = action.code;
@@ -73,6 +81,9 @@ public class GameQueueAction {
         }
         if (action.proximityServer != null) {
             server = action.proximityServer;
+        }
+        if (action.gamerTagVariable != null) {
+            server = action.gamerTagVariable;
         }
         if (action.onBeta != null) {
             onBeta = action.onBeta;
@@ -94,6 +105,7 @@ public class GameQueueAction {
         movedPlayers = merge(movedPlayers, action.movedPlayers);
         rsvpedPlayers = merge(rsvpedPlayers, action.rsvpedPlayers);
         rsvpExpiredPlayers = merge(rsvpExpiredPlayers, action.rsvpExpiredPlayers);
+        gamerTagMap.putAll(action.gamerTagMap);
     }
 
     public static GameQueueAction emptyAction() {
@@ -158,6 +170,14 @@ public class GameQueueAction {
 
     public static GameQueueAction playerOnCalled(final HomedUser player) {
         return GameQueueAction.builder().onCallPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction gamerTagVariableChanged(final String gamerTagVariable) {
+        return GameQueueAction.builder().gamerTagVariable(gamerTagVariable).build();
+    }
+
+    public static GameQueueAction gamerTagChanged(HomedUser user, String gamerTag) {
+        return GameQueueAction.builder().gamerTagMap(Collections.singletonMap(user, gamerTag)).build();
     }
 
     private static List<HomedUser> merge(final List<HomedUser> a, final List<HomedUser> b) {

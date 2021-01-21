@@ -7,7 +7,7 @@
 </Appenders>
 
 <Loggers>
-    <!-- LOG everything at WARN level -->
+    <!-- LOG everything at INFO level -->
     <Root level="info">
         <AppenderRef ref="console"/>
     </Root>

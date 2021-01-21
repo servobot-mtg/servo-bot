@@ -9,26 +9,22 @@ import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueEdit;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.user.HomedUser;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+@RequiredArgsConstructor
 public class GameQueueEditor {
     private final int contextId;
     private final GameQueueTable gameQueueTable;
     private final GameQueueSerializer gameQueueSerializer;
-
-    public GameQueueEditor(final int contextId, final GameQueueTable gameQueueTable,
-            final GameQueueSerializer gameQueueSerializer) {
-        this.contextId = contextId;
-        this.gameQueueTable = gameQueueTable;
-        this.gameQueueSerializer = gameQueueSerializer;
-    }
+    private final StorageValueEditor storageValueEditor;
 
     public void createGameQueue(final Game game, final Consumer<GameQueue> gameQueueSavedCallback) throws UserError {
         GameQueue gameQueue = new GameQueue(GameQueue.UNREGISTERED_ID, game, 0, GameQueue.State.IDLE,
-                null, null, null, null, null, Arrays.asList());
+                null, null, null, null, null, null, Arrays.asList());
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         gameQueueEdit.save(contextId, gameQueue, gameQueueSavedCallback);
         gameQueueSerializer.commit(gameQueueEdit);
@@ -62,6 +58,15 @@ public class GameQueueEditor {
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);
         return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+    }
+
+    public GameQueueAction setGamerTagVariable(final int gameQueueId, final String gamerTagVariable) {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        gameQueue.setGamerTagVariable(gamerTagVariable);
+        gameQueueEdit.save(contextId, gameQueue);
+        gameQueueSerializer.commit(gameQueueEdit);
+        return GameQueueAction.gamerTagVariableChanged(gameQueue.getGamerTagVariable());
     }
 
     public GameQueueAction setProximityServer(final int gameQueueId, final String proximityServer) {
@@ -203,5 +208,20 @@ public class GameQueueEditor {
         GameQueueAction action = gameQueue.start(contextId, gameQueueEdit);
         gameQueueSerializer.commit(gameQueueEdit);
         return action;
+    }
+
+    public GameQueueAction setGamerTag(final int gameQueueId, final HomedUser user, final String gamerTag)
+            throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        storageValueEditor.setStorageValue(user.getId(), gameQueue.getGamerTagVariable(), gamerTag);
+        return GameQueueAction.gamerTagChanged(user, gamerTag);
+    }
+
+    public String getGamerTag(final HomedUser user, final String gamerTagVariable) {
+        try {
+            return storageValueEditor.getStorageValue(user, gamerTagVariable).getValue().toString();
+        } catch (UserError e) {
+            return null;
+        }
     }
 }

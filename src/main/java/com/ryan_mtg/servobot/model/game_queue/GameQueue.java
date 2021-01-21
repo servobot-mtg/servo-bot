@@ -38,6 +38,9 @@ public class GameQueue {
     private String server;
 
     @Getter @Setter
+    private String gamerTagVariable;
+
+    @Getter @Setter
     private String proximityServer;
 
     @Getter @Setter
@@ -62,8 +65,8 @@ public class GameQueue {
     }
 
     public GameQueue(final int id, final Game game, final int flags, final State state, final String code,
-             final String server, final String proximityServer, final Instant startTime, final Message message,
-             final List<GameQueueEntry> gameQueueEntries) throws UserError {
+             final String server, final String proximityServer, final String gamerTagVariable, final Instant startTime,
+             final Message message, final List<GameQueueEntry> gameQueueEntries) throws UserError {
         this.id = id;
         this.flags = flags;
         this.game = game;
@@ -71,6 +74,7 @@ public class GameQueue {
         this.code = code;
         this.server = server;
         this.proximityServer = proximityServer;
+        this.gamerTagVariable = gamerTagVariable;
         this.startTime = startTime;
         this.message = message;
 

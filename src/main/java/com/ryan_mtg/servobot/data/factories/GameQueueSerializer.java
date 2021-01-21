@@ -50,7 +50,8 @@ public class GameQueueSerializer {
                     Instant.ofEpochMilli(gameQueueRow.getStartTime());
             GameQueue gameQueue = SystemError.filter(() -> new GameQueue(gameQueueId, gameQueueRow.getGame(),
                     gameQueueRow.getFlags(), gameQueueRow.getState(), gameQueueRow.getCode(), gameQueueRow.getServer(),
-                    gameQueueRow.getProximityServer(), startTime, message, gameQueueEntries));
+                    gameQueueRow.getProximityServer(), gameQueueRow.getGamerTagVariable(), startTime, message,
+                    gameQueueEntries));
 
             gameQueueTable.add(gameQueue);
         }
@@ -100,6 +101,7 @@ public class GameQueueSerializer {
         gameQueueRow.setCode(gameQueue.getCode());
         gameQueueRow.setServer(gameQueue.getServer());
         gameQueueRow.setProximityServer(gameQueue.getProximityServer());
+        gameQueueRow.setGamerTagVariable(gameQueue.getGamerTagVariable());
         Message message = gameQueue.getMessage();
         gameQueueRow.setChannelId(message != null ? message.getChannelId() : 0);
         gameQueueRow.setMessageId(message != null ? message.getId() : 0);

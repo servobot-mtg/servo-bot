@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.events.MessageHomeEvent;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
+import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class GameQueueUtils {
     public static final String ROTATE_EMOTE = "🔄";
@@ -60,13 +62,13 @@ public class GameQueueUtils {
 
     public static void updateMessage(final MessageHomeEvent event, final GameQueue gameQueue, final Message message,
             final GameQueueAction action, final boolean verbose) throws BotHomeError {
-        String text = createMessage(gameQueue, event.getHomeEditor().getTimeZone());
+        String text = createMessage(event.getGameQueueEditor(), gameQueue, event.getHomeEditor().getTimeZone());
         message.updateText(text);
-        respondToAction(event, action, verbose);
+        respondToAction(event, gameQueue, action, verbose);
     }
 
-    public static void respondToAction(final MessageHomeEvent event, final GameQueueAction action,
-            final boolean verbose) throws BotHomeError {
+    public static void respondToAction(final MessageHomeEvent event, final GameQueue gameQueue,
+            final GameQueueAction action, final boolean verbose) throws BotHomeError {
         String response = "";
 
         if (action.isGameStarted() && verbose) {
@@ -110,18 +112,20 @@ public class GameQueueUtils {
         }
 
         if (!action.getRsvpExpiredPlayers().isEmpty()) {
-            response = combine(response, GameQueueUtils.getPlayersReservationExpiredMessage(action.getRsvpExpiredPlayers()));
+            response = combine(response,
+                    GameQueueUtils.getPlayersReservationExpiredMessage(action.getRsvpExpiredPlayers()));
         }
 
-        if ((action.getCode() != null || action.getServer() != null || action.getOnBeta() != null) && verbose) {
-            response = combine(response,
-                    GameQueueUtils.getCodeMessage(action.getCode(), action.getServer(), action.getOnBeta()));
+        if (!action.getGamerTagMap().isEmpty() && verbose) {
+            response = combine(response, GameQueueUtils.getGamerTagsChangedMessage(action.getGamerTagMap()));
         }
 
-        if (action.getProximityServer() != null && verbose) {
-            response = combine(response,
-                    GameQueueUtils.getProximityServerMessage(action.getProximityServer()));
+        if (action.getGamerTagVariable() != null && verbose) {
+            response =
+                    combine(response, GameQueueUtils.getGamerTagVariableChangedMessage(action.getGamerTagVariable()));
         }
+
+        response = combine(response, gameQueue.getGame().getGameBehavior().respondToAction(action, verbose));
 
         if (action.getStartTime() != null && verbose) {
             response = combine(response, GameQueueUtils.getStartTimeScheduledMessage(action.getStartTime(),
@@ -133,24 +137,28 @@ public class GameQueueUtils {
         }
     }
 
-    public static String createMessage(final GameQueue gameQueue, final String timeZone) {
+    public static String createMessage(final GameQueueEditor gameQueueEditor, final GameQueue gameQueue,
+            final String timeZone) {
         StringBuilder text = new StringBuilder();
-        text.append("Game Queue for ").append(gameQueue.getGame().getName());
+        Game game = gameQueue.getGame();
+        text.append("Game Queue for ").append(game.getName());
 
         if (gameQueue.getStartTime() != null) {
             ZonedDateTime time = ZonedDateTime.ofInstant(gameQueue.getStartTime(), ZoneId.of(timeZone));
             text.append(" scheduled to start at ⏰ ").append(Time.toReadableString(time));
         }
-
         text.append("\t\t\t");
-        appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
-        if (gameQueue.getProximityServer() != null) {
-            text.append(". The proximity voice server is `").append(gameQueue.getProximityServer()).append("`.");
-        }
-        text.append("\n\n");
+
+        game.getGameBehavior().appendMessageHeader(text, gameQueue);
 
         appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "Players", "No active game.", '#',
             (player, t) -> {
+                if (!Strings.isBlank(gameQueue.getGamerTagVariable())) {
+                    String gamerTag = gameQueueEditor.getGamerTag(player, gameQueue.getGamerTagVariable());
+                    if (!Strings.isBlank(gamerTag)) {
+                        t.append(" [").append(gamerTag).append(']');
+                    }
+                }
                 if (gameQueue.isLg(player)) {
                     t.append(" (LG " + LG_EMOTE + ")");
                 } else if (gameQueue.isPermanent(player)) {
@@ -191,10 +199,7 @@ public class GameQueueUtils {
                 });
         }
 
-        if (gameQueue.getCode() != null) {
-            appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
-            text.append("\n\n");
-        }
+        game.getGameBehavior().appendMessageFooter(text, gameQueue);
 
         text.append("React with:\n");
         text.append(DAGGER_EMOTE + ": To join the queue\t\t" + ON_CALL_EMOTE + ": To join queue only if needed\t\t"
@@ -202,10 +207,6 @@ public class GameQueueUtils {
         text.append(LG_EMOTE + ": When it's your LG\t\t" + READY_EMOTE + ": To join game when on deck\t\t"
                 + LEAVE_EMOTE + ": To leave the game and queue\n");
         return text.toString();
-    }
-
-    public static String getCodeMessage(final GameQueue gameQueue) {
-        return getCodeMessage(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
     }
 
     public static String getProximityServerMessage(final String proximityServer) {
@@ -219,39 +220,6 @@ public class GameQueueUtils {
     public static String getStartTimeScheduledMessage(final Instant startTime, final String timeZone) {
         ZonedDateTime time = ZonedDateTime.ofInstant(startTime, ZoneId.of(timeZone));
         return String.format("A game is scheduled to start at %s", Time.toReadableString(time));
-    }
-
-    public static String getCodeMessage(final String code, final String server, final Boolean isOnBeta) {
-        StringBuilder text = new StringBuilder();
-        if (code != null) {
-            text.append("The code is ");
-        } else if (server != null) {
-            text.append("The server is ");
-        }
-        appendCode(text, code, server, isOnBeta);
-        text.append('.');
-        return text.toString();
-    }
-
-    public static void appendCode(final StringBuilder text, final String code, final String server,
-            final Boolean isOnBeta) {
-        if (code != null) {
-            text.append("🔑 **").append(code.toUpperCase()).append("**");
-            if (server != null) {
-                text.append(" on 🖥️ ").append(server);
-            }
-        } else if (server != null) {
-            text.append("🖥️ ").append(server);
-        } else {
-            text.append("No code set");
-        }
-        if (isOnBeta != null) {
-            if (isOnBeta) {
-                text.append(". Use the **Beta**");
-            } else {
-                text.append(". Do **not** use the Beta");
-            }
-        }
     }
 
     public static String getPlayersQueuedMessage(final List<HomedUser> players) {
@@ -310,6 +278,24 @@ public class GameQueueUtils {
         return text.toString();
     }
 
+    private static String getGamerTagsChangedMessage(final Map<HomedUser, String> gamerTagMap) {
+        StringBuilder text = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<HomedUser, String> entry : gamerTagMap.entrySet()) {
+            if (!first) {
+                text.append(" ");
+            }
+            text.append(entry.getKey().getName()).append("'s gamer tag has been updated to ");
+            text.append(entry.getValue()).append(".");
+            first = false;
+        }
+        return text.toString();
+    }
+
+    private static String getGamerTagVariableChangedMessage(final String gamerTagVariable) {
+        return String.format("The new gamer tag variable is %s.", gamerTagVariable);
+    }
+
     private static String getPlayersMessage(final String action, final String message, final List<HomedUser> players) {
         StringBuilder text = new StringBuilder();
         if (action != null) {
@@ -366,7 +352,7 @@ public class GameQueueUtils {
         }
     }
 
-    private static String combine(final String a, final String b) {
+    public static String combine(final String a, final String b) {
         if (Strings.isBlank(a)) {
             return b;
         }

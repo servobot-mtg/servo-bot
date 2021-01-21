@@ -98,16 +98,16 @@ public class HomeEditor {
         this.bot = bot;
         this.botHome = botHome;
         this.serializers = bot.getSerializers();
+        this.storageValueEditor =new StorageValueEditor(botHome.getId(), botHome.getStorageTable(),
+                serializers.getStorageValueSerializer());
         this.gameQueueEditor = new GameQueueEditor(botHome.getId(), botHome.getGameQueueTable(),
-                serializers.getGameQueueSerializer());
+                serializers.getGameQueueSerializer(), storageValueEditor);
         this.commandTableEditor = new CommandTableEditor(botHome.getBookTable(), botHome.getCommandTable(),
                 serializers.getCommandSerializer(), serializers.getCommandTableSerializer(),
                 gameQueueEditor);
         this.roleTableEditor = new RoleTableEditor(botHome.getRoleTable(), serializers.getRoleTableSerializer());
         this.bookTableEditor =
                 new BookTableEditor(botHome.getId(), botHome.getBookTable(), serializers.getBookSerializer());
-        this.storageValueEditor =new StorageValueEditor(botHome.getId(), botHome.getStorageTable(),
-                serializers.getStorageValueSerializer());
     }
 
     public String getTimeZone() {

@@ -251,7 +251,7 @@ public class BotController {
         model.addAttribute("commandDescriptors",
                 CommandDescriptor.getCommandDescriptors(botHome.getCommandTable().getCommandMapping()));
         model.addAttribute("userTable", serializers.getUserTable());
-        model.addAttribute("gameTypes", Arrays.asList(Game.ARENA, Game.AMONG_US));
+        model.addAttribute("gameTypes", Arrays.asList(Game.ARENA, Game.AMONG_US, Game.BATTLEGROUNDS));
 
         ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
         if (serviceHome != null) {

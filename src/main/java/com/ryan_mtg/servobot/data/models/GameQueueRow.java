@@ -43,6 +43,10 @@ public class GameQueueRow {
     @Column(name = "proximity_server")
     private String proximityServer;
 
+    @Size(max = Validation.MAX_NAME_LENGTH)
+    @Column(name = "gamer_tag_variable")
+    private String gamerTagVariable;
+
     @Column(name = "message_id")
     private long messageId;
 
