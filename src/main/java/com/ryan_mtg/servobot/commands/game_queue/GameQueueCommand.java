@@ -146,14 +146,18 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 return (event, parsedCommand) -> setGamerTag(event, command, parseResult.getInput());
             case "variable":
                 return (event, parsedCommand) -> setGamerTagVariable(event, command, parseResult.getInput());
-            case "minPlayers":
+            case "minplayers":
             case "min":
                 return (event, parsedCommand) -> setMinimumPlayers(event, command, parseResult.getInput());
-            case "maxPlayers":
+            case "maxplayers":
             case "max":
                 return (event, parsedCommand) -> setMaximumPlayers(event, command, parseResult.getInput());
             case "help":
-                return (event, parsedCommand) -> help(event);
+            case "playerhelp":
+                return (event, parsedCommand) -> help(event, gameQueue.getGame());
+            case "modhelp":
+            case "mod":
+                return (event, parsedCommand) -> modHelp(event, gameQueue.getGame());
         }
 
         if (gameQueue.getGame() == Game.AMONG_US) {
@@ -290,8 +294,22 @@ public class GameQueueCommand extends InvokedHomedCommand {
     private void setGamerTag(final CommandInvokedHomeEvent event, final String command, final String input)
             throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
+
+        String gamerTagVariable = gameQueue.getGamerTagVariable();
+        if (Strings.isBlank(gamerTagVariable)) {
+            throw new UserError("This queue does not support gamer tags.");
+        }
+
         if (Strings.isBlank(input)) {
-            throw new UserError("%s command requires an argument.", command);
+            String gamerTag = gameQueueEditor.getGamerTag(event.getSender().getHomedUser(), gamerTagVariable);
+            if (!Strings.isBlank(gamerTag)) {
+                event.say(String.format("Your gamer tag is %s.", gamerTag));
+            } else {
+                event.say(String.format("You do not have a gamer tag set. Use `!%s %s UserName#1234` to set it.",
+                        event.getCommand(), command));
+            }
+            return;
         }
 
         GameQueueAction action = gameQueueEditor.setGamerTag(gameQueueId, event.getSender().getHomedUser(), input);
@@ -313,7 +331,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
             throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         if (Strings.isBlank(input)) {
-            throw new UserError("%s command requires an argument for the minimum number of players.", command);
+            event.say(String.format("The minimum number of players is %d." ,
+                    gameQueueEditor.getGameQueue(gameQueueId).getMinPlayers()));
+            return;
         }
 
         int minimum = getInteger(command, input);
@@ -325,7 +345,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
             throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         if (Strings.isBlank(input)) {
-            throw new UserError("%s command requires an argument for the maximum number of players.", command);
+            event.say(String.format("The maximum number of players is %d." ,
+                    gameQueueEditor.getGameQueue(gameQueueId).getMaxPlayers()));
+            return;
         }
 
         int maximum = getInteger(command, input);
@@ -561,28 +583,49 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showQueue(event);
     }
 
-    private void help(final CommandInvokedHomeEvent event) {
+    private void help(final CommandInvokedHomeEvent event, final Game game) {
         StringBuilder text = new StringBuilder();
-        text.append("Command syntax:\n  !").append(event.getCommand()).append(" *command*  [*args*]\n\n");
-        text.append("Where *command*  for players is one of: ```YAML\n");
+        text.append("Command syntax: `!").append(event.getCommand()).append(" command [args]`\n\n");
+        text.append("Where *command*  is one of: ```YAML\n");
         text.append("show: Displays the full details of the queue.\n");
-        text.append("code: server: version: Without any arguments, displays the code and server. With arguments, sets the server, code, and/or version.\n");
         text.append("join: enqueue: Adds you or the user(s) specified to the queue.\n");
         text.append("rsvp: Makes a reservation for you to play at the specified time. The time should be formatted similar to 2:30 PM PT\n");
+        text.append("tag: Stores your gamer tag so it makes it easier to add you to the game it is your turn to play.\n");
+        game.getGameBehavior().appendHelpMessage(text);
+        text.append("\n");
         text.append("help: Displays this message.\n");
+        text.append("modHelp: Displays a message with commands for moderators.\n");
         text.append("```\n");
-        text.append("For mods: ```YAML\n");
-        text.append("move: Moves you or the user specified to the given position in the queue.\n");
-        text.append("ready: Adds you or the user(s) specified to the game if they are on deck.\n");
-        text.append("unready: Returns you or the users(s) specified to the queue if they are on deck or in the game.\n");
-        text.append("cut: Moves you or the user(s) specified to the deck.\n");
-        text.append("remove: dequeue: Removes you from the game or queue. With arguments, removes the user(s) specified from the queue.\n");
-        text.append("last: LG: Marks you or the user(s) specified as being in their last game. all is a special user which LGs everyone playing.\n");
-        text.append("rotate: Moves you or the user(s) specified to the end of the queue. lg is a special user which rotates everyone marked LG.\n");
+        event.getChannel().say(text.toString());
+    }
+
+    private void modHelp(final CommandInvokedHomeEvent event, final Game game) {
+        StringBuilder text = new StringBuilder();
+        text.append("Command syntax: `!").append(event.getCommand()).append(" command [args]`\n\n");
+        text.append("Where *command*  is one of: ```YAML\n");
+        text.append("schedule: Sets up a game at the specified time and allows players to queue for it without starting a game.\n");
+        text.append("start: Signifies the beginning of a scheduled game and puts players on deck if the minimum count is met.\n");
         text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
+        text.append("min: minPlayers: Sets the minimum number of players needed to start a game.\n");
+        text.append("max: maxPlayers: Sets the maximum number of players that are allowed to be in a game.\n");
+        text.append("variable: Sets the name of the gamer tag variable. Setting this enables the queue to remember gamer tags.\n");
+        text.append("\n");
+        text.append("move: Moves the user specified to the given position in the queue.\n");
+        text.append("ready: Sets the user(s) specified as ready to play if they are on deck.\n");
+        text.append("unready: Returns the users(s) specified to the queue if they are on deck or in the game.\n");
+        text.append("cut: Moves the user(s) specified to on deck.\n");
+        text.append("remove: dequeue: Removes removes the user(s) specified from the queue.\n");
+        text.append("last: LG: Marks the user(s) specified as being in their last game. all is a special user which LGs everyone playing.\n");
+        text.append("rotate: Moves the user(s) specified to the end of the queue. lg is a special user which rotates everyone marked LG.\n");
+        text.append("streaming: permanent: Marks the user(s) specified as permanent so they are not rotated by rotate all.\n");
+        text.append("oncall: Adds a user to the queue marked as on-call, where they are only put into the game if the queue is otherwise empty.\n");
+        game.getGameBehavior().appendModHelpMessage(text);
+        text.append("\n");
+        text.append("help: Displays a message with commands for players.\n");
         text.append("```");
         event.getChannel().say(text.toString());
     }
+
 
     private HomedUser getUser(final ServiceHome serviceHome, final String name) throws UserError {
         return serviceHome.getUser(name.trim()).getHomedUser();

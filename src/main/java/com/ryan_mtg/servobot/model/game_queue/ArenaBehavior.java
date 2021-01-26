@@ -7,6 +7,12 @@ public class ArenaBehavior implements GameBehavior {
     }
 
     @Override
+    public void appendHelpMessage(final StringBuilder text) {}
+
+    @Override
+    public void appendModHelpMessage(final StringBuilder text) {}
+
+    @Override
     public void appendMessageHeader(final StringBuilder text, final GameQueue gameQueue) {}
 
     @Override

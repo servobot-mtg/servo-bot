@@ -22,6 +22,20 @@ public class AmongUsBehavior implements GameBehavior {
     }
 
     @Override
+    public void appendHelpMessage(final StringBuilder text) {
+        text.append("\n");
+        text.append("code: server: version: Displays the code and server.\n");
+        text.append("proximity: Displays the proximity server.\n");
+    }
+
+    @Override
+    public void appendModHelpMessage(final StringBuilder text) {
+        text.append("\n");
+        text.append("code: server: version: Sets the server, code, and/or version to the argument given.\n");
+        text.append("proximity: Sets the proximity voice server to the argument given.\n");
+    }
+
+    @Override
     public void appendMessageHeader(final StringBuilder text, final GameQueue gameQueue) {
         appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
         if (gameQueue.getProximityServer() != null) {
