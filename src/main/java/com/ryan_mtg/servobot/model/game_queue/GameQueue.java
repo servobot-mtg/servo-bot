@@ -98,6 +98,7 @@ public class GameQueue {
                 case ON_CALL:
                     waitQueue.add(gameQueueEntry);
                     break;
+                case READY:
                 case ON_DECK:
                     onDeck.add(gameQueueEntry);
                     break;
@@ -136,6 +137,10 @@ public class GameQueue {
 
     public boolean isPermanent(final HomedUser player) {
         return isStatus(player, PlayerState.PERMANENT);
+    }
+
+    public boolean isReady(final HomedUser player) {
+        return isStatus(player, PlayerState.READY);
     }
 
     private boolean isStatus(final HomedUser player, final PlayerState state) {
@@ -336,22 +341,18 @@ public class GameQueue {
         return gameQueueEdit;
     }
 
-    public GameQueueAction ready(final HomedUser player, final GameQueueEdit edit) throws UserError {
+    public GameQueueAction ready(final int botHomeId, final HomedUser player, final GameQueueEdit edit)
+            throws UserError {
         int playerId = player.getId();
         if (!userMap.containsKey(playerId) || userMap.get(playerId).getState() != PlayerState.ON_DECK) {
             throw new UserError("%s is not on deck.", player.getName());
         }
 
-        if (getPlayingCount() >= getMaxPlayers()) {
-            throw new UserError("Not enough room in the game for %s.", player.getName());
-        }
-
         GameQueueEntry entry = userMap.get(playerId);
-        entry.setState(PlayerState.PLAYING);
+        entry.setState(PlayerState.READY);
         edit.save(getId(), entry);
-        playing.add(entry);
-        onDeck.remove(entry);
         GameQueueAction action = GameQueueAction.playerReadied(player);
+        promotePlayersToOnDeck(botHomeId, edit, action);
         checkForRsvpExpirations(edit, action);
 
         return action;
@@ -359,7 +360,7 @@ public class GameQueue {
 
     public GameQueueAction unready(final HomedUser player, final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
-        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isReady()) {
+        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isOnDeck()) {
             throw new UserError("%s is neither playing nor on deck.", player.getName());
         }
 
@@ -585,7 +586,7 @@ public class GameQueue {
         return makeList(waitQueue);
     }
 
-    public List<HomedUser> getOnDeck() {
+    public List<HomedUser> getOnDeckPlayers() {
         return makeList(onDeck);
     }
 
@@ -642,8 +643,6 @@ public class GameQueue {
 
     private void promotePlayersToOnDeck(final int botHomeId, final GameQueueEdit gameQueueEdit,
             final GameQueueAction action) {
-        int playingCount = getPlayingCount();
-
         if (startTime != null) {
             if (Instant.now().compareTo(startTime) < 0) {
                 return;
@@ -653,10 +652,25 @@ public class GameQueue {
             }
         }
 
-        if (waitQueue.size() + onDeck.size() + playingCount >= getMinPlayers()) {
+        if (playing.size() < getMaxPlayers() && !onDeck.isEmpty()) {
+            Collections.sort(onDeck);
+
+            while (playing.size() < getMaxPlayers() && !onDeck.isEmpty()
+                    && onDeck.get(0).getState() == PlayerState.READY) {
+                GameQueueEntry joiningEntry = onDeck.remove(0);
+                joiningEntry.setState(PlayerState.PLAYING);
+                gameQueueEdit.save(getId(), joiningEntry);
+                action.merge(GameQueueAction.playerEnteredGame(joiningEntry.getUser()));
+                playing.add(joiningEntry);
+            }
+        }
+
+        long activelyPlayingCount = playing.stream().filter(entry -> entry.getState().isActivelyPlaying()).count();
+
+        if (waitQueue.size() + onDeck.size() + activelyPlayingCount >= getMinPlayers()) {
             Collections.sort(waitQueue);
 
-            while (!waitQueue.isEmpty() && playingCount + onDeck.size() < getMaxPlayers()) {
+            while (!waitQueue.isEmpty() && activelyPlayingCount + onDeck.size() < getMaxPlayers()) {
                 GameQueueEntry joiningEntry = waitQueue.remove(0);
                 joiningEntry.setState(PlayerState.ON_DECK);
                 gameQueueEdit.save(getId(), joiningEntry);
@@ -675,10 +689,6 @@ public class GameQueue {
                 action.merge(GameQueueAction.playerReservationExpired(entry.getUser()));
             }
         }
-    }
-
-    private int getPlayingCount() {
-        return (int) playing.stream().filter(entry -> entry.getState() != PlayerState.LG).count();
     }
 
     private List<HomedUser> makeList(final List<GameQueueEntry> gameQueueEntries) {

@@ -106,7 +106,7 @@ public class GameQueueEditor {
     public GameQueueAction readyUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.ready(player, edit);
+        GameQueueAction action = gameQueue.ready(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }

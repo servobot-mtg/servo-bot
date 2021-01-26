@@ -27,7 +27,7 @@ public class AmongUsBehavior implements GameBehavior {
         if (gameQueue.getProximityServer() != null) {
             text.append(". The proximity voice server is `").append(gameQueue.getProximityServer()).append("`.");
         }
-        text.append("\n\n");
+        text.append("\n");
     }
 
     @Override
@@ -54,7 +54,7 @@ public class AmongUsBehavior implements GameBehavior {
             if (isOnBeta) {
                 text.append(". Use the **Beta**");
             } else {
-                text.append(". Do **not** use the Beta");
+                //text.append(". Do **not** use the Beta");
             }
         }
     }

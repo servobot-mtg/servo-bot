@@ -115,6 +115,10 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getPlayersRsvpedMessage(action.getRsvpedPlayers()));
         }
 
+        if (!action.getEnteredGamePlayers().isEmpty()) {
+            response = combine(response, GameQueueUtils.getPlayersEnterGameMessage(action.getEnteredGamePlayers()));
+        }
+
         if (!action.getOnDeckedPlayers().isEmpty()) {
             response = combine(response, GameQueueUtils.getPlayersOnDeckedMessage(action.getOnDeckedPlayers()));
         }
@@ -149,17 +153,17 @@ public class GameQueueUtils {
             final String timeZone) {
         StringBuilder text = new StringBuilder();
         Game game = gameQueue.getGame();
-        text.append("Game Queue for ").append(game.getName());
+        text.append("**").append(game.getName()).append("** Game Queue\n");
 
         if (gameQueue.getStartTime() != null) {
             ZonedDateTime time = ZonedDateTime.ofInstant(gameQueue.getStartTime(), ZoneId.of(timeZone));
-            text.append(" scheduled to start at ⏰ ").append(Time.toReadableString(time));
+            text.append(" scheduled to start at ⏰ ").append(Time.toReadableString(time)).append("\n");
         }
-        text.append("\t\t\t");
 
         game.getGameBehavior().appendMessageHeader(text, gameQueue);
+        text.append("\n");
 
-        appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "Players", "No active game.", '#',
+        appendPlayerList(text, gameQueue.getGamePlayers(), "CSS", "In the Game", "No active game.", null,
             (player, t) -> {
                 if (!Strings.isBlank(gameQueue.getGamerTagVariable())) {
                     String gamerTag = gameQueueEditor.getGamerTag(player, gameQueue.getGamerTagVariable());
@@ -174,14 +178,27 @@ public class GameQueueUtils {
                 }
             });
 
-        List<HomedUser> onDeck = gameQueue.getOnDeck();
-        if (!onDeck.isEmpty()) {
-            appendPlayerList(text, onDeck, "Diff", "On Deck", null, '-', null);
+        List<HomedUser> onDeckPlayers = gameQueue.getOnDeckPlayers();
+        if (!onDeckPlayers.isEmpty()) {
+            appendPlayerList(text, onDeckPlayers, "Diff", "On Deck", null,
+                (player, t) -> {
+                    if (gameQueue.isReady(player)) {
+                        t.append("+ ");
+                    } else {
+                        t.append("- ");
+                    }
+            } , (player, t) -> {
+                    if (gameQueue.isReady(player)) {
+                        t.append(" (ready)");
+                    } else {
+                        t.append(" (not ready)");
+                    }
+            });
         }
 
         List<HomedUser> waitQueue = gameQueue.getWaitQueue();
-        if (!waitQueue.isEmpty() || onDeck.isEmpty()) {
-            appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.", '#',
+        if (!waitQueue.isEmpty() || onDeckPlayers.isEmpty()) {
+            appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.", null,
             (player, t) -> {
                 if (gameQueue.isOnCall(player)) {
                     t.append(" (if needed " + ON_CALL_EMOTE + ")");
@@ -192,7 +209,7 @@ public class GameQueueUtils {
         List<HomedUser> rsvpList = gameQueue.getRsvpList();
 
         if (!rsvpList.isEmpty()) {
-            appendPlayerList(text, gameQueue.getRsvpList(), "HTTP", "Reservations", null, '#',
+            appendPlayerList(text, gameQueue.getRsvpList(), "HTTP", "Reservations", null, null,
                 (player, t) -> {
                     try {
                         Instant rsvpTime = gameQueue.getRsvpTime(player);
@@ -212,7 +229,7 @@ public class GameQueueUtils {
         text.append("React with:\n");
         text.append(DAGGER_EMOTE + ": To join the queue\t\t" + ON_CALL_EMOTE + ": To join queue only if needed\t\t"
                         + ROTATE_EMOTE + ": To rotate (leave and rejoin queue)\n");
-        text.append(LG_EMOTE + ": When it's your LG\t\t" + READY_EMOTE + ": To join game when on deck\t\t"
+        text.append(LG_EMOTE + ": When it's your LG\t\t" + READY_EMOTE + ": To signal ready when on deck\t\t"
                 + LEAVE_EMOTE + ": To leave the game and queue\n");
         return text.toString();
     }
@@ -282,6 +299,18 @@ public class GameQueueUtils {
         return text.toString();
     }
 
+    public static String getPlayersEnterGameMessage(final List<HomedUser> players) {
+        StringBuilder text = new StringBuilder();
+        appendPlayerList(text, players, false);
+        if (players.size() > 1) {
+            text.append(" have");
+        } else {
+            text.append(" has");
+        }
+        text.append(" entered the game.");
+        return text.toString();
+    }
+
     public static String getPlayersReservationExpiredMessage(final List<HomedUser> players) {
         StringBuilder text = new StringBuilder();
         appendPlayerList(text, players, true);
@@ -345,22 +374,22 @@ public class GameQueueUtils {
     }
 
     private static void appendPlayerList(final StringBuilder text, final List<HomedUser> players, final String syntax,
-            final String title, final String emptyMessage, final char playerPrefix,
-            final AdditionalPlayerInfo additionalInfo) {
+            final String title, final String emptyMessage, final AdditionalPlayerInfo prefixInfo,
+            final AdditionalPlayerInfo postfixInfo) {
         if (players.isEmpty()) {
             text.append(emptyMessage).append("\n\n");
         } else {
             text.append(title).append(" ```").append(syntax).append('\n');
             int count = 1;
             for (HomedUser player : players) {
-                if (playerPrefix == '#') {
+                if (prefixInfo != null) {
+                    prefixInfo.appendInfo(player, text);
+                } else {
                     text.append(count++).append(") ");
-                } else if (playerPrefix == '-') {
-                    text.append("- ");
                 }
                 text.append(player.getName());
-                if (additionalInfo != null) {
-                    additionalInfo.appendInfo(player, text);
+                if (postfixInfo != null) {
+                    postfixInfo.appendInfo(player, text);
                 }
                 text.append('\n');
             }

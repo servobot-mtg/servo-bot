@@ -55,6 +55,9 @@ public class GameQueueAction {
     private List<HomedUser> dequeuedPlayers = new ArrayList<>();
 
     @Getter @Builder.Default
+    private List<HomedUser> enteredGamePlayers = new ArrayList<>();
+
+    @Getter @Builder.Default
     private List<HomedUser> onDeckedPlayers = new ArrayList<>();
 
     @Getter @Builder.Default
@@ -128,6 +131,7 @@ public class GameQueueAction {
         queuedPlayers = merge(queuedPlayers, action.queuedPlayers);
         dequeuedPlayers = merge(dequeuedPlayers, action.dequeuedPlayers);
         onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
+        enteredGamePlayers = merge(enteredGamePlayers, action.enteredGamePlayers);
         readiedPlayers = merge(readiedPlayers, action.readiedPlayers);
         unreadiedPlayers = merge(unreadiedPlayers, action.unreadiedPlayers);
         lgedPlayers = merge(lgedPlayers, action.lgedPlayers);
@@ -184,6 +188,10 @@ public class GameQueueAction {
 
     public static GameQueueAction playerUnreadied(final HomedUser player) {
         return GameQueueAction.builder().unreadiedPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playerEnteredGame(final HomedUser player) {
+        return GameQueueAction.builder().enteredGamePlayers(Collections.singletonList(player)).build();
     }
 
     public static GameQueueAction playerOnDecked(final HomedUser player) {

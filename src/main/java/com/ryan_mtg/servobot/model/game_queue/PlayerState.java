@@ -5,6 +5,7 @@ public enum PlayerState {
     RSVP_EXPIRED,
     WAITING,
     ON_CALL,
+    READY,
     ON_DECK,
     PERMANENT,
     PLAYING,
@@ -14,8 +15,12 @@ public enum PlayerState {
         return this == LG || this == PERMANENT || this == PLAYING;
     }
 
-    public boolean isReady() {
-        return isPlaying() || this == ON_DECK;
+    public boolean isActivelyPlaying() {
+        return this == PERMANENT || this == PLAYING;
+    }
+
+    public boolean isOnDeck() {
+        return this == READY || this == ON_DECK;
     }
 
     public boolean isWaiting() {
