@@ -8,10 +8,13 @@
 build/
 out/
 
+# secret directory
+secret/
+
 # Compiled class file
 *.class
 
-# Application properties contains sensitive data
+# Application properties files contain sensitive data
 application*.properties
 
 # Log file
