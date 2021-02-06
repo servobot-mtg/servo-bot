@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.commands.magic;
 
 import com.ryan_mtg.servobot.scryfall.json.Card;
+import com.ryan_mtg.servobot.utility.Strings;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -190,8 +191,11 @@ public class CardUtil {
     }
 
     private static String getManaCost(final Card card) {
-        String manaCost = card.getManaCost().replaceAll("[{}]", "");
-        if (manaCost.isEmpty()) {
+        String manaCost = card.getManaCost();
+        if (manaCost != null) {
+            manaCost = manaCost.replaceAll("[{}]", "");
+        }
+        if (Strings.isBlank(manaCost)) {
             return manaCost;
         }
         return String.format("(%s)", manaCost);
