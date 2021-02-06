@@ -18,7 +18,6 @@ import com.ryan_mtg.servobot.twitch.twitchemotes.TwitchEmotesClient;
 import com.ryan_mtg.servobot.twitch.twitchemotes.json.TwitchEmotes;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Assertion;
-import com.ryan_mtg.servobot.utility.Validation;
 import feign.FeignException;
 import lombok.Getter;
 import lombok.Setter;
