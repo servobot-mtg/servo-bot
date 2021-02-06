@@ -46,7 +46,7 @@ public class RaffleSettings {
 
     public RaffleSettings() {
         startRaffle = new GiveawayCommandSettings("giveaway", DEFAULT_COMMAND_FLAGS, Permission.STREAMER,
-    "A raffle has started! It will last %raffle.timeLeft%. To enter type !%raffle.enterCommandName%");
+    "A raffle has started! It will last %raffle.timeLeft%. To enter type !%raffle.enterRaffleCommandName%");
         enterRaffle = new GiveawayCommandSettings("enter", DEFAULT_COMMAND_FLAGS, Permission.ANYONE,
     "%sender% has been entered.");
         raffleStatus = new GiveawayCommandSettings("status", DEFAULT_COMMAND_FLAGS, Permission.ANYONE,
