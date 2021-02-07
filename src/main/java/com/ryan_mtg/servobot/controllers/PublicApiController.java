@@ -13,6 +13,7 @@ import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
 import com.ryan_mtg.servobot.utility.Strings;
+import com.ryan_mtg.servobot.utility.jokes.JokesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ public class PublicApiController {
 
     private final BotRegistrar botRegistrar;
     private final SusResponder susResponder;
+    private final JokesClient jokesClient = JokesClient.newClient();
 
     public PublicApiController(final BotRegistrar botRegistrar, final SusResponder susResponder) {
         this.botRegistrar = botRegistrar;
@@ -43,6 +45,12 @@ public class PublicApiController {
     public String sus(@RequestParam final String name, @RequestParam(required = false) final String sender) {
         return susResponder.respond(name, sender);
     }
+
+    @GetMapping("/joke")
+    public String joke() {
+        return jokesClient.getJoke();
+    }
+
 
     @GetMapping("/evaluate")
     public String evaluateExpression(@RequestParam final String expression,

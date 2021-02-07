@@ -10,6 +10,7 @@ import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
 import com.ryan_mtg.servobot.utility.Strings;
+import com.ryan_mtg.servobot.utility.jokes.JokesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,6 +29,7 @@ public class BotConfig {
     private final BotFactory botFactory;
     private final MfoInformer mfoInformer;
     private final MtgMeleeInformer meleeInformer;
+    private final JokesClient jokesClient;
 
     public BotConfig(final BotRepository botRepository, final BotFactory botFactory, final MfoInformer mfoInformer,
             final MtgMeleeInformer meleeInformer) {
@@ -35,6 +37,7 @@ public class BotConfig {
         this.botFactory = botFactory;
         this.mfoInformer = mfoInformer;
         this.meleeInformer = meleeInformer;
+        this.jokesClient = JokesClient.newClient();
     }
 
     @Bean
@@ -44,6 +47,7 @@ public class BotConfig {
         symbolTable.addValue("randomStatement", randomStatement);
         Function<Integer, Integer> random = this::random;
         symbolTable.addValue("random", random);
+        symbolTable.addFunctor("joke", this::joke);
 
         symbolTable.addFunctor("cfbTournaments", mfoInformer::describeCurrentTournaments);
         symbolTable.addFunctor("cfbDecklists", mfoInformer::getCurrentDecklists);
@@ -95,5 +99,9 @@ public class BotConfig {
 
     private int random(final int bound) {
         return new Random().nextInt(bound);
+    }
+
+    private String joke() {
+        return jokesClient.getJoke();
     }
 }
