@@ -41,12 +41,11 @@ For the most part follow the steps in this [guide](https://www.guru99.com/creati
 
 1. For the AMI, select `Amazon Linux 2 AMI`
 1. The instance type can be a micro, such as t2.micro for the free tier.
-  The MoosersBot instance is using t3.micro because at the time of reserving it was a tad cheaper.
+  The MoosersBot instance is using t3a.micro because at the time of reserving it was a tad cheaper.
 1. Instance details should be as follows
     * Number of Instances: 1
     * Request Spot Instances: Check (This can be no, but spot instances tend to be cheaper though may get taken down
     during high load times.)
-    * Maximum Price: About twice what the current price is.
     * Credit specification, unlimited: Uncheck (I'm not sure if this will come up, but unchecking to make sure an
     errant server won't spend all my money)
 1. Add a tag with the key `Name` and value to reflect the name of the instance.
@@ -57,25 +56,46 @@ For the most part follow the steps in this [guide](https://www.guru99.com/creati
     * There needs to be a port for serving the web pages to everyone.
     The server is currently configured to serve on port 5000. 
 1. Launching the instance will create a Key needed to access it.
-   Download the private key (.pem file) and keep it in a secure location.
-        
+   Download the private key (.pem file) and copy it into the `secret` directory.
+
+### 🚧 *TODO: Configure the database * 🚧
+
+1. A MySQL database needs to be set up with the schema in deploy\create_database.sql and initialized with
+    the secret keys from the Twitch and Discord client applications. Currently, it is set up as an RDS database.
+1. In the RDS security group, add an inbound rule with a MySQL/Aurora rule from the source security group created
+    for the EC2 instance.
+
 ### Configure the instance
     
 To connect to the instance, follow the instructions in this [guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html)
 
-1. Update dependencies
+1. Update dependencies: `sudo yum update`
+1. Install java: `sudo yum install java-1.8.0-openjdk`
+1. Create directories
     ```sh
-    sudo yum update
+        sudo mkdir /var/servo-bot
     ```
-2. Install java
-    `sudo yum install java-1.8.0-openjdk`
-3. Enable the ServoBot service 🚧 *Still working on this step* 🚧
-    1. Upload the service file and jar
-    1. Make the appropriate directories
+1. Enable the ServoBot service 🚧 *Still working on this step* 🚧
+    1. Upload the service file and jar to the instance's home directory
+        ```sh
+            scp -i secret\<pem-filename> src\deploy\servobot.service ec2-user@<instance-hostname>:~
+            scp -i secret\MoosersBotEC2.pem build\libs\servo-bot-1.0-SNAPSHOT.jar ec2-user@<instance-hostname>:~
+        ```
     1. Copy the service file to the right location
-    1. Figure out logging
+        ```sh
+            sudo cp ~/servobot.service /etc/systemd/system
+            sudo cp ~/servo-bot-1.0-SNAPSHOT.jar /bin
+        ```
     1. start the service
+        ```sh
+            sudo systemctl enable servobot
+            sudo systemctl start servobot
+        ```
 
+🚧 *TODO: Figure out logging * 🚧
+🚧 *TODO: Figure out HTTPS * 🚧
+🚧 *TODO: Document setting up DNS entry * 🚧
+    
 ### Deploy a new version
 
  🚧 *TODO: update this step* 🚧
