@@ -48,7 +48,7 @@ public class PublicApiController {
 
     @GetMapping("/joke")
     public String joke() {
-        return jokesClient.getJoke();
+        return jokesClient.getJoke().replace('\n', ' ');
     }
 
 
@@ -67,7 +67,7 @@ public class PublicApiController {
         }
 
         try {
-            Parser parser = new Parser(scope, homeEditor.getStorageValueEditor());
+            Parser parser = new Parser(scope, homeEditor != null ? homeEditor.getStorageValueEditor() : null);
             return parser.parse(expression).evaluate();
         } catch (ParseException e) {
             throw new UserError(e, "Failed to parse %s: %s", expression, e.getMessage());
@@ -121,7 +121,7 @@ public class PublicApiController {
                 } else {
                     String decklist = informer.getCurrentDecklist(name, fallback != null);
                     if (decklist == null) {
-                        if (fallback.startsWith("cbl-")) {
+                        if (fallback != null && fallback.startsWith("cbl-")) {
                             return String.format("https://app.cardboard.live/s/%s", fallback.substring(4));
                         } else {
                             return "";
