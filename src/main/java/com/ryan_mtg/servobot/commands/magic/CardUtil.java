@@ -1,8 +1,11 @@
 package com.ryan_mtg.servobot.commands.magic;
 
 import com.ryan_mtg.servobot.scryfall.json.Card;
+import com.ryan_mtg.servobot.scryfall.json.CardFace;
 import com.ryan_mtg.servobot.utility.Strings;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -179,15 +182,34 @@ public class CardUtil {
     }
 
 
-    public static String getCardImageUri(final Card card) {
+    public static List<String> getCardFaceUris(final Card card) {
         if (card.getImageUris() != null) {
-            return card.getImageUris().getNormal();
+            return Collections.singletonList(card.getImageUris().getNormal());
         }
-        return card.getCardFaces().get(0).getImageUris().getNormal();
+        List<String> faceUris = new ArrayList<>();
+        for (CardFace cardFace : card.getCardFaces())  {
+            faceUris.add(cardFace.getImageUris().getNormal());
+        }
+        return faceUris;
+    }
+
+    public static List<String> getCardFaceNames(final Card card) {
+        if (card.getCardFaces() != null) {
+            List<String> faceNames = new ArrayList<>();
+            for (CardFace cardFace : card.getCardFaces())  {
+                faceNames.add(cardFace.getName());
+            }
+            return faceNames;
+        }
+        return Collections.singletonList(card.getName());
     }
 
     public static String getCardFileName(final Card card) {
-        return String.format("%s.png", card.getName().toLowerCase().replaceAll("\\W", "_"));
+        return getFileName(card.getName());
+    }
+
+    public static String getFileName(final String name) {
+        return String.format("%s.png", name.toLowerCase().replaceAll("\\W", "_"));
     }
 
     private static String getManaCost(final Card card) {

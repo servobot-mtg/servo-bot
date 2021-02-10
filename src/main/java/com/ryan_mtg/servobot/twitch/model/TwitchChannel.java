@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.utility.Strings;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -42,6 +43,11 @@ public class TwitchChannel implements Channel {
 
     @Override
     public void sendImage(final String url, final String fileName, final String description) {
+        throw new UnsupportedOperationException("Twitch doesn't support sending images");
+    }
+
+    @Override
+    public void sendImages(final List<String> urls, final String fileName, final List<String> descriptions) {
         throw new UnsupportedOperationException("Twitch doesn't support sending images");
     }
 

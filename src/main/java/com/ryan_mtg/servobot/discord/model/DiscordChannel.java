@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,23 @@ public class DiscordChannel implements Channel {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setImage("attachment://" + fileName).setDescription(description);
             channel.sendFile(file, fileName).embed(embed.build()).queue();
+        } catch (IOException e) {
+            throw new UserError(e, "Unable to download %s", fileName);
+        }
+    }
+
+    @Override
+    public void sendImages(final List<String> urls, final String fileName, final List<String> descriptions)
+            throws UserError {
+        try {
+            for (int i = 0; i < urls.size(); i++) {
+                String url = urls.get(i);
+                String description = descriptions.get(i);
+                InputStream file = new URL(url).openStream();
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setImage("attachment://" + fileName).setDescription(description);
+                channel.sendFile(file, fileName).embed(embed.build()).queue();
+            }
         } catch (IOException e) {
             throw new UserError(e, "Unable to download %s", fileName);
         }

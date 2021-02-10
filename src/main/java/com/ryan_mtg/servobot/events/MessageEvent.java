@@ -8,6 +8,8 @@ import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.scope.SymbolTable;
 
+import java.util.List;
+
 public interface MessageEvent extends UserEvent {
     Channel getChannel();
     User getSender();
@@ -23,6 +25,11 @@ public interface MessageEvent extends UserEvent {
 
     default void sendImage(final String url, final String fileName, final String description) throws UserError {
         sendImage(getChannel(), url, fileName, description);
+    }
+
+    default void sendImages(final List<String> urls, final String fileName, final List<String> descriptions)
+            throws UserError {
+        sendImages(getChannel(), urls, fileName, descriptions);
     }
 
     default void say(final SymbolTable symbolTable, final String text) throws BotHomeError {

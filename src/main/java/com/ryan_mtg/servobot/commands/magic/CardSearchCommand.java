@@ -13,6 +13,8 @@ import com.ryan_mtg.servobot.scryfall.ScryfallQuerier;
 import com.ryan_mtg.servobot.scryfall.ScryfallQueryException;
 import com.ryan_mtg.servobot.utility.Strings;
 
+import java.util.List;
+
 public class CardSearchCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.CARD_SEARCH_COMMAND_TYPE;
 
@@ -44,8 +46,9 @@ public class CardSearchCommand extends InvokedCommand {
             Card card = scryfallQuerier.searchForCardByName(cardQuery);
             if (event.getServiceType() == DiscordService.TYPE) {
                 String fileName = CardUtil.getCardFileName(card);
-                String imageUri = CardUtil.getCardImageUri(card);
-                event.sendImage(imageUri, fileName, card.getName());
+                List<String> faceUris = CardUtil.getCardFaceUris(card);
+                List<String> cardFaceNames = CardUtil.getCardFaceNames(card);
+                event.sendImages(faceUris, fileName, cardFaceNames);
             } else {
                 String response = CardUtil.respondToCardSearch(card, false);
                 event.say(response);

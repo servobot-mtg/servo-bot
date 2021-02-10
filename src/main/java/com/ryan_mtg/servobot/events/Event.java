@@ -9,6 +9,7 @@ import com.ryan_mtg.servobot.model.parser.ParseException;
 import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +32,11 @@ public interface Event {
     default void sendImage(final Channel channel, final String url, final String fileName, final String description)
             throws UserError {
         channel.sendImage(url, fileName, description);
+    }
+
+    default void sendImages(final Channel channel, final List<String> urls, final String fileName,
+            final List<String> descriptions) throws UserError {
+        channel.sendImages(urls, fileName, descriptions);
     }
 
     default String evaluate(final Scope scope, final String text, final int recursionLevel) throws BotHomeError {

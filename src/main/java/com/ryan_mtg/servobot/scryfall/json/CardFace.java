@@ -7,4 +7,6 @@ import lombok.Data;
 public class CardFace {
     @JsonProperty("image_uris")
     private ImageUris imageUris;
+
+    private String name;
 }

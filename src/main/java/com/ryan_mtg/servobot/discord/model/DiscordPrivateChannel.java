@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.user.User;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
+import java.util.List;
+
 public class DiscordPrivateChannel implements Channel {
     private final DiscordService discordService;
     private final MessageChannel channel;
@@ -33,6 +35,11 @@ public class DiscordPrivateChannel implements Channel {
 
     @Override
     public void sendImage(final String url, final String fileName, final String description) {
+        throw new UnsupportedOperationException("Sending images on private channels not supported yet");
+    }
+
+    @Override
+    public void sendImages(final List<String> urls, final String fileName, final List<String> descriptions) {
         throw new UnsupportedOperationException("Sending images on private channels not supported yet");
     }
 }
