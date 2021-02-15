@@ -109,6 +109,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and().logout().logoutSuccessUrl("/").permitAll()
             .and().oauth2Login().userInfoEndpoint()
                 .userService(new TwitchUserService(twitchService, discordService, userTable));
+        //http.requiresChannel().anyRequest().requiresSecure();
     }
 
     @ModelAttribute
