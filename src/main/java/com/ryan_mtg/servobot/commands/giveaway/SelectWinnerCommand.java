@@ -18,10 +18,12 @@ import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class SelectWinnerCommand extends HomeCommand {
     public static final CommandType TYPE = CommandType.SELECT_WINNER_COMMAND_TYPE;
 
@@ -62,7 +64,7 @@ public class SelectWinnerCommand extends HomeCommand {
             message = response;
         }
 
-        if (Flags.hasFlag(getFlags(), DISCORD_FLAG) && discordChannel != null && !discordChannel.isEmpty()) {
+        if (!Strings.isBlank(discordChannel)) {
             homeEvent.say(homeEvent.getServiceHome(DiscordService.TYPE).getChannel(discordChannel), scope, message);
         }
 
