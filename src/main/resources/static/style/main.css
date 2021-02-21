@@ -111,7 +111,6 @@ input[type=number] {
 
 .save-button {
     float: left;
-    border-right: 1px solid black;
     padding: 3px;
 }
 
@@ -428,19 +427,16 @@ table#player-table {
 
 .title-section {
     display: inline-block;
-    margin-left: 10px;
 }
 
 .section {
     clear: left;
-    display: inline-block;
 }
 
 .section-content {
     display: inline-block;
     position: relative;
     border: black solid 1px;
-    padding: 7px;
     margin-bottom: 10px;
 }
 
@@ -651,7 +647,12 @@ input[type=text].emote {
 .form-block {
     display: inline-block;
     margin-bottom: 7px;
-    margin-right: 3em;
+    margin-right: 2em;
+}
+
+.form-container {
+    display: inline-block;
+    margin: .5em;
 }
 
 .small-vertical-bottom-padding {

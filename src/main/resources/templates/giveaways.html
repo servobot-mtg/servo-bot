@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Giveaways</title>
-    <div th:replace="fragments :: includes" />
+    <div th:replace="fragments :: includes"></div>
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
             type="text/javascript" src="/script/privileged.js"></script>
     <script type="text/javascript" src="/script/giveaway.js"></script>
@@ -10,7 +10,7 @@
 <body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
       streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
       exalted=${user.admin || streamer}">
-<div th:include="fragments :: header" />
+<div th:include="fragments :: header"></div>
 <div class="content">
     <div th:if="${privileged}">
         <h2>Giveaways</h2>
@@ -19,13 +19,14 @@
                     ACTIVE=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).ACTIVE},
                     COMPLETE=${T(com.ryan_mtg.servobot.model.giveaway.Giveaway.State).COMPLETE}">
             <div class="giveaway">
-                <div>
-                    <div class="title-section">
-                        <h2 th:text="${giveaway.name}"/>
-                    </div>
-                    <div class="home-controls">
+                <div class="title-section">
+                    <h2 th:text="${giveaway.name}"></h2>
+                </div>
+                <div class="form-container">
+                    <div class="home-controls hidden">
                         <span th:id="${label} + '-state'" class="home-status" th:text=
-                            "${giveaway.state == ACTIVE ? 'Active' : giveaway.state == CONF ? 'Idle' : 'Complete'}"/>
+                            "${giveaway.state == ACTIVE ? 'Active' : giveaway.state == CONF ? 'Idle' : 'Complete'}">
+                        </span>
 
                         <span th:id="${label} + '-start-button'" class="pseudo-link home-control" title="Start giveaway"
                               th:style="'display: ' + ${giveaway.state == CONF ? 'inline-block' : 'none'}"
@@ -72,70 +73,68 @@
                         </div>
                     </div>
                 </div><br th:if="${giveaway.selfService}">
+
                 <div th:if="${giveaway.rafflesEnabled}" class="section">
                     <h3>Raffle Settings</h3>
                     <div id="raffle" class="section-content">
-                        <div class="form-block hidden">
-                            <label>Options</label><br>
-                            <input type="checkbox" th:checked="${false}">Automatic redemption<br>
-                        </div>
-                        <div class="form-block">
-                            <label>End</label><br>
-                            <input th:id="${label} + '-raffle-end-input'" type="radio"
-                                   th:name="${label} + '-raffle-end'" value="TIMED"
-                                   th:checked="${giveaway.raffleSettings.timed}">Timed<br>
-                            <input type="radio" th:name="${label} + '-raffle-end'" value="MANUAL"
-                                   th:checked="${!giveaway.raffleSettings.timed}">Manual<br>
-                        </div>
-                        <div class="form-block">
-                            <label>Duration (min)</label><br>
-                            <input type="number" th:id="${label} + '-raffle-duration'"
-                                   th:value="${giveaway.raffleSettings.duration.toMinutes()}"><br>
-                        </div>
-                        <div class="form-block">
-                            <label># of Winners</label><br>
-                            <input type="number" th:id="${label} + '-raffle-winner-count'"
-                                   th:value="${giveaway.raffleSettings.winnerCount}"><br>
-                        </div>
-                        <div class="form-block" th:if="${!channels.empty}">
-                            <label>Discord Channel</label><br>
-                            <select th:id="${label} + '-discord-channel'">
-                                <th:block th:each="channel : ${channels}">
-                                    <option th:value="${channel}" th:text="${channel}"
-                                            th:selected="${channel == giveaway.raffleSettings.discordChannel}"/>
-                                </th:block>
-                            </select>
+                        <div class="form-container">
+                            <div class="form-block hidden">
+                                <label>Options</label><br>
+                                <input type="checkbox" th:checked="${false}">Automatic redemption<br>
+                            </div>
+                            <div class="form-block">
+                                <label>End</label><br>
+                                <input th:id="${label} + '-raffle-end-input'" type="radio"
+                                       th:name="${label} + '-raffle-end'" value="TIMED"
+                                       th:checked="${giveaway.raffleSettings.timed}">Timed<br>
+                                <input type="radio" th:name="${label} + '-raffle-end'" value="MANUAL"
+                                       th:checked="${!giveaway.raffleSettings.timed}">Manual<br>
+                            </div>
+                            <div class="form-block">
+                                <label>Duration (min)</label><br>
+                                <input type="number" th:id="${label} + '-raffle-duration'"
+                                       th:value="${giveaway.raffleSettings.duration.toMinutes()}"><br>
+                            </div>
+                            <div class="form-block">
+                                <label># of Winners</label><br>
+                                <input type="number" th:id="${label} + '-raffle-winner-count'"
+                                       th:value="${giveaway.raffleSettings.winnerCount}"><br>
+                            </div>
+                            <div class="form-block" th:if="${!channels.empty}">
+                                <label>Discord Channel</label><br>
+                                <select th:id="${label} + '-discord-channel'">
+                                    <th:block th:each="channel : ${channels}">
+                                        <option th:value="${channel}" th:text="${channel}"
+                                                th:selected="${channel == giveaway.raffleSettings.discordChannel}">
+                                        </option>
+                                    </th:block>
+                                </select>
+                            </div>
                         </div><br>
 
-                        <div th:replace="fragments :: command_settings (description = 'Start Raffle Command',
-                            label = ${label + '-start-raffle'}, settingsId = ${1},
-                            commandSettings = ${giveaway.raffleSettings.startRaffle})" />
+                        <div class="form-container">
+                            <div th:replace="fragments :: command_settings (description = 'Start Raffle Command',
+                                label = ${label + '-start-raffle'}, settingsId = ${1},
+                                commandSettings = ${giveaway.raffleSettings.startRaffle})"></div>
 
-                        <div th:replace="fragments :: command_settings (description = 'Enter Raffle Command',
-                            label = ${label + '-enter-raffle'}, settingsId = ${2},
-                            commandSettings = ${giveaway.raffleSettings.enterRaffle})" />
+                            <div th:replace="fragments :: command_settings (description = 'Enter Raffle Command',
+                                label = ${label + '-enter-raffle'}, settingsId = ${2},
+                                commandSettings = ${giveaway.raffleSettings.enterRaffle})"></div><br>
 
-                        <div th:replace="fragments :: command_settings (description = 'Raffle Status Command',
-                            label = ${label + '-raffle-status'}, settingsId = ${3},
-                            commandSettings = ${giveaway.raffleSettings.raffleStatus})" />
+                            <div th:replace="fragments :: command_settings (description = 'Raffle Status Command',
+                                label = ${label + '-raffle-status'}, settingsId = ${3},
+                                commandSettings = ${giveaway.raffleSettings.raffleStatus})"></div>
 
-                        <div th:replace="fragments :: command_settings (description = 'Select Winner Command',
-                            label = ${label + '-select-winner'}, settingsId = ${4},
-                            commandSettings = ${giveaway.raffleSettings.selectWinner})" />
+                            <div th:replace="fragments :: command_settings (description = 'Select Winner Command',
+                                label = ${label + '-select-winner'}, settingsId = ${4},
+                                commandSettings = ${giveaway.raffleSettings.selectWinner})"></div><br>
+                        </div>
                         <br>
-                        <div class="form-block hidden">
-                            <label>Select Raffle Winner Command Name</label><br>
-                            <input type="text" id="select-raffle-winner-command"><br>
-                        </div><br>
                         <div class="button-area">
                             <div class="pseudo-link save-button"
                                  th:onclick="'saveRaffleSettings(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
                                 <div>&#x1F4BE;</div>
                                 <span th:id="${label} + '-raffle-save-response'"/>
-                            </div>
-                            <div class="pseudo-link delete-button"
-                                 th:onclick="'deleteGiveaway(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
-                                <div>X</div>
                             </div>
                         </div>
                     </div>
@@ -154,8 +153,15 @@
                     </tr></thead>
                     <th:block th:each="prize : ${giveaway.prizes}">
                         <tr th:with="prizeLabel=${'prize-' + prize.id}" th:id="${prizeLabel} + '-row'">
-                            <td th:if="${exalted}" th:text="${prize.reward}"/>
-                            <td th:if="${!exalted}">&#x1F947;</td>
+                            <td>
+                                <span th:if="${!exalted}">&#x1F947;</span>
+
+                                <span th:if="${exalted}" th:id="${prizeLabel + '-reward-icon'}" class="pseudo-link"
+                                      th:onclick="'showReward(' + ${prize.id} + ')'">&#x1F947;</span>
+                                <span th:if="${exalted}" th:id="${prizeLabel + '-reward'}" th:text="${prize.reward}"
+                                      class="hidden">
+                                </span>
+                            </td>
 
                             <td th:id="${prizeLabel + '-status'}" th:text="${prize.status}" class="prize-status"
                                 th:classappend="'prize-' + ${prize.status.toString().toLowerCase()}"/>
@@ -236,10 +242,9 @@
                     </form>
                 </div>
 
-                <div th:if="${giveaway.rafflesEnabled}">
+                <div th:if="${giveaway.rafflesEnabled && !giveaway.raffles.empty}">
                     <h3>Raffle</h3>
-                    <table th:if="${!giveaway.raffles.empty}" th:id="${label} + '-raffle-table'"
-                           class="data-table raffle-table">
+                    <table th:id="${label} + '-raffle-table'" class="data-table raffle-table">
                         <thead><tr>
                             <th>Status</th>
                             <th>Entrants</th>

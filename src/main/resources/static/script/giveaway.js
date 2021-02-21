@@ -204,6 +204,11 @@ function addPrizeRow(botHomeId, giveawayId, prize) {
     };
 }
 
+function showReward(prizeId) {
+    hideElementById('prize-' + prizeId + '-reward-icon');
+    showElementById('prize-' + prizeId + '-reward');
+}
+
 function deletePrize(botHomeId, giveawayId, prizeId) {
     const label = 'prize-' + prizeId;
     let performDelete = true;
@@ -217,20 +222,24 @@ function deletePrize(botHomeId, giveawayId, prizeId) {
     }
 }
 
+function setPrizeStatus(prize, previousStatus, currentStatus) {
+    const prizeLabel = 'prize-' + prize.id;
+    let statusElement = document.getElementById(prizeLabel + '-status');
+    statusElement.innerText = prize.status;
+    statusElement.classList.remove('prize-' + previousStatus);
+    statusElement.classList.add('prize-' + currentStatus);
+
+    hideElementById(prizeLabel + '-' + previousStatus + '-buttons');
+    showElementById(prizeLabel + '-' + currentStatus + '-buttons');
+}
+
 async function reservePrize(botHomeId, giveawayId, prizeId) {
     const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, prizeId: prizeId};
     let response = await makePost('/api/reserve_prize', parameters, [], false);
 
     if (response.ok) {
         let prize = await response.json();
-        const prizeLabel =  'prize-' + prize.id;
-        let statusElement = document.getElementById(prizeLabel + '-status');
-        statusElement.innerText = prize.status;
-        statusElement.classList.remove('prize-available');
-        statusElement.classList.add('prize-reserved');
-
-        hideElementById(prizeLabel + '-available-buttons');
-        showElementById(prizeLabel + '-reserved-buttons');
+        setPrizeStatus(prize, 'available', 'reserved');
     }
 }
 
@@ -240,14 +249,7 @@ async function releasePrize(botHomeId, giveawayId, prizeId) {
 
     if (response.ok) {
         let prize = await response.json();
-        const prizeLabel =  'prize-' + prize.id;
-        let statusElement = document.getElementById(prizeLabel + '-status');
-        statusElement.innerText = prize.status;
-        statusElement.classList.remove('prize-reserved');
-        statusElement.classList.add('prize-available');
-
-        hideElementById(prizeLabel + '-reserved-buttons');
-        showElementById(prizeLabel + '-available-buttons');
+        setPrizeStatus(prize, 'reserved', 'available');
     }
 }
 
@@ -257,17 +259,10 @@ async function awardPrize(botHomeId, giveawayId, prizeId) {
 
     if (response.ok) {
         let prize = await response.json();
-        const prizeLabel =  'prize-' + prize.id;
         if (prize.winner) {
-            document.getElementById(prizeLabel + '-winner').innerText = prize.winner.name;
+            document.getElementById('prize-' + prize.id + '-winner').innerText = prize.winner.name;
         }
-        let statusElement = document.getElementById(prizeLabel + '-status');
-        statusElement.innerText = prize.status;
-        statusElement.classList.remove('prize-reserved');
-        statusElement.classList.add('prize-awarded');
-
-        hideElementById(prizeLabel + '-reserved-buttons');
-        showElementById(prizeLabel + '-awarded-buttons');
+        setPrizeStatus(prize, 'reserved', 'awarded');
     }
 }
 
@@ -277,14 +272,7 @@ async function bestowPrize(botHomeId, giveawayId, prizeId) {
 
     if (response.ok) {
         let prize = await response.json();
-        const prizeLabel =  'prize-' + prize.id;
-        let statusElement = document.getElementById(prizeLabel + '-status');
-        statusElement.innerText = prize.status;
-        statusElement.classList.remove('prize-awarded');
-        statusElement.classList.add('prize-bestowed');
-
-        hideElementById(prizeLabel + '-awarded-buttons');
-        showElementById(prizeLabel + '-bestowed-buttons');
+        setPrizeStatus(prize, 'awarded', 'bestowed');
     }
 }
 

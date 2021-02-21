@@ -69,7 +69,7 @@
 
     <!-- command settings -->
     <div th:fragment="command_settings (description, label, settingsId, commandSettings)"
-         class="command-settings form-block">
+         class="command-settings form-container">
         <h3 th:text="${description}"></h3>
         <div class="form-block">
             <label>Name</label><br>
@@ -80,7 +80,7 @@
 
             <span th:id="${label} + '-secured'" class="pseudo-link"
                   th:onclick="'toggleSecureCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'"
-                  th:text="${commandSettings.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+                  th:text="${commandSettings.secure ? '&#x1F512;' : '&#x1F511;'}"></span>
 
             <span th:id="${label} + '-twitch'" class="pseudo-link"
                   th:onclick="'toggleTwitchCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
