@@ -198,7 +198,7 @@ public class GameQueueUtils {
 
         List<HomedUser> waitQueue = gameQueue.getWaitQueue();
         if (!waitQueue.isEmpty() || onDeckPlayers.isEmpty()) {
-            appendPlayerList(text, gameQueue.getWaitQueue(), "HTTP", "Queue", "No one is waiting.", null,
+            appendPlayerList(text, gameQueue.getWaitQueue(), "FIX", "Queue", "No one is waiting.", null,
             (player, t) -> {
                 if (gameQueue.isOnCall(player)) {
                     t.append(" (if needed " + ON_CALL_EMOTE + ")");
