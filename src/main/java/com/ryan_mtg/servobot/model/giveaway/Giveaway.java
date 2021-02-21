@@ -166,6 +166,10 @@ public class Giveaway {
         return raffles;
     }
 
+    public int getAvailablePrizeCount() {
+        return (int) prizes.stream().filter(prize -> prize.getStatus() == Prize.Status.AVAILABLE).count();
+    }
+
     public void addRaffle(final Raffle raffle) {
         raffles.add(raffle);
     }

@@ -140,7 +140,7 @@
                     </div>
                 </div>
 
-                <h3>Prizes</h3>
+                <h3 th:text="'Prizes (' + ${giveaway.availablePrizeCount} + ' available)'"></h3>
                 <table th:if="${!giveaway.prizes.empty}" th:id="${label} + '-prize-table'"
                        class="data-table prize-table">
                     <thead><tr>
