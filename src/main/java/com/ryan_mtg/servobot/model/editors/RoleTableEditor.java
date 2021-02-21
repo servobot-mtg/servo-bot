@@ -5,18 +5,15 @@ import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.roles.Role;
 import com.ryan_mtg.servobot.model.roles.RoleTable;
 import com.ryan_mtg.servobot.model.roles.RoleTableEdit;
+import lombok.RequiredArgsConstructor;
 
 import javax.transaction.Transactional;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class RoleTableEditor {
     private final RoleTable roleTable;
     private final RoleTableSerializer roleTableSerializer;
-
-    public RoleTableEditor(final RoleTable roleTable, final RoleTableSerializer roleTableSerializer) {
-        this.roleTable = roleTable;
-        this.roleTableSerializer = roleTableSerializer;
-    }
 
     public List<Role> getRoles() {
         return roleTable.getRoles();

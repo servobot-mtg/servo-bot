@@ -100,10 +100,31 @@ input[type=number] {
     padding: 0 10px;
 }
 
-.save-button {
+.button-area {
     position: absolute;
     top: 0;
     right: 0;
+    border: 1px solid black;
+    border-top: 0;
+    border-right: 0;
+}
+
+.save-button {
+    float: left;
+    border-right: 1px solid black;
+    padding: 3px;
+}
+
+.delete-button {
+    float: left;
+    font-weight: 300;
+    font-family: Arial, sans-serif;
+
+    text-align: center;
+
+    font-weight: bold;
+    vertical-align: middle;
+    padding: 3px;
 }
 
 .user-image {
@@ -595,6 +616,26 @@ input[type=text].emote {
 
 .prize-table {
     border-color: darkred;
+}
+
+.prize-status {
+    font-weight: bold;
+}
+
+.prize-available {
+    color: green;
+}
+
+.prize-reserved {
+    color: blue;
+}
+
+.prize-awarded {
+    color: orange;
+}
+
+.prize-bestowed {
+    color: red;
 }
 
 .add-prize {

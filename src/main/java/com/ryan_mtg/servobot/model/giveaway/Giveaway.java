@@ -223,6 +223,35 @@ public class Giveaway {
         return giveawayEdit;
     }
 
+    public GiveawayEdit awardPrize(final int prizeId, final HomedUser winner) throws BotHomeError, LibraryError {
+        Prize prize = getPrize(prizeId);
+        if (prize.getStatus() == Prize.Status.AWARDED || prize.getStatus() == Prize.Status.BESTOWED) {
+            throw new BotHomeError("Prize has already been awarded.");
+        } else if (prize.getStatus() == Prize.Status.AVAILABLE) {
+            throw new BotHomeError("Prize must be reserved first.");
+        }
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+
+        prize.awardTo(winner);
+        giveawayEdit.savePrize(id, prize);
+
+        return giveawayEdit;
+    }
+
+    public GiveawayEdit reservePrize(int prizeId) throws LibraryError {
+        Prize prize = getPrize(prizeId);
+
+        if (prize.getStatus() != Prize.Status.AVAILABLE) {
+            throw new SystemError("Invalid prize state for reserving : %s", prize.getStatus());
+        }
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        prize.reserve(Raffle.UNREGISTERED_ID);
+        giveawayEdit.savePrize(getId(), prize);
+        return giveawayEdit;
+    }
+
     public GiveawayEdit reservePrizes(final int winnerCount) throws BotHomeError, UserError {
         if (!rafflesEnabled) {
             throw new BotHomeError("Cannot reserve a prize from this type of giveaway");
@@ -233,8 +262,11 @@ public class Giveaway {
         List<Prize> reservedPrizes = prizes.stream().filter(p -> p.getStatus() == Prize.Status.AVAILABLE)
                 .limit(winnerCount).collect(Collectors.toList());
 
-        if (reservedPrizes.isEmpty()) {
-            throw new UserError("There are no prizes left.");
+        if (reservedPrizes.size() < winnerCount) {
+            if (reservedPrizes.isEmpty()) {
+                throw new UserError("There are no prizes left.");
+            }
+            throw new UserError("There are not enough prizes for the raffle.");
         }
 
         for (Prize prize : reservedPrizes) {
@@ -243,6 +275,24 @@ public class Giveaway {
         }
         return giveawayEdit;
     }
+
+    public GiveawayEdit releasePrize(int prizeId) throws LibraryError {
+        Prize prize = getPrize(prizeId);
+
+        if (prize.getStatus() != Prize.Status.RESERVED) {
+            throw new SystemError("Invalid prize state for releasing : %s", prize.getStatus());
+        }
+
+        if (prize.getRaffleId() != Raffle.UNREGISTERED_ID) {
+            throw new SystemError("Cannot release a prize from an active raffle.");
+        }
+
+        GiveawayEdit giveawayEdit = new GiveawayEdit();
+        prize.release();
+        giveawayEdit.savePrize(getId(), prize);
+        return giveawayEdit;
+    }
+
 
     public GiveawayEdit bestowPrize(final int prizeId) throws LibraryError {
         Prize prize = getPrize(prizeId);
@@ -292,5 +342,4 @@ public class Giveaway {
         }
         throw new LibraryError("No prize with id %d", prizeId);
     }
-
 }

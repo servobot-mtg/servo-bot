@@ -5,6 +5,8 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.helix.domain.StreamList;
 import com.github.twitch4j.helix.domain.UserList;
+import com.github.twitch4j.helix.domain.Video;
+import com.github.twitch4j.helix.domain.VideoList;
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EventListener;
@@ -20,6 +22,8 @@ import com.ryan_mtg.servobot.utility.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -143,6 +147,7 @@ public class TwitchService implements Service {
         homeMap.forEach((channelId, home) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
 
         client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
+        spike();
     }
 
     public Set<Long> getChannelsStreaming(final List<Long> channelIds) {
@@ -219,5 +224,64 @@ public class TwitchService implements Service {
             return users.get(0);
         }
         return null;
+    }
+
+    private void spike() {
+        com.github.twitch4j.helix.domain.User user = fetchUser("jamietopples");
+
+        VideoList videoList = client.getHelix().getVideos(authToken, null, user.getId(), null, null, "day",
+                null, null, null, null, 10).execute();
+
+        System.out.println(" *****************************  videos *******************************************");
+        System.out.println(videoList.getVideos().size());
+        System.out.println(" *****************************  videos *******************************************");
+        Instant now = Instant.now();
+        for(Video video : videoList.getVideos()) {
+            if (isVideoCurrent(video, now)) {
+                System.out.println("  video ******");
+                System.out.println(video.getId());
+                System.out.println(video.getType());
+                System.out.println(video.getCreatedAtInstant());
+                System.out.println(video.getDescription());
+                System.out.println(video.getTitle());
+                System.out.println(video.getUrl());
+                System.out.println(video.getDuration());
+                System.out.println(parseDurationToSeconds(video.getDuration()));
+            }
+        }
+        System.out.println(" *****************************  videos *******************************************");
+    }
+
+    private boolean isVideoCurrent(final Video video, final Instant now) {
+        Duration sinceStart = Duration.between(video.getCreatedAtInstant(), now);
+        if (sinceStart.isNegative()) {
+            return false;
+        }
+        int duration = parseDurationToSeconds(video.getDuration());
+        return sinceStart.getSeconds() < duration + 5 * 60;
+    }
+
+    private int parseDurationToSeconds(final String duration) {
+        int total = 0, current = 0;
+        for (int i = 0; i < duration.length(); i++) {
+            char c = duration.charAt(i);
+            if (Character.isDigit(c)) {
+                current = current * 10 + (c - '0');
+            } else{
+                switch (c) {
+                    case 'h':
+                        total += current * 60 * 60;
+                        break;
+                    case 'm':
+                        total += current * 60;
+                        break;
+                    case 's':
+                        total += current;
+                        break;
+                }
+                current = 0;
+            }
+        }
+        return total;
     }
 }

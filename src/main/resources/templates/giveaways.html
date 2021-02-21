@@ -73,14 +73,14 @@
                     </div>
                 </div><br th:if="${giveaway.selfService}">
                 <div th:if="${giveaway.rafflesEnabled}" class="section">
-                    <h3>Raffle</h3>
+                    <h3>Raffle Settings</h3>
                     <div id="raffle" class="section-content">
                         <div class="form-block hidden">
-                            <label>Raffle Options</label><br>
+                            <label>Options</label><br>
                             <input type="checkbox" th:checked="${false}">Automatic redemption<br>
                         </div>
                         <div class="form-block">
-                            <label>Raffle End</label><br>
+                            <label>End</label><br>
                             <input th:id="${label} + '-raffle-end-input'" type="radio"
                                    th:name="${label} + '-raffle-end'" value="TIMED"
                                    th:checked="${giveaway.raffleSettings.timed}">Timed<br>
@@ -88,12 +88,12 @@
                                    th:checked="${!giveaway.raffleSettings.timed}">Manual<br>
                         </div>
                         <div class="form-block">
-                            <label>Raffle Duration (min)</label><br>
+                            <label>Duration (min)</label><br>
                             <input type="number" th:id="${label} + '-raffle-duration'"
                                    th:value="${giveaway.raffleSettings.duration.toMinutes()}"><br>
                         </div>
                         <div class="form-block">
-                            <label>Winners per Raffle</label><br>
+                            <label># of Winners</label><br>
                             <input type="number" th:id="${label} + '-raffle-winner-count'"
                                    th:value="${giveaway.raffleSettings.winnerCount}"><br>
                         </div>
@@ -107,19 +107,19 @@
                             </select>
                         </div><br>
 
-                        <div th:include="fragments :: command_settings (description = 'Start Raffle Command',
+                        <div th:replace="fragments :: command_settings (description = 'Start Raffle Command',
                             label = ${label + '-start-raffle'}, settingsId = ${1},
                             commandSettings = ${giveaway.raffleSettings.startRaffle})" />
 
-                        <div th:include="fragments :: command_settings (description = 'Enter Raffle Command',
+                        <div th:replace="fragments :: command_settings (description = 'Enter Raffle Command',
                             label = ${label + '-enter-raffle'}, settingsId = ${2},
                             commandSettings = ${giveaway.raffleSettings.enterRaffle})" />
 
-                        <div th:include="fragments :: command_settings (description = 'Raffle Status Command',
+                        <div th:replace="fragments :: command_settings (description = 'Raffle Status Command',
                             label = ${label + '-raffle-status'}, settingsId = ${3},
                             commandSettings = ${giveaway.raffleSettings.raffleStatus})" />
 
-                        <div th:include="fragments :: command_settings (description = 'Select Winner Command',
+                        <div th:replace="fragments :: command_settings (description = 'Select Winner Command',
                             label = ${label + '-select-winner'}, settingsId = ${4},
                             commandSettings = ${giveaway.raffleSettings.selectWinner})" />
                         <br>
@@ -127,10 +127,16 @@
                             <label>Select Raffle Winner Command Name</label><br>
                             <input type="text" id="select-raffle-winner-command"><br>
                         </div><br>
-                        <div class="pseudo-link save-button"
-                             th:onclick="'saveRaffleSettings(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
-                            <div>&#x1F4BE;</div>
-                            <span th:id="${label} + '-raffle-save-response'"/>
+                        <div class="button-area">
+                            <div class="pseudo-link save-button"
+                                 th:onclick="'saveRaffleSettings(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
+                                <div>&#x1F4BE;</div>
+                                <span th:id="${label} + '-raffle-save-response'"/>
+                            </div>
+                            <div class="pseudo-link delete-button"
+                                 th:onclick="'deleteGiveaway(' + ${botHome.id} + ', ' + ${giveaway.id} + ')'">
+                                <div>X</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -151,13 +157,34 @@
                             <td th:if="${exalted}" th:text="${prize.reward}"/>
                             <td th:if="${!exalted}">&#x1F947;</td>
 
-                            <td th:id="${prizeLabel + '-status'}" th:text="${prize.status}"/>
+                            <td th:id="${prizeLabel + '-status'}" th:text="${prize.status}" class="prize-status"
+                                th:classappend="'prize-' + ${prize.status.toString().toLowerCase()}"/>
                             <td th:text="${prize.description}"/>
                             <td>
+
+                                <div th:id="${prizeLabel} + '-available-buttons'" th:classappend="${prize.status !=
+                                    T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AVAILABLE ? 'hidden ' : ''}">
+
+                                    <input type="button" value="Reserve" th:onclick= "'reservePrize(' +
+                                            ${botHome.id} + ', ' + ${giveaway.id} + ', ' + ${prize.id} + ')'"/>
+                                </div>
+
+                                <div th:id="${prizeLabel} + '-reserved-buttons'" th:classappend="${prize.status !=
+                                    T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).RESERVED ? 'hidden ' : ''}">
+
+                                    <span th:if="${exalted}">
+                                        <input type="button" value="Release" th:onclick= "'releasePrize(' +
+                                                ${botHome.id} + ', ' + ${giveaway.id} + ', ' + ${prize.id} + ')'"/>
+
+                                        <input type="button" value="Award" th:onclick= "'awardPrize(' +
+                                                ${botHome.id} + ', ' + ${giveaway.id} + ', ' + ${prize.id} + ')'"/>
+                                    </span>
+                                </div>
+
                                 <div th:id="${prizeLabel} + '-awarded-buttons'" th:classappend="${prize.status !=
                                     T(com.ryan_mtg.servobot.model.giveaway.Prize.Status).AWARDED ? 'hidden ' : ''}">
 
-                                    <input type="button" value="Bestow Prize" th:onclick= "'bestowPrize(' +
+                                    <input type="button" value="Bestow" th:onclick= "'bestowPrize(' +
                                             ${botHome.id} + ', ' + ${giveaway.id} + ', ' + ${prize.id} + ')'"/>
                                     <span th:if="${exalted}">
                                         <input th:if="${prize.winner}" type="text" th:id="${prizeLabel} + '-message'"
@@ -167,6 +194,7 @@
                                                th:onclick="'copyPrizeMessage(' + ${prize.id} + ')'">
                                     </span>
                                 </div>
+
                             </td>
                             <td th:id="${prizeLabel + '-winner'}" th:if="${prize.winner != null}"
                                 th:text="${prize.winner.name}"/>

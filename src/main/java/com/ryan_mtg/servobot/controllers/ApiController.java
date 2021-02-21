@@ -20,6 +20,7 @@ import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
+import com.ryan_mtg.servobot.model.editors.GiveawayEditor;
 import com.ryan_mtg.servobot.model.editors.RoleTableEditor;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
@@ -483,18 +484,18 @@ public class ApiController {
         return true;
     }
 
-    @PostMapping(value = "/add_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public Giveaway addGiveaway(@RequestBody final AddGiveawayRequest request) throws UserError {
-        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        return homeEditor.addGiveaway(request.getName(), request.isSelfService(), request.isRaffle());
-    }
-
     @Getter
     public static class AddGiveawayRequest extends BotHomeRequest {
         private String name;
         private boolean selfService;
         private boolean raffle;
+    }
+
+    @PostMapping(value = "/add_giveaway", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Giveaway addGiveaway(@RequestBody final AddGiveawayRequest request) throws UserError {
+        HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
+        return homeEditor.addGiveaway(request.getName(), request.isSelfService(), request.isRaffle());
     }
 
     @PostMapping(value = "/save_giveaway_self_service", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -589,34 +590,58 @@ public class ApiController {
         private String description;
     }
 
-    @PostMapping(value = "/award_reward", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public HomedUser awardReward(@RequestBody final PrizeRequest request) {
-        //HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-        //return homeEditor.awardReward(request.getGiveawayId(), request.getRewardId());
-        return null;
-    }
-
-    @PostMapping(value = "/bestow_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean bestowPrize(@RequestBody final PrizeRequest request) {
-        return SystemError.filter(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            return homeEditor.bestowPrize(request.getGiveawayId(), request.getPrizeId());
-        });
-    }
-
     @Getter
     public static class PrizeRequest extends GiveawayRequest {
         private int prizeId;
     }
 
+    @PostMapping(value = "/reserve_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Prize reservePrize(@RequestBody final PrizeRequest request) {
+        return SystemError.filter(() -> {
+            GiveawayEditor giveawayEditor = getGiveawayEditor(request.getBotHomeId());
+            return giveawayEditor.reservePrize(request.getGiveawayId(), request.getPrizeId());
+        });
+    }
+
+    @PostMapping(value = "/release_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Prize releasePrize(@RequestBody final PrizeRequest request) {
+        return SystemError.filter(() -> {
+            GiveawayEditor giveawayEditor = getGiveawayEditor(request.getBotHomeId());
+            return giveawayEditor.releasePrize(request.getGiveawayId(), request.getPrizeId());
+        });
+    }
+
+    @Getter
+    public static class AwardPrizeRequest extends PrizeRequest {
+        private Integer winnerId;
+    }
+
+    @PostMapping(value = "/award_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Prize awardPrize(@RequestBody final AwardPrizeRequest request) {
+        return SystemError.filter(() -> {
+            GiveawayEditor giveawayEditor = getGiveawayEditor(request.getBotHomeId());
+            return giveawayEditor.awardPrize(request.getGiveawayId(), request.getPrizeId(), request.getWinnerId());
+        });
+    }
+
+    @PostMapping(value = "/bestow_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Prize bestowPrize(@RequestBody final PrizeRequest request) {
+        return SystemError.filter(() -> {
+            GiveawayEditor giveawayEditor = getGiveawayEditor(request.getBotHomeId());
+            return giveawayEditor.bestowPrize(request.getGiveawayId(), request.getPrizeId());
+        });
+    }
+
     @PostMapping(value = "/delete_prize", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public boolean deleteReward(@RequestBody final DeleteGiveawayObjectRequest request) {
+    public boolean deletePrize(@RequestBody final DeleteGiveawayObjectRequest request) {
         return SystemError.filter(() -> {
-            HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
-            homeEditor.deletePrize(request.getGiveawayId(), request.getObjectId());
+            GiveawayEditor giveawayEditor = getGiveawayEditor(request.getBotHomeId());
+            giveawayEditor.deletePrize(request.getGiveawayId(), request.getObjectId());
             return true;
         });
     }
@@ -672,6 +697,13 @@ public class ApiController {
     private RoleTableEditor getRoleTableEditor(final int contextId) {
         if (contextId > 0) {
             return botRegistrar.getHomeEditor(contextId).getRoleTableEditor();
+        }
+        return null;
+    }
+
+    private GiveawayEditor getGiveawayEditor(final int contextId) {
+        if (contextId > 0) {
+            return botRegistrar.getHomeEditor(contextId).getGiveawayEditor();
         }
         return null;
     }

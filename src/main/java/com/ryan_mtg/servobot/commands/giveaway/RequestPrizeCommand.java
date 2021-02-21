@@ -47,7 +47,8 @@ public class RequestPrizeCommand extends InvokedHomedCommand {
             throw new UserError("Sorry %s, the prize barrel is empty.", sender.getName());
         }
 
-        Prize prize = homeEditor.requestPrize(giveawayId, homedSender);
+        Prize prize = homeEditor.getGiveawayEditor().requestPrize(giveawayId, homedSender);
+        // TODO: This message should be configurable.
         String message = String.format("Congratulations %s, your code is: %s", sender.getName(), prize.getReward());
         event.getServiceHome(event.getServiceType()).getService().whisper(sender.getUser(), message);
     }

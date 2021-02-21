@@ -68,48 +68,47 @@
     </div>
 
     <!-- command settings -->
-    <div th:fragment="command_settings (description, label, settingsId, commandSettings)">
-        <div class="command-settings form-block">
-            <h3 th:text="${description}"></h3>
-            <div class="form-block">
-                <label>Name</label><br>
-                <input type="text" th:id="${label} + '-command'" th:value="${commandSettings.commandName}"><br>
-            </div>
-            <div class="form-block">
-                <label>Options</label><br>
+    <div th:fragment="command_settings (description, label, settingsId, commandSettings)"
+         class="command-settings form-block">
+        <h3 th:text="${description}"></h3>
+        <div class="form-block">
+            <label>Name</label><br>
+            <input type="text" th:id="${label} + '-command'" th:value="${commandSettings.commandName}"><br>
+        </div>
+        <div class="form-block">
+            <label>Options</label><br>
 
-                <span th:id="${label} + '-secured'" class="pseudo-link"
-                      th:onclick="'toggleSecureCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'"
-                      th:text="${commandSettings.secure ? '&#x1F512;' : '&#x1F511;'}"/>
+            <span th:id="${label} + '-secured'" class="pseudo-link"
+                  th:onclick="'toggleSecureCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'"
+                  th:text="${commandSettings.secure ? '&#x1F512;' : '&#x1F511;'}"/>
 
-                <span th:id="${label} + '-twitch'" class="pseudo-link"
-                      th:onclick="'toggleTwitchCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
-                    <img th:id="${label} + '-twitch-img'" class="icon" title="Toggle Twitch use"
-                         th:src="${commandSettings.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
-                </span>
+            <span th:id="${label} + '-twitch'" class="pseudo-link"
+                  th:onclick="'toggleTwitchCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
+                <img th:id="${label} + '-twitch-img'" class="icon" title="Toggle Twitch use"
+                     th:src="${commandSettings.twitch ? '/images/twitch.ico' : '/images/no-twitch.ico'}">
+            </span>
 
-                <span th:id="${label} + '-discord'" class="pseudo-link"
-                      th:onclick="'toggleDiscordCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
-                    <img th:id="${label} + '-discord-img'" class="icon" title="Toggle Discord use"
-                         th:src="${commandSettings.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
-                </span>
-            </div>
+            <span th:id="${label} + '-discord'" class="pseudo-link"
+                  th:onclick="'toggleDiscordCommandSetting(' + ${giveaway.id} + ', ' + ${settingsId} + ')'">
+                <img th:id="${label} + '-discord-img'" class="icon" title="Toggle Discord use"
+                     th:src="${commandSettings.discord ? '/images/discord.ico' : '/images/no-discord.ico'}">
+            </span>
+        </div>
 
-            <div class="form-block">
-                <label>Permissions</label><br>
-                <select th:id="${label} + '-permission'">
-                    <th:block th:each="permission : ${permissions}">
-                        <option th:value="${permission}" th:text="${permission}"
-                                th:selected="${permission == commandSettings.permission}"/>
-                    </th:block>
-                </select>
-            </div><br>
-            <div th:class="small-vertical-bottom-padding">
-                <label>Response</label><br>
-                <input type="text" th:id="${label} + '-message'" class="message-input"
-                       th:value="${commandSettings.message}"><br>
-            </div>
+        <div class="form-block">
+            <label>Permissions</label><br>
+            <select th:id="${label} + '-permission'">
+                <th:block th:each="permission : ${permissions}">
+                    <option th:value="${permission}" th:text="${permission}"
+                            th:selected="${permission == commandSettings.permission}"/>
+                </th:block>
+            </select>
         </div><br>
+        <div th:class="small-vertical-bottom-padding">
+            <label>Response</label><br>
+            <input type="text" th:id="${label} + '-message'" class="message-input"
+                   th:value="${commandSettings.message}"><br>
+        </div>
     </div>
 
     <!-- footer -->

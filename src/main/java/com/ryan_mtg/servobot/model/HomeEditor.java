@@ -18,6 +18,7 @@ import com.ryan_mtg.servobot.data.models.BotHomeRow;
 import com.ryan_mtg.servobot.data.models.SuggestionRow;
 import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.LibraryError;
 import com.ryan_mtg.servobot.error.SystemError;
@@ -30,10 +31,10 @@ import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
+import com.ryan_mtg.servobot.model.editors.GiveawayEditor;
 import com.ryan_mtg.servobot.model.editors.RoleTableEditor;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
-import com.ryan_mtg.servobot.model.game_queue.GameQueueEntry;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayEdit;
@@ -45,9 +46,6 @@ import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.reaction.ReactionTableEdit;
-import com.ryan_mtg.servobot.model.roles.Role;
-import com.ryan_mtg.servobot.model.roles.RoleTable;
-import com.ryan_mtg.servobot.model.roles.RoleTableEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.IntegerStorageValue;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
@@ -84,6 +82,9 @@ public class HomeEditor {
     private RoleTableEditor roleTableEditor;
 
     @Getter
+    private GiveawayEditor giveawayEditor;
+
+    @Getter
     private BookTableEditor bookTableEditor;
 
     @Getter
@@ -106,6 +107,8 @@ public class HomeEditor {
                 serializers.getCommandSerializer(), serializers.getCommandTableSerializer(),
                 gameQueueEditor);
         this.roleTableEditor = new RoleTableEditor(botHome.getRoleTable(), serializers.getRoleTableSerializer());
+        this.giveawayEditor = new GiveawayEditor(botHome.getId(), botHome.getGiveaways(),
+                serializers.getGiveawaySerializer(), botHome.getHomedUserTable());
         this.bookTableEditor =
                 new BookTableEditor(botHome.getId(), botHome.getBookTable(), serializers.getBookSerializer());
     }
@@ -368,217 +371,6 @@ public class HomeEditor {
         return value;
     }
 
-    @Transactional(rollbackOn = Exception.class)
-    public String startGameQueue(final int gameQueueId, final String name) throws UserError {
-        //TODO: queue
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-
-        if (gameQueue.getState() == GameQueue.State.PLAYING) {
-            if (name != null) {
-                setGameQueueName(gameQueueId, name);
-                return String.format("Game queue name changed to '%s.'", name);
-            }
-            throw new  UserError("Game queue '%s' already started.", gameQueue.getName());
-        }
-
-        gameQueue.setState(GameQueue.State.PLAYING);
-        if (name != null) {
-            gameQueue.setName(name);
-        }
-
-        serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
-        return String.format("Game queue '%s' started.", gameQueue.getName());
-        */
-        return null;
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public String closeGameQueue(final int gameQueueId) throws UserError {
-        //TODO: queue
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-
-        /*
-        if (gameQueue.getState() == GameQueue.State.CLOSED) {
-            throw new UserError("Game queue '%s' is already closed.", gameQueue.getName());
-        }
-
-        if (gameQueue.getState() != GameQueue.State.PLAYING) {
-            throw new UserError("Game queue '%s' is not open.", gameQueue.getName());
-        }
-
-        gameQueue.setState(GameQueue.State.CLOSED);
-
-        serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
-        return String.format("Queue '%s' is now closed.", gameQueue.getName());
-        */
-        return null;
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public User popGameQueue(final int gameQueueId) throws UserError {
-        //TODO: queue
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-        if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
-        }
-
-        int nextPlayer = gameQueue.pop();
-        if (nextPlayer == EMPTY_QUEUE) {
-            throw new UserError("No players in the queue.");
-        }
-
-        serializers.getGameQueueSerializer().removeEntry(gameQueue, nextPlayer);
-        return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
-         */
-        return null;
-    }
-
-    public User peekGameQueue(final int gameQueueId) throws UserError {
-        //TODO: queue
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-        if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
-        }
-
-        int nextPlayer = gameQueue.getCurrentPlayerId();
-        if (nextPlayer == EMPTY_QUEUE) {
-            throw new UserError("No players in the queue.");
-        }
-
-        return serializers.getUserTable().getById(gameQueue.getCurrentPlayerId());
-         */
-        return null;
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public int joinGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player) throws UserError {
-        //TODO: queue
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-
-        int playerId = player.getId();
-
-        if (gameQueue.contains(playerId)) {
-            throw new UserError("%s is already in the queue.", player.getName());
-        }
-
-        if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
-        }
-        if (gameQueue.getState() == GameQueue.State.CLOSED) {
-            throw new UserError("Game queue '%s' is not allowing new players.", gameQueue.getName());
-        }
-
-        GameQueueEntry gameQueueEntry = gameQueue.enqueue(playerId);
-
-        serializers.getGameQueueSerializer().addEntry(gameQueue, gameQueueEntry);
-        return gameQueueEntry.getPosition();
-         */
-        return 0;
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public void removeFromGameQueue(final int gameQueueId, final com.ryan_mtg.servobot.model.User player)
-            throws UserError {
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-
-        int playerId = player.getId();
-
-        if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new UserError("Game queue '%s' is not active.", gameQueue.getName());
-        }
-
-        if (gameQueue.getCurrentPlayerId() == playerId) {
-            throw new UserError("%s is currently playing.", player.getName());
-        }
-
-        if (!gameQueue.contains(playerId)) {
-            throw new UserError("%s is not in the queue.", player.getName());
-        }
-
-        gameQueue.remove(playerId);
-        serializers.getGameQueueSerializer().removeEntry(gameQueue, playerId);
-         */
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public void setGameQueueName(final int gameQueueId, final String name) throws UserError {
-        //TODO: queue
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-
-        if (name.equals(gameQueue.getName())) {
-            return;
-        }
-
-        gameQueue.setName(name);
-
-        serializers.getGameQueueSerializer().saveGameQueue(gameQueue);
-         */
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public String stopGameQueue(int gameQueueId) throws UserError {
-        //TODO: queue
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-        if (gameQueue.getState() == GameQueue.State.IDLE) {
-            throw new UserError("Game queue '%s' has already been stopped.", gameQueue.getName());
-        }
-
-        gameQueue.setState(GameQueue.State.IDLE);
-
-        serializers.getGameQueueSerializer().emptyGameQueue(gameQueue);
-        return String.format("Game queue '%s' stopped.", gameQueue.getName());
-         */
-        return null;
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public String showGameQueue(final int gameQueueId) throws UserError {
-        //TODO: queue
-        /*
-        GameQueue gameQueue = getGameQueue(gameQueueId);
-
-        if (gameQueue.getState() == GameQueue.State.IDLE) {
-            return String.format("Game queue '%s' has been stopped.", gameQueue.getName());
-        }
-
-        StringBuilder response = new StringBuilder();
-
-        response.append("Game queue '").append(gameQueue.getName()).append('\'');
-
-        if (gameQueue.getState() == GameQueue.State.CLOSED) {
-            response.append(" is not accepting new players.");
-        } else {
-            response.append(".");
-        }
-
-        int currentPlayerId = gameQueue.getCurrentPlayerId();
-        if (currentPlayerId != EMPTY_QUEUE) {
-            response.append(" The current player is ").append(describePlayer(currentPlayerId)).append('.');
-        }
-
-        List<GameQueueEntry> queue = gameQueue.getFullQueue();
-        if (queue.isEmpty()) {
-            response.append(" The queue is empty.");
-        } else {
-            for (int i = 0; i < 5 && i < queue.size(); i++) {
-                GameQueueEntry entry = queue.get(i);
-                response.append(" (").append(entry.getPosition()).append(") ");
-                response.append(describePlayer(entry.getUserId()));
-            }
-        }
-
-        return response.toString();
-         */
-        return null;
-    }
-
     public Giveaway getGiveaway(final int giveawayId) {
         return botHome.getGiveaway(giveawayId);
     }
@@ -702,17 +494,6 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public Prize requestPrize(final int giveawayId, final HomedUser requester) throws BotHomeError, UserError {
-        Giveaway giveaway = getGiveaway(giveawayId);
-
-        GiveawayEdit giveawayEdit = giveaway.requestPrize(requester);
-        Prize prize = giveawayEdit.getSavedPrizes().keySet().iterator().next();
-        serializers.getGiveawaySerializer().commit(giveawayEdit);
-
-        return prize;
-    }
-
-    @Transactional(rollbackOn = Exception.class)
     public Raffle startRaffle(final int giveawayId) throws BotHomeError, UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
 
@@ -720,6 +501,8 @@ public class HomeEditor {
         CommandTable commandTable = botHome.getCommandTable();
         raffleSettings.validateOnStart(commandTable);
 
+        /* TODO: The prizes should be reserved *after* the raffle is created, so that they can be given the raffle to
+            save. But currently we don't serialize raffles. */
         GiveawayEdit giveawayEdit = giveaway.reservePrizes(raffleSettings.getWinnerCount());
         List<Prize> prizes = new ArrayList<>(giveawayEdit.getSavedPrizes().keySet());
 
@@ -751,7 +534,6 @@ public class HomeEditor {
             alerts.add(new Alert(duration, winnerAlertToken));
             giveawayEdit.merge(commandTable.addTrigger(selectWinnerCommand, CommandAlert.TYPE, winnerAlertToken));
         }
-
 
         RaffleStatusCommand raffleStatusCommand = null;
 
@@ -790,6 +572,10 @@ public class HomeEditor {
                 raffleStatusCommand, selectWinnerCommand, alertCommands, prizes, stopTime);
         giveaway.addRaffle(raffle);
 
+        //TODO: fix after raffle serialization is complete.
+        raffle.setId(Raffle.FAKE_ID);
+        prizes.forEach(prize -> prize.setRaffleId(raffle.getId()));
+
         serializers.getGiveawaySerializer().commit(giveawayEdit);
 
         for (Alert alert : alerts) {
@@ -820,31 +606,16 @@ public class HomeEditor {
         for (Prize prize : raffle.getPrizes()) {
             HomedUser winner = prize.getWinner();
             if (winner != null && winner.getDiscordId() != 0) {
-                /* TODO: turned off because of a raffle with no code, this should be configurable
+                // TODO: turned off because of a raffle with no code, this should be configurable
                 String prizeMessage = String.format("Congratulations %s, your code is: %s", winner.getDiscordUsername(),
                         prize.getReward());
                 whisperMessage(DiscordService.TYPE, winner, prizeMessage);
                 prize.bestowTo(winner);
-                 */
             }
         }
         serializers.getGiveawaySerializer().commit(giveawayEdit);
 
         return winners;
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    public boolean bestowPrize(int giveawayId, int prizeId) throws LibraryError {
-        Giveaway giveaway = getGiveaway(giveawayId);
-
-        GiveawayEdit giveawayEdit = giveaway.bestowPrize(prizeId);
-        serializers.getGiveawaySerializer().commit(giveawayEdit);
-        return true;
-    }
-
-    public void deletePrize(final int giveawayId, final int prizeId) throws LibraryError {
-        GiveawayEdit giveawayEdit = botHome.getGiveaway(giveawayId).deletePrize(prizeId);
-        serializers.getGiveawaySerializer().commit(giveawayEdit);
     }
 
     public Map<String, Emote> getEmoteMap(final int serviceType) {

@@ -20,6 +20,9 @@ public class Prize {
     private int id;
 
     @Getter @Setter
+    private int raffleId;
+
+    @Getter @Setter
     private Status status;
 
     @Getter @Setter
@@ -39,6 +42,16 @@ public class Prize {
 
         Validation.validateStringLength(reward, Validation.MAX_TEXT_LENGTH, "Reward");
         Validation.validateStringLength(description, Validation.MAX_TEXT_LENGTH, "Description");
+    }
+
+    public void release() {
+        this.raffleId = Raffle.UNREGISTERED_ID;
+        setStatus(Status.AVAILABLE);
+    }
+
+    public void reserve(final int raffleId) {
+        setRaffleId(raffleId);
+        setStatus(Status.RESERVED);
     }
 
     public void awardTo(final HomedUser winner) {

@@ -179,6 +179,8 @@ function addPrizeRow(botHomeId, giveawayId, prize) {
 
     let statusCell = newRow.insertCell();
     statusCell.id = label + '-status';
+    statusCell.classList.add('prize-status');
+    statusCell.classList.add('prize-available');
     statusCell.innerHTML = prize.status;
 
     let descriptionCell = newRow.insertCell();
@@ -207,7 +209,7 @@ function deletePrize(botHomeId, giveawayId, prizeId) {
     let performDelete = true;
     const statusElement = document.getElementById(label + '-status');
     if (statusElement.innerText != 'BESTOWED') {
-        performDelete = window.confirm('Are you sure you want to delete the command?');
+        performDelete = window.confirm('Are you sure you want to delete the prize?');
     }
     if (performDelete) {
         const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, objectId: prizeId};
@@ -215,33 +217,74 @@ function deletePrize(botHomeId, giveawayId, prizeId) {
     }
 }
 
-function awardReward(botHomeId, rewardId) {
-    postAwardReward(botHomeId, rewardId);
-}
-
-async function postAwardReward(botHomeId, rewardId) {
-    const parameters = {botHomeId: botHomeId, objectId: rewardId};
-    let response = await makePost('/api/award_reward', parameters, [], false);
+async function reservePrize(botHomeId, giveawayId, prizeId) {
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, prizeId: prizeId};
+    let response = await makePost('/api/reserve_prize', parameters, [], false);
 
     if (response.ok) {
-        let winner = await response.json();
-        if (winner.discordName) {
-            document.getElementById('reward-' + rewardId + '-winner').innerText = winner.discordName;
-            document.getElementById('reward-' + rewardId + '-status').innerText = 'AWARDED';
-        }
+        let prize = await response.json();
+        const prizeLabel =  'prize-' + prize.id;
+        let statusElement = document.getElementById(prizeLabel + '-status');
+        statusElement.innerText = prize.status;
+        statusElement.classList.remove('prize-available');
+        statusElement.classList.add('prize-reserved');
+
+        hideElementById(prizeLabel + '-available-buttons');
+        showElementById(prizeLabel + '-reserved-buttons');
     }
 }
 
-function bestowPrize(botHomeId, giveawayId, prizeId) {
-    postBestowPrize(botHomeId, giveawayId, prizeId);
+async function releasePrize(botHomeId, giveawayId, prizeId) {
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, prizeId: prizeId};
+    let response = await makePost('/api/release_prize', parameters, [], false);
+
+    if (response.ok) {
+        let prize = await response.json();
+        const prizeLabel =  'prize-' + prize.id;
+        let statusElement = document.getElementById(prizeLabel + '-status');
+        statusElement.innerText = prize.status;
+        statusElement.classList.remove('prize-reserved');
+        statusElement.classList.add('prize-available');
+
+        hideElementById(prizeLabel + '-reserved-buttons');
+        showElementById(prizeLabel + '-available-buttons');
+    }
 }
 
-async function postBestowPrize(botHomeId, giveawayId, prizeId) {
+async function awardPrize(botHomeId, giveawayId, prizeId) {
+    const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, prizeId: prizeId};
+    let response = await makePost('/api/award_prize', parameters, [], false);
+
+    if (response.ok) {
+        let prize = await response.json();
+        const prizeLabel =  'prize-' + prize.id;
+        if (prize.winner) {
+            document.getElementById(prizeLabel + '-winner').innerText = prize.winner.name;
+        }
+        let statusElement = document.getElementById(prizeLabel + '-status');
+        statusElement.innerText = prize.status;
+        statusElement.classList.remove('prize-reserved');
+        statusElement.classList.add('prize-awarded');
+
+        hideElementById(prizeLabel + '-reserved-buttons');
+        showElementById(prizeLabel + '-awarded-buttons');
+    }
+}
+
+async function bestowPrize(botHomeId, giveawayId, prizeId) {
     const parameters = {botHomeId: botHomeId, giveawayId: giveawayId, prizeId: prizeId};
     let response = await makePost('/api/bestow_prize', parameters, [], false);
 
     if (response.ok) {
-        document.getElementById('prize-' + prizeId + '-status').innerText = 'BESTOWED';
+        let prize = await response.json();
+        const prizeLabel =  'prize-' + prize.id;
+        let statusElement = document.getElementById(prizeLabel + '-status');
+        statusElement.innerText = prize.status;
+        statusElement.classList.remove('prize-awarded');
+        statusElement.classList.add('prize-bestowed');
+
+        hideElementById(prizeLabel + '-awarded-buttons');
+        showElementById(prizeLabel + '-bestowed-buttons');
     }
 }
 

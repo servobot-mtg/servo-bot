@@ -23,9 +23,11 @@ public class RemoveFromGameQueueCommand extends InvokedHomedCommand {
 
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+        /** TODO: fix this, maybe delete?
         User user = event.getSender();
         event.getHomeEditor().removeFromGameQueue(gameQueueId, user);
         event.say(String.format("%s removed from the queue", user.getName()));
+         */
     }
 
     @Override

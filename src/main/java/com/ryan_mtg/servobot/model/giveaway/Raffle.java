@@ -20,6 +20,7 @@ import java.util.Random;
 
 public class Raffle {
     public static final int UNREGISTERED_ID = 0;
+    public static final int FAKE_ID = 1; // TODO: remove this, as it is a placeholder until raffles are serialized.
     private static final Random RANDOM = new Random();
 
     public enum Status {
@@ -27,6 +28,7 @@ public class Raffle {
         CONCLUDED,
     }
 
+    @Getter @Setter
     private int id;
 
     @Getter @Setter
@@ -91,7 +93,7 @@ public class Raffle {
                 winners.add(entrant.getUser());
                 entrants.remove(entrant);
             } else {
-                prize.setStatus(Prize.Status.AVAILABLE);
+                prize.release();
             }
             giveawayEdit.savePrize(giveaway.getId(), prize);
         }

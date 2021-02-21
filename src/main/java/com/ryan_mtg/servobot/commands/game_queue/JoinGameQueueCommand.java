@@ -23,9 +23,11 @@ public class JoinGameQueueCommand extends InvokedHomedCommand {
 
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+        /** TODO: fix this, maybe delete?
         User user = event.getSender();
-        int position = event.getHomeEditor().joinGameQueue(gameQueueId, user);
+        int position = event.getHomeEditor().joinGameQueue(gameQueueId, tuser);
         event.say(String.format("%s joined the queue in position %d", user.getName(), position));
+         */
     }
 
     @Override

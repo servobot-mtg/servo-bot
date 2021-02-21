@@ -22,8 +22,10 @@ public class ShowGameQueueCommand extends InvokedHomedCommand {
 
     @Override
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+        /** TODO: fix this, maybe delete?
         String response = event.getHomeEditor().showGameQueue(gameQueueId);
         event.say(response);
+         */
     }
 
     @Override
