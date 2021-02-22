@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.tournament.TournamentManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,12 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/tournament")
+@RequiredArgsConstructor
 public class TournamentController {
-    private TournamentManager tournamentManager;
-
-    public TournamentController(final TournamentManager tournamentManager) {
-        this.tournamentManager = tournamentManager;
-    }
+    private final TournamentManager tournamentManager;
 
     @GetMapping("")
     public String showTournaments(final Model model) {

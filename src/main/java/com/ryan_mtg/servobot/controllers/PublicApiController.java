@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.controllers;
 
 import com.ryan_mtg.servobot.game.sus.chat.SusResponder;
+import com.ryan_mtg.servobot.timestamp.VideoTimestampManager;
 import com.ryan_mtg.servobot.tournament.channelfireball.mfo.MfoInformer;
 import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.error.UserError;
@@ -13,9 +14,8 @@ import com.ryan_mtg.servobot.model.parser.Parser;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
 import com.ryan_mtg.servobot.utility.Strings;
+import com.ryan_mtg.servobot.utility.Validation;
 import com.ryan_mtg.servobot.utility.jokes.JokesClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,21 +24,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Random;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/public")
 public class PublicApiController {
-    private static final Random RANDOM = new Random();
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublicApiController.class);
+    private static final Pattern TWICH_USERNAME_PATTERN = Pattern.compile("\\S{3,25}");
 
     private final BotRegistrar botRegistrar;
     private final SusResponder susResponder;
+    private final VideoTimestampManager videoTimestampManager;
     private final JokesClient jokesClient = JokesClient.newClient();
 
-    public PublicApiController(final BotRegistrar botRegistrar, final SusResponder susResponder) {
+    public PublicApiController(final BotRegistrar botRegistrar, final SusResponder susResponder,
+            final VideoTimestampManager videoTimestampManager) {
         this.botRegistrar = botRegistrar;
         this.susResponder = susResponder;
+        this.videoTimestampManager = videoTimestampManager;
     }
 
     @GetMapping("/sus")
@@ -71,6 +73,32 @@ public class PublicApiController {
             return parser.parse(expression).evaluate();
         } catch (ParseException e) {
             throw new UserError(e, "Failed to parse %s: %s", expression, e.getMessage());
+        }
+    }
+
+    @GetMapping("/timestamp")
+    public String addTimestamp(@RequestParam(required = false) final String channel,
+            @RequestParam(required = false) final String user, @RequestParam(required = false) final String note) {
+        try {
+            if (Strings.isBlank(channel)) {
+                return "channel is a required parameter!";
+            }
+
+            Validation.validateStringValue(channel, Validation.MAX_NAME_LENGTH, "Channel", TWICH_USERNAME_PATTERN);
+            Validation.validateStringValue(user, Validation.MAX_NAME_LENGTH, "User", TWICH_USERNAME_PATTERN);
+            Validation.validateStringLength(note, Validation.MAX_TEXT_LENGTH, "Note");
+
+            videoTimestampManager.addTimeStamp(channel, user, note);
+
+            String message = Strings.isBlank(note) ? "The timestamp has been recorded." : "The note has been recorded.";
+
+            if (channel.equalsIgnoreCase("mythic_meebo")) {
+                return String.format("%s Manda Thanks you!");
+            }
+
+            return message;
+        } catch (UserError userError) {
+            return userError.getMessage();
         }
     }
 

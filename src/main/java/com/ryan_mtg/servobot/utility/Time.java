@@ -4,7 +4,9 @@ import com.ryan_mtg.servobot.error.SystemError;
 import lombok.Getter;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -31,6 +33,10 @@ public class Time {
             }
         }
         return "no time";
+    }
+
+    public static String toDevString(final Instant time) {
+        return toReadableString(ZonedDateTime.ofInstant(time, ZoneId.of("America/Chicago")));
     }
 
     public static String toReadableString(final LocalTime localTime) {

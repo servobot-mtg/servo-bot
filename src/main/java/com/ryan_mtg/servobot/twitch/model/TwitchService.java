@@ -147,7 +147,6 @@ public class TwitchService implements Service {
         homeMap.forEach((channelId, home) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
 
         client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
-        spike();
     }
 
     public Set<Long> getChannelsStreaming(final List<Long> channelIds) {
@@ -211,12 +210,6 @@ public class TwitchService implements Service {
         return fetchChannelUser(channelId).getProfileImageUrl();
     }
 
-    private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
-        return client.getHelix().
-                getUsers(authToken, Collections.singletonList(Long.toString(channelId)), null).execute()
-                .getUsers().get(0);
-    }
-
     public com.github.twitch4j.helix.domain.User fetchUser(final String userName) {
         UserList userList = client.getHelix().getUsers(authToken, null, Collections.singletonList(userName)).execute();
         List<com.github.twitch4j.helix.domain.User> users = userList.getUsers();
@@ -226,30 +219,27 @@ public class TwitchService implements Service {
         return null;
     }
 
-    private void spike() {
-        com.github.twitch4j.helix.domain.User user = fetchUser("jamietopples");
+    public VodDescriptor fetchVod(final String channel, final Instant now) throws UserError {
+        com.github.twitch4j.helix.domain.User user = fetchUser(channel);
 
         VideoList videoList = client.getHelix().getVideos(authToken, null, user.getId(), null, null, "day",
                 null, null, null, null, 10).execute();
 
-        System.out.println(" *****************************  videos *******************************************");
-        System.out.println(videoList.getVideos().size());
-        System.out.println(" *****************************  videos *******************************************");
-        Instant now = Instant.now();
         for(Video video : videoList.getVideos()) {
             if (isVideoCurrent(video, now)) {
-                System.out.println("  video ******");
-                System.out.println(video.getId());
-                System.out.println(video.getType());
-                System.out.println(video.getCreatedAtInstant());
-                System.out.println(video.getDescription());
-                System.out.println(video.getTitle());
-                System.out.println(video.getUrl());
-                System.out.println(video.getDuration());
-                System.out.println(parseDurationToSeconds(video.getDuration()));
+                VodDescriptor vodDescriptor = new VodDescriptor();
+                vodDescriptor.setDuration(video.getDuration());
+                vodDescriptor.setLink(video.getUrl());
+                return vodDescriptor;
             }
         }
-        System.out.println(" *****************************  videos *******************************************");
+        throw new UserError("%s does not have a current vod!", channel);
+    }
+
+    private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
+        return client.getHelix().
+                getUsers(authToken, Collections.singletonList(Long.toString(channelId)), null).execute()
+                .getUsers().get(0);
     }
 
     private boolean isVideoCurrent(final Video video, final Instant now) {

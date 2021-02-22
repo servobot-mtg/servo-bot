@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Timestamps</title>
+    <div th:replace="fragments :: includes" />
+    <script th:if="${user.admin}" type="text/javascript" src="/script/privileged.js"></script>
+</head>
+<body th:with="admin=${user.admin}, privileged=${user.admin || user.roles.contains('ROLE_EDITOR')}">
+    <div th:include="fragments :: header" />
+    <div class="content">
+        <h1>Timestamps</h1>
+        <table class="data-table">
+            <thead><tr>
+                <th th:if="${admin}">Id</th>
+                <th>Time</th>
+                <th>Channel</th>
+                <th>User</th>
+                <th>Note</th>
+                <th>Link</th>
+                <th>Offset</th>
+            </tr></thead>
+            <th:block th:each="timestamp : ${timestamps}" th:with="label=${'timestamp-' + timestamp.id}">
+                <tr th:id="${label} + '-row'">
+                    <td th:if="${admin}" th:text="${timestamp.id}"></td>
+                    <td th:text="${T(com.ryan_mtg.servobot.utility.Time).toDevString(timestamp.time)}"></td>
+                    <td><a th:text="${timestamp.channel}" th:href="'https://www.twitch.tv/' + ${timestamp.channel}"
+                           target="_blank"></a></td>
+                    <td th:text="${timestamp.user}"></td>
+                    <td th:text="${timestamp.note}"></td>
+                    <td><a th:href="${timestamp.link}" target="_blank">link</a></td>
+                    <td th:text="${timestamp.offset}"></td>
+                </tr>
+            </th:block>
+        </table>
+    </div>
+    <div th:include="fragments :: footer" />
+</body>
+</html>
