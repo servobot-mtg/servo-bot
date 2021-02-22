@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.Instant;
 
 @Data
-public class VideoTimeStamp {
+public class VideoTimestamp {
     private static final int UNREGISTERED_ID = 0;
 
     private int id;

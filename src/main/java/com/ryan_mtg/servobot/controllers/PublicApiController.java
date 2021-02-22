@@ -84,8 +84,9 @@ public class PublicApiController {
                 return "channel is a required parameter!";
             }
 
-            Validation.validateStringValue(channel, Validation.MAX_NAME_LENGTH, "Channel", TWICH_USERNAME_PATTERN);
-            Validation.validateStringValue(user, Validation.MAX_NAME_LENGTH, "User", TWICH_USERNAME_PATTERN);
+            Validation.validateStringValue(channel, Validation.MAX_USERNAME_LENGTH, "Channel",
+                    TWICH_USERNAME_PATTERN);
+            Validation.validateStringValue(user, Validation.MAX_USERNAME_LENGTH, "User", TWICH_USERNAME_PATTERN);
             Validation.validateStringLength(note, Validation.MAX_TEXT_LENGTH, "Note");
 
             videoTimestampManager.addTimeStamp(channel, user, note);

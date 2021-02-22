@@ -15,7 +15,7 @@ public class VideoTimestampController {
 
     @GetMapping("")
     public String showTournaments(final Model model) {
-        model.addAttribute("timestamps", timestampManager.getVideoTimeStamps());
+        model.addAttribute("timestamps", timestampManager.getVideoTimestamps());
         return "timestamps/index";
     }
 }

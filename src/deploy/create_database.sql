@@ -81,6 +81,9 @@ CREATE TABLE IF NOT EXISTS prize (id INTEGER AUTO_INCREMENT PRIMARY KEY, giveawa
 CREATE TABLE IF NOT EXISTS logged_message (id INTEGER AUTO_INCREMENT PRIMARY KEY, user_id INTEGER, message TEXT,
         service_type INTEGER, direction INTEGER, sent_time BIGINT);
 
+CREATE TABLE IF NOT EXISTS video_timestamp (id INTEGER AUTO_INCREMENT PRIMARY KEY, time BIGINT, channel VARCHAR(50),
+                                            user VARCHAR(50), link VARCHAR(200), note VARCHAR(200), offset VARCHAR(30));
+
 CREATE TABLE IF NOT EXISTS session (primary_id CHAR(36) NOT NULL, session_id CHAR(36) NOT NULL,
         creation_time BIGINT NOT NULL, last_access_time BIGINT NOT NULL, max_inactive_interval INT NOT NULL,
         expiry_time BIGINT NOT NULL, principal_name VARCHAR(100),
@@ -94,7 +97,3 @@ CREATE TABLE session_ATTRIBUTES (session_primary_id CHAR(36) NOT NULL, attribute
 CREATE UNIQUE INDEX spring_session_ix1 ON session (session_id);
 CREATE INDEX spring_session_ix2 ON session (expiry_time);
 CREATE INDEX spring_session_ix3 ON session (principal_name);
-
-ALTER TABLE giveaway ADD COLUMN raffle_flags INTEGER, ADD COLUMN select_winner_command_name VARCHAR(30),
-        ADD COLUMN select_winner_permission INTEGER, ADD COLUMN select_winner_flags INTEGER,
-        ADD COLUMN select_winner_message VARCHAR(200);

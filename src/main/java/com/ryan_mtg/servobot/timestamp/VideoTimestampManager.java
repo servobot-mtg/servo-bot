@@ -1,35 +1,35 @@
 package com.ryan_mtg.servobot.timestamp;
 
+import com.ryan_mtg.servobot.data.factories.VideoTimestampSerializer;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.VodDescriptor;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class VideoTimestampManager {
     private final TwitchService twitchService;
-    // private final VideoTimestampSerializer videoTimestampSerializer;
+    private final VideoTimestampSerializer videoTimestampSerializer;
 
     @Getter
-    private List<VideoTimeStamp> videoTimeStamps;
+    private List<VideoTimestamp> videoTimestamps;
 
-    public VideoTimestampManager(final TwitchService twitchService) {
+    public VideoTimestampManager(final TwitchService twitchService,
+            final VideoTimestampSerializer videoTimestampSerializer) {
         this.twitchService = twitchService;
+        this.videoTimestampSerializer = videoTimestampSerializer;
 
-        videoTimeStamps = new ArrayList<>();
-        // videoTimeStamps = videoTimestampSerializer.createVideoTimestampList();
+        videoTimestamps = videoTimestampSerializer.createVideoTimestampList();
     }
 
     public void addTimeStamp(final String channel, final String user, final String note) throws UserError {
         Instant now = Instant.now();
-        VideoTimeStamp videoTimeStamp = new VideoTimeStamp();
+        VideoTimestamp videoTimeStamp = new VideoTimestamp();
         videoTimeStamp.setTime(now);
         videoTimeStamp.setChannel(channel);
         videoTimeStamp.setNote(Strings.isBlank(note) ? null : note);
@@ -40,8 +40,8 @@ public class VideoTimestampManager {
         videoTimeStamp.setLink(link);
         videoTimeStamp.setOffset(vodDescriptor.getDuration());
 
-        videoTimeStamps.add(videoTimeStamp);
+        videoTimestamps.add(videoTimeStamp);
 
-        //videoTimestampSerializer.saveVideoTimeStamp(videoTimeStamp);
+        videoTimestampSerializer.saveVideoTimestamp(videoTimeStamp);
     }
 }
