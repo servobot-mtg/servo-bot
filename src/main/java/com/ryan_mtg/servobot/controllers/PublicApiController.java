@@ -101,7 +101,7 @@ public class PublicApiController {
             String message = Strings.isBlank(note) ? "The timestamp has been recorded." : "The note has been recorded.";
 
             if (channel.equalsIgnoreCase("mythic_meebo")) {
-                return String.format("%s Manda Thanks you!");
+                return String.format("%s Manda Thanks you!", message);
             }
 
             return message;
