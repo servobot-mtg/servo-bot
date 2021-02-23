@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.ryan_mtg.servobot.game.fortune.FortuneCookieResponder;
 import com.ryan_mtg.servobot.game.sus.chat.SusResponder;
 import com.ryan_mtg.servobot.timestamp.VideoTimestampManager;
 import com.ryan_mtg.servobot.tournament.channelfireball.mfo.MfoInformer;
@@ -33,13 +34,15 @@ public class PublicApiController {
 
     private final BotRegistrar botRegistrar;
     private final SusResponder susResponder;
+    private final FortuneCookieResponder fortuneCookieResponder;
     private final VideoTimestampManager videoTimestampManager;
     private final JokesClient jokesClient = JokesClient.newClient();
 
     public PublicApiController(final BotRegistrar botRegistrar, final SusResponder susResponder,
-            final VideoTimestampManager videoTimestampManager) {
+            final VideoTimestampManager videoTimestampManager, final FortuneCookieResponder fortuneCookieResponder) {
         this.botRegistrar = botRegistrar;
         this.susResponder = susResponder;
+        this.fortuneCookieResponder = fortuneCookieResponder;
         this.videoTimestampManager = videoTimestampManager;
     }
 
@@ -53,6 +56,10 @@ public class PublicApiController {
         return jokesClient.getJoke().replace('\n', ' ');
     }
 
+    @GetMapping("/fortune")
+    public String fortune() {
+        return fortuneCookieResponder.respond();
+    }
 
     @GetMapping("/evaluate")
     public String evaluateExpression(@RequestParam final String expression,
