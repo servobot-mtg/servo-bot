@@ -28,7 +28,7 @@
                 </div></li>
 
                 <li class="left"><div class="navitem navicon" th:if="${botHome} != null" th:classappend="${page == 'home' ? 'active' : ''}">
-                    <a href="#" th:href="@{/home/{id}(id=${botHome.name})}">
+                    <a href="#" th:href="@{/home/{bot}/{home}(bot=${bot.name},home=${botHome.name})}">
                         <span th:if="${botHome.imageUrl == null}" th:text="${botHome.name}"></span>
                         <img th:if="${botHome.imageUrl != null}" class="user-image" th:src="${botHome.imageUrl}"/>
                     </a>
@@ -45,7 +45,7 @@
                     </a>
                 </div></li>
 
-                <li class="right" th:if="${!user.authenticated}"><div class="navitem discord">
+                <li class="right" th:if="${!user.authenticated}"><div class="navitem discord hidden">
                     <a th:href="@{/oauth2/authorization/discord}">
                         <img src="/images/discord.png" alt="Discord" height="28" width="32">
                     </a>

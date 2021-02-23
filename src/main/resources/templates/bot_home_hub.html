@@ -16,6 +16,7 @@
         <div th:if="${privileged}">
             <h2>Links</h2>
             <ul style="float: left;">
+                <li><a href=".">Commands</a></li>
                 <li th:if="${exalted}"><a href="settings">Settings</a></li>
                 <li><a href="users">Users</a></li>
                 <li><a href="giveaways">Giveaways</a></li>
@@ -24,7 +25,7 @@
 
         <div th:include="bot_home_fragments :: services"/>
 
-        <div th:include="bot_home_fragments :: commands (container=${botHome}, contextId=${botHome.id})"/>
+        <div th:include="bot_home_fragments :: books (container=${botHome})"/>
 
         <div th:include="bot_home_fragments :: reactions"/>
 
@@ -33,8 +34,6 @@
         <div th:include="bot_home_fragments :: alerts"/>
 
         <div th:include="bot_home_fragments :: storage_values"/>
-
-        <div th:include="bot_home_fragments :: books (container=${botHome})"/>
     </div>
     <div th:include="fragments :: footer" />
 </body>

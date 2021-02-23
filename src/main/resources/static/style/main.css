@@ -58,6 +58,12 @@ input[type=number] {
     font-style: italic;
 }
 
+.info-link {
+    color: #666;
+    text-align: center;
+    text-decoration: none;
+}
+
 .info-banner-frame {
     margin-bottom: 10px;
     position: fixed;
