@@ -718,15 +718,13 @@ const commandData = [
     {name: 'Giveaway Status Command', parameters: []}, //22
     {name: 'Select Giveaway Winner Command', parameters: []}, //23
     {name: 'Add Reaction Command', parameters: [{id: 'emote', name: 'Emote'}]}, //24
-    {name: 'Jail Command', parameters: [{id: 'role', name: 'Role Name'}, {id: 'text-2', name: 'Variable Name'},
-            {id: 'integer', name: 'Strikes'}]}, //25
-    {name: 'Jail Break Command', parameters: [{id: 'role', name: 'Prison Role Name'}]}, //26
+    {}, // Deleted_command 25
+    {}, // Deleted_command 26
     {name: 'Set User Role Command', parameters: [{id: 'role', name: 'Role Name'},
             {id: 'text-2', name: 'Response message'}]}, //27
     {}, //28, Prize Request Command
-    {name: 'Jail Release Command', parameters: [{id: 'role', name: 'Prison Role Name'}]}, //29
-    {name: 'Arrest Command', parameters: [{id: 'role', name: 'Prison Role Name'},
-            {id: 'text-2', name: 'Response message'}]}, //30
+    {}, // Deleted_command 29
+    {}, // Deleted_command 30
     {name: 'Scryfall Search Command', parameters: []}, //31
     {name: 'Card Search Command', parameters: []}, //32
     {name: 'Score Command', parameters: [{id: 'text', name: 'Game Name'}, {id: 'text-2', name: 'Variable Name'}]}, //33

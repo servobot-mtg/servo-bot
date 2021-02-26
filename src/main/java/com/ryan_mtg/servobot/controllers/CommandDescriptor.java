@@ -9,7 +9,6 @@ import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
-import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
 import com.ryan_mtg.servobot.commands.roles.MakeRoleMessageCommand;
@@ -23,10 +22,7 @@ import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.chat.FactsCommand;
 import com.ryan_mtg.servobot.commands.game_queue.GameQueueCommand;
-import com.ryan_mtg.servobot.commands.jail.JailReleaseCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
-import com.ryan_mtg.servobot.commands.jail.JailBreakCommand;
-import com.ryan_mtg.servobot.commands.jail.JailCommand;
 import com.ryan_mtg.servobot.commands.game_queue.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.game_queue.RemoveFromGameQueueCommand;
@@ -156,12 +152,6 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitArrestCommand(final ArrestCommand arrestCommand) {
-            description = String.format("Arrests the user passed as input, by giving them the role '%s' and says '%s'",
-                    arrestCommand.getPrisonRole(), arrestCommand.getMessage());
-        }
-
-        @Override
         public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
             description = "Searches for a card by name";
         }
@@ -208,24 +198,6 @@ public class CommandDescriptor {
         @Override
         public void visitGiveawayStatusCommand(final RaffleStatusCommand raffleStatusCommand) {
             description = "Displays the status of the current giveaway";
-        }
-
-        @Override
-        public void visitJailCommand(final JailCommand jailCommand) {
-            description = String.format("Puts the user into '%s' if triggered %d times",
-                    jailCommand.getPrisonRole(), jailCommand.getThreshold());
-        }
-
-        @Override
-        public void visitJailBreakCommand(final JailBreakCommand jailBreakCommand) {
-            description = String.format("Breaks all of the users out of '%s'",
-                    jailBreakCommand.getPrisonRole());
-        }
-
-        @Override
-        public void visitJailReleaseCommand(final JailReleaseCommand jailReleaseCommand) {
-            description =String.format("Releases the users passed in as input out of '%s'",
-                    jailReleaseCommand.getPrisonRole());
         }
 
         @Override

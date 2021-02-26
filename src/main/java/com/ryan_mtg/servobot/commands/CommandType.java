@@ -8,7 +8,6 @@ public enum CommandType {
     ADD_COMMAND_TYPE(5, "Add Command"),
     ADD_REACTION_COMMAND_TYPE(24, "Add Reaction Command"),
     ADD_STATEMENT_COMMAND_TYPE(15, "Add Statement by Book Command"),
-    ARREST_COMMAND_TYPE(30, "Arrest Command"),
     CARD_SEARCH_COMMAND_TYPE(32, "Card Search Command"),
     DELAYED_ALERT_COMMAND_TYPE(16, "Delayed Alert Command"),
     DELETE_COMMAND_TYPE(6, "Delete Command"),
@@ -18,9 +17,6 @@ public enum CommandType {
     GAME_COMMAND_TYPE(35, "Game Command"),
     GAME_QUEUE_COMMAND_TYPE(7, "Game Queue Command"),
     RAFFLE_STATUS_COMMAND_TYPE(22, "Raffle Status Command"),
-    JAIL_COMMAND_TYPE(25, "Jail Command"),
-    JAIL_BREAK_COMMAND_TYPE(26, "Jail Break Command"),
-    JAIL_RELEASE_COMMAND_TYPE(29, "Jail Release Command"),
     JOIN_GAME_COMMAND_TYPE(36, "Join Game Command"),
     JOIN_GAME_QUEUE_COMMAND_TYPE(8, "Join Game Queue Command"),
     MAKE_ROLE_MESSAGE_COMMAND_TYPE( 37, "Make Role Message Command"),
@@ -41,6 +37,10 @@ public enum CommandType {
     START_RAFFLE_COMMAND_TYPE(20, "Start Raffle Command"),
     TEXT_COMMAND_TYPE(1, "Respond Command"),
     TIER_COMMAND_TYPE(3, "Friendship Tier Command"),
+    DELETED_COMMAND_1(25, ""),
+    DELETED_COMMAND_2(26, ""),
+    DELETED_COMMAND_3(29, ""),
+    DELETED_COMMAND_4(30, ""),
     ;
 
     private final int type;

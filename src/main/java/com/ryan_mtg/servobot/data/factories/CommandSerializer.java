@@ -10,7 +10,6 @@ import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.RateLimit;
-import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
 import com.ryan_mtg.servobot.commands.roles.MakeRoleMessageCommand;
@@ -22,9 +21,6 @@ import com.ryan_mtg.servobot.commands.chat.DeleteCommand;
 import com.ryan_mtg.servobot.commands.giveaway.EnterRaffleCommand;
 import com.ryan_mtg.servobot.commands.EvaluateExpressionCommand;
 import com.ryan_mtg.servobot.commands.game_queue.GameQueueCommand;
-import com.ryan_mtg.servobot.commands.jail.JailBreakCommand;
-import com.ryan_mtg.servobot.commands.jail.JailCommand;
-import com.ryan_mtg.servobot.commands.jail.JailReleaseCommand;
 import com.ryan_mtg.servobot.commands.game_queue.JoinGameQueueCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.game_queue.RemoveFromGameQueueCommand;
@@ -102,9 +98,6 @@ public class CommandSerializer {
                     return new AddReactionCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
                 case ADD_STATEMENT_COMMAND_TYPE:
                     return new AddStatementCommand(id, commandSettings);
-                case ARREST_COMMAND_TYPE:
-                    return new ArrestCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                            Strings.trim(commandRow.getStringParameter2()));
                 case CARD_SEARCH_COMMAND_TYPE:
                     boolean usesEasterEggs = commandRow.getLongParameter() != null
                             && commandRow.getLongParameter() != 0;
@@ -130,15 +123,6 @@ public class CommandSerializer {
                 case GAME_QUEUE_COMMAND_TYPE:
                     int gameQueueId = (int) (long) commandRow.getLongParameter();
                     return new GameQueueCommand(id, commandSettings, gameQueueId);
-                case JAIL_BREAK_COMMAND_TYPE:
-                    return new JailBreakCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                            Strings.trim(commandRow.getStringParameter2()));
-                case JAIL_COMMAND_TYPE:
-                    int jailThreshold = (int) (long) commandRow.getLongParameter();
-                    return new JailCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                            jailThreshold, commandRow.getStringParameter2().trim());
-                case JAIL_RELEASE_COMMAND_TYPE:
-                    return new JailReleaseCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
                 case JOIN_GAME_COMMAND_TYPE:
                     gameType = (int) (long) commandRow.getLongParameter();
                     return new JoinGameCommand(id, commandSettings, gameType);
@@ -196,6 +180,11 @@ public class CommandSerializer {
                     return new TextCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
                 case TIER_COMMAND_TYPE:
                     return new TierCommand(id, commandSettings);
+                case DELETED_COMMAND_1:
+                case DELETED_COMMAND_2:
+                case DELETED_COMMAND_3:
+                case DELETED_COMMAND_4:
+                    throw new SystemError("Unknown command with type %s", commandType);
             }
             throw new SystemError("Unsupported command type: " + commandRow.getType());
         });
@@ -308,14 +297,6 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitArrestCommand(final ArrestCommand arrestCommand) {
-            saveCommand(arrestCommand, commandRow -> {
-                commandRow.setStringParameter(arrestCommand.getPrisonRole());
-                commandRow.setStringParameter2(arrestCommand.getMessage());
-            });
-        }
-
-        @Override
         public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
             saveCommand(cardSearchCommand, commandRow -> {
                 commandRow.setLongParameter(cardSearchCommand.getUsesEasterEggs() ? 1 : 0);
@@ -374,30 +355,6 @@ public class CommandSerializer {
             saveCommand(raffleStatusCommand, commandRow -> {
                 commandRow.setLongParameter(raffleStatusCommand.getGiveawayId());
                 commandRow.setStringParameter(raffleStatusCommand.getResponse());
-            });
-        }
-
-        @Override
-        public void visitJailCommand(final JailCommand jailCommand) {
-            saveCommand(jailCommand, commandRow -> {
-                commandRow.setStringParameter(jailCommand.getPrisonRole());
-                commandRow.setLongParameter(jailCommand.getThreshold());
-                commandRow.setStringParameter2(jailCommand.getVariableName());
-            });
-        }
-
-        @Override
-        public void visitJailBreakCommand(final JailBreakCommand jailBreakCommand) {
-            saveCommand(jailBreakCommand, commandRow -> {
-                commandRow.setStringParameter(jailBreakCommand.getPrisonRole());
-                commandRow.setStringParameter2(jailBreakCommand.getVariableName());
-            });
-        }
-
-        @Override
-        public void visitJailReleaseCommand(final JailReleaseCommand jailReleaseCommand) {
-            saveCommand(jailReleaseCommand, commandRow -> {
-                commandRow.setStringParameter(jailReleaseCommand.getPrisonRole());
             });
         }
 

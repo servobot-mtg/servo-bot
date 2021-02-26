@@ -17,10 +17,6 @@ import com.ryan_mtg.servobot.commands.giveaway.RaffleStatusCommand;
 import com.ryan_mtg.servobot.commands.giveaway.RequestPrizeCommand;
 import com.ryan_mtg.servobot.commands.giveaway.SelectWinnerCommand;
 import com.ryan_mtg.servobot.commands.giveaway.StartRaffleCommand;
-import com.ryan_mtg.servobot.commands.jail.ArrestCommand;
-import com.ryan_mtg.servobot.commands.jail.JailBreakCommand;
-import com.ryan_mtg.servobot.commands.jail.JailCommand;
-import com.ryan_mtg.servobot.commands.jail.JailReleaseCommand;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
 import com.ryan_mtg.servobot.commands.roles.MakeRoleMessageCommand;
@@ -32,7 +28,6 @@ public interface CommandVisitor {
     void visitAddCommand(AddCommand addCommand);
     void visitAddReactionCommand(AddReactionCommand addReactionCommand);
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);
-    void visitArrestCommand(ArrestCommand arrestCommand);
     void visitCardSearchCommand(CardSearchCommand cardSearchCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
@@ -42,9 +37,6 @@ public interface CommandVisitor {
     void visitGameCommand(GameCommand gameCommand);
     void visitGameQueueCommand(GameQueueCommand gameQueueCommand);
     void visitGiveawayStatusCommand(RaffleStatusCommand raffleStatusCommand);
-    void visitJailCommand(JailCommand jailCommand);
-    void visitJailBreakCommand(JailBreakCommand jailBreakCommand);
-    void visitJailReleaseCommand(JailReleaseCommand jailReleaseCommand);
     void visitJoinGameCommand(JoinGameCommand joinGameCommand);
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
     void visitMakeRoleMessageCommand(MakeRoleMessageCommand makeRoleMessageCommand);
