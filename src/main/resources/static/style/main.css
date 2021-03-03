@@ -48,6 +48,11 @@ input[type=number] {
     color: red;
 }
 
+.todo {
+    color: red;
+    font-weight: bold;
+}
+
 .command-line {
     font-family: "Courier New";
     font-weight: bold;

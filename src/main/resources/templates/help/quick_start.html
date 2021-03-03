@@ -8,18 +8,19 @@
     <div th:include="fragments :: header"/>
     <div class="content">
         <h1>Quick Start Guide</h1>
-        <p th:if="${!user.authenticated || !user.hasInvite()}">To have the bot join your channel,
-            you must have a special invite and <a th:href="@{/oauth2/authorization/twitch}">log in</a>.
-            To get an invite, visit the ServoBot <a href="https://discordapp.com/invite/w7uJW67">Discord Server.</a>
+        <p th:if="${!user.authenticated}">To have the bot join your channel,
+            you must <a th:href="@{/oauth2/authorization/twitch}">log in</a>.
         </p>
 
-        <p th:if="${user.hasInvite()}">You have a special <a href="/home">invite</a> to have the bot join your
-            channel.</p>
+        <p th:if="${user.hasInvite() && !user.aStreamer}">You have a special <a href="/home">invite</a>
+            to have the bot join your channel.</p>
 
         <h2>Logging Into the Website</h2>
-        <p>The ServoBot website uses Twitch to authentication. Click the Twitch
-            <img class="small-icon" src="/images/twitch.ico"> icon in the upper right of the page.
-        </p>
+        <p>The ServoBot website uses Twitch to authentication.
+            <span th:if="${!user.authenticated}"> Click the Twitch
+                <img class="small-icon" src="/images/twitch.ico"> icon in the upper right of the page.
+            </span>
+        </spanp>
 
         <h2>Using an Invite</h2>
         <p>

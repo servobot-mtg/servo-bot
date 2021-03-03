@@ -8,95 +8,117 @@
     <div th:include="fragments :: header"/>
     <div class="content">
         <h1>ServoBot Features</h1>
+        <p>ServoBot is a bot for Twitch which mostly focuses on channels that play Magic: The Gathering.</p>
         <ul>
             <li>Discord & Twitch integration</li>
             <li>Custom commands</li>
             <li>Alerts</li>
             <li>Runs giveaways</li>
-            <li>Queue for challenging viewers on Arena</li>
+            <li>Game queue for playing against viewers on Arena, Among Us, or Battlegrounds</li>
             <li>Special features available upon request</li>
         </ul>
 
-        <h1>ServoBot Commands</h1>
-        <h3>Command Properties</h3>
-        <ul>
-            <li><b>Permission</b>: Who is allowed to trigger the command. The levels are
-                <th:block th:each="permission, stat : ${permissions}">
-                    <span th:text="${permission} + (${stat.last} ? '.' : ',')"/>
-                </th:block>
-            </li>
-            <li><b>Hide</b>: Whether &#x1F511; or not &#x1F512; the command is shown on the website. Use this to hide
-                commands that most viewers aren't able to access, have sensitive content, or a way to provide
-                'Easter Eggs' for viewers to find.
-            </li>
-            <li><b>Live</b>: Whether the command is only available while streaming &#x1F4FA; or can be triggered at any
-                time &#x1F570;&#xFE0F;.
-            </li>
-            <li><b>Twitch</b>: Whether the command can be triggered from Twitch
-                <img class="small-icon" src="/images/twitch.ico"> chat.
-            </li>
-            <li><b>Discord</b>: Whether the command can be triggered from the Discord
-                <img class="small-icon" src="/images/discord.ico"> server.
-            </li>
-        </ul>
+        <h2>Bot Concepts</h2>
+        <h3>Commands</h3>
+        <p class="content">Most of the ways the bot interacts is through commands. While the bot is active it,
+            constantly listens to the Twitch chat. Whenever someone in chat types the name of a command, Servobot will
+            respond by following the command instructions. ServoBot has a wide away of command types which determine
+            how it responds.</p>
+        <p class="content">Many commands can be configured through Twitch chat itself and there is a rich
+            syntax for declaring and configuring commands. However some commands must be configured through the ServoBot
+            webpage for a channel. See the command <a href="help/commands">help page</a> for more details.
+        </p>
 
-        <h3>Command Types</h3>
-        <table class="data-table">
-            <thead><tr>
-                <th>Type</th>
-                <th>Parameters</th>
-                <th>Description</th>
-            </tr></thead>
-            <tr>
-                <td>Respond Command</td>
-                <td></td>
-                <td>Replies with the command's predefined text. The text can contain expressions.</td>
-            </tr>
-            <tr>
-                <td>Message Channel Command</td>
-                <td></td>
-                <td>Replies with the command's predefined text to the predefined channel. The text can contain expressions.</td>
-            </tr>
+        <h3>User Levels</h3>
+        <p class="content">ServoBot has a notion of user levels. Within a given channel, each user is at one of these
+            levels and the level controls what commands that user may access. Each user at may access any command that
+            has its permissions level set to a level at or below that of the user.</p>
+        <div class="content">
+            <table class="data-table">
+                <thead><tr>
+                    <th>Level</th>
+                    <th>Description</th>
+                </tr></thead>
+                <tr>
+                    <td>Admin</td>
+                    <td>A member of the bot administration team. These special users have bot access on any channel that
+                        the bot is in.</td>
+                </tr>
+                <tr>
+                    <td>Streamer</td>
+                    <td>The user of the Twitch channel. The streamer has ultimate power within their channel.</td>
+                </tr>
+                <tr>
+                    <td>Moderator</td>
+                    <td>A moderator of the Twitch channel. These users usually have much control over the bot within a
+                        channel and usually act on behalf of the streamer.<br>
+                        ServoBot recognizes users that the streamer has given Twitch moderator privileges and treats
+                        them as such for purposes of the bot.</td>
+                </tr>
+                <tr>
+                    <td>Sub</td>
+                    <td>A subscriber of the Twitch channel. These users sometimes get special access to commands.<br>
+                        ServoBot recognizes users that have subscribed on Twitch automatically once they have chatted in
+                        the Twitch channel.</td>
+                </tr>
+                <tr>
+                    <td>Anyone</td>
+                    <td>This user level is a catch all for everyone else. This is the user level for commands that
+                        anyone may trigger.</td>
+                </tr>
+            </table>
+        </div>
 
-            <tr>
-                <td>Add Command</td>
-                <td>!&lt;<i>command&#x2011;name</i>&gt;&nbsp;[&lt;<i>flags</i>&gt;]&nbsp;&lt;<i>text</i>&gt;</td>
-                <td>Creates a new Respond Command with the given <i>text</i>. The command is triggered by
-                    <i>command-name</i>. The <i>flags</i> can change the permissions and settings of the command.
-                    <p class="help-paragraph">The add command can also change an existing trigger to respond with the
-                        new command, if no other triggers reference the previous command then it is deleted.</p>
-                </td>
-            </tr>
+        <h3>Alerts</h3>
+        <p class="content">ServoBot has the ability to define when alerts happen. An alert is an event that can trigger
+            commands. Alerts can be set up to happen at a repeating interval or at a certain time each day.</p>
+        <p>It is possible to make a command, called the Delayed Alert Command, which will trigger an alert after a
+            specified time. For example a command that is triggered when the stream starts can cause a delayed trigger
+            to happen 30 minutes into the stream.</p>
 
-            <tr>
-                <td>Delete Command</td>
-                <td>!&lt;<i>command&#x2011;name</i>&gt;</td>
-                <td>Deletes the trigger <i>command-name</i>. If there are no other triggers referencing the command
-                    then it also deletes the command.</td>
-            </tr>
+        <h3>Books</h3>
+        <p class="content">ServoBot has a concept which it calls a book. A book is a list of statements. The most common
+            reason to have a book is to make commands which will give a response that varies each time. For example, a
+            book may contain several statements which are each interesting facts about a given subject. Then a command
+            called !facts can be used to respond with a random statement from that book.</p>
+        <p class="content">A Book also provides a way for alerts to give a variety of messages. Just create a book that
+            contains all the messages that you want the alert to provide, set up the timing of the alert, and then make
+            a command that triggers off the alert and responds with the book's variable.<p>
 
-            <tr>
-                <td>Add Statement Command</td>
-                <td>&lt;<i>book&#x2011;name</i>&gt; &lt;<i>text</i>&gt;</td>
-                <td>Creates a new statement with the given <i>text</i> and adds it to the book named <i>book-name</i>.
-                    <p class="help-paragraph">If there is no book named <i>book-name</i> and the command was issued
-                        by a mod, then it also creates a new book with that name.</p>
-                </td>
-            </tr>
+        <h3>Variables</h3>
+        <p class="content">In some contexts, ServoBot has the ability to change the text it uses dynamically. It
+            determines, or can be programmed with, the the knowledge of certain variables. The variables come in four
+            flavors: pre-defined, based on context, channel-defined, and books.<p>
+        <p class="content">Pre-defined variables are set on the bot and can be used almost anywhere the bot allows text.
+            For example %time% will be replaced with the current time. A full list of these variables is on the variable
+            <a href="help/variables">help page</a>.<p>
+        <p class="content">Context variables may be supplied depending on the context that the text appears. For example
+            %sender% will be replaced with the username of whomever triggered a command in chat, but will not be
+            replaced if the command was triggered by a timed alert. A full list of these variables is on the variable
+            <a href="help/variables">help page</a>.<p>
+        <p class="content">Channel-defined variables can be set by the streamer by using the set value command or
+            through the ServoBot website.<p>
+        <p class="content">Book-defined variables are set by the presence of a book. The book's name is the variable and
+            the value is one of the book's statement, determined at random.<p>
 
-            <!--
-            <tr>
-                <td>Command</td>
-                <td></td>
-                <td></td>
-            </tr>
-            -->
-        </table>
+        <h3>Expressions</h3>
+        <p class="content">Most of the time the expressions used in commands will be just the names of variables.
+            However, anywhere a variable can be used, ServoBot is capable of more complex calculations.</p>
+        <p class="content">For numerical values, ServoBot can perform simple
+            mathematical computations: addition +, subtraction -, multiplication *. Also parentheses can be used to
+            change the order of operations.<p>
+        <p class="content">For string values, + is the concatenation operation, which just combines the two string
+            values one after another.<p>
+        <p class="content">For string values, + is the concatenation operation, which just combines the two string
+            values one after another.<p>
+        <p class="content">Additionally there is the conditional operator: A ? B : C. The expression A is evaluated and
+            if it results in a true value (or non empty string), then the result of the expression is B's value.
+            Otherwise the result is C's. For example, a common idiom is : "%input ? input : 'default text'%" to supply a
+            command with default text if the command wasn't given input when triggered.<p>
 
-        <p><a href="https://discordapp.com/invite/w7uJW67"><img class="small-icon" src="/images/discord.ico"></a>
-            More information can be found in the
-            <a href="https://discordapp.com/invite/w7uJW67">Discord</a>
-            channel.</p>
+        <h3>Emotes and Emoji</h3>
+        <p class="content todo">Write this<p>
+
     </div>
     <div th:include="fragments :: footer"/>
 </body>
