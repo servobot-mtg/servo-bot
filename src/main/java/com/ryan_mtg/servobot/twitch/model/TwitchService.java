@@ -151,7 +151,7 @@ public class TwitchService implements Service {
 
     public Set<Long> getChannelsStreaming(final List<Long> channelIds) {
         List<String> channelIdStrings = channelIds.stream().map(id -> Long.toString(id)).collect(Collectors.toList());
-        StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null, null,
+        StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null,
                 channelIdStrings, null).execute();
 
         Set<Long> streamingIds = new HashSet<>();
@@ -169,7 +169,7 @@ public class TwitchService implements Service {
     }
 
     public boolean isStreaming(final long channelId) {
-        StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null, null,
+        StreamList streamList = client.getHelix().getStreams(authToken, "", null, null,null, null,
                 Collections.singletonList(Long.toString(channelId)), null).execute();
         return !streamList.getStreams().isEmpty();
     }
