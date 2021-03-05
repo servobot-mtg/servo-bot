@@ -118,12 +118,13 @@ public class RaffleSettings {
         if (enterRaffle.getCommandName() == null || enterRaffle.getCommandName().isEmpty()) {
             throw new UserError("No enter raffle command is set");
         }
-        if (commandTable.getCommand(getEnterRaffle().getCommandName()) != null) {
+
+        if (commandTable.hasCommand(getEnterRaffle().getCommandName())) {
             throw new UserError("There is already a '%s' command.", enterRaffle.getCommandName());
         }
 
         if (hasRaffleStatusCommand()) {
-            if (commandTable.getCommand(raffleStatus.getCommandName()) != null) {
+            if (commandTable.hasCommand(raffleStatus.getCommandName())) {
                 throw new UserError("There is already a '%s' command.", raffleStatus.getCommandName());
             }
         }

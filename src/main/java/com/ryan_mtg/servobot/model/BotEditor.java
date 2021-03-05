@@ -22,6 +22,7 @@ import com.ryan_mtg.servobot.error.BotError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.game.GameManager;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.chat_draft.ChatDraftTable;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
@@ -183,9 +184,10 @@ public class BotEditor {
             BookTable bookTable = new BookTable();
             RoleTable roleTable = new RoleTable(RoleTable.UNREGISTERED_ID, botHomeId, null);
             List<EmoteLink> emoteLinks = new ArrayList<>();
+            ChatDraftTable chatDraftTable = new ChatDraftTable();
             BotHome botHome = new BotHome(botHomeId, BotHome.DEFAULT_FLAGS, homeName, botName, timeZone, homedUserTable,
                     bookTable, commandTable, reactionTable, roleTable, storageTable, serviceHomes, gameQueueTable,
-                    giveaways, emoteLinks);
+                    giveaways, emoteLinks, chatDraftTable);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue(), false);
             return botHome;

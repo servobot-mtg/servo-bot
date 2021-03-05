@@ -20,7 +20,6 @@ import com.ryan_mtg.servobot.data.repositories.BotHomeRepository;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
-import com.ryan_mtg.servobot.error.LibraryError;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.AlertEvent;
@@ -29,6 +28,7 @@ import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
+import com.ryan_mtg.servobot.model.editors.ChatDraftEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
 import com.ryan_mtg.servobot.model.editors.GiveawayEditor;
@@ -85,6 +85,9 @@ public class HomeEditor {
     private GiveawayEditor giveawayEditor;
 
     @Getter
+    private ChatDraftEditor chatDraftEditor;
+
+    @Getter
     private BookTableEditor bookTableEditor;
 
     @Getter
@@ -109,6 +112,8 @@ public class HomeEditor {
         this.roleTableEditor = new RoleTableEditor(botHome.getRoleTable(), serializers.getRoleTableSerializer());
         this.giveawayEditor = new GiveawayEditor(botHome.getId(), botHome.getGiveaways(),
                 serializers.getGiveawaySerializer(), botHome.getHomedUserTable());
+        this.chatDraftEditor = new ChatDraftEditor(botHome.getId(), botHome.getChatDraftTable(),
+                serializers.getChatDraftSerializer(), commandTableEditor, botHome.getHomedUserTable());
         this.bookTableEditor =
                 new BookTableEditor(botHome.getId(), botHome.getBookTable(), serializers.getBookSerializer());
     }

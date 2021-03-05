@@ -18,7 +18,9 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.BotRegistrar;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
+import com.ryan_mtg.servobot.model.chat_draft.ChatDraft;
 import com.ryan_mtg.servobot.model.editors.BookTableEditor;
+import com.ryan_mtg.servobot.model.editors.ChatDraftEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.GiveawayEditor;
 import com.ryan_mtg.servobot.model.editors.RoleTableEditor;
@@ -651,6 +653,13 @@ public class ApiController {
         private int giveawayId;
     }
 
+    @PostMapping(value = "/add_chat_draft", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ChatDraft addChatDraft(@RequestBody final BotHomeRequest request) throws UserError {
+        ChatDraftEditor chatDraftEditor = getChatDraftEditor(request.getBotHomeId());
+        return chatDraftEditor.addChatDraft();
+    }
+
     @PostMapping(value = "/add_emote_link", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public EmoteLink addEmoteLink(@RequestBody final AddEmoteLinkRequest request) throws UserError {
@@ -704,6 +713,13 @@ public class ApiController {
     private GiveawayEditor getGiveawayEditor(final int contextId) {
         if (contextId > 0) {
             return botRegistrar.getHomeEditor(contextId).getGiveawayEditor();
+        }
+        return null;
+    }
+
+    private ChatDraftEditor getChatDraftEditor(final int contextId) {
+        if (contextId > 0) {
+            return botRegistrar.getHomeEditor(contextId).getChatDraftEditor();
         }
         return null;
     }

@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chat Draft</title>
+    <div th:replace="fragments :: includes"></div>
+    <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
+            type="text/javascript" src="/script/privileged.js" defer></script>
+    <script type="text/javascript" src="/script/draft.js" defer></script>
+</head>
+<body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
+      streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
+      exalted=${user.admin || streamer}">
+<div th:include="fragments :: header"></div>
+<div class="content">
+    <div>
+        <h2>Chat Draft</h2>
+        <th:block th:each="chatDraft : ${botHome.chatDraftTable.chatDrafts}"
+                  th:with="label=${'chat-draft-' + chatDraft.id},
+                    CONF=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).CONFIGURING},
+                    RECRUITING=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).RECRUITING},
+                    ACTIVE=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).ACTIVE}">
+            <div class="chat-draft">
+                <div class="title-section">
+                    <h2>Chat Draft</h2>
+                </div>
+                <div class="form-container" th:if="${exalted}">
+                    <div class="home-controls hidden">
+                        <span th:id="${label} + '-state'" class="home-status" th:text= "${chatDraft.state == ACTIVE ?
+                            'Active' : chatDraft.state == CONF ? 'Idle' : 'Looking for players'}">
+                        </span>
+
+                        <span th:id="${label} + '-configuring-button'" class="pseudo-link home-control"
+                              title="Start Accepting Drafters"
+                              th:style="'display: ' + ${chatDraft.state == CONF ? 'inline-block' : 'none'}"
+                              th:onclick="'openChatDraft(' + ${botHome.id} + ', ' + ${chatDraft.id} + ')'">
+                            &#x25B6;
+                        </span>
+
+                        <span th:id="${label} + '-recruiting-button'" class="pseudo-link home-control"
+                              title="Begin the Draft"
+                              th:style="'display: ' + ${chatDraft.state == RECRUITING ? 'inline-block' : 'none'}"
+                              th:onclick="'beginChatDraft(' + ${botHome.id} + ', ' + ${chatDraft.id} + ')'">
+                            &#x25B6;
+                        </span>
+
+                        <span th:id="${label} + '-active-button'" class="pseudo-link home-control" title="End Draft"
+                              th:style="'display: ' + ${chatDraft.state != COMPLETE ? 'inline-block' : 'none'}"
+                              th:onclick="'endChatDraft(' + ${botHome.id} + ', ' + ${chatDraft.id} + ')'">
+                            &#x23F9;
+                        </span>
+                    </div>
+                </div><br>
+
+                <div class="section" th:if="${privileged}">
+                    <h3>Chat Draft Settings</h3>
+                    <div class="section-content">
+                        <div class="form-container">
+                            <div class="form-block">
+                                <label># of Picks</label><br>
+                                <input type="number" th:id="${label} + '-picks-count'" value="8" readonly><br>
+                            </div>
+                        </div><br>
+
+                        <div class="form-container">
+                            <div th:replace="fragments :: command_settings (item = ${chatDraft},
+                                description = 'Start Chat Draft Command', label = ${label + '-open-settings'},
+                                settingsId = ${1}, commandSettings = ${chatDraft.openCommandSettings})">
+                            </div>
+
+                            <div th:replace="fragments :: command_settings (item = ${chatDraft},
+                                description = 'Enter Draft Command', label = ${label + '-enter-settings'},
+                                settingsId = ${2}, commandSettings = ${chatDraft.enterCommandSettings})">
+                            </div>
+
+                            <div th:replace="fragments :: command_settings (item = ${chatDraft},
+                                description = 'Get Draft Status Command', label = ${label + '-status-settings'},
+                                settingsId = ${1}, commandSettings = ${chatDraft.statusCommandSettings})">
+                            </div>
+
+                            <div th:replace="fragments :: command_settings (item = ${chatDraft},
+                                description = 'Begin Drafting Command', label = ${label + '-begin-settings'},
+                                settingsId = ${1}, commandSettings = ${chatDraft.beginCommandSettings})">
+                            </div>
+
+                            <div th:replace="fragments :: command_settings (item = ${chatDraft},
+                                description = 'Next Pick Command', label = ${label + '-next-settings'},
+                                settingsId = ${1}, commandSettings = ${chatDraft.nextCommandSettings})">
+                            </div>
+
+                            <div th:replace="fragments :: command_settings (item = ${chatDraft},
+                                description = 'End Chat Draft Command', label = ${label + '-close-settings'},
+                                settingsId = ${1}, commandSettings = ${chatDraft.closeCommandSettings})">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="button-area">
+                            <div class="pseudo-link save-button"
+                                 th:onclick="'saveChatDraftSettings(' + ${botHome.id} + ', ' + ${chatDraft.id} + ')'">
+                                <div>&#x1F4BE;</div>
+                                <span th:id="${label} + '-chat-draft-save-response'"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+
+        <div class="add-chat-draft" th:if="${botHome.chatDraftTable.chatDrafts.empty}">
+            <form id="add-chat-draft-form" class="add-form simple-form"
+                  th:onsubmit="'addChatDraft(' + ${botHome.id} + '); return false;'">
+                <input class="sole-button" type="submit" value="Enable Chat Drafting">
+            </form>
+        </div>
+    </div>
+</div>
+<div th:include="fragments :: footer" />
+</body>
+</html>

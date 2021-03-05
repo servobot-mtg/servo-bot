@@ -140,6 +140,16 @@ public class BotController {
         return showGiveaways(model, getBotHome(botName, homeName));
     }
 
+    @GetMapping("/home/{home}/chat_draft")
+    public String showChatDraft(final Model model, @PathVariable("home") final String homeName) {
+        return showChatDraft(model, getBotHome(homeName));
+    }
+
+    @GetMapping("/home/{bot}/{home}/chat_draft")
+    public String showChatDraft(final Model model, @PathVariable("bot") final String botName,
+                                 @PathVariable("home") final String homeName) {
+        return showChatDraft(model, getBotHome(botName, homeName));
+    }
 
     @GetMapping("/home/{home}/book/{book}")
     public String showBook(final Model model, @PathVariable("home") final String homeName,
@@ -219,6 +229,11 @@ public class BotController {
 
         addBotHome(model, botHome);
         return "giveaways";
+    }
+
+    public String showChatDraft(final Model model, final BotHome botHome) {
+        addBotHome(model, botHome);
+        return "chat_draft";
     }
 
     public String showBook(final Model model, final BotHome botHome, @PathVariable("book") final String bookName) {

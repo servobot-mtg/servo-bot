@@ -451,6 +451,11 @@ table#player-table {
     margin-bottom: 10px;
 }
 
+.simple-form {
+    display: inline-block;
+}
+
+
 .add-statement {
     --add-button-size: 24px;
     margin: 12px;
@@ -559,6 +564,12 @@ table#player-table {
 .add-form input[type=submit] {
     margin: 12px 0 0 0;
     float: right;
+}
+
+input[type=submit].sole-button {
+    margin: 0;
+    display: inline;
+    float: none;
 }
 
 .add-form input[type=text] {

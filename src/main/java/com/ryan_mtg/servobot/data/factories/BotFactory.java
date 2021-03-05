@@ -15,6 +15,7 @@ import com.ryan_mtg.servobot.model.Bot;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.chat_draft.ChatDraftTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.roles.RoleTable;
@@ -144,14 +145,19 @@ public class BotFactory {
         LOGGER.info("------ Creating Giveaways: {} ", botHomeRow.getHomeName());
         List<Giveaway> giveaways =
                 serializers.getGiveawaySerializer().createGiveaways(botHomeId, homedUserTable, commandTable);
-        LOGGER.info("------ Creating emoteLinks: {} ", botHomeRow.getHomeName());
+
+        LOGGER.info("------ Creating Emote Links: {} ", botHomeRow.getHomeName());
         List<EmoteLink> emoteLinks = serializers.getEmoteLinkSerializer().createEmoteLinks(botHomeId);
+
+        LOGGER.info("------ Creating Chat Draft Table: {} ", botHomeRow.getHomeName());
+        ChatDraftTable chatDraftTable =
+                serializers.getChatDraftSerializer().createChatDraftTable(botHomeId, homedUserTable, commandTable);
 
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
         return SystemError.filter(() -> {
             BotHome botHome = new BotHome(botHomeId, flags, homeName, botName, timeZone, homedUserTable, bookTable,
                     commandTable, reactionTable, roleTable, storageTable, serviceHomes, gameQueueTable, giveaways,
-                    emoteLinks);
+                    emoteLinks, chatDraftTable);
 
             LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
             return botHome;

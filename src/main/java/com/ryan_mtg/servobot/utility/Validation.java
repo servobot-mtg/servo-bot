@@ -60,7 +60,7 @@ public class Validation {
         }
 
         validateStringValue(newCommandName, MAX_NAME_LENGTH, commandDescription, NAME_PATTERN);
-        if (commandTable.getCommand(newCommandName) != null) {
+        if (commandTable.hasCommand(newCommandName)) {
             throw new UserError("There is already a '%s' command.", newCommandName);
         }
     }

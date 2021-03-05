@@ -113,21 +113,25 @@
                         </div><br>
 
                         <div class="form-container">
-                            <div th:replace="fragments :: command_settings (description = 'Start Raffle Command',
-                                label = ${label + '-start-raffle'}, settingsId = ${1},
-                                commandSettings = ${giveaway.raffleSettings.startRaffle})"></div>
+                            <div th:replace="fragments :: command_settings (item = ${giveaway},
+                                description = 'Start Raffle Command', label = ${label + '-start-raffle'},
+                                settingsId = ${1}, commandSettings = ${giveaway.raffleSettings.startRaffle})">
+                            </div>
 
-                            <div th:replace="fragments :: command_settings (description = 'Enter Raffle Command',
-                                label = ${label + '-enter-raffle'}, settingsId = ${2},
-                                commandSettings = ${giveaway.raffleSettings.enterRaffle})"></div><br>
+                            <div th:replace="fragments :: command_settings (item = ${giveaway},
+                                description = 'Enter Raffle Command', label = ${label + '-enter-raffle'},
+                                settingsId = ${2}, commandSettings = ${giveaway.raffleSettings.enterRaffle})">
+                            </div><br>
 
-                            <div th:replace="fragments :: command_settings (description = 'Raffle Status Command',
-                                label = ${label + '-raffle-status'}, settingsId = ${3},
-                                commandSettings = ${giveaway.raffleSettings.raffleStatus})"></div>
+                            <div th:replace="fragments :: command_settings (item = ${giveaway},
+                                description = 'Raffle Status Command', label = ${label + '-raffle-status'},
+                                settingsId = ${3}, commandSettings = ${giveaway.raffleSettings.raffleStatus})">
+                            </div>
 
-                            <div th:replace="fragments :: command_settings (description = 'Select Winner Command',
-                                label = ${label + '-select-winner'}, settingsId = ${4},
-                                commandSettings = ${giveaway.raffleSettings.selectWinner})"></div><br>
+                            <div th:replace="fragments :: command_settings (item = ${giveaway},
+                                description = 'Select Winner Command', label = ${label + '-select-winner'},
+                                settingsId = ${4}, commandSettings = ${giveaway.raffleSettings.selectWinner})">
+                            </div><br>
                         </div>
                         <br>
                         <div class="button-area">

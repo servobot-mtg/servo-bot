@@ -16,8 +16,8 @@ public class GiveawayEdit {
     private Map<Prize, Integer> savedPrizes = new IdentityHashMap<>();
     private List<Prize> deletedPrizes = new ArrayList<>();
 
-    public void addGiveaway(final int botHomdId, final Giveaway giveaway) {
-        savedGiveaways.put(giveaway, botHomdId);
+    public void addGiveaway(final int botHomeId, final Giveaway giveaway) {
+        savedGiveaways.put(giveaway, botHomeId);
     }
 
     public void savePrize(final int giveawayId, final Prize prize) {

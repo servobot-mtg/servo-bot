@@ -25,6 +25,7 @@ public class SerializerContainer {
     private final AlertGeneratorSerializer alertGeneratorSerializer;
     private final BookSerializer bookSerializer;
     private final BotHomeRepository botHomeRepository;
+    private final ChatDraftSerializer chatDraftSerializer;
     private final CommandSerializer commandSerializer;
     private final CommandTableSerializer commandTableSerializer;
     private final EmoteLinkSerializer emoteLinkSerializer;

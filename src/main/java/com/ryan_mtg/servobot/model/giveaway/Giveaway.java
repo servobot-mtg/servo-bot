@@ -197,7 +197,7 @@ public class Giveaway {
                 throw new UserError("Must set request prize command name");
             }
 
-            if (commandTable.getCommand(requestPrizeCommandName) != null) {
+            if (commandTable.hasCommand(requestPrizeCommandName)) {
                 throw new UserError("There is already a '%s' command.", requestPrizeCommandName);
             }
 

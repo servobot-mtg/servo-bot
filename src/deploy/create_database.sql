@@ -84,6 +84,19 @@ CREATE TABLE IF NOT EXISTS logged_message (id INTEGER AUTO_INCREMENT PRIMARY KEY
 CREATE TABLE IF NOT EXISTS video_timestamp (id INTEGER AUTO_INCREMENT PRIMARY KEY, time BIGINT, channel VARCHAR(50),
                                             user VARCHAR(50), link VARCHAR(200), note VARCHAR(200), offset VARCHAR(30));
 
+CREATE TABLE IF NOT EXISTS draft_entrant (id INTEGER AUTO_INCREMENT PRIMARY KEY, chat_draft_id INTEGER,
+                                          user_id INTEGER);
+
+CREATE TABLE IF NOT EXISTS chat_draft (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, state INTEGER,
+        open_command_name VARCHAR(30), open_permission INTEGER, open_flags INTEGER, open_message VARCHAR(200),
+        open_command_id INTEGER, enter_command_name VARCHAR(30), enter_permission INTEGER, enter_flags INTEGER,
+        enter_message VARCHAR(200), enter_command_id INTEGER, status_command_name VARCHAR(30),
+        status_permission INTEGER, status_flags INTEGER, status_message VARCHAR(200), status_command_id INTEGER,
+        begin_command_name VARCHAR(30), begin_permission INTEGER, begin_flags INTEGER, begin_message VARCHAR(200),
+        begin_command_id INTEGER, next_command_name VARCHAR(30), next_permission INTEGER, next_flags INTEGER,
+        next_message VARCHAR(200), next_command_id INTEGER, close_command_name VARCHAR(30), close_permission INTEGER,
+        close_flags INTEGER, close_message VARCHAR(200), close_command_id INTEGER);
+
 CREATE TABLE IF NOT EXISTS session (primary_id CHAR(36) NOT NULL, session_id CHAR(36) NOT NULL,
         creation_time BIGINT NOT NULL, last_access_time BIGINT NOT NULL, max_inactive_interval INT NOT NULL,
         expiry_time BIGINT NOT NULL, principal_name VARCHAR(100),

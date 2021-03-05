@@ -193,6 +193,10 @@ public class CommandTable {
         return commandMap.get(canonicalize(token));
     }
 
+    public boolean hasCommand(final String token) {
+        return commandMap.containsKey(canonicalize(token));
+    }
+
     public <CommandType extends Command> List<CommandType> getCommands(final CommandEvent.Type eventType,
                                                        final Class<CommandType> commandClass) {
         List<CommandEvent> events = eventMap.get(eventType);

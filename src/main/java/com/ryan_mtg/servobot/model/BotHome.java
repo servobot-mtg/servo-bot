@@ -12,6 +12,7 @@ import com.ryan_mtg.servobot.events.ReactionListener;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
+import com.ryan_mtg.servobot.model.chat_draft.ChatDraftTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -104,6 +105,8 @@ public class BotHome implements Context {
     @Getter
     private List<EmoteLink> emoteLinks;
 
+    @Getter ChatDraftTable chatDraftTable;
+
     @Getter
     private boolean active = false;
 
@@ -114,7 +117,8 @@ public class BotHome implements Context {
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
                    final ReactionTable reactionTable, final RoleTable roleTable, final StorageTable storageTable,
                    final Map<Integer, ServiceHome> serviceHomes, final GameQueueTable gameQueueTable,
-                   final List<Giveaway> giveaways, final List<EmoteLink> emoteLinks) throws UserError {
+                   final List<Giveaway> giveaways, final List<EmoteLink> emoteLinks,
+                   final ChatDraftTable chatDraftTable) throws UserError {
         this.id = id;
         this.flags = flags;
         this.name = name;
@@ -131,6 +135,7 @@ public class BotHome implements Context {
         this.gameQueueTable = gameQueueTable;
         this.giveaways = giveaways;
         this.emoteLinks = emoteLinks;
+        this.chatDraftTable = chatDraftTable;
 
         Validation.validateStringLength(name, Validation.MAX_NAME_LENGTH, "Name");
         Validation.validateStringLength(botName, Validation.MAX_NAME_LENGTH, "Bot name");

@@ -40,6 +40,10 @@ public class CommandTableEditor {
         this.gameQueueEditor = gameQueueEditor;
     }
 
+    public boolean hasCommand(final String token) {
+        return commandTable.hasCommand(token);
+    }
+
     @Transactional(rollbackOn = Exception.class)
     public CommandDescriptor addCommand(final CommandRow commandRow) throws UserError {
         if (commandRow.getType() == CommandType.GAME_QUEUE_COMMAND_TYPE.getType())  {
@@ -53,6 +57,10 @@ public class CommandTableEditor {
         CommandTableEdit commandTableEdit = commandTable.addCommand(command);
         commandTableSerializer.commit(commandTableEdit);
         return new CommandDescriptor(command);
+    }
+
+    public CommandTableEdit addCommandEdit(final String alias, final InvokedCommand command) throws UserError {
+        return commandTable.addCommand(alias, command);
     }
 
     @Transactional(rollbackOn = Exception.class)

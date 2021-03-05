@@ -9,5 +9,4 @@ public interface GiveawayRepository extends CrudRepository<GiveawayRow, Integer>
     GiveawayRow findById(int id);
     Iterable<GiveawayRow> findAllByIdIn(Iterable<Integer> ids);
     Iterable<GiveawayRow> findAllByBotHomeId(int botHomeId);
-
 }
