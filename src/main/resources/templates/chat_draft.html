@@ -13,7 +13,6 @@
 <div th:include="fragments :: header"></div>
 <div class="content">
     <div>
-        <h2>Chat Draft</h2>
         <th:block th:each="chatDraft : ${botHome.chatDraftTable.chatDrafts}"
                   th:with="label=${'chat-draft-' + chatDraft.id},
                     CONF=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).CONFIGURING},
@@ -100,6 +99,17 @@
                                 <span th:id="${label} + '-chat-draft-save-response'"/>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Entrant list</h3>
+                    <div class="section-content">
+                        <ul>
+                            <th:block th:each="entrant : ${chatDraft.entrants}">
+                                <li th:text="${entrant.user.name}"></li>
+                            </th:block>
+                        </ul>
                     </div>
                 </div>
             </div>

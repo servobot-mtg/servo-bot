@@ -52,6 +52,6 @@ public class EnterRaffleCommand extends InvokedHomedCommand {
 
     @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
-        commandVisitor.visitEnterGiveawayCommand(this);
+        commandVisitor.visitEnterRaffleCommand(this);
     }
 }

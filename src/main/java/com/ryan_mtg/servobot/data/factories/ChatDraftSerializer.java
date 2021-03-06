@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.CommandTable;
+import com.ryan_mtg.servobot.commands.CommandTableEdit;
+import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.data.models.ChatDraftRow;
 import com.ryan_mtg.servobot.data.models.DraftEntrantRow;
@@ -24,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -36,10 +39,22 @@ public class ChatDraftSerializer {
     public void commit(final ChatDraftEdit chatDraftEdit) {
         commandTableSerializer.commit(chatDraftEdit.getCommandTableEdit());
 
-        chatDraftEdit.getSavedChatDrafts().forEach((chatDraft, botHomeId) -> saveChatDraft(botHomeId, chatDraft));
+        chatDraftEdit.getSavedDraftEntrants()
+                .forEach((draftEntrant, chatDraftId) -> saveDraftEntrant(chatDraftId, draftEntrant));
+
+        CommandTableEdit commandTableEdit = new CommandTableEdit();
+        chatDraftEdit.getSavedChatDrafts().forEach((chatDraft, botHomeId) -> {
+            saveChatDraft(botHomeId, chatDraft);
+            Function<ChatDraft, Command> saveCallback = chatDraftEdit.getChatDraftSaveCallbackMap().get(chatDraft);
+            if (saveCallback != null) {
+                Command command = saveCallback.apply(chatDraft);
+                commandTableEdit.save(botHomeId, command);
+            }
+        });
+
+        commandTableSerializer.commit(commandTableEdit);
     }
 
-    @Transactional(rollbackOn = Exception.class)
     public void saveChatDraft(final int botHomeId, final ChatDraft chatDraft) {
         ChatDraftRow chatDraftRow = new ChatDraftRow();
         chatDraftRow.setId(chatDraft.getId());
@@ -86,6 +101,17 @@ public class ChatDraftSerializer {
         chatDraftRepository.save(chatDraftRow);
 
         chatDraft.setId(chatDraftRow.getId());
+    }
+
+    private void saveDraftEntrant(final int chatDraftId, final DraftEntrant draftEntrant) {
+        DraftEntrantRow draftEntrantRow = new DraftEntrantRow();
+        draftEntrantRow.setId(draftEntrant.getId());
+        draftEntrantRow.setChatDraftId(chatDraftId);
+        draftEntrantRow.setUserId(draftEntrant.getUser().getId());
+
+        draftEntrantRepository.save(draftEntrantRow);
+
+        draftEntrant.setId(draftEntrantRow.getId());
     }
 
     public ChatDraftTable createChatDraftTable(final int botHomeId, final HomedUserTable homedUserTable,
@@ -139,14 +165,12 @@ public class ChatDraftSerializer {
     private ChatDraft createChatDraft(final ChatDraftRow chatDraftRow, final CommandTable commandTable,
             final Map<Integer, List<DraftEntrant>> draftEntrantsMap) {
         return SystemError.filter(() -> {
-            ChatDraft chatDraft = new ChatDraft(chatDraftRow.getId(), chatDraftRow.getState());
-
             List<DraftEntrant> draftEntrants = draftEntrantsMap.get(chatDraftRow.getId());
-            if (draftEntrants != null) {
-                for (DraftEntrant draftEntrant : draftEntrants) {
-                    chatDraft.addDraftEntrant(draftEntrant);
-                }
+            if (draftEntrants == null) {
+                draftEntrants = new ArrayList<>();
             }
+
+            ChatDraft chatDraft = new ChatDraft(chatDraftRow.getId(), chatDraftRow.getState(), draftEntrants);
 
             chatDraft.setOpenCommandSettings(new GiveawayCommandSettings(chatDraftRow.getOpenCommandName(),
                     chatDraftRow.getOpenFlags(), chatDraftRow.getOpenPermission(), chatDraftRow.getOpenMessage()));
@@ -160,7 +184,8 @@ public class ChatDraftSerializer {
                     chatDraftRow.getEnterFlags(), chatDraftRow.getEnterPermission(), chatDraftRow.getEnterMessage()));
 
             if (chatDraftRow.getEnterCommandId() != Command.UNREGISTERED_ID) {
-                Command enterCommand = commandTable.getCommand(chatDraftRow.getEnterCommandId());
+                EnterChatDraftCommand enterCommand =
+                        (EnterChatDraftCommand) commandTable.getCommand(chatDraftRow.getEnterCommandId());
                 chatDraft.setEnterCommand(enterCommand);
             }
 

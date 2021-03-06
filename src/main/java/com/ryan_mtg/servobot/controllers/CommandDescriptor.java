@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
@@ -169,7 +171,12 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitEnterGiveawayCommand(final EnterRaffleCommand enterRaffleCommand) {
+        public void visitEnterChatDraftCommand(final EnterChatDraftCommand enterChatDraftCommand) {
+            description = "Enters the user into the chat draft";
+        }
+
+        @Override
+        public void visitEnterRaffleCommand(final EnterRaffleCommand enterRaffleCommand) {
             description = "Enters the user into the current giveaway";
         }
 
@@ -211,7 +218,7 @@ public class CommandDescriptor {
         }
 
         @Override
-        public void visitMakeRoleMessageCommand(MakeRoleMessageCommand makeRoleMessageCommand) {
+        public void visitMakeRoleMessageCommand(final MakeRoleMessageCommand makeRoleMessageCommand) {
             description = "Sends a message that allows members to react to add roles";
         }
 
@@ -221,6 +228,12 @@ public class CommandDescriptor {
                     messageChannelCommand.getMessage(), messageChannelCommand.getChannelName(),
                     messageChannelCommand.getServiceType());
             edit = messageChannelCommand.getMessage();
+        }
+
+        @Override
+        public void visitOpenChatDraftCommand(final OpenChatDraftCommand openChatDraftCommand) {
+            description = "Starts the chat draft";
+            edit = openChatDraftCommand.getMessage();
         }
 
         @Override

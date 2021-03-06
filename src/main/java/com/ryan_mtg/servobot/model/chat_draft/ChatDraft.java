@@ -1,11 +1,14 @@
 package com.ryan_mtg.servobot.model.chat_draft;
 
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatDraft {
@@ -46,7 +49,7 @@ public class ChatDraft {
     private Command openCommand;
 
     @Getter @Setter
-    private Command enterCommand;
+    private EnterChatDraftCommand enterCommand;
 
     @Getter @Setter
     private Command statusCommand;
@@ -60,15 +63,17 @@ public class ChatDraft {
     @Getter @Setter
     private Command closeCommand;
 
-    private List<DraftEntrant> entrants;
+    @Getter
+    private final List<DraftEntrant> entrants;
 
-    public ChatDraft(final int id, final State state) {
+    public ChatDraft(final int id, final State state, final List<DraftEntrant> entrants) {
         this.id = id;
         this.state = state;
+        this.entrants = entrants;
     }
 
     public ChatDraft() {
-        this(UNREGISTERED_ID, State.CONFIGURING);
+        this(UNREGISTERED_ID, State.CONFIGURING, new ArrayList<>());
 
         openCommandSettings = new GiveawayCommandSettings("chatDraft", DEFAULT_COMMAND_FLAGS,
                 Permission.STREAMER, "A chat draft is about to start! To take part in it type !%chatDraft.enter%");
@@ -84,8 +89,15 @@ public class ChatDraft {
                 Permission.STREAMER, "The chat draft has ended!");
     }
 
-    public void addDraftEntrant(final DraftEntrant draftEntrant) {
+    public ChatDraftEdit addDraftEntrant(final DraftEntrant draftEntrant) throws UserError {
+        if (entrants.stream().anyMatch(entrant -> entrant.getUser().getId() == draftEntrant.getUser().getId())) {
+            throw new UserError("%s has already entered!", draftEntrant.getUser().getName());
+        }
+
         entrants.add(draftEntrant);
+        ChatDraftEdit chatDraftEdit = new ChatDraftEdit();
+        chatDraftEdit.saveDraftEntrant(id, draftEntrant);
+        return chatDraftEdit;
     }
 
     public String getEnter() {

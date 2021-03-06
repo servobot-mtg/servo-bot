@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
+import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.CommandSerializer;
@@ -60,6 +61,10 @@ public class CommandTableEditor {
     }
 
     public CommandTableEdit addCommandEdit(final String alias, final InvokedCommand command) throws UserError {
+        return commandTable.addCommand(alias, command);
+    }
+
+    public CommandTableEdit addCommandEdit(final String alias, final InvokedHomedCommand command) throws UserError {
         return commandTable.addCommand(alias, command);
     }
 

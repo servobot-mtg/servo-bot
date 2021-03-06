@@ -73,7 +73,8 @@
             </tr></thead>
             <th:block th:each="descriptor : ${commandDescriptors}" th:with="command=${descriptor.command}">
                 <tr th:if="${!command.secure || privileged}" th:with="label=${'command-' + command.id}"
-                    th:id="${label + '-row'}" th:classappend="${command.secure ? 'secure ' : ''}">
+                    th:id="${label + '-row'}"
+                    th:classappend="${(command.secure ? 'secure ' : '') + (command.temporary ? 'temporary ' : '')}">
 
                     <td th:if="${privileged}" th:text="${command.id}"/>
                     <td th:text="${descriptor.type}"/>

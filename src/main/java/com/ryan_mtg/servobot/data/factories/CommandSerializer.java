@@ -2,6 +2,8 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.AddBookedStatementCommand;
 import com.ryan_mtg.servobot.commands.ScoreCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
@@ -107,6 +109,9 @@ public class CommandSerializer {
                             Strings.trim(commandRow.getStringParameter()));
                 case DELETE_COMMAND_TYPE:
                     return new DeleteCommand(id, commandSettings);
+                case ENTER_CHAT_DRAFT_COMMAND_TYPE:
+                    return new EnterChatDraftCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
+                            Strings.trim(commandRow.getStringParameter()));
                 case ENTER_RAFFLE_COMMAND_TYPE:
                     int giveawayId = (int) (long) commandRow.getLongParameter();
                     return new EnterRaffleCommand(id, commandSettings, giveawayId,
@@ -134,6 +139,9 @@ public class CommandSerializer {
                 case MESSAGE_CHANNEL_COMMAND_TYPE:
                     return new MessageChannelCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
                             Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
+                case OPEN_CHAT_DRAFT_COMMAND_TYPE:
+                    return new OpenChatDraftCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
+                            Strings.trim(commandRow.getStringParameter()));
                 case RAFFLE_STATUS_COMMAND_TYPE:
                     giveawayId = (int) (long) commandRow.getLongParameter();
                     return new RaffleStatusCommand(id, commandSettings, giveawayId,
@@ -317,7 +325,15 @@ public class CommandSerializer {
         }
 
         @Override
-        public void visitEnterGiveawayCommand(final EnterRaffleCommand enterRaffleCommand) {
+        public void visitEnterChatDraftCommand(final EnterChatDraftCommand enterChatDraftCommand) {
+            saveCommand(enterChatDraftCommand, commandRow -> {
+                commandRow.setLongParameter(enterChatDraftCommand.getChatDraftId());
+                commandRow.setStringParameter(enterChatDraftCommand.getResponse());
+            });
+        }
+
+        @Override
+        public void visitEnterRaffleCommand(final EnterRaffleCommand enterRaffleCommand) {
             saveCommand(enterRaffleCommand, commandRow -> {
                 commandRow.setLongParameter(enterRaffleCommand.getGiveawayId());
                 commandRow.setStringParameter(enterRaffleCommand.getResponse());
@@ -383,6 +399,14 @@ public class CommandSerializer {
                 commandRow.setLongParameter(messageChannelCommand.getServiceType());
                 commandRow.setStringParameter(messageChannelCommand.getChannelName());
                 commandRow.setStringParameter2(messageChannelCommand.getMessage());
+            });
+        }
+
+        @Override
+        public void visitOpenChatDraftCommand(final OpenChatDraftCommand openChatDraftCommand) {
+            saveCommand(openChatDraftCommand, commandRow -> {
+                commandRow.setLongParameter(openChatDraftCommand.getChatDraftId());
+                commandRow.setStringParameter(openChatDraftCommand.getMessage());
             });
         }
 

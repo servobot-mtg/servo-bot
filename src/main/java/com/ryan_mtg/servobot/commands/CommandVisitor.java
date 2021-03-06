@@ -6,6 +6,8 @@ import com.ryan_mtg.servobot.commands.chat.DeleteCommand;
 import com.ryan_mtg.servobot.commands.chat.FactsCommand;
 import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.chat.TextCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
 import com.ryan_mtg.servobot.commands.game_queue.GameQueueCommand;
@@ -31,7 +33,8 @@ public interface CommandVisitor {
     void visitCardSearchCommand(CardSearchCommand cardSearchCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
-    void visitEnterGiveawayCommand(EnterRaffleCommand enterRaffleCommand);
+    void visitEnterChatDraftCommand(EnterChatDraftCommand enterChatDraftCommand);
+    void visitEnterRaffleCommand(EnterRaffleCommand enterRaffleCommand);
     void visitEvaluateExpressionCommand(EvaluateExpressionCommand evaluateExpressionCommand);
     void visitFactsCommand(FactsCommand factsCommand);
     void visitGameCommand(GameCommand gameCommand);
@@ -41,6 +44,7 @@ public interface CommandVisitor {
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
     void visitMakeRoleMessageCommand(MakeRoleMessageCommand makeRoleMessageCommand);
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
+    void visitOpenChatDraftCommand(OpenChatDraftCommand openChatDraftCommand);
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
     void visitRequestPrizeCommand(RequestPrizeCommand requestPrizeCommand);
     void visitScryfallSearchCommand(ScryfallSearchCommand scryfallSearchCommand);

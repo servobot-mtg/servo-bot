@@ -158,6 +158,10 @@ input[type=number] {
     background-color: #FFDDDD;
 }
 
+.temporary {
+    background-color: lightcyan;
+}
+
 .content {
     padding: 0 12px;
 }
@@ -454,7 +458,6 @@ table#player-table {
 .simple-form {
     display: inline-block;
 }
-
 
 .add-statement {
     --add-button-size: 24px;
