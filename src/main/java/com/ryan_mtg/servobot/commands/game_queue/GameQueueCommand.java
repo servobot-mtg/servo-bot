@@ -195,6 +195,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
             GameQueueUtils.updateMessage(event, gameQueue, message, action, true);
         } else {
             showQueue(event);
+            GameQueueUtils.respondToAction(event, gameQueue, action, false);
         }
     }
 
