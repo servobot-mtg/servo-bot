@@ -6,7 +6,10 @@ import com.ryan_mtg.servobot.commands.chat.DeleteCommand;
 import com.ryan_mtg.servobot.commands.chat.FactsCommand;
 import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.chat.TextCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.BeginChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.ChatDraftStatusCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.NextPickCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
@@ -30,7 +33,9 @@ public interface CommandVisitor {
     void visitAddCommand(AddCommand addCommand);
     void visitAddReactionCommand(AddReactionCommand addReactionCommand);
     void visitAddStatementCommand(AddStatementCommand addStatementCommand);
+    void visitBeginChatDraftCommand(BeginChatDraftCommand beginChatDraftCommand);
     void visitCardSearchCommand(CardSearchCommand cardSearchCommand);
+    void visitChatDraftStatusCommand(ChatDraftStatusCommand chatDraftStatusCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
     void visitEnterChatDraftCommand(EnterChatDraftCommand enterChatDraftCommand);
@@ -44,6 +49,7 @@ public interface CommandVisitor {
     void visitJoinGameQueueCommand(JoinGameQueueCommand joinGameQueueCommand);
     void visitMakeRoleMessageCommand(MakeRoleMessageCommand makeRoleMessageCommand);
     void visitMessageChannelCommand(MessageChannelCommand messageChannelCommand);
+    void visitNextPickCommand(NextPickCommand nextPickCommand);
     void visitOpenChatDraftCommand(OpenChatDraftCommand openChatDraftCommand);
     void visitRemoveFromGameQueueCommand(RemoveFromGameQueueCommand removeFromGameQueueCommand);
     void visitRequestPrizeCommand(RequestPrizeCommand requestPrizeCommand);

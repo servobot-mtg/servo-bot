@@ -2,7 +2,10 @@ package com.ryan_mtg.servobot.data.factories;
 
 import com.ryan_mtg.servobot.commands.AddBookedStatementCommand;
 import com.ryan_mtg.servobot.commands.ScoreCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.BeginChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.ChatDraftStatusCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.NextPickCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
@@ -100,10 +103,16 @@ public class CommandSerializer {
                     return new AddReactionCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
                 case ADD_STATEMENT_COMMAND_TYPE:
                     return new AddStatementCommand(id, commandSettings);
+                case BEGIN_CHAT_DRAFT_COMMAND_TYPE:
+                    return new BeginChatDraftCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
+                            Strings.trim(commandRow.getStringParameter()));
                 case CARD_SEARCH_COMMAND_TYPE:
                     boolean usesEasterEggs = commandRow.getLongParameter() != null
                             && commandRow.getLongParameter() != 0;
                     return new CardSearchCommand(id, commandSettings, usesEasterEggs, scryfallQuerier);
+                case CHAT_DRAFT_STATUS_COMMAND_TYPE:
+                    return new ChatDraftStatusCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
+                            Strings.trim(commandRow.getStringParameter()));
                 case DELAYED_ALERT_COMMAND_TYPE:
                     return new DelayedAlertCommand(id, commandSettings, Duration.ofSeconds(commandRow.getLongParameter()),
                             Strings.trim(commandRow.getStringParameter()));
@@ -139,6 +148,9 @@ public class CommandSerializer {
                 case MESSAGE_CHANNEL_COMMAND_TYPE:
                     return new MessageChannelCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
                             Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
+                case NEXT_PICK_COMMAND_TYPE:
+                    return new NextPickCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
+                            Strings.trim(commandRow.getStringParameter()));
                 case OPEN_CHAT_DRAFT_COMMAND_TYPE:
                     return new OpenChatDraftCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
                             Strings.trim(commandRow.getStringParameter()));
@@ -305,9 +317,25 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitBeginChatDraftCommand(final BeginChatDraftCommand beginChatDraftCommand) {
+            saveCommand(beginChatDraftCommand, commandRow -> {
+                commandRow.setLongParameter(beginChatDraftCommand.getChatDraftId());
+                commandRow.setStringParameter(beginChatDraftCommand.getResponse());
+            });
+        }
+
+        @Override
         public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
             saveCommand(cardSearchCommand, commandRow -> {
                 commandRow.setLongParameter(cardSearchCommand.getUsesEasterEggs() ? 1 : 0);
+            });
+        }
+
+        @Override
+        public void visitChatDraftStatusCommand(final ChatDraftStatusCommand chatDraftStatusCommand) {
+            saveCommand(chatDraftStatusCommand, commandRow -> {
+                commandRow.setLongParameter(chatDraftStatusCommand.getChatDraftId());
+                commandRow.setStringParameter(chatDraftStatusCommand.getResponse());
             });
         }
 
@@ -403,10 +431,18 @@ public class CommandSerializer {
         }
 
         @Override
+        public void visitNextPickCommand(final NextPickCommand nextPickCommand) {
+            saveCommand(nextPickCommand, commandRow -> {
+                commandRow.setLongParameter(nextPickCommand.getChatDraftId());
+                commandRow.setStringParameter(nextPickCommand.getResponse());
+            });
+        }
+
+        @Override
         public void visitOpenChatDraftCommand(final OpenChatDraftCommand openChatDraftCommand) {
             saveCommand(openChatDraftCommand, commandRow -> {
                 commandRow.setLongParameter(openChatDraftCommand.getChatDraftId());
-                commandRow.setStringParameter(openChatDraftCommand.getMessage());
+                commandRow.setStringParameter(openChatDraftCommand.getResponse());
             });
         }
 

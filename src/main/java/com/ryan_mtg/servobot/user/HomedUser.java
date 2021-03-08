@@ -13,6 +13,11 @@ public class HomedUser {
         this.userStatus = userStatus;
     }
 
+    @Override
+    public String toString() {
+        return String.format("user: %s", getName());
+    }
+
     public boolean isStreamer() {
         return userStatus.isStreamer();
     }

@@ -4,13 +4,16 @@ import com.ryan_mtg.servobot.commands.CommandTable;
 import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.data.models.ChatDraftPickRow;
 import com.ryan_mtg.servobot.data.models.ChatDraftRow;
 import com.ryan_mtg.servobot.data.models.DraftEntrantRow;
+import com.ryan_mtg.servobot.data.repositories.ChatDraftPickRepository;
 import com.ryan_mtg.servobot.data.repositories.ChatDraftRepository;
 import com.ryan_mtg.servobot.data.repositories.DraftEntrantRepository;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.chat_draft.ChatDraft;
 import com.ryan_mtg.servobot.model.chat_draft.ChatDraftEdit;
+import com.ryan_mtg.servobot.model.chat_draft.ChatDraftPick;
 import com.ryan_mtg.servobot.model.chat_draft.ChatDraftTable;
 import com.ryan_mtg.servobot.model.chat_draft.DraftEntrant;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
@@ -33,6 +36,7 @@ import java.util.function.Function;
 public class ChatDraftSerializer {
     private final ChatDraftRepository chatDraftRepository;
     private final DraftEntrantRepository draftEntrantRepository;
+    private final ChatDraftPickRepository chatDraftPickRepository;
     private final CommandTableSerializer commandTableSerializer;
 
     @Transactional(rollbackOn = Exception.class)
@@ -41,6 +45,8 @@ public class ChatDraftSerializer {
 
         chatDraftEdit.getSavedDraftEntrants()
                 .forEach((draftEntrant, chatDraftId) -> saveDraftEntrant(chatDraftId, draftEntrant));
+
+        commit(chatDraftEdit.getSavedChatDraftPicks());
 
         CommandTableEdit commandTableEdit = new CommandTableEdit();
         chatDraftEdit.getSavedChatDrafts().forEach((chatDraft, botHomeId) -> {
@@ -60,6 +66,8 @@ public class ChatDraftSerializer {
         chatDraftRow.setId(chatDraft.getId());
         chatDraftRow.setBotHomeId(botHomeId);
         chatDraftRow.setState(chatDraft.getState());
+        chatDraftRow.setPack(chatDraft.getPack());
+        chatDraftRow.setPick(chatDraft.getPick());
 
         chatDraftRow.setOpenCommandName(chatDraft.getOpenCommandSettings().getCommandName());
         chatDraftRow.setOpenPermission(chatDraft.getOpenCommandSettings().getPermission());
@@ -103,17 +111,6 @@ public class ChatDraftSerializer {
         chatDraft.setId(chatDraftRow.getId());
     }
 
-    private void saveDraftEntrant(final int chatDraftId, final DraftEntrant draftEntrant) {
-        DraftEntrantRow draftEntrantRow = new DraftEntrantRow();
-        draftEntrantRow.setId(draftEntrant.getId());
-        draftEntrantRow.setChatDraftId(chatDraftId);
-        draftEntrantRow.setUserId(draftEntrant.getUser().getId());
-
-        draftEntrantRepository.save(draftEntrantRow);
-
-        draftEntrant.setId(draftEntrantRow.getId());
-    }
-
     public ChatDraftTable createChatDraftTable(final int botHomeId, final HomedUserTable homedUserTable,
             final CommandTable commandTable) {
 
@@ -125,15 +122,23 @@ public class ChatDraftSerializer {
                 SerializationSupport.getIdMapping(draftEntrantRepository.findAllByChatDraftIdIn(chatDraftIds),
                         chatDraftIds, DraftEntrantRow::getChatDraftId);
 
+        Map<Integer, List<ChatDraftPickRow>> chatDraftPickRowMap =
+                SerializationSupport.getIdMapping(chatDraftPickRepository.findAllByChatDraftIdIn(chatDraftIds),
+                        chatDraftIds, ChatDraftPickRow::getChatDraftId);
+
         Set<Integer> userIds = new HashSet<>();
         draftEntrantRowMap.forEach((giveawayId, draftEntrantRows) -> draftEntrantRows.forEach(draftEntrantRow -> {
             userIds.add(draftEntrantRow.getUserId());
+        }));
+        chatDraftPickRowMap.forEach((giveawayId, chatDraftPickRows) -> chatDraftPickRows.forEach(chatDraftPickRow -> {
+            userIds.add(chatDraftPickRow.getPickerId());
         }));
 
         Map<Integer, HomedUser> homedUserMap = new HashMap<>();
         homedUserTable.getHomedUsers(userIds).forEach(homedUser -> homedUserMap.put(homedUser.getId(), homedUser));
 
         Map<Integer, List<DraftEntrant>> draftEntrantsMap = createDraftEntrants(draftEntrantRowMap, homedUserMap);
+        Map<Integer, List<ChatDraftPick>> chatDraftPickMap = createChatDraftPicks(chatDraftPickRowMap, homedUserMap);
 
         ChatDraftTable chatDraftTable = new ChatDraftTable();
         for (ChatDraftRow chatDraftRow : chatDraftRows) {
@@ -162,6 +167,27 @@ public class ChatDraftSerializer {
         return new DraftEntrant(draftEntrantRow.getId(), homedUserMap.get(draftEntrantRow.getUserId()));
     }
 
+    private Map<Integer, List<ChatDraftPick>> createChatDraftPicks(
+            final Map<Integer, List<ChatDraftPickRow>> chatDraftPickRowMap,
+            final Map<Integer, HomedUser> homedUserMap) {
+        Map<Integer, List<ChatDraftPick>> chatDraftPicksMap = new HashMap<>();
+        for(Map.Entry<Integer, List<ChatDraftPickRow>> entry : chatDraftPickRowMap.entrySet()) {
+            List<ChatDraftPick> chatDraftPicks = new ArrayList<>();
+            for (ChatDraftPickRow chatDraftPickRow : entry.getValue()) {
+                chatDraftPicks.add(createChatDraftPick(chatDraftPickRow, homedUserMap));
+            }
+            chatDraftPicksMap.put(entry.getKey(), chatDraftPicks);
+        }
+
+        return chatDraftPicksMap;
+    }
+
+    private ChatDraftPick createChatDraftPick(final ChatDraftPickRow chatDraftPickRow,
+            final Map<Integer, HomedUser> homedUserMap) {
+        return new ChatDraftPick(chatDraftPickRow.getId(), chatDraftPickRow.getPack(), chatDraftPickRow.getPick(),
+                homedUserMap.get(chatDraftPickRow.getPickerId()));
+    }
+
     private ChatDraft createChatDraft(final ChatDraftRow chatDraftRow, final CommandTable commandTable,
             final Map<Integer, List<DraftEntrant>> draftEntrantsMap) {
         return SystemError.filter(() -> {
@@ -170,7 +196,8 @@ public class ChatDraftSerializer {
                 draftEntrants = new ArrayList<>();
             }
 
-            ChatDraft chatDraft = new ChatDraft(chatDraftRow.getId(), chatDraftRow.getState(), draftEntrants);
+            ChatDraft chatDraft = new ChatDraft(chatDraftRow.getId(), chatDraftRow.getState(), chatDraftRow.getPack(),
+                    chatDraftRow.getPick(), draftEntrants);
 
             chatDraft.setOpenCommandSettings(new GiveawayCommandSettings(chatDraftRow.getOpenCommandName(),
                     chatDraftRow.getOpenFlags(), chatDraftRow.getOpenPermission(), chatDraftRow.getOpenMessage()));
@@ -224,4 +251,39 @@ public class ChatDraftSerializer {
             return chatDraft;
         });
     }
+
+    private void commit(final Map<ChatDraftPick, Integer> savedChatDraftPicks) {
+        if (savedChatDraftPicks.isEmpty()) {
+            return;
+        }
+
+        Map<ChatDraftPickRow, ChatDraftPick> rowToPickMap = new HashMap<>();
+        savedChatDraftPicks.forEach((chatDraftPick, chatDraftId) ->
+            rowToPickMap.put(saveChatDraftPick(chatDraftId, chatDraftPick), chatDraftPick));
+
+        chatDraftPickRepository.saveAll(rowToPickMap.keySet());
+
+        rowToPickMap.forEach(((chatDraftPickRow, chatDraftPick) -> chatDraftPick.setId(chatDraftPickRow.getId())));
+    }
+
+    private void saveDraftEntrant(final int chatDraftId, final DraftEntrant draftEntrant) {
+        DraftEntrantRow draftEntrantRow = new DraftEntrantRow();
+        draftEntrantRow.setId(draftEntrant.getId());
+        draftEntrantRow.setChatDraftId(chatDraftId);
+        draftEntrantRow.setUserId(draftEntrant.getUser().getId());
+
+        draftEntrantRepository.save(draftEntrantRow);
+
+        draftEntrant.setId(draftEntrantRow.getId());
+    }
+
+    private ChatDraftPickRow saveChatDraftPick(final int chatDraftId, final ChatDraftPick chatDraftPick) {
+        ChatDraftPickRow chatDraftPickRow = new ChatDraftPickRow();
+        chatDraftPickRow.setId(chatDraftPick.getId());
+        chatDraftPickRow.setPack(chatDraftPick.getPack());
+        chatDraftPickRow.setPick(chatDraftPick.getPick());
+        chatDraftPickRow.setPickerId(chatDraftPick.getPicker().getId());
+        return chatDraftPickRow;
+    }
+
 }

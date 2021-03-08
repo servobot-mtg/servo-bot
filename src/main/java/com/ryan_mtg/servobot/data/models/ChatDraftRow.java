@@ -26,6 +26,8 @@ public class ChatDraftRow {
     private int botHomeId;
 
     private ChatDraft.State state;
+    private int pack;
+    private int pick;
 
     @Column(name = "open_command_name")
     @Size(max = Validation.MAX_NAME_LENGTH)

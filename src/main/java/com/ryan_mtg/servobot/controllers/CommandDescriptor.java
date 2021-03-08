@@ -6,7 +6,10 @@ import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.chat.AddCommand;
 import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.BeginChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.ChatDraftStatusCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.NextPickCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
@@ -154,8 +157,20 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitBeginChatDraftCommand(final BeginChatDraftCommand beginChatDraftCommand) {
+            description = "Begins the drafting phase of a chat draft";
+            edit = beginChatDraftCommand.getResponse();
+        }
+
+        @Override
         public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
             description = "Searches for a card by name";
+        }
+
+        @Override
+        public void visitChatDraftStatusCommand(final ChatDraftStatusCommand chatDraftStatusCommand) {
+            description = "Displays the status of the chat draft";
+            edit = chatDraftStatusCommand.getResponse();
         }
 
         @Override
@@ -231,9 +246,15 @@ public class CommandDescriptor {
         }
 
         @Override
+        public void visitNextPickCommand(final NextPickCommand nextPickCommand) {
+            description = "Advances the chat draft to the next pick";
+            edit = nextPickCommand.getResponse();
+        }
+
+        @Override
         public void visitOpenChatDraftCommand(final OpenChatDraftCommand openChatDraftCommand) {
             description = "Starts the chat draft";
-            edit = openChatDraftCommand.getMessage();
+            edit = openChatDraftCommand.getResponse();
         }
 
         @Override

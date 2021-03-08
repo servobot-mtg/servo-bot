@@ -3,22 +3,32 @@ package com.ryan_mtg.servobot.model.chat_draft;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
+import com.ryan_mtg.servobot.user.HomedUser;
+import com.ryan_mtg.servobot.utility.Flags;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChatDraft {
     public static final int UNREGISTERED_ID = 0;
+
     private static final int DEFAULT_COMMAND_FLAGS = Command.TEMPORARY_FLAG | Command.TWITCH_FLAG;
+    private static final int MINIMUM_ENTRANTS = 8;
+    private static final int PICKS_PER_PACK = 8;
+    private static final int PACKS = 3;
 
     public enum State {
         CONFIGURING,
         RECRUITING,
         ACTIVE,
+        COMPLETE,
     }
 
     @Getter @Setter
@@ -26,6 +36,12 @@ public class ChatDraft {
 
     @Getter @Setter
     private State state;
+
+    @Getter @Setter
+    private int pick;
+
+    @Getter @Setter
+    private int pack;
 
     @Getter @Setter
     private GiveawayCommandSettings openCommandSettings;
@@ -66,14 +82,18 @@ public class ChatDraft {
     @Getter
     private final List<DraftEntrant> entrants;
 
-    public ChatDraft(final int id, final State state, final List<DraftEntrant> entrants) {
+    @Getter
+    private ChatDraftPicks picks;
+
+    public ChatDraft(final int id, final State state, final int pack, final int pick,
+            final List<DraftEntrant> entrants) {
         this.id = id;
         this.state = state;
         this.entrants = entrants;
     }
 
     public ChatDraft() {
-        this(UNREGISTERED_ID, State.CONFIGURING, new ArrayList<>());
+        this(UNREGISTERED_ID, State.CONFIGURING, 0, 0, new ArrayList<>());
 
         openCommandSettings = new GiveawayCommandSettings("chatDraft", DEFAULT_COMMAND_FLAGS,
                 Permission.STREAMER, "A chat draft is about to start! To take part in it type !%chatDraft.enter%");
@@ -82,11 +102,33 @@ public class ChatDraft {
         statusCommandSettings = new GiveawayCommandSettings("status", DEFAULT_COMMAND_FLAGS,
                 Permission.ANYONE, "%chatDraft.entrantCount% people have joined the chat draft.");
         beginCommandSettings = new GiveawayCommandSettings("start", DEFAULT_COMMAND_FLAGS,
-                Permission.ANYONE, "%chatDraft.entrantCount% people have joined the chat draft.");
+                Permission.ANYONE, "The chat draft is starting! %chatDraft.allPicks%");
         nextCommandSettings = new GiveawayCommandSettings("next", DEFAULT_COMMAND_FLAGS, Permission.MOD,
             "The next pick is pack %chatDraft.pack% pick %chatDraft.pick% and belongs to %chatDraft.currentDrafter%.");
-        closeCommandSettings = new GiveawayCommandSettings("close", DEFAULT_COMMAND_FLAGS,
+        closeCommandSettings = new GiveawayCommandSettings("end", DEFAULT_COMMAND_FLAGS,
                 Permission.STREAMER, "The chat draft has ended!");
+    }
+
+    public String getEnter() {
+        return enterCommandSettings.getCommandName();
+    }
+
+    public int getEntrantCount() {
+        return entrants.size();
+    }
+
+    public String getCurrentDrafter() {
+        if (state == State.ACTIVE) {
+            return picks.getPicker(pack, pick).getName();
+        }
+        return null;
+    }
+
+    public ChatDraftPack getCurrentPack() {
+        if (state == State.ACTIVE && 1 <= pack && pack <= picks.getPacks().size()) {
+            return picks.getPacks().get(pack);
+        }
+        return null;
     }
 
     public ChatDraftEdit addDraftEntrant(final DraftEntrant draftEntrant) throws UserError {
@@ -100,11 +142,162 @@ public class ChatDraft {
         return chatDraftEdit;
     }
 
-    public String getEnter() {
-        return enterCommandSettings.getCommandName();
+    public ChatDraftEdit beginDraft(final int botHomeId) throws UserError {
+        if (state != State.RECRUITING) {
+            throw new SystemError("Not in a proper state for beginning a chat draft: %s. ", state);
+        }
+
+        if (picks != null) {
+            throw new SystemError("Picks should be null!");
+        }
+
+        if (entrants.size() < MINIMUM_ENTRANTS) {
+            throw new UserError("There are not enough entrants to begin the chat draft (%d/%d).", entrants.size(),
+                    MINIMUM_ENTRANTS);
+        }
+
+        ChatDraftEdit chatDraftEdit = new ChatDraftEdit();
+
+        setState(State.ACTIVE);
+        pick = 1;
+        pack = 1;
+        chatDraftEdit.saveChatDraft(botHomeId, this);
+
+        picks = createDraftPicks(entrants);
+        saveDraftPicks(picks, chatDraftEdit);
+
+        return chatDraftEdit;
     }
 
-    public String getCurrentDrafter() {
-        return null;
+    public ChatDraftEdit nextPick(final int botHomeId) {
+        if (state != State.ACTIVE) {
+            throw new SystemError("Chat drafts can only advance the pick while active.");
+        }
+
+        pick = pick + 1;
+        if (pick > PICKS_PER_PACK) {
+            pick = 1;
+            pack = pack + 1;
+            if (pack > PACKS) {
+                pick = pack = 0;
+                state = State.COMPLETE;
+            }
+        }
+
+        ChatDraftEdit chatDraftEdit = new ChatDraftEdit();
+        chatDraftEdit.saveChatDraft(botHomeId, this);
+        return chatDraftEdit;
+    }
+
+    private ChatDraftPicks createDraftPicks(final List<DraftEntrant> entrants) {
+        int[] pickOrder = computeSnakeOrder(entrants.size());
+        pickOrder = fixPickOrderForPackVariety(pickOrder);
+        return createDraftPicks(entrants, pickOrder);
+    }
+
+    private ChatDraftPicks createDraftPicks(final List<DraftEntrant> entrants, final int[] pickOrder) {
+        ChatDraftPicks chatDraftPicks = new ChatDraftPicks();
+        ChatDraftPack[] chatDraftPack = new ChatDraftPack[PACKS];
+        for (int p = 0; p < chatDraftPack.length; p++) {
+            chatDraftPack[p] = new ChatDraftPack();
+            chatDraftPicks.addPack(chatDraftPack[p]);
+        }
+
+        List<HomedUser> shuffledEntrants = entrants.stream()
+                .map(entrant -> entrant.getUser()).collect(Collectors.toList());
+        Collections.shuffle(shuffledEntrants);
+
+        for (int i = 0; i < pickOrder.length; i++) {
+            int pack = i % PACKS + 1;
+            int pick = i / PACKS + 1;
+            HomedUser picker = shuffledEntrants.get(pickOrder[i]);
+            ChatDraftPick chatDraftPick = new ChatDraftPick(ChatDraftPick.UNREGISTERED_ID, pack, pick, picker);
+            chatDraftPack[i % PACKS].addPick(chatDraftPick);
+        }
+
+        return chatDraftPicks;
+    }
+
+    private int[] computeSnakeOrder(final int entrantCount) {
+        int totalPicks = PACKS * PICKS_PER_PACK;
+        int picksPerPlayer = totalPicks / entrantCount;
+        int remainderPicks = entrantCount - (totalPicks % entrantCount);
+
+        int[] pickOrder = new int[totalPicks];
+
+        int position = 0;
+        int velocity = 1;
+        for (int i = 0; i < picksPerPlayer * entrantCount; i++) {
+            pickOrder[i] = position;
+            position += velocity;
+
+            if (position < 0) {
+                position = 0;
+                velocity = 1;
+            } else if (position > entrantCount) {
+                position = entrantCount;
+                velocity = -1;
+            }
+        }
+
+        for (int i = picksPerPlayer * entrantCount; i < totalPicks; i++) {
+            int index = i - picksPerPlayer * entrantCount;
+            pickOrder[i] = entrantCount - remainderPicks + index;
+        }
+
+        return pickOrder;
+    }
+
+    private int[] fixPickOrderForPackVariety(final int[] pickOrder) {
+        int[] packSets = new int[pickOrder.length];
+        int[] newPickOrder = new int[pickOrder.length];
+        int[] position = new int[PACKS], best = new int[PACKS + 1];
+        for (int i = 0; i < pickOrder.length; i+=PACKS) {
+            for (int j = 0; j < PACKS; j++) {
+                position[j] = pickOrder[i + j];
+            }
+
+            best[PACKS] = Integer.MAX_VALUE;
+            minimizeCost(packSets, position[0], position[1], position[2], best);
+            minimizeCost(packSets, position[0], position[2], position[1], best);
+            minimizeCost(packSets, position[1], position[0], position[2], best);
+            minimizeCost(packSets, position[1], position[2], position[0], best);
+            minimizeCost(packSets, position[2], position[0], position[1], best);
+            minimizeCost(packSets, position[2], position[1], position[0], best);
+
+            for (int j = 0; j < PACKS; j++) {
+                newPickOrder[i + j] = best[j];
+            }
+        }
+
+        return newPickOrder;
+    }
+
+    private void minimizeCost(final int[] packSets, final int a, final int b, final int c, final int[] best) {
+        int cost = 0;
+        if (Flags.hasFlag(packSets[a], 1 << 0)) {
+            cost++;
+        }
+        if (Flags.hasFlag(packSets[b], 1 << 1)) {
+            cost++;
+        }
+        if (Flags.hasFlag(packSets[c], 1 << 2)) {
+            cost++;
+        }
+
+        if (cost < best[PACKS]) {
+            best[PACKS] = cost;
+            best[0] = a;
+            best[1] = b;
+            best[2] = c;
+        }
+    }
+
+    private void saveDraftPicks(final ChatDraftPicks picks, final ChatDraftEdit chatDraftEdit) {
+        for (ChatDraftPack chatDraftPack : picks.getPacks()) {
+            for (ChatDraftPick chatDraftPick : chatDraftPack.getPicks()) {
+                chatDraftEdit.saveChatDraftPick(id, chatDraftPick);
+            }
+        }
     }
 }

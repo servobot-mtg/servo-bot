@@ -14,6 +14,7 @@ public class ChatDraftEdit {
     private Map<ChatDraft, Integer> savedChatDrafts = new HashMap<>();
     private Map<ChatDraft, Function<ChatDraft, Command>> chatDraftSaveCallbackMap = new HashMap<>();
     private Map<DraftEntrant, Integer> savedDraftEntrants = new HashMap<>();
+    private Map<ChatDraftPick, Integer> savedChatDraftPicks = new HashMap<>();
 
     public void saveChatDraft(final int botHomeId, final ChatDraft chatDraft) {
         savedChatDrafts.put(chatDraft, botHomeId);
@@ -29,11 +30,16 @@ public class ChatDraftEdit {
         savedDraftEntrants.put(draftEntrant, chatDraftId);
     }
 
+    public void saveChatDraftPick(final int chatDraftId, final ChatDraftPick chatDraftPick) {
+        savedChatDraftPicks.put(chatDraftPick, chatDraftId);
+    }
+
     public void merge(final ChatDraftEdit chatDraftEdit) {
         commandTableEdit.merge(chatDraftEdit.commandTableEdit);
         savedChatDrafts.putAll(chatDraftEdit.savedChatDrafts);
         chatDraftSaveCallbackMap.putAll(chatDraftEdit.chatDraftSaveCallbackMap);
         savedDraftEntrants.putAll(chatDraftEdit.savedDraftEntrants);
+        savedChatDraftPicks.putAll(chatDraftEdit.savedChatDraftPicks);
     }
 
     public void merge(final CommandTableEdit commandTableEdit) {
