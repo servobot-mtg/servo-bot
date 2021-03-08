@@ -146,7 +146,7 @@ public class TwitchService implements Service {
         executorService.scheduleAtFixedRate(regulator, 60, 30, TimeUnit.SECONDS);
         homeMap.forEach((channelId, home) -> LOGGER.info("{} streaming: {}", channelId, isStreaming(channelId)));
 
-        client.getChat().sendPrivateMessage("ryan_mtg", "hello punk");
+        client.getChat().sendPrivateMessage("ryan_mtg", "The bot has restarted!");
     }
 
     public Set<Long> getChannelsStreaming(final List<Long> channelIds) {
