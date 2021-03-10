@@ -20,7 +20,7 @@ public class ChatDraft {
     public static final int UNREGISTERED_ID = 0;
 
     private static final int DEFAULT_COMMAND_FLAGS = Command.TEMPORARY_FLAG | Command.TWITCH_FLAG;
-    private static final int MINIMUM_ENTRANTS = 8;
+    private static final int MINIMUM_ENTRANTS = 1;
     private static final int PICKS_PER_PACK = 8;
     private static final int PACKS = 3;
 
@@ -86,14 +86,15 @@ public class ChatDraft {
     private ChatDraftPicks picks;
 
     public ChatDraft(final int id, final State state, final int pack, final int pick,
-            final List<DraftEntrant> entrants) {
+            final List<DraftEntrant> entrants, final List<ChatDraftPick> chatDraftPicks) {
         this.id = id;
         this.state = state;
         this.entrants = entrants;
+        this.picks = rebuildDraftPicks(chatDraftPicks);
     }
 
     public ChatDraft() {
-        this(UNREGISTERED_ID, State.CONFIGURING, 0, 0, new ArrayList<>());
+        this(UNREGISTERED_ID, State.CONFIGURING, 0, 0, new ArrayList<>(), new ArrayList<>());
 
         openCommandSettings = new GiveawayCommandSettings("chatDraft", DEFAULT_COMMAND_FLAGS,
                 Permission.STREAMER, "A chat draft is about to start! To take part in it type !%chatDraft.enter%");
@@ -102,7 +103,7 @@ public class ChatDraft {
         statusCommandSettings = new GiveawayCommandSettings("status", DEFAULT_COMMAND_FLAGS,
                 Permission.ANYONE, "%chatDraft.entrantCount% people have joined the chat draft.");
         beginCommandSettings = new GiveawayCommandSettings("start", DEFAULT_COMMAND_FLAGS,
-                Permission.ANYONE, "The chat draft is starting! %chatDraft.allPicks%");
+                Permission.ANYONE, "The chat draft is starting!");
         nextCommandSettings = new GiveawayCommandSettings("next", DEFAULT_COMMAND_FLAGS, Permission.MOD,
             "The next pick is pack %chatDraft.pack% pick %chatDraft.pick% and belongs to %chatDraft.currentDrafter%.");
         closeCommandSettings = new GiveawayCommandSettings("end", DEFAULT_COMMAND_FLAGS,
@@ -139,6 +140,16 @@ public class ChatDraft {
         entrants.add(draftEntrant);
         ChatDraftEdit chatDraftEdit = new ChatDraftEdit();
         chatDraftEdit.saveDraftEntrant(id, draftEntrant);
+        return chatDraftEdit;
+    }
+
+    public ChatDraftEdit deletePicks() {
+        ChatDraftEdit chatDraftEdit = new ChatDraftEdit();
+        if (picks != null) {
+            for (ChatDraftPack pack : picks.getPacks()) {
+                chatDraftEdit.deleteChatDraftPicks(pack.getPicks());
+            }
+        }
         return chatDraftEdit;
     }
 
@@ -189,6 +200,38 @@ public class ChatDraft {
         return chatDraftEdit;
     }
 
+    private ChatDraftPicks rebuildDraftPicks(final List<ChatDraftPick> chatDraftPicks) {
+        if (chatDraftPicks.isEmpty()) {
+            return null;
+        }
+
+        Collections.sort(chatDraftPicks, (pick, otherPick) -> {
+            if (pick.getPack() != otherPick.getPack()) {
+                return pick.getPack() - otherPick.getPack();
+            }
+
+            if (pick.getPick() != otherPick.getPick()) {
+                return pick.getPick() - otherPick.getPick();
+            }
+
+            return pick.getId() - otherPick.getId();
+        });
+
+        ChatDraftPicks picks = new ChatDraftPicks();
+
+        ChatDraftPack pack = null;
+        for (ChatDraftPick pick : chatDraftPicks) {
+            if (pack == null || pack.getPackNumber() != pick.getPack()) {
+                picks.addPack(pack);
+                pack = new ChatDraftPack();
+            }
+            pack.addPick(pick);
+        }
+        picks.addPack(pack);
+
+        return picks;
+    }
+
     private ChatDraftPicks createDraftPicks(final List<DraftEntrant> entrants) {
         int[] pickOrder = computeSnakeOrder(entrants.size());
         pickOrder = fixPickOrderForPackVariety(pickOrder);
@@ -234,8 +277,8 @@ public class ChatDraft {
             if (position < 0) {
                 position = 0;
                 velocity = 1;
-            } else if (position > entrantCount) {
-                position = entrantCount;
+            } else if (position >= entrantCount) {
+                position = entrantCount - 1;
                 velocity = -1;
             }
         }

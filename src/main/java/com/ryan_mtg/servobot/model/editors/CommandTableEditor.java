@@ -111,6 +111,15 @@ public class CommandTableEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
+    public void deleteCommand(final int commandId, final CommandTableEdit commandTableEdit) throws LibraryError {
+        CommandTableEdit deleteEdit = commandTable.deleteCommand(commandId);
+        if (deleteEdit.getDeletedCommands().isEmpty()) {
+            throw new LibraryError("Command '%d' not found.", commandId);
+        }
+        commandTableEdit.merge(deleteEdit);
+    }
+
+    @Transactional(rollbackOn = Exception.class)
     public boolean secureCommand(final int commandId, final boolean secure) {
         Command command = commandTable.secureCommand(commandId, secure);
         saveCommand(command);

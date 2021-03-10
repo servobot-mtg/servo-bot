@@ -5,7 +5,10 @@ import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 @Getter
@@ -14,7 +17,9 @@ public class ChatDraftEdit {
     private Map<ChatDraft, Integer> savedChatDrafts = new HashMap<>();
     private Map<ChatDraft, Function<ChatDraft, Command>> chatDraftSaveCallbackMap = new HashMap<>();
     private Map<DraftEntrant, Integer> savedDraftEntrants = new HashMap<>();
+    private Set<DraftEntrant> deletedDraftEntrants = new HashSet<>();
     private Map<ChatDraftPick, Integer> savedChatDraftPicks = new HashMap<>();
+    private Set<ChatDraftPick> deletedChatDraftPicks = new HashSet<>();
 
     public void saveChatDraft(final int botHomeId, final ChatDraft chatDraft) {
         savedChatDrafts.put(chatDraft, botHomeId);
@@ -30,8 +35,16 @@ public class ChatDraftEdit {
         savedDraftEntrants.put(draftEntrant, chatDraftId);
     }
 
+    public void deleteEntrants(final List<DraftEntrant> entrants) {
+        deletedDraftEntrants.addAll(entrants);
+    }
+
     public void saveChatDraftPick(final int chatDraftId, final ChatDraftPick chatDraftPick) {
         savedChatDraftPicks.put(chatDraftPick, chatDraftId);
+    }
+
+    public void deleteChatDraftPicks(final List<ChatDraftPick> chatDraftPicks) {
+        deletedChatDraftPicks.addAll(chatDraftPicks);
     }
 
     public void merge(final ChatDraftEdit chatDraftEdit) {
@@ -39,6 +52,7 @@ public class ChatDraftEdit {
         savedChatDrafts.putAll(chatDraftEdit.savedChatDrafts);
         chatDraftSaveCallbackMap.putAll(chatDraftEdit.chatDraftSaveCallbackMap);
         savedDraftEntrants.putAll(chatDraftEdit.savedDraftEntrants);
+        deletedDraftEntrants.addAll(chatDraftEdit.deletedDraftEntrants);
         savedChatDraftPicks.putAll(chatDraftEdit.savedChatDraftPicks);
     }
 

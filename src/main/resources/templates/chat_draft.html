@@ -17,7 +17,8 @@
                   th:with="label=${'chat-draft-' + chatDraft.id},
                     CONF=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).CONFIGURING},
                     RECRUITING=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).RECRUITING},
-                    ACTIVE=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).ACTIVE}">
+                    ACTIVE=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).ACTIVE},
+                    COMPLETE=${T(com.ryan_mtg.servobot.model.chat_draft.ChatDraft.State).COMPLETE}">
             <div class="chat-draft">
                 <div class="title-section">
                     <h2>Chat Draft</h2>
@@ -102,14 +103,27 @@
                     </div>
                 </div>
 
-                <div class="section">
-                    <h3>Entrant list</h3>
+                <div class="section" th:if="${chatDraft.state == RECRUITING}">
+                    <h3>Participants</h3>
                     <div class="section-content">
                         <ul>
                             <th:block th:each="entrant : ${chatDraft.entrants}">
                                 <li th:text="${entrant.user.name}"></li>
                             </th:block>
                         </ul>
+                    </div>
+                </div>
+
+                <div class="section" th:if="${chatDraft.state == ACTIVE}">
+                    <h3>Drafters</h3>
+                    <div class="section-content">
+                        <th:block th:each="pack : ${chatDraft.picks.packs}">
+                            <ul class="chat-draft-pack">
+                                <th:block th:each="pick : ${pack.picks}">
+                                    <li th:text="${pick.picker.name}"></li>
+                                </th:block>
+                            </ul>
+                        </th:block>
                     </div>
                 </div>
             </div>

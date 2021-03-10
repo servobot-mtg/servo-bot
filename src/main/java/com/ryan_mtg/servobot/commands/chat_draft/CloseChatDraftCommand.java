@@ -12,17 +12,18 @@ import com.ryan_mtg.servobot.model.editors.ChatDraftEditor;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
+import lombok.Setter;
 
-public class NextPickCommand extends InvokedHomedCommand {
-    public static final CommandType TYPE = CommandType.NEXT_PICK_COMMAND_TYPE;
+public class CloseChatDraftCommand extends InvokedHomedCommand {
+    public static final CommandType TYPE = CommandType.CLOSE_CHAT_DRAFT_COMMAND_TYPE;
 
     @Getter
     private final String response;
 
-    @Getter
-    private final int chatDraftId;
+    @Getter @Setter
+    private int chatDraftId;
 
-    public NextPickCommand(final int id, final CommandSettings commandSettings, final int chatDraftId,
+    public CloseChatDraftCommand(final int id, final CommandSettings commandSettings, final int chatDraftId,
             final String response) throws UserError {
         super(id, commandSettings);
         this.response = response;
@@ -35,19 +36,11 @@ public class NextPickCommand extends InvokedHomedCommand {
     public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         ChatDraftEditor chatDraftEditor = event.getChatDraftEditor();
 
-        ChatDraft chatDraft = chatDraftEditor.nextPick(chatDraftId);
+        ChatDraft chatDraft = chatDraftEditor.closeChatDraft(chatDraftId);
 
-        if (chatDraft.getPick() == 1) {
-            event.say(chatDraft.getCurrentPack().getPackString());
-        }
-
-        if (chatDraft.getPick() != 0) {
-            SimpleSymbolTable symbolTable = new SimpleSymbolTable();
-            symbolTable.addValue("chatDraft", chatDraft);
-            event.say(symbolTable, response);
-        } else {
-            event.say("The chat draft has completed.");
-        }
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
+        symbolTable.addValue("chatDraft", chatDraft);
+        event.say(symbolTable, response);
     }
 
     @Override
@@ -57,6 +50,6 @@ public class NextPickCommand extends InvokedHomedCommand {
 
     @Override
     public void acceptVisitor(final CommandVisitor commandVisitor) {
-        commandVisitor.visitNextPickCommand(this);
+        commandVisitor.visitCloseChatDraftCommand(this);
     }
 }

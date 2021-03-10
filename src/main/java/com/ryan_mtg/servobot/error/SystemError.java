@@ -9,6 +9,14 @@ public class SystemError extends RuntimeException {
         super(String.format(format, args));
     }
 
+    public static void filter(final ThrowingRunnable function) throws UserError {
+        try {
+            function.run();
+        } catch (Exception e) {
+            throw new SystemError(e, e.getMessage());
+        }
+    }
+
     public static <ReturnType> ReturnType filter(final ThrowingFunction<ReturnType> function) {
         try {
             return function.apply();

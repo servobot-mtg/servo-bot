@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.commands.chat.MessageChannelCommand;
 import com.ryan_mtg.servobot.commands.chat.TextCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.BeginChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.ChatDraftStatusCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.CloseChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.NextPickCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
@@ -36,6 +37,7 @@ public interface CommandVisitor {
     void visitBeginChatDraftCommand(BeginChatDraftCommand beginChatDraftCommand);
     void visitCardSearchCommand(CardSearchCommand cardSearchCommand);
     void visitChatDraftStatusCommand(ChatDraftStatusCommand chatDraftStatusCommand);
+    void visitCloseChatDraftCommand(CloseChatDraftCommand closeChatDraftCommand);
     void visitDelayedAlertCommand(DelayedAlertCommand delayedAlertCommand);
     void visitDeleteCommand(DeleteCommand deleteCommand);
     void visitEnterChatDraftCommand(EnterChatDraftCommand enterChatDraftCommand);

@@ -14,9 +14,13 @@ public class ChatDraftPack {
         picks.add(pick);
     }
 
+    public int getPackNumber() {
+        return picks.get(0).getPack();
+    }
+
     public String getPackString() {
         StringBuilder message = new StringBuilder();
-        message.append("Pack ").append(picks.get(0).getPack()).append(':');
+        message.append("Pack ").append(getPackNumber()).append(':');
         for (ChatDraftPick pick : picks) {
             message.append(' ').append(pick.getPicker().getName());
         }

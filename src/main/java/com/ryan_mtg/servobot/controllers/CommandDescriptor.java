@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.commands.chat.AddReactionCommand;
 import com.ryan_mtg.servobot.commands.AddStatementCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.BeginChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.ChatDraftStatusCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.CloseChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.NextPickCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
@@ -171,6 +172,12 @@ public class CommandDescriptor {
         public void visitChatDraftStatusCommand(final ChatDraftStatusCommand chatDraftStatusCommand) {
             description = "Displays the status of the chat draft";
             edit = chatDraftStatusCommand.getResponse();
+        }
+
+        @Override
+        public void visitCloseChatDraftCommand(final CloseChatDraftCommand closeChatDraftCommand) {
+            description = "Ends the chat draft";
+            edit = closeChatDraftCommand.getResponse();
         }
 
         @Override

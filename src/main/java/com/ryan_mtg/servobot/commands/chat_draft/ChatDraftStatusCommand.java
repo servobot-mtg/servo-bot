@@ -38,15 +38,18 @@ public class ChatDraftStatusCommand extends InvokedHomedCommand {
 
         ChatDraft chatDraft = chatDraftEditor.getChatDraft(chatDraftId);
 
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
+        symbolTable.addValue("chatDraft", chatDraft);
+
         switch (chatDraft.getState()) {
             case CONFIGURING:
                 throw new SystemError("This command should never be enabled while the chat is being configured");
             case RECRUITING:
-                SimpleSymbolTable symbolTable = new SimpleSymbolTable();
-                symbolTable.addValue("chatDraft", chatDraft);
                 event.say(symbolTable, response);
                 return;
             case ACTIVE:
+                event.say(symbolTable, chatDraft.getNextCommandSettings().getMessage());
+                return;
         }
     }
 
