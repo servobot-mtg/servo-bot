@@ -1337,3 +1337,9 @@ function deleteEmoteLink(botHomeId, emoteLinkId) {
     const parameters = {botHomeId: botHomeId, objectId: emoteLinkId};
     postDelete('/api/delete_emote_link', parameters, 'emote-link-' + emoteLinkId + '-row');
 }
+
+function deleteTimestamp(timestampId) {
+    const parameters = {objectId: timestampId};
+    postDelete('/api/delete_timestamp', parameters, 'timestamp-' + timestampId + '-row');
+}
+

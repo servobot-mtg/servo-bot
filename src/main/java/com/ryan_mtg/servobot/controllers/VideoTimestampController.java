@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/manda")
 @RequiredArgsConstructor
 public class VideoTimestampController {
-    public final VideoTimestampManager timestampManager;
+    private final VideoTimestampManager timestampManager;
 
     @GetMapping("")
     public String showTournaments(final Model model) {

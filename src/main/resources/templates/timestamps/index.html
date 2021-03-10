@@ -18,6 +18,7 @@
                 <th>Note</th>
                 <th>Link</th>
                 <th>Offset</th>
+                <th th:if="${privileged}">Delete</th>
             </tr></thead>
             <th:block th:each="timestamp : ${timestamps}" th:with="label=${'timestamp-' + timestamp.id}">
                 <tr th:id="${label} + '-row'">
@@ -29,6 +30,10 @@
                     <td th:text="${timestamp.note}"></td>
                     <td><a th:href="${timestamp.link}" target="_blank">link</a></td>
                     <td th:text="${timestamp.offset}"></td>
+                    <td th:if="${privileged}" class="pseudo-link"
+                        th:onclick="'deleteTimestamp(' + ${timestamp.id} + ')'">
+                        &#x1F5D1;&#xFE0F;
+                    </td>
                 </tr>
             </th:block>
         </table>

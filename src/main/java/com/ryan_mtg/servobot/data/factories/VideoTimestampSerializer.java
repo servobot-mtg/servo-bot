@@ -50,4 +50,8 @@ public class VideoTimestampSerializer {
         }
         return videoTimestamps;
     }
+
+    public void deleteVideoTimestamp(final VideoTimestamp videoTimeStamp) {
+        videoTimestampRepository.deleteById(videoTimeStamp.getId());
+    }
 }

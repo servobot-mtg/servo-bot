@@ -44,4 +44,14 @@ public class VideoTimestampManager {
 
         videoTimestampSerializer.saveVideoTimestamp(videoTimeStamp);
     }
+
+    public void delete(final int videoTimeStampId) {
+        for (VideoTimestamp videoTimeStamp : videoTimestamps) {
+            if (videoTimeStamp.getId() == videoTimeStampId) {
+                videoTimestamps.remove(videoTimeStamp);
+                videoTimestampSerializer.deleteVideoTimestamp(videoTimeStamp);
+                break;
+            }
+        }
+    }
 }

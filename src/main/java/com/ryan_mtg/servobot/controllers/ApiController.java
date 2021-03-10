@@ -34,11 +34,13 @@ import com.ryan_mtg.servobot.model.roles.Role;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
+import com.ryan_mtg.servobot.timestamp.VideoTimestampManager;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Flags;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,16 +62,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ApiController {
-    private static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
-
     private final BotRegistrar botRegistrar;
     private final WebsiteUserFactory websiteUserFactory;
-
-    public ApiController(final BotRegistrar botRegistrar, final WebsiteUserFactory websiteUserFactory) {
-        this.botRegistrar = botRegistrar;
-        this.websiteUserFactory = websiteUserFactory;
-    }
+    private final VideoTimestampManager timestampManager;
 
     @PostMapping(value = "/create_bot_home", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CreateBotHomeResponse createBotHome(final Authentication authentication,
@@ -679,6 +676,18 @@ public class ApiController {
         HomeEditor homeEditor = getHomeEditor(request.getBotHomeId());
         homeEditor.deleteEmoteLink(request.getObjectId());
         return true;
+    }
+
+    @PostMapping(value = "/delete_timestamp", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteTimestamp(@RequestBody final DeleteRequest request) {
+        timestampManager.delete(request.getObjectId());
+        return true;
+    }
+
+    @Getter
+    public static class DeleteRequest {
+        private int objectId;
     }
 
     private HomeEditor getHomeEditor(final int botHomeId) {
