@@ -4,6 +4,7 @@ import com.ryan_mtg.servobot.commands.AddBookedStatementCommand;
 import com.ryan_mtg.servobot.commands.ScoreCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.BeginChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.ChatDraftStatusCommand;
+import com.ryan_mtg.servobot.commands.chat_draft.CloseChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.EnterChatDraftCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.NextPickCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
@@ -112,6 +113,9 @@ public class CommandSerializer {
                     return new CardSearchCommand(id, commandSettings, usesEasterEggs, scryfallQuerier);
                 case CHAT_DRAFT_STATUS_COMMAND_TYPE:
                     return new ChatDraftStatusCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
+                            Strings.trim(commandRow.getStringParameter()));
+                case CLOSE_CHAT_DRAFT_COMMAND_TYPE:
+                    return new CloseChatDraftCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
                             Strings.trim(commandRow.getStringParameter()));
                 case DELAYED_ALERT_COMMAND_TYPE:
                     return new DelayedAlertCommand(id, commandSettings, Duration.ofSeconds(commandRow.getLongParameter()),
@@ -336,6 +340,14 @@ public class CommandSerializer {
             saveCommand(chatDraftStatusCommand, commandRow -> {
                 commandRow.setLongParameter(chatDraftStatusCommand.getChatDraftId());
                 commandRow.setStringParameter(chatDraftStatusCommand.getResponse());
+            });
+        }
+
+        @Override
+        public void visitCloseChatDraftCommand(final CloseChatDraftCommand closeChatDraftCommand) {
+            saveCommand(closeChatDraftCommand, commandRow -> {
+                commandRow.setLongParameter(closeChatDraftCommand.getChatDraftId());
+                commandRow.setStringParameter(closeChatDraftCommand.getResponse());
             });
         }
 

@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatDraftPickRepository extends CrudRepository<ChatDraftPickRow, Integer> {
     Iterable<ChatDraftPickRow> findAllByChatDraftIdIn(Iterable<Integer> chatDraftIds);
+    void deleteByIdIn(Iterable<Integer> ids);
 }

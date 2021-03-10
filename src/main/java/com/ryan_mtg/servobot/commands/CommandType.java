@@ -11,6 +11,7 @@ public enum CommandType {
     BEGIN_CHAT_DRAFT_COMMAND_TYPE(41, "Begin Drafting Command"),
     CARD_SEARCH_COMMAND_TYPE(32, "Card Search Command"),
     CHAT_DRAFT_STATUS_COMMAND_TYPE(40, "Chat Draft Status Command"),
+    CLOSE_CHAT_DRAFT_COMMAND_TYPE(43, "End Chat Draft Command"),
     DELAYED_ALERT_COMMAND_TYPE(16, "Delayed Alert Command"),
     DELETE_COMMAND_TYPE(6, "Delete Command"),
     ENTER_CHAT_DRAFT_COMMAND_TYPE(39, "Enter Chat Draft Command"),
