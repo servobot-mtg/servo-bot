@@ -56,6 +56,10 @@ public class TwitchUserService implements OAuth2UserService<OAuth2UserRequest, O
             authorityList.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
 
+        if (user.isEditor()) {
+            authorityList.add(new SimpleGrantedAuthority("ROLE_EDITOR"));
+        }
+
         for (Integer homeId : userTable.getHomesModerated(user.getId())) {
             authorityList.add(new SimpleGrantedAuthority(String.format("ROLE_MOD:%d", homeId)));
         }

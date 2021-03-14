@@ -1,5 +1,6 @@
 const deleteIcon = '&#x1F5D1;';
 const envelopeIcon = '&#x2709;&#xFE0F;';
+const movieCameraIcon = '&#x1F3A5;';
 
 function runAdminTask() {
     const responseElement = document.getElementById('run-task-response');
@@ -22,6 +23,16 @@ async function postGiveInvite(userId) {
     if (response.ok) {
         let inviteElement = document.getElementById('user-' + userId + '-invite');
         inviteElement.innerHTML = envelopeIcon;
+        inviteElement.onclick = null;
+    }
+}
+
+async function makeEditor(userId) {
+    const parameters = {userId: userId};
+    let response = await makePost('/admin/make_editor', parameters, [], false);
+    if (response.ok) {
+        let inviteElement = document.getElementById('user-' + userId + '-make-editor');
+        inviteElement.innerHTML = movieCameraIcon;
         inviteElement.onclick = null;
     }
 }

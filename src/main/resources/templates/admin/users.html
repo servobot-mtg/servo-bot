@@ -35,15 +35,20 @@
                     <span th:id="${label} + '-arena-username-delete-icon'"
                           class="pseudo-link" th:onclick="'deleteArenaUsername(' + ${user.id} + ')'">
                                 <span th:if="${user.arenaUsername}">&#x1F5D1;</span>
-                            </span>
+                    </span>
                 </td>
                 <td th:id="${label} + '-flags'">
                     <span th:text="${user.admin ? '&#x1F477;' : ''}"/>
+                    <span th:if="${user.editor}">&#x1F3A5;</span>
+                    <span th:if="${!user.editor}" th:id="${label} + '-make-editor'" class="pseudo-link"
+                          th:onclick="'makeEditor(' + ${user.id}+ ')'">
+                        &#x1F3AC;
+                    </span>
                     <span th:if="${user.hasInvite()}">&#x2709;&#xFE0F;</span>
                     <span th:if="${!user.hasInvite()}" th:id="${label} + '-invite'" class="pseudo-link"
                           th:onclick="'giveInvite(' + ${user.id}+ ')'">
                                 &#x1F4E5;
-                            </span>
+                    </span>
                 </td>
                 <td><input type="checkbox" th:onchange="'selectUser(event, ' + ${user.id} + ')'"/></td>
             </tr>

@@ -9,6 +9,8 @@ import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -25,6 +27,7 @@ public class VideoTimestampManager {
         this.videoTimestampSerializer = videoTimestampSerializer;
 
         videoTimestamps = videoTimestampSerializer.createVideoTimestampList();
+        Collections.sort(videoTimestamps, new TimestampOrder());
     }
 
     public void addTimeStamp(final String channel, final String user, final String note) throws UserError {
@@ -41,6 +44,7 @@ public class VideoTimestampManager {
         videoTimeStamp.setOffset(vodDescriptor.getDuration());
 
         videoTimestamps.add(videoTimeStamp);
+        Collections.sort(videoTimestamps, new TimestampOrder());
 
         videoTimestampSerializer.saveVideoTimestamp(videoTimeStamp);
     }
@@ -52,6 +56,13 @@ public class VideoTimestampManager {
                 videoTimestampSerializer.deleteVideoTimestamp(videoTimeStamp);
                 break;
             }
+        }
+    }
+
+    private static class TimestampOrder implements Comparator<VideoTimestamp> {
+        @Override
+        public int compare(final VideoTimestamp timestamp, final VideoTimestamp otherTimestamp) {
+            return -timestamp.getTime().compareTo(otherTimestamp.getTime());
         }
     }
 }

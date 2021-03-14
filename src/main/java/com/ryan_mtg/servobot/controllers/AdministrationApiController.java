@@ -41,6 +41,12 @@ public class AdministrationApiController {
         return true;
     }
 
+    @PostMapping(value = "/make_editor", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean makeEditor(@RequestBody final UserRequest request) {
+        userTable.modifyUser(request.getUserId(), User::makeEditor);
+        return true;
+    }
+
     @Getter
     static class UserRequest {
         private int userId;

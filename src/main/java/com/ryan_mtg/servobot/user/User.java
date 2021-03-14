@@ -11,6 +11,7 @@ public class User {
 
     private static final int ADMIN_FLAG = 1;
     private static final int INVITE_FLAG = 1<<1;
+    private static final int EDITOR_FLAG = 1<<2;
 
     @Getter
     private int id;
@@ -52,6 +53,10 @@ public class User {
         return Flags.hasFlag(flags, ADMIN_FLAG);
     }
 
+    public boolean isEditor() {
+        return Flags.hasFlag(flags, EDITOR_FLAG);
+    }
+
     public String getName() {
         if (twitchUsername != null) {
             return twitchUsername;
@@ -65,11 +70,14 @@ public class User {
 
     public void invite() {
         setFlag(INVITE_FLAG, true);
-
     }
 
     public void removeInvite() {
         setFlag(INVITE_FLAG, false);
+    }
+
+    public void makeEditor() {
+        setFlag(EDITOR_FLAG, true);
     }
 
     private void setFlag(final int flag, final boolean value) {

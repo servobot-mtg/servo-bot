@@ -39,6 +39,10 @@ public class WebsiteUser implements Principal {
         return user != null && user.isAdmin();
     }
 
+    public boolean isEditor() {
+        return user != null && user.isEditor();
+    }
+
     public boolean hasInvite() {
         return user != null && user.hasInvite();
     }
