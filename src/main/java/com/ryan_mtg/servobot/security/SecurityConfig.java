@@ -100,7 +100,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/home/{bot}/{home}").permitAll()
             .antMatchers("/home/{bot}/{home}/**").access("isPrivileged(#bot, #home)")
             .antMatchers("/", "/login**", "/images/**", "/script/**", "/style/**", "/home", "favicon.ico",
-                    "/api/public/**", "/help", "/help/**", "/tournament**", "/tournament/**", "/mpl", "/rivals")
+                "/api/public/**", "/help", "/help/**", "/tournament**", "/tournament/**", "/mpl", "/rivals",
+                "/.well-known/acme-challenge/**")
                 .permitAll()
             .anyRequest().authenticated()
             .accessDecisionManager(accessDecisionManager(null))
