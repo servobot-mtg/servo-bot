@@ -5,11 +5,12 @@ import com.ryan_mtg.servobot.commands.hierarchy.HomeCommand;
 import com.ryan_mtg.servobot.events.HomeEvent;
 import com.ryan_mtg.servobot.model.books.Book;
 import lombok.Getter;
+import lombok.Setter;
 
 public class SetStatusCommand extends HomeCommand {
     public static final CommandType TYPE = CommandType.SET_STATUS_COMMAND_TYPE;
 
-    @Getter
+    @Getter @Setter
     private Book book;
 
     public SetStatusCommand(final int id, final CommandSettings commandSettings, final Book book) {

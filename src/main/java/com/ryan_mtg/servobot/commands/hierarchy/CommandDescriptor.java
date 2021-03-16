@@ -1,4 +1,4 @@
-package com.ryan_mtg.servobot.controllers;
+package com.ryan_mtg.servobot.commands.hierarchy;
 
 import com.ryan_mtg.servobot.commands.AddBookedStatementCommand;
 import com.ryan_mtg.servobot.commands.CommandMapping;
@@ -14,7 +14,6 @@ import com.ryan_mtg.servobot.commands.chat_draft.NextPickCommand;
 import com.ryan_mtg.servobot.commands.chat_draft.OpenChatDraftCommand;
 import com.ryan_mtg.servobot.commands.game.GameCommand;
 import com.ryan_mtg.servobot.commands.game.JoinGameCommand;
-import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.magic.CardSearchCommand;
 import com.ryan_mtg.servobot.commands.magic.ScryfallSearchCommand;
 import com.ryan_mtg.servobot.commands.roles.MakeRoleMessageCommand;
@@ -77,6 +76,10 @@ public class CommandDescriptor {
 
     public String getEdit() {
         return edit;
+    }
+
+    public boolean isEditable() {
+        return edit != null && !command.isTemporary();
     }
 
     public void addTrigger(final Trigger trigger) {
@@ -310,7 +313,6 @@ public class CommandDescriptor {
             description = String.format("Sets the user passed as input to the role '%s' and says '%s'",
                     setUsersRoleCommand.getRole(), setUsersRoleCommand.getMessage());
             edit = setUsersRoleCommand.getRole();
-
         }
 
         @Override

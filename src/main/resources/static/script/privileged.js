@@ -243,7 +243,7 @@ function addEditableDiv(parentElement, label, value, editFunction, modifyFunctio
 
 function addTextCell(row, text) {
     let textCell = row.insertCell();
-    textCell.innerHTML = text;
+    textCell.innerText = text;
 }
 
 function addDeleteCell(row, text, deleteFunction) {
@@ -620,6 +620,29 @@ function addStatementRow(statement, contextId, bookId) {
     });
 }
 
+function showCommandEdit(commandId) {
+    const label = 'command-' + commandId;
+    hideElementById(label + '-show-edit');
+    showElementById(label + '-edit');
+
+    document.getElementById(label + '-edit-input').focus();
+}
+
+async function editCommand(contextId, commandId) {
+    const label = 'command-' + commandId;
+    const text = document.getElementById(label + '-edit-input').value;
+    const parameters = {contextId: contextId, commandId: commandId, text: text};
+    let response = await makePost('/api/edit_command', parameters, [], false);
+
+    if (response.ok) {
+        showElementInlineById(label + '-show-edit');
+        hideElementById(label + '-edit');
+
+        let commandDescriptor = await response.json();
+        editCommandRow(commandDescriptor);
+    }
+}
+
 function showAddCommandForm() {
     showForm('add-command', addCommandFormData);
     changeAddCommandType(document.getElementById('add-command-type-input'));
@@ -953,6 +976,17 @@ function addCommandRow(commandDescriptor, contextId) {
     addDeleteCell(row, trashcanIcon, function () {
         deleteCommand(contextId, commandDescriptor.command.id);
     });
+}
+
+function editCommandRow(commandDescriptor) {
+    const label = 'command-' + commandDescriptor.command.id;
+    let row = document.getElementById(label + '-row');
+
+    let descriptionSpan = document.getElementById(label + '-description');
+    descriptionSpan.innerText = commandDescriptor.description;
+
+    let editInput = document.getElementById(label + '-edit-input');
+    editInput.value = commandDescriptor.edit;
 }
 
 function showAddPatternForm(reactionId) {

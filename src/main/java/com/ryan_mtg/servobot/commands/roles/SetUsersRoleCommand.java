@@ -25,10 +25,13 @@ public class SetUsersRoleCommand extends InvokedHomedCommand {
     public SetUsersRoleCommand(final int id, final CommandSettings commandSettings, final String role,
             final String message) throws UserError {
         super(id, commandSettings);
-        this.role = role;
+        setRole(role);
         this.message = message;
+    }
 
+    public void setRole(final String role) throws UserError {
         Validation.validateStringLength(role, Validation.MAX_ROLE_LENGTH, "Role");
+        this.role = role;
     }
 
     @Override

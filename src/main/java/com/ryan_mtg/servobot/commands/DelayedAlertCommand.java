@@ -12,13 +12,18 @@ import java.time.Duration;
 public class DelayedAlertCommand extends HomeCommand {
     public static final CommandType TYPE = CommandType.DELAYED_ALERT_COMMAND_TYPE;
     private Alert alert;
+    private Duration delay;
 
     public DelayedAlertCommand(final int id, final CommandSettings commandSettings, final Duration delay,
             final String alertToken) throws UserError {
         super(id, commandSettings);
-        alert = new Alert(delay, alertToken);
+        this.delay = delay;
+        setAlertToken(alertToken);
+    }
 
+    public void setAlertToken(final String alertToken) throws UserError {
         Validation.validateStringLength(alertToken, Validation.MAX_TRIGGER_LENGTH, "Alert token");
+        alert = new Alert(delay, alertToken);
     }
 
     public Duration getDelay() {

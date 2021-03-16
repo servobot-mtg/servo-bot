@@ -24,17 +24,21 @@ public class MessageChannelCommand extends HomeCommand {
     private final String channelName;
 
     @Getter
-    private final String message;
+    private String message;
 
     public MessageChannelCommand(final int id, final CommandSettings commandSettings, final int serviceType,
             final String channelName, final String message) throws UserError {
         super(id, commandSettings);
         this.serviceType = serviceType;
         this.channelName = channelName;
-        this.message = message;
+        setMessage(message);
 
         Validation.validateStringLength(channelName, Validation.MAX_CHANNEL_NAME_LENGTH, "Channel name");
+    }
+
+    public void setMessage(final String message) throws UserError {
         Validation.validateStringLength(message, Validation.MAX_TEXT_LENGTH, "Message");
+        this.message = message;
     }
 
     @Override

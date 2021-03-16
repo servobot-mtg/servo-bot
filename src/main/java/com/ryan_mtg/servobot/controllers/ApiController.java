@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandDescriptor;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
 import com.ryan_mtg.servobot.controllers.error.BotError;
 import com.ryan_mtg.servobot.data.models.CommandRow;
@@ -42,8 +43,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -325,6 +324,20 @@ public class ApiController {
         private String stringParameter2;
         private Long longParameter;
     }
+
+    @PostMapping(value = "/edit_command", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public CommandDescriptor editCommand(@RequestBody final EditCommandRequest request) throws UserError {
+        CommandTableEditor commandTableEditor = getCommandTableEditor(request.getContextId());
+        return commandTableEditor.editCommand(request.getCommandId(), request.getText());
+    }
+
+    @Getter
+    public static class EditCommandRequest extends ContextRequest {
+        private String text;
+        private int commandId;
+    }
+
 
     @PostMapping(value = "/delete_command", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)

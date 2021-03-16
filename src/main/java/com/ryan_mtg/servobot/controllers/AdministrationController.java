@@ -2,6 +2,7 @@ package com.ryan_mtg.servobot.controllers;
 
 import com.google.common.collect.Lists;
 import com.ryan_mtg.servobot.commands.Permission;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandDescriptor;
 import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.LoggedMessageSerializer;
 import com.ryan_mtg.servobot.data.repositories.SuggestionRepository;

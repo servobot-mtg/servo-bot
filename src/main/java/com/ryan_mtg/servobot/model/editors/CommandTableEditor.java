@@ -5,10 +5,11 @@ import com.ryan_mtg.servobot.commands.CommandTableEdit;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.commands.hierarchy.Command;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandEditor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedCommand;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.commands.trigger.Trigger;
-import com.ryan_mtg.servobot.controllers.CommandDescriptor;
+import com.ryan_mtg.servobot.commands.hierarchy.CommandDescriptor;
 import com.ryan_mtg.servobot.data.factories.CommandSerializer;
 import com.ryan_mtg.servobot.data.factories.CommandTableSerializer;
 import com.ryan_mtg.servobot.data.models.CommandRow;
@@ -30,6 +31,7 @@ public class CommandTableEditor {
     private final CommandSerializer commandSerializer;
     private final CommandTableSerializer commandTableSerializer;
     private final GameQueueEditor gameQueueEditor;
+    private final CommandEditor commandEditor;
 
     public CommandTableEditor(final BookTable bookTable, final CommandTable commandTable,
             final CommandSerializer commandSerializer, final CommandTableSerializer commandTableSerializer,
@@ -39,6 +41,7 @@ public class CommandTableEditor {
         this.commandSerializer = commandSerializer;
         this.commandTableSerializer = commandTableSerializer;
         this.gameQueueEditor = gameQueueEditor;
+        this.commandEditor = new CommandEditor(bookTable);
     }
 
     public boolean hasCommand(final String token) {
@@ -82,6 +85,14 @@ public class CommandTableEditor {
         boolean added = commandTableEdit.getDeletedTriggers().isEmpty();
         commandTableSerializer.commit(commandTableEdit);
         return added;
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    public CommandDescriptor editCommand(final int commandId, final String text) throws UserError {
+        Command command = commandTable.getCommand(commandId);
+        command = commandEditor.editCommand(command, text);
+        saveCommand(command);
+        return new CommandDescriptor(command);
     }
 
     @Transactional(rollbackOn = Exception.class)

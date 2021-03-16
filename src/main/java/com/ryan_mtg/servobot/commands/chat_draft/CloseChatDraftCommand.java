@@ -18,7 +18,7 @@ public class CloseChatDraftCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.CLOSE_CHAT_DRAFT_COMMAND_TYPE;
 
     @Getter
-    private final String response;
+    private String response;
 
     @Getter @Setter
     private int chatDraftId;
@@ -26,10 +26,13 @@ public class CloseChatDraftCommand extends InvokedHomedCommand {
     public CloseChatDraftCommand(final int id, final CommandSettings commandSettings, final int chatDraftId,
             final String response) throws UserError {
         super(id, commandSettings);
-        this.response = response;
+        setResponse(response);
         this.chatDraftId = chatDraftId;
+    }
 
+    public void setResponse(final String response) throws UserError {
         Validation.validateStringLength(response, Validation.MAX_TEXT_LENGTH, "Command response");
+        this.response = response;
     }
 
     @Override

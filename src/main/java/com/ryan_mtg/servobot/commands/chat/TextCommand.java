@@ -15,13 +15,16 @@ public class TextCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.TEXT_COMMAND_TYPE;
 
     @Getter
-    private final String text;
+    private String text;
 
     public TextCommand(final int id, final CommandSettings commandSettings, final String text) throws UserError {
         super(id, commandSettings);
-        this.text = text;
+        setText(text);
+    }
 
+    public void setText(final String text) throws UserError {
         Validation.validateStringLength(text, Validation.MAX_TEXT_LENGTH, "Command text");
+        this.text = text;
     }
 
     @Override

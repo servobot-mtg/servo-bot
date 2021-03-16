@@ -19,9 +19,12 @@ public class AddReactionCommand extends MessagedHomeCommand {
     public AddReactionCommand(final int id, final CommandSettings commandSettings, final String emoteName)
             throws UserError {
         super(id, commandSettings);
-        this.emoteName = emoteName;
+        setEmoteName(emoteName);
+    }
 
+    public void setEmoteName(final String emoteName) throws UserError {
         Validation.validateStringLength(emoteName, Validation.MAX_EMOTE_LENGTH, "Emote name");
+        this.emoteName = emoteName;
     }
 
     @Override

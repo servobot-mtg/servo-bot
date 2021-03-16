@@ -76,9 +76,25 @@
                     th:id="${label + '-row'}"
                     th:classappend="${(command.secure ? 'secure ' : '') + (command.temporary ? 'temporary ' : '')}">
 
-                    <td th:if="${privileged}" th:text="${command.id}"/>
-                    <td th:text="${descriptor.type}"/>
-                    <td th:text="${descriptor.description}"/>
+                    <td th:if="${privileged}" th:text="${command.id}"></td>
+                    <td th:text="${descriptor.type}"></td>
+                    <td>
+                        <span th:text="${descriptor.description}" th:id="${label + '-description'}"></span>
+                        <span th:if="${privileged && descriptor.editable}">
+                            <span th:id="${label + '-show-edit'}" class="pseudo-link"
+                                  th:onclick="'showCommandEdit(' + ${command.id} + ')'">
+                                &#x270F;&#xFE0F;
+                            </span>
+                            <div th:id="${label + '-edit'}" class="hidden">
+                                <input type="text" th:value="${descriptor.edit}" th:id="${label} + '-edit-input'"
+                                       th:size="${descriptor.edit.length() + 10}"/>
+                                <span class="pseudo-link"
+                                      th:onclick="'editCommand(' + ${contextId} + ', ' + ${command.id} + ')'">
+                                    &#x1F4BE;
+                                </span>
+                            </div>
+                        </span>
+                    </td>
                     <td>
                         <span th:id="'alias-triggers-' + ${command.id}">
                             <th:block th:each="alias : ${descriptor.aliases}">
