@@ -7,10 +7,14 @@ import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class RoleTable {
     public static final int UNREGISTERED_ID = 0;
     private final int contextId;
@@ -37,11 +41,11 @@ public class RoleTable {
     public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) throws UserError {
         String emoteName = emoteHomeEvent.getEmote().getName();
         ServiceHome serviceHome = emoteHomeEvent.getServiceHome();
+        User reactor = emoteHomeEvent.getSender();
         for (Role role : roles) {
             if (emoteName.equals(role.getEmote())) {
-                User reactor = emoteHomeEvent.getSender();
                 serviceHome.setRole(reactor, role.getRole());
-                if (role.isAppendEmote() && !reactor.getName().endsWith(emoteName)) {
+                if (role.isAppendEmote() && !nameEndingHasEmote(emoteName, reactor)) {
                     serviceHome.setNickName(reactor, reactor.getName() + ' ' + emoteName);
                 }
             }
@@ -82,5 +86,12 @@ public class RoleTable {
         });
         roles.removeAll(rolesToDelete);
         return roleTableEdit;
+    }
+
+    private boolean nameEndingHasEmote(final String emoteName, final User reactor) {
+        if (emoteName.length() == 2 && reactor.getName().endsWith(emoteName.substring(0, 1))) {
+            return true;
+        }
+        return reactor.getName().endsWith(emoteName);
     }
 }

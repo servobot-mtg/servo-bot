@@ -42,7 +42,7 @@ public interface ServiceHome {
     boolean isHigherRanked(User user, User otherUser) throws UserError;
 
     boolean hasUser(String userName);
-    User getUser(long id, String userName);
+    User getUser(long serviceId, String userName);
     User getUser(String userName) throws UserError;
     User getUser(HomedUser homedUser);
     void setNickName(User user, String nickName);
