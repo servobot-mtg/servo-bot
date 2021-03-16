@@ -249,9 +249,9 @@ public class BotController {
         return "book";
     }
 
-
     @ModelAttribute
     private void addAttributes(final Model model) {
+        model.addAttribute("bot", botRegistrar.getDefaultBot());
         model.addAttribute("bots", botRegistrar.getBots());
         model.addAttribute("permissions", Lists.newArrayList(
                 Permission.ADMIN, Permission.STREAMER, Permission.MOD, Permission.SUB, Permission.ANYONE));
