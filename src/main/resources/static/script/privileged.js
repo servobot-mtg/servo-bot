@@ -55,6 +55,7 @@ const addCommandFormData = {
              {name: 'book', type: 'select', value: 0, hide: true},
              {name: 'emote', type: 'select', value: 0, hide: true},
              {name: 'role', type: 'select', value: 0, hide: true},
+             {name: 'role-2', type: 'select', value: 0, hide: true},
              {name: 'game-type', type: 'select', value: 0, hide: true},
              {name: 'service', type: 'select', value: 0, hide: true},
     ],
@@ -650,7 +651,7 @@ function showAddCommandForm() {
 
 function addAddCommandParameter(parameters, inputId, parameterName) {
     let inputElement = document.getElementById('add-command-' + inputId + '-input');
-    if (parameterName === 'longParameter') {
+    if (parameterName === 'longParameter' || parameterName == 'longParameter2') {
         parameters[parameterName] = parseInt(inputElement.value);
     } if (inputElement.tagName === 'INPUT' && inputElement.type === 'checkbox') {
         parameters[parameterName] = inputElement.checked;
@@ -663,7 +664,6 @@ function getParameterName(parameterId) {
     switch (parameterId) {
         case 'text':
         case 'emote':
-        case 'role':
             return 'stringParameter';
         case 'text-2':
             return 'stringParameter2';
@@ -671,7 +671,10 @@ function getParameterName(parameterId) {
         case 'book':
         case 'game-type':
         case 'integer':
+        case 'role':
             return 'longParameter';
+        case 'role-2':
+            return 'longParameter2';
     }
 }
 
@@ -692,9 +695,6 @@ function addCommand(contextId) {
         let parameter = data.parameters[i];
 
         addAddCommandParameter(parameters, parameter.id, getParameterName(parameter.id));
-    }
-    if (!parameters.hasOwnProperty('longParameter')) {
-        parameters['longParameter'] = 0;
     }
 
     postAddCommand(parameters);
@@ -743,8 +743,8 @@ const commandData = [
     {name: 'Add Reaction Command', parameters: [{id: 'emote', name: 'Emote'}]}, //24
     {}, // Deleted_command 25
     {}, // Deleted_command 26
-    {name: 'Set User Role Command', parameters: [{id: 'role', name: 'Role Name'},
-            {id: 'text-2', name: 'Response message'}]}, //27
+    {name: 'Set User Role Command', parameters: [{id: 'role', name: 'Set Role Name'},
+            {id: 'role-2', name: 'Unset Role Name'}, {id: 'text', name: 'Response message'}]}, //27
     {}, //28, Prize Request Command
     {}, // Deleted_command 29
     {}, // Deleted_command 30
@@ -827,8 +827,8 @@ function setElementText(elementId, text) {
 }
 
 const addCommandElements = ['add-command-text-div', 'add-command-text-2-div', 'add-command-service-div',
-    'add-command-book-div', 'add-command-role-div', 'add-command-emote-div', 'add-command-game-type-div',
-    'add-command-integer-div'];
+    'add-command-book-div', 'add-command-role-div', 'add-command-role-2-div', 'add-command-emote-div',
+    'add-command-game-type-div', 'add-command-integer-div'];
 
 function showAddCommandElements(elementIds) {
     for (let i = 0; i < addCommandElements.length; i++) {

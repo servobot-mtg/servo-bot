@@ -42,7 +42,5 @@ public class CommandRow {
 
     private Long longParameter;
 
-    public void setLongParameter(final long longParameter) {
-        this.longParameter = longParameter;
-    }
+    private Long longParameter2;
 }

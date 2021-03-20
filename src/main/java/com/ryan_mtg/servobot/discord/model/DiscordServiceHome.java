@@ -1,11 +1,13 @@
 package com.ryan_mtg.servobot.discord.model;
 
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.model.Role;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
@@ -17,7 +19,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,18 +140,18 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public List<String> getRoles() {
-        if (guild != null) {
-            return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole())
-                    .map(Role::getName).collect(Collectors.toList());
+    public List<Role> getRoles() {
+        if (guild == null) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+        return guild.getRoles().stream().filter(role -> !role.isManaged() && !role.isPublicRole()).map(DiscordRole::new)
+                .collect(Collectors.toList());
     }
 
     @Override
     public String getRole(final User user) {
         Member member = guild.getMemberById(getDiscordId(user));
-        List<Role> roles = member.getRoles();
+        List<net.dv8tion.jda.api.entities.Role> roles = member.getRoles();
         if (!roles.isEmpty()) {
             return roles.get(0).getName();
         }
@@ -165,6 +166,12 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public boolean hasRole(final User user, final long roleId) {
+        Member member = getMember(user);
+        return member.getRoles().stream().anyMatch(role -> role.getIdLong() == roleId);
+    }
+
+    @Override
     public boolean hasRole(final String roleName) {
         return !guild.getRolesByName(deamp(roleName), false).isEmpty();
     }
@@ -176,13 +183,25 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
+    public void clearRole(final User user, final long roleId) throws BotHomeError {
+        Member member = getMember(user);
+        guild.removeRoleFromMember(member, getRoleInternal(roleId)).queue();
+    }
+
+    @Override
     public void setRole(final User user, final String roleName) throws UserError {
         guild.addRoleToMember(getMember(user), getRole(roleName)).queue();
     }
 
     @Override
+    public void setRole(User user, long roleId) throws BotHomeError {
+        Member member = getMember(user);
+        guild.addRoleToMember(member, getRoleInternal(roleId)).queue();
+    }
+
+    @Override
     public List<String> clearRole(final String roleName) throws UserError {
-        Role role = getRole(roleName);
+        net.dv8tion.jda.api.entities.Role role = getRole(roleName);
         List<Member> members = guild.getMembersWithRoles(role);
         List<String> names = new ArrayList<>();
         for (Member member : members) {
@@ -318,17 +337,30 @@ public class DiscordServiceHome implements ServiceHome {
         return string;
     }
 
-    private Role getRole(final String roleName) throws UserError {
-        List<Role> roles = guild.getRolesByName(deamp(roleName), false);
+    private net.dv8tion.jda.api.entities.Role getRole(final String roleName) throws UserError {
+        List<net.dv8tion.jda.api.entities.Role> roles = guild.getRolesByName(deamp(roleName), false);
         if (roles.isEmpty()) {
             throw new UserError(String.format("'%s' is not a valid role.", roleName));
         }
         return roles.get(0);
     }
 
+    @Override
+    public Role getRole(final long roleId) throws BotHomeError {
+        return new DiscordRole(getRoleInternal(roleId));
+    }
+
+    private net.dv8tion.jda.api.entities.Role getRoleInternal(final long roleId) throws BotHomeError {
+        net.dv8tion.jda.api.entities.Role role = guild.getRoleById(roleId);
+        if (role == null) {
+            throw new BotHomeError(String.format("'%s' is not a valid role id.", roleId));
+        }
+        return role;
+    }
+
     private int getPosition(final Member member) {
         int position = -1;
-        for (Role role : member.getRoles()) {
+        for (net.dv8tion.jda.api.entities.Role role : member.getRoles()) {
             position = Math.max(position, role.getPosition());
         }
         return position;

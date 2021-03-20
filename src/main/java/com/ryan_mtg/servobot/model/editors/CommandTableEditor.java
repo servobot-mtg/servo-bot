@@ -54,7 +54,7 @@ public class CommandTableEditor {
             Game game = Game.get((int)(long) commandRow.getLongParameter());
 
             gameQueueEditor.createGameQueue(game,
-                    savedGameQueue -> commandRow.setLongParameter(savedGameQueue.getId()));
+                    savedGameQueue -> commandRow.setLongParameter((long) savedGameQueue.getId()));
         }
 
         Command command = commandSerializer.createCommand(commandRow, bookTable.getBookMap());

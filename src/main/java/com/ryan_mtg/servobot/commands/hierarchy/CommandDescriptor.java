@@ -299,7 +299,7 @@ public class CommandDescriptor {
 
         @Override
         public void visitSetRoleCommand(final SetRoleCommand setRoleCommand) {
-            description = String.format("Sets the user's role to '%s'", setRoleCommand.getRole());
+            description = String.format("Sets the user's role to '%d'", setRoleCommand.getRoleId());
         }
 
         @Override
@@ -310,9 +310,11 @@ public class CommandDescriptor {
 
         @Override
         public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
-            description = String.format("Sets the user passed as input to the role '%s' and says '%s'",
-                    setUsersRoleCommand.getRole(), setUsersRoleCommand.getMessage());
-            edit = setUsersRoleCommand.getRole();
+            description =
+                String.format("Sets the user passed as input to the role '%d', removes the role id %d and says '%s'",
+                    setUsersRoleCommand.getSetRoleId(), setUsersRoleCommand.getUnsetRoleId(),
+                    setUsersRoleCommand.getResponse());
+            edit = setUsersRoleCommand.getResponse();
         }
 
         @Override

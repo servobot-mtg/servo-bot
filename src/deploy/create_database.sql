@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS home (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_id I
 
 CREATE TABLE IF NOT EXISTS command (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, bot_home_id INTEGER,
                                     flags INTEGER, permission INTEGER, stringParameter VARCHAR(200),
-                                    stringParameter2 VARCHAR(200), longParameter BIGINT, rate_limit INTEGER);
+                                    stringParameter2 VARCHAR(200), longParameter BIGINT, longParameter2 BIGINT,
+                                    rate_limit INTEGER);
 
 CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emote VARCHAR(30), secure BIT,
                                      filter INTEGER, filter_value INTEGER, bot_home_id INTEGER);

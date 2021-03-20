@@ -290,8 +290,18 @@
                 <div id="add-command-role-div" class="hidden">
                     <label id="add-command-role-label">Role</label><br>
                     <select id='add-command-role-input'>
+                        <option value="0" selected></option>
                         <th:block th:each="role, status : ${roles}">
-                            <option th:value="${role}" th:text="${role}" th:selected="${status.index == 0}"/>
+                            <option th:value="${role.id}" th:text="${role.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+                <div id="add-command-role-2-div" class="hidden">
+                    <label id="add-command-role-2-label">Role 2</label><br>
+                    <select id='add-command-role-2-input'>
+                        <option value="0" selected></option>
+                        <th:block th:each="role, status : ${roles}">
+                            <option th:value="${role.id}" th:text="${role.name}"></option>
                         </th:block>
                     </select>
                 </div>
@@ -438,7 +448,7 @@
                     <label>Role</label><br>
                     <select id='add-role-role-input'>
                         <th:block th:each="role, status : ${roles}">
-                            <option th:value="${role}" th:text="${role}" th:selected="${status.index == 0}"/>
+                            <option th:value="${role.name}" th:text="${role.name}" th:selected="${status.index == 0}"/>
                         </th:block>
                     </select>
                 </div>

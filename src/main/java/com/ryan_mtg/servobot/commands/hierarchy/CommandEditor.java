@@ -236,7 +236,7 @@ public class CommandEditor {
 
         @Override
         public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
-            handleError(() -> setUsersRoleCommand.setRole(text));
+            handleError(() -> setUsersRoleCommand.setResponse(text));
         }
 
         @Override

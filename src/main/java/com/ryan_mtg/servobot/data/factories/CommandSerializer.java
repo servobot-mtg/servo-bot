@@ -183,10 +183,10 @@ public class CommandSerializer {
                     bookId = (int) (long) commandRow.getLongParameter();
                     return new SetStatusCommand(id, commandSettings, bookMap.get(bookId));
                 case SET_ROLE_COMMAND_TYPE:
-                    return new SetRoleCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()));
+                    return new SetRoleCommand(id, commandSettings, commandRow.getLongParameter());
                 case SET_USERS_ROLE_COMMAND_TYPE:
-                    return new SetUsersRoleCommand(id, commandSettings, Strings.trim(commandRow.getStringParameter()),
-                            Strings.trim(commandRow.getStringParameter2()));
+                    return new SetUsersRoleCommand(id, commandSettings, commandRow.getLongParameter(),
+                            commandRow.getLongParameter2(), Strings.trim(commandRow.getStringParameter()));
                 case SET_VALUE_COMMAND_TYPE:
                     return new SetValueCommand(id, commandSettings);
                 case SHOW_ARENA_USERNAMES_COMMAND_TYPE:
@@ -298,7 +298,7 @@ public class CommandSerializer {
         @Override
         public void visitAddBookedStatementCommand(final AddBookedStatementCommand addBookedStatementCommand) {
             saveCommand(addBookedStatementCommand, commandRow -> {
-                commandRow.setLongParameter(addBookedStatementCommand.getBook().getId());
+                commandRow.setLongParameter((long) addBookedStatementCommand.getBook().getId());
                 commandRow.setStringParameter(addBookedStatementCommand.getResponse());
             });
         }
@@ -323,7 +323,7 @@ public class CommandSerializer {
         @Override
         public void visitBeginChatDraftCommand(final BeginChatDraftCommand beginChatDraftCommand) {
             saveCommand(beginChatDraftCommand, commandRow -> {
-                commandRow.setLongParameter(beginChatDraftCommand.getChatDraftId());
+                commandRow.setLongParameter((long) beginChatDraftCommand.getChatDraftId());
                 commandRow.setStringParameter(beginChatDraftCommand.getResponse());
             });
         }
@@ -331,14 +331,14 @@ public class CommandSerializer {
         @Override
         public void visitCardSearchCommand(final CardSearchCommand cardSearchCommand) {
             saveCommand(cardSearchCommand, commandRow -> {
-                commandRow.setLongParameter(cardSearchCommand.getUsesEasterEggs() ? 1 : 0);
+                commandRow.setLongParameter((long) (cardSearchCommand.getUsesEasterEggs() ? 1 : 0));
             });
         }
 
         @Override
         public void visitChatDraftStatusCommand(final ChatDraftStatusCommand chatDraftStatusCommand) {
             saveCommand(chatDraftStatusCommand, commandRow -> {
-                commandRow.setLongParameter(chatDraftStatusCommand.getChatDraftId());
+                commandRow.setLongParameter((long) chatDraftStatusCommand.getChatDraftId());
                 commandRow.setStringParameter(chatDraftStatusCommand.getResponse());
             });
         }
@@ -346,7 +346,7 @@ public class CommandSerializer {
         @Override
         public void visitCloseChatDraftCommand(final CloseChatDraftCommand closeChatDraftCommand) {
             saveCommand(closeChatDraftCommand, commandRow -> {
-                commandRow.setLongParameter(closeChatDraftCommand.getChatDraftId());
+                commandRow.setLongParameter((long) closeChatDraftCommand.getChatDraftId());
                 commandRow.setStringParameter(closeChatDraftCommand.getResponse());
             });
         }
@@ -367,7 +367,7 @@ public class CommandSerializer {
         @Override
         public void visitEnterChatDraftCommand(final EnterChatDraftCommand enterChatDraftCommand) {
             saveCommand(enterChatDraftCommand, commandRow -> {
-                commandRow.setLongParameter(enterChatDraftCommand.getChatDraftId());
+                commandRow.setLongParameter((long) enterChatDraftCommand.getChatDraftId());
                 commandRow.setStringParameter(enterChatDraftCommand.getResponse());
             });
         }
@@ -375,7 +375,7 @@ public class CommandSerializer {
         @Override
         public void visitEnterRaffleCommand(final EnterRaffleCommand enterRaffleCommand) {
             saveCommand(enterRaffleCommand, commandRow -> {
-                commandRow.setLongParameter(enterRaffleCommand.getGiveawayId());
+                commandRow.setLongParameter((long) enterRaffleCommand.getGiveawayId());
                 commandRow.setStringParameter(enterRaffleCommand.getResponse());
             });
         }
@@ -388,28 +388,28 @@ public class CommandSerializer {
         @Override
         public void visitFactsCommand(final FactsCommand factsCommand) {
             saveCommand(factsCommand, commandRow -> {
-                commandRow.setLongParameter(factsCommand.getBook().getId());
+                commandRow.setLongParameter((long) factsCommand.getBook().getId());
             });
         }
 
         @Override
         public void visitGameCommand(final GameCommand gameCommand) {
             saveCommand(gameCommand, commandRow -> {
-                commandRow.setLongParameter(gameCommand.getGameType());
+                commandRow.setLongParameter((long) gameCommand.getGameType());
             });
         }
 
         @Override
         public void visitGameQueueCommand(final GameQueueCommand gameQueueCommand) {
             saveCommand(gameQueueCommand, commandRow -> {
-                commandRow.setLongParameter(gameQueueCommand.getGameQueueId());
+                commandRow.setLongParameter((long) gameQueueCommand.getGameQueueId());
             });
         }
 
         @Override
         public void visitGiveawayStatusCommand(final RaffleStatusCommand raffleStatusCommand) {
             saveCommand(raffleStatusCommand, commandRow -> {
-                commandRow.setLongParameter(raffleStatusCommand.getGiveawayId());
+                commandRow.setLongParameter((long) raffleStatusCommand.getGiveawayId());
                 commandRow.setStringParameter(raffleStatusCommand.getResponse());
             });
         }
@@ -417,14 +417,14 @@ public class CommandSerializer {
         @Override
         public void visitJoinGameCommand(final JoinGameCommand joinGameCommand) {
             saveCommand(joinGameCommand, commandRow -> {
-                commandRow.setLongParameter(joinGameCommand.getGameType());
+                commandRow.setLongParameter((long) joinGameCommand.getGameType());
             });
         }
 
         @Override
         public void visitJoinGameQueueCommand(final JoinGameQueueCommand joinGameQueueCommand) {
             saveCommand(joinGameQueueCommand, commandRow -> {
-                commandRow.setLongParameter(joinGameQueueCommand.getGameQueueId());
+                commandRow.setLongParameter((long) joinGameQueueCommand.getGameQueueId());
             });
         }
 
@@ -436,7 +436,7 @@ public class CommandSerializer {
         @Override
         public void visitMessageChannelCommand(final MessageChannelCommand messageChannelCommand) {
             saveCommand(messageChannelCommand, commandRow -> {
-                commandRow.setLongParameter(messageChannelCommand.getServiceType());
+                commandRow.setLongParameter((long) messageChannelCommand.getServiceType());
                 commandRow.setStringParameter(messageChannelCommand.getChannelName());
                 commandRow.setStringParameter2(messageChannelCommand.getMessage());
             });
@@ -445,7 +445,7 @@ public class CommandSerializer {
         @Override
         public void visitNextPickCommand(final NextPickCommand nextPickCommand) {
             saveCommand(nextPickCommand, commandRow -> {
-                commandRow.setLongParameter(nextPickCommand.getChatDraftId());
+                commandRow.setLongParameter((long) nextPickCommand.getChatDraftId());
                 commandRow.setStringParameter(nextPickCommand.getResponse());
             });
         }
@@ -453,7 +453,7 @@ public class CommandSerializer {
         @Override
         public void visitOpenChatDraftCommand(final OpenChatDraftCommand openChatDraftCommand) {
             saveCommand(openChatDraftCommand, commandRow -> {
-                commandRow.setLongParameter(openChatDraftCommand.getChatDraftId());
+                commandRow.setLongParameter((long) openChatDraftCommand.getChatDraftId());
                 commandRow.setStringParameter(openChatDraftCommand.getResponse());
             });
         }
@@ -461,14 +461,14 @@ public class CommandSerializer {
         @Override
         public void visitRemoveFromGameQueueCommand(final RemoveFromGameQueueCommand removeFromGameQueueCommand) {
             saveCommand(removeFromGameQueueCommand, commandRow -> {
-                commandRow.setLongParameter(removeFromGameQueueCommand.getGameQueueId());
+                commandRow.setLongParameter((long) removeFromGameQueueCommand.getGameQueueId());
             });
         }
 
         @Override
         public void visitRequestPrizeCommand(final RequestPrizeCommand requestPrizeCommand) {
             saveCommand(requestPrizeCommand, commandRow -> {
-                commandRow.setLongParameter(requestPrizeCommand.getGiveawayId());
+                commandRow.setLongParameter((long) requestPrizeCommand.getGiveawayId());
             });
         }
 
@@ -488,7 +488,7 @@ public class CommandSerializer {
         @Override
         public void visitSelectWinnerCommand(final SelectWinnerCommand selectWinnerCommand) {
             saveCommand(selectWinnerCommand, commandRow -> {
-                commandRow.setLongParameter(selectWinnerCommand.getGiveawayId());
+                commandRow.setLongParameter((long) selectWinnerCommand.getGiveawayId());
                 commandRow.setStringParameter(selectWinnerCommand.getResponse());
                 commandRow.setStringParameter2(selectWinnerCommand.getDiscordChannel());
             });
@@ -502,22 +502,23 @@ public class CommandSerializer {
         @Override
         public void visitSetRoleCommand(final SetRoleCommand setRoleCommand) {
             saveCommand(setRoleCommand, commandRow -> {
-                commandRow.setStringParameter(setRoleCommand.getRole());
+                commandRow.setLongParameter(setRoleCommand.getRoleId());
             });
         }
 
         @Override
         public void visitSetStatusCommand(final SetStatusCommand setStatusCommand) {
             saveCommand(setStatusCommand, commandRow -> {
-                commandRow.setLongParameter(setStatusCommand.getBook().getId());
+                commandRow.setLongParameter((long) setStatusCommand.getBook().getId());
             });
         }
 
         @Override
         public void visitSetUsersRoleCommand(final SetUsersRoleCommand setUsersRoleCommand) {
             saveCommand(setUsersRoleCommand, commandRow -> {
-                commandRow.setStringParameter(setUsersRoleCommand.getRole());
-                commandRow.setStringParameter2(setUsersRoleCommand.getMessage());
+                commandRow.setLongParameter(setUsersRoleCommand.getSetRoleId());
+                commandRow.setLongParameter2(setUsersRoleCommand.getUnsetRoleId());
+                commandRow.setStringParameter(setUsersRoleCommand.getResponse());
             });
         }
 
@@ -534,7 +535,7 @@ public class CommandSerializer {
         @Override
         public void visitShowGameQueueCommand(final ShowGameQueueCommand showGameQueueCommand) {
             saveCommand(showGameQueueCommand, commandRow -> {
-                commandRow.setLongParameter(showGameQueueCommand.getGameQueueId());
+                commandRow.setLongParameter((long) showGameQueueCommand.getGameQueueId());
             });
         }
 
@@ -546,7 +547,7 @@ public class CommandSerializer {
         @Override
         public void visitStartGiveawayCommand(final StartRaffleCommand startRaffleCommand) {
             saveCommand(startRaffleCommand, commandRow -> {
-                commandRow.setLongParameter(startRaffleCommand.getGiveawayId());
+                commandRow.setLongParameter((long) startRaffleCommand.getGiveawayId());
                 commandRow.setStringParameter(startRaffleCommand.getMessage());
             });
         }

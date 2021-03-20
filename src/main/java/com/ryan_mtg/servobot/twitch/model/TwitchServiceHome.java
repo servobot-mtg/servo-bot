@@ -8,6 +8,7 @@ import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.HomeEditor;
 import com.ryan_mtg.servobot.model.Message;
+import com.ryan_mtg.servobot.model.Role;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
@@ -129,7 +130,7 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
-    public List<String> getRoles() {
+    public List<Role> getRoles() {
         return Collections.emptyList();
     }
 
@@ -139,7 +140,17 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public Role getRole(final long roleId) {
+        throw new SystemError("Twitch doesn't have roles");
+    }
+
+    @Override
     public boolean hasRole(final User user, final String role) {
+        return false;
+    }
+
+    @Override
+    public boolean hasRole(User user, long roleId) {
         return false;
     }
 
@@ -154,7 +165,17 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
+    public void clearRole(User user, long roleId) {
+        throw new SystemError("Twitch doesn't allow setting roles");
+    }
+
+    @Override
     public void setRole(final User user, final String role) {
+        throw new SystemError("Twitch doesn't allow setting roles");
+    }
+
+    @Override
+    public void setRole(User user, long roleId) {
         throw new SystemError("Twitch doesn't allow setting roles");
     }
 

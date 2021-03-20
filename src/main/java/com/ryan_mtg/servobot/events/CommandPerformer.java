@@ -99,8 +99,10 @@ public class CommandPerformer {
             ((UserCommand) command).perform(event);
         } else if (command instanceof InvokedHomedCommand) {
             ((InvokedHomedCommand) command).perform(event);
+        } else if (command instanceof UserHomedCommand) {
+            ((UserHomedCommand) command).perform(event);
         } else {
-            throw new SystemError("Command type %s cannot be applied to a CommandInvokedEven.", command.getClass());
+            throw new SystemError("Command type %s cannot be applied to a CommandInvokedEvent.", command.getClass());
         }
     }
 

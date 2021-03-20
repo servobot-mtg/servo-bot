@@ -7,6 +7,7 @@ import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
+import com.ryan_mtg.servobot.model.Role;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
@@ -17,21 +18,26 @@ public class SetUsersRoleCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.SET_USERS_ROLE_COMMAND_TYPE;
 
     @Getter
-    private String role;
+    private long setRoleId;
 
     @Getter
-    private String message;
+    private long unsetRoleId;
 
-    public SetUsersRoleCommand(final int id, final CommandSettings commandSettings, final String role,
-            final String message) throws UserError {
+    @Getter
+    private String response;
+
+    public SetUsersRoleCommand(final int id, final CommandSettings commandSettings, final long setRoleId,
+           final long unsetRoleId, final String response) throws UserError {
         super(id, commandSettings);
-        setRole(role);
-        this.message = message;
+        setResponse(response);
+        this.setRoleId = setRoleId;
+        this.unsetRoleId = unsetRoleId;
     }
 
-    public void setRole(final String role) throws UserError {
-        Validation.validateStringLength(role, Validation.MAX_ROLE_LENGTH, "Role");
-        this.role = role;
+
+    public void setResponse(final String response) throws UserError {
+        Validation.validateStringLength(response, Validation.MAX_TEXT_LENGTH, "Response");
+        this.response = response;
     }
 
     @Override
@@ -39,17 +45,35 @@ public class SetUsersRoleCommand extends InvokedHomedCommand {
         String arguments = event.getArguments();
         ServiceHome serviceHome = event.getServiceHome();
         User user = serviceHome.getUser(arguments);
+        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
 
-        if (!serviceHome.hasRole(user, role)) {
-            serviceHome.setRole(user, role);
-
-            SimpleSymbolTable symbolTable = new SimpleSymbolTable();
-            symbolTable.addValue("input", arguments);
-            symbolTable.addValue("user", user.getName());
-            symbolTable.addValue("role", role);
-
-            event.say(symbolTable, message);
+        if (setRoleId != 0) {
+            Role role = serviceHome.getRole(setRoleId);
+            symbolTable.addValue("role", role.getName());
+            symbolTable.addValue("setRole", role.getName());
+        } else {
+            symbolTable.addValue("role", "");
+            symbolTable.addValue("setRole", "");
         }
+
+        if (unsetRoleId != 0) {
+            Role role = serviceHome.getRole(unsetRoleId);
+            symbolTable.addValue("unsetRole", role.getName());
+        } else {
+            symbolTable.addValue("unsetRole", "");
+        }
+
+        if (setRoleId != 0 && !serviceHome.hasRole(user, setRoleId)) {
+            serviceHome.setRole(user, setRoleId);
+        }
+
+        if (unsetRoleId != 0 && serviceHome.hasRole(user, unsetRoleId)) {
+            serviceHome.clearRole(user, unsetRoleId);
+        }
+
+        symbolTable.addValue("input", arguments);
+        symbolTable.addValue("user", user.getName());
+        event.say(symbolTable, response);
     }
 
     @Override

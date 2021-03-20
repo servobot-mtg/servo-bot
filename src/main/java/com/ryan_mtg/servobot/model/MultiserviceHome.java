@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.model;
 
 import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -93,7 +94,7 @@ public class MultiserviceHome implements ServiceHome {
     }
 
     @Override
-    public List<String> getRoles() {
+    public List<Role> getRoles() {
         return preferService(DiscordService.TYPE).getRoles();
     }
 
@@ -103,8 +104,18 @@ public class MultiserviceHome implements ServiceHome {
     }
 
     @Override
+    public Role getRole(final long roleId) throws BotHomeError {
+        return preferService(DiscordService.TYPE).getRole(roleId);
+    }
+
+    @Override
     public boolean hasRole(final User user, final String role) {
         return preferService(DiscordService.TYPE).hasRole(user, role);
+    }
+
+    @Override
+    public boolean hasRole(User user, long roleId) {
+        return preferService(DiscordService.TYPE).hasRole(user, roleId);
     }
 
     @Override
@@ -118,8 +129,18 @@ public class MultiserviceHome implements ServiceHome {
     }
 
     @Override
+    public void clearRole(User user, long roleId) throws BotHomeError {
+        preferService(DiscordService.TYPE).clearRole(user, roleId);
+    }
+
+    @Override
     public void setRole(final User user, final String role) throws UserError {
         preferService(DiscordService.TYPE).setRole(user, role);
+    }
+
+    @Override
+    public void setRole(User user, long roleId) throws BotHomeError {
+        preferService(DiscordService.TYPE).setRole(user, roleId);
     }
 
     @Override

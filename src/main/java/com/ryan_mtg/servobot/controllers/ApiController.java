@@ -312,6 +312,7 @@ public class ApiController {
         commandRow.setStringParameter(request.getStringParameter());
         commandRow.setStringParameter2(request.getStringParameter2());
         commandRow.setLongParameter(request.getLongParameter());
+        commandRow.setLongParameter2(request.getLongParameter2());
         return commandTableEditor.addCommand(commandRow);
     }
 
@@ -323,6 +324,7 @@ public class ApiController {
         private String stringParameter;
         private String stringParameter2;
         private Long longParameter;
+        private Long longParameter2;
     }
 
     @PostMapping(value = "/edit_command", consumes = MediaType.APPLICATION_JSON_VALUE,

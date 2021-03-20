@@ -4,27 +4,25 @@ import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.UserHomedCommand;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.UserHomeEvent;
-import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 
 public class SetRoleCommand extends UserHomedCommand {
     public static final CommandType TYPE = CommandType.SET_ROLE_COMMAND_TYPE;
 
     @Getter
-    private String role;
+    private long roleId;
 
-    public SetRoleCommand(final int id, final CommandSettings commandSettings, final String role) throws UserError {
+    public SetRoleCommand(final int id, final CommandSettings commandSettings, final long roleId) throws UserError {
         super(id, commandSettings);
-        this.role = role;
-
-        Validation.validateStringLength(role, Validation.MAX_ROLE_LENGTH, "Role");
+        this.roleId = roleId;
     }
 
     @Override
-    public void perform(final UserHomeEvent userHomeEvent) throws UserError {
-        userHomeEvent.getServiceHome().setRole(userHomeEvent.getUser(), role);
+    public void perform(final UserHomeEvent userHomeEvent) throws BotHomeError {
+        userHomeEvent.getServiceHome().setRole(userHomeEvent.getUser(), roleId);
     }
 
     @Override

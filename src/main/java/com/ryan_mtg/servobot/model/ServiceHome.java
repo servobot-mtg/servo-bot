@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.model;
 
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.user.HomedUser;
 
@@ -31,12 +32,16 @@ public interface ServiceHome {
     List<String> getChannels();
     Channel getChannel(String channelName) throws UserError;
 
-    List<String> getRoles();
+    List<Role> getRoles();
     String getRole(User user);
+    Role getRole(long roleId) throws BotHomeError;
     boolean hasRole(User user, String role);
+    boolean hasRole(User user, long roleId);
     boolean hasRole(String role);
     void clearRole(User user, String role) throws UserError;
+    void clearRole(User user, long roleId) throws BotHomeError;
     void setRole(User user, String role) throws UserError;
+    void setRole(User user, long roleId) throws BotHomeError;
 
     List<String> clearRole(String role) throws UserError;
     boolean isHigherRanked(User user, User otherUser) throws UserError;
