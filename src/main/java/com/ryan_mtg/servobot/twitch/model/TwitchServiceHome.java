@@ -145,17 +145,7 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
-    public boolean hasRole(final User user, final String role) {
-        return false;
-    }
-
-    @Override
     public boolean hasRole(User user, long roleId) {
-        return false;
-    }
-
-    @Override
-    public boolean hasRole(final String role) {
         return false;
     }
 

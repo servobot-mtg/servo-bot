@@ -159,21 +159,9 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public boolean hasRole(final User user, final String roleName) {
-        String deampedRoleName = deamp(roleName);
-        Member member = getMember(user);
-        return member.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase(deampedRoleName));
-    }
-
-    @Override
     public boolean hasRole(final User user, final long roleId) {
         Member member = getMember(user);
         return member.getRoles().stream().anyMatch(role -> role.getIdLong() == roleId);
-    }
-
-    @Override
-    public boolean hasRole(final String roleName) {
-        return !guild.getRolesByName(deamp(roleName), false).isEmpty();
     }
 
     @Override

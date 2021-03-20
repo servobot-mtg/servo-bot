@@ -35,9 +35,7 @@ public interface ServiceHome {
     List<Role> getRoles();
     String getRole(User user);
     Role getRole(long roleId) throws BotHomeError;
-    boolean hasRole(User user, String role);
     boolean hasRole(User user, long roleId);
-    boolean hasRole(String role);
     void clearRole(User user, String role) throws UserError;
     void clearRole(User user, long roleId) throws BotHomeError;
     void setRole(User user, String role) throws UserError;

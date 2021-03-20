@@ -109,18 +109,8 @@ public class MultiserviceHome implements ServiceHome {
     }
 
     @Override
-    public boolean hasRole(final User user, final String role) {
-        return preferService(DiscordService.TYPE).hasRole(user, role);
-    }
-
-    @Override
     public boolean hasRole(User user, long roleId) {
         return preferService(DiscordService.TYPE).hasRole(user, roleId);
-    }
-
-    @Override
-    public boolean hasRole(final String role) {
-        return preferService(DiscordService.TYPE).hasRole(role);
     }
 
     @Override
