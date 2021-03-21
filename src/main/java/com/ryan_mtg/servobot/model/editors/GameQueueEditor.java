@@ -35,6 +35,12 @@ public class GameQueueEditor {
         return gameQueueTable.getGameQueue(gameQueueId);
     }
 
+    public void closeGameQueue(final int gameQueueId) {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit gameQueueEdit = gameQueue.close(contextId);
+        gameQueueSerializer.commit(gameQueueEdit);
+    }
+
     public void setMessage(final GameQueue gameQueue, final Message message) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         gameQueue.setMessage(message);
@@ -204,6 +210,7 @@ public class GameQueueEditor {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueue gameQueue = getGameQueue(gameQueueId);
         gameQueue.setStartTime(startTime);
+        gameQueue.open();
 
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);

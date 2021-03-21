@@ -21,6 +21,7 @@ public class GameQueue {
     public static final int UNREGISTERED_ID = 0;
 
     private static int ON_BETA_FLAG = 1;
+    private static int CLOSED_FLAG = 1 << 1;
 
     @Getter @Setter
     private int id;
@@ -120,6 +121,14 @@ public class GameQueue {
         return Flags.hasFlag(flags, ON_BETA_FLAG);
     }
 
+    public boolean isClosed() {
+        return Flags.hasFlag(flags, CLOSED_FLAG);
+    }
+
+    public void open() {
+        flags = Flags.setFlag(flags, CLOSED_FLAG, false);
+    }
+
     public void setVersion(final boolean onBeta) {
         flags = Flags.setFlag(flags, ON_BETA_FLAG, onBeta);
     }
@@ -205,13 +214,15 @@ public class GameQueue {
     }
 
     public GameQueueAction start(final int botHomeId, final GameQueueEdit edit) throws UserError {
-        if (startTime == null) {
+        if (startTime == null && !isClosed()) {
             throw new UserError("No game was scheduled.");
         }
 
+        GameQueueAction action = startTime == null ? GameQueueAction.gameOpened() : GameQueueAction.gameStarted();
+
+        open();
         startTime = null;
         edit.save(botHomeId, this);
-        GameQueueAction action = GameQueueAction.gameStarted();
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         return action;
     }
@@ -577,6 +588,12 @@ public class GameQueue {
 
         return gameQueueEdit;
     }
+
+    public GameQueueEdit close(final int botHomeId) {
+        flags = Flags.setFlag(flags, CLOSED_FLAG, true);
+        return clear(botHomeId);
+    }
+
 
     private void removeEntry(final GameQueueEdit gameQueueEdit, final int playerId) {
         GameQueueEntry entry = userMap.get(playerId);

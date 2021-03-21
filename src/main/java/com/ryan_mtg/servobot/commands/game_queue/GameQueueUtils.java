@@ -75,6 +75,10 @@ public class GameQueueUtils {
             response = combine(response, "The game is about to start!");
         }
 
+        if (action.hasEvent(GameQueueAction.Event.GAME_OPENED) && verbose) {
+            response = combine(response, "The game queue is now open!");
+        }
+
         if (action.hasEvent(GameQueueAction.Event.MIN_PLAYERS) && verbose) {
             response = combine(response, GameQueueUtils.getMinimumPlayersSetMessage(action.getMiniumumPlayers()));
         }
@@ -157,6 +161,11 @@ public class GameQueueUtils {
             final String timeZone) {
         StringBuilder text = new StringBuilder();
         Game game = gameQueue.getGame();
+
+        if (gameQueue.isClosed()) {
+            text.append("The **").append(game.getName()).append("** Game Queue has been closed.\n");
+            return text.toString();
+        }
         text.append("**").append(game.getName()).append("** Game Queue\n");
 
         if (gameQueue.getStartTime() != null) {

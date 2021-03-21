@@ -82,13 +82,20 @@ public class GameQueueCommand extends InvokedHomedCommand {
             throw new UserError("Invalid Game Queue Command: " + arguments);
         }
 
-        subCommand.execute(event, parseResult);
+        if (gameQueue.isClosed() && !isAllowedWhenClosed(parseResult.getCommand())) {
+            throw new UserError("The queue is closed.");
+        } else {
+            subCommand.execute(event, parseResult);
+        }
     }
 
     private GameQueueSubCommand getSubCommand(final GameQueue gameQueue, final CommandParser.ParseResult parseResult) {
         String command = parseResult.getCommand();
 
         switch (command.toLowerCase()) {
+            case "close":
+            case "shutdown":
+                return (event, parsedCommand) -> closeQueue(event);
             case "show":
                 return (event, parsedCommand) -> showQueue(event);
             case "add":
@@ -137,6 +144,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "rsvp":
                 return (event, parsedCommand) -> rsvp(event, command, parseResult.getInput());
             case "start":
+            case "open":
                 return (event, parsedCommand) -> start(event);
             case "schedule":
                 return (event, parsedCommand) -> schedule(event, command, parseResult.getInput());
@@ -187,6 +195,17 @@ public class GameQueueCommand extends InvokedHomedCommand {
         }
 
         return null;
+    }
+
+    private void closeQueue(final CommandInvokedHomeEvent event) throws BotHomeError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
+        Message message = gameQueue.getMessage();
+        gameQueueEditor.closeGameQueue(gameQueueId);
+        if (message != null) {
+            GameQueueUtils.updateMessage(event, gameQueue, message, GameQueueAction.emptyAction(), true);
+        }
+        event.say(String.format("The **%s** Game Queue has been closed.", gameQueue.getGame().getName()));
     }
 
     private void showOrUpdateQueue(final CommandInvokedHomeEvent event, final GameQueueAction action)
@@ -621,8 +640,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
         text.append("Command syntax: `!").append(event.getCommand()).append(" command [args]`\n\n");
         text.append("Where *command*  is one of: ```YAML\n");
         text.append("schedule: Sets up a game at the specified time and allows players to queue for it without starting a game.\n");
-        text.append("start: Signifies the beginning of a scheduled game and puts players on deck if the minimum count is met.\n");
+        text.append("open: start: Opens a closed queue and lets players enter a scheduled game if the minimum count is met.\n");
         text.append("reset: clear: Removes everyone from the queue and removes any game code.\n");
+        text.append("close: shutdown: Shuts the queue down. No one can join until it has been reopened.\n");
         text.append("min: minPlayers: Sets the minimum number of players needed to start a game.\n");
         text.append("max: maxPlayers: Sets the maximum number of players that are allowed to be in a game.\n");
         text.append("variable: Sets the name of the gamer tag variable. Setting this enables the queue to remember gamer tags.\n");
@@ -644,6 +664,20 @@ public class GameQueueCommand extends InvokedHomedCommand {
         event.getChannel().say(text.toString());
     }
 
+    private boolean isAllowedWhenClosed(final String command) {
+        switch (command.toLowerCase()) {
+            case "open":
+            case "start":
+            case "schedule":
+            case "help":
+            case "playerhelp":
+            case "modhelp":
+            case "mod":
+                return true;
+            default:
+                return false;
+        }
+    }
 
     private HomedUser getUser(final ServiceHome serviceHome, final String name) throws UserError {
         return serviceHome.getUser(name.trim()).getHomedUser();

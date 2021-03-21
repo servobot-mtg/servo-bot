@@ -23,6 +23,7 @@ public class GameQueueAction {
         GAMER_TAG_VARIABLE,
         ON_BETA,
         START_TIME,
+        GAME_OPENED,
         GAME_STARTED,
         MIN_PLAYERS,
         MAX_PLAYERS,
@@ -129,6 +130,10 @@ public class GameQueueAction {
 
     public static GameQueueAction emptyAction() {
         return GameQueueAction.builder().build();
+    }
+
+    public static GameQueueAction gameOpened() {
+        return GameQueueAction.builder().eventMap(createMap(Event.GAME_OPENED, null)).build();
     }
 
     public static GameQueueAction gameStarted() {
