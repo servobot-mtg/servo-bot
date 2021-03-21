@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.twitch.model;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
-import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Message;
@@ -20,12 +19,29 @@ public class TwitchChannel implements Channel {
     private final TwitchChat twitchChat;
     private final TwitchServiceHome serviceHome;
     private final String channelName;
+    private final long channelId;
 
-    public TwitchChannel(final TwitchClient twitchClient, final TwitchServiceHome serviceHome,
-            final String channelName) {
+    public TwitchChannel(final TwitchClient twitchClient, final TwitchServiceHome serviceHome, final String channelName,
+            final long channelId) {
         this.twitchChat = twitchClient.getChat();
         this.serviceHome = serviceHome;
         this.channelName = channelName;
+        this.channelId = channelId;
+    }
+
+    @Override
+    public long getId() {
+        return channelId;
+    }
+
+    @Override
+    public String getName() {
+        return channelName;
+    }
+
+    @Override
+    public int getServiceType() {
+        return TwitchService.TYPE;
     }
 
     @Override

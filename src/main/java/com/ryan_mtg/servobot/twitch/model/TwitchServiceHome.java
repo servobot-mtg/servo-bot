@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.twitch.model;
 
 import com.google.common.collect.Lists;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -117,16 +118,24 @@ public class TwitchServiceHome implements ServiceHome {
     }
 
     @Override
-    public List<String> getChannels() {
-        return Lists.newArrayList(getName());
+    public List<Channel> getChannels() {
+        return Lists.newArrayList(twitchService.getChannel(this, channelId));
     }
 
     @Override
     public Channel getChannel(final String channelName) throws UserError {
         if (channelName.equals(getName())) {
-            return twitchService.getChannel(this, channelName);
+            return twitchService.getChannel(this, channelId);
         }
         throw new UserError("No Twitch channel named %s", channelName);
+    }
+
+    @Override
+    public Channel getChannel(final long channelId) throws BotHomeError {
+        if (this.channelId == channelId) {
+            return twitchService.getChannel(this, channelId);
+        }
+        throw new BotHomeError("No Twitch channel with id %d", channelId);
     }
 
     @Override

@@ -29,8 +29,9 @@ public interface ServiceHome {
     void start(BotHome botHome);
     void stop(BotHome botHome);
 
-    List<String> getChannels();
+    List<Channel> getChannels();
     Channel getChannel(String channelName) throws UserError;
+    Channel getChannel(long channelId) throws BotHomeError;
 
     List<Role> getRoles();
     String getRole(User user);

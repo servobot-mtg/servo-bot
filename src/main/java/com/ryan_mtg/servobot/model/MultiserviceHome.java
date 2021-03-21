@@ -84,13 +84,18 @@ public class MultiserviceHome implements ServiceHome {
     public void stop(final BotHome botHome) {}
 
     @Override
-    public List<String> getChannels() {
+    public List<Channel> getChannels() {
         return preferService(DiscordService.TYPE).getChannels();
     }
 
     @Override
     public Channel getChannel(final String channelName) throws UserError {
         return preferService(DiscordService.TYPE).getChannel(channelName);
+    }
+
+    @Override
+    public Channel getChannel(final long channelId) throws BotHomeError {
+        return preferService(DiscordService.TYPE).getChannel(channelId);
     }
 
     @Override

@@ -123,9 +123,9 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public List<String> getChannels() {
+    public List<Channel> getChannels() {
         if (guild != null) {
-            return guild.getTextChannels().stream().map(GuildChannel::getName).collect(Collectors.toList());
+            return guild.getTextChannels().stream().map(guildChannel -> new DiscordChannel(this, guildChannel)).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -137,6 +137,15 @@ public class DiscordServiceHome implements ServiceHome {
             throw new UserError("No channel with name %s.", channelName);
         }
         return new DiscordChannel(this, channels.get(0));
+    }
+
+    @Override
+    public Channel getChannel(final long channelId) throws BotHomeError {
+        TextChannel channel = guild.getTextChannelById(channelId);
+        if (channel == null) {
+            throw new BotHomeError("No channel with id %d.", channelId);
+        }
+        return new DiscordChannel(this, channel);
     }
 
     @Override

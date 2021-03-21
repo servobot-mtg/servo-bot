@@ -12,7 +12,7 @@ public class TwitchSubscriptionEvent extends TwitchHomeEvent implements UserHome
 
     public TwitchSubscriptionEvent(final TwitchClient client, final SubscriptionEvent event, final BotHome botHome,
                                    final TwitchUser subscriber) {
-        super(client, botHome, event.getChannel().getName());
+        super(client, botHome, event.getChannel().getName(), Long.parseLong(event.getChannel().getId()));
         this.subscriber = subscriber;
     }
 

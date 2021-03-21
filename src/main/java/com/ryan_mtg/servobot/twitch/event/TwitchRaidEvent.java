@@ -12,7 +12,7 @@ public class TwitchRaidEvent extends TwitchHomeEvent implements UserHomeEvent {
 
     public TwitchRaidEvent(final TwitchClient client, final RaidEvent event, final BotHome botHome,
                            final TwitchUser raider) {
-        super(client, botHome, event.getChannel().getName());
+        super(client, botHome, event.getChannel().getName(), Long.parseLong(event.getChannel().getId()));
         this.raider = raider;
     }
 

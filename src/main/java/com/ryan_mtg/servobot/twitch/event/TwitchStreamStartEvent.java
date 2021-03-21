@@ -6,8 +6,9 @@ import com.ryan_mtg.servobot.model.BotHome;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
 
 public class TwitchStreamStartEvent extends TwitchHomeEvent implements StreamStartEvent {
-    public TwitchStreamStartEvent(final TwitchClient twitchClient, final BotHome botHome, final String channelName) {
-        super(twitchClient, botHome, channelName);
+    public TwitchStreamStartEvent(final TwitchClient twitchClient, final BotHome botHome, final String channelName,
+            final long channelId) {
+        super(twitchClient, botHome, channelName, channelId);
     }
 
     @Override

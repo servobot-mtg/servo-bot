@@ -20,6 +20,21 @@ public class DiscordPrivateChannel implements Channel {
     }
 
     @Override
+    public long getId() {
+        return channel.getIdLong();
+    }
+
+    @Override
+    public String getName() {
+        return channel.getName();
+    }
+
+    @Override
+    public int getServiceType() {
+        return DiscordService.TYPE;
+    }
+
+    @Override
     public void say(final String message) {
         if (!message.isEmpty()) {
             discordService.logSendMessage(user, message);

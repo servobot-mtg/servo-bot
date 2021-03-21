@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +31,21 @@ public class DiscordChannel implements Channel {
     public DiscordChannel(final DiscordServiceHome serviceHome, final MessageChannel channel) {
         this.channel = channel;
         this.serviceHome = serviceHome;
+    }
+
+    @Override
+    public long getId() {
+        return channel.getIdLong();
+    }
+
+    @Override
+    public String getName() {
+        return channel.getName();
+    }
+
+    @Override
+    public int getServiceType() {
+        return DiscordService.TYPE;
     }
 
     @Override

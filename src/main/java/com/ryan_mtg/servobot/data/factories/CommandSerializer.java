@@ -151,7 +151,7 @@ public class CommandSerializer {
                     return new MakeRoleMessageCommand(id, commandSettings);
                 case MESSAGE_CHANNEL_COMMAND_TYPE:
                     return new MessageChannelCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
-                            Strings.trim(commandRow.getStringParameter()), Strings.trim(commandRow.getStringParameter2()));
+                            commandRow.getLongParameter2(), Strings.trim(commandRow.getStringParameter()));
                 case NEXT_PICK_COMMAND_TYPE:
                     return new NextPickCommand(id, commandSettings, commandRow.getLongParameter().intValue(),
                             Strings.trim(commandRow.getStringParameter()));
@@ -437,8 +437,8 @@ public class CommandSerializer {
         public void visitMessageChannelCommand(final MessageChannelCommand messageChannelCommand) {
             saveCommand(messageChannelCommand, commandRow -> {
                 commandRow.setLongParameter((long) messageChannelCommand.getServiceType());
-                commandRow.setStringParameter(messageChannelCommand.getChannelName());
-                commandRow.setStringParameter2(messageChannelCommand.getMessage());
+                commandRow.setLongParameter2(messageChannelCommand.getChannelId());
+                commandRow.setStringParameter(messageChannelCommand.getMessage());
             });
         }
 

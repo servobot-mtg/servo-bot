@@ -9,11 +9,14 @@ import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 
 public class TwitchHomeEvent extends TwitchEvent implements HomeEvent {
     private String channelName;
+    private long channelId;
     private TwitchChannel twitchChannel;
 
-    public TwitchHomeEvent(final TwitchClient client, final BotHome botHome, final String channelName) {
+    public TwitchHomeEvent(final TwitchClient client, final BotHome botHome, final String channelName,
+            final long channelId) {
         super(client, botHome);
         this.channelName = channelName;
+        this.channelId = channelId;
     }
 
     @Override
@@ -23,7 +26,8 @@ public class TwitchHomeEvent extends TwitchEvent implements HomeEvent {
 
     public TwitchChannel getChannel() {
         if (twitchChannel == null) {
-            twitchChannel = new TwitchChannel(getClient(), (TwitchServiceHome) getServiceHome(), channelName);
+            twitchChannel = new TwitchChannel(getClient(), (TwitchServiceHome) getServiceHome(), channelName,
+                    channelId);
         }
         return twitchChannel;
     }

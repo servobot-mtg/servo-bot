@@ -21,19 +21,17 @@ public class MessageChannelCommand extends HomeCommand {
     private final int serviceType;
 
     @Getter
-    private final String channelName;
+    private final long channelId;
 
     @Getter
     private String message;
 
     public MessageChannelCommand(final int id, final CommandSettings commandSettings, final int serviceType,
-            final String channelName, final String message) throws UserError {
+            final long channelId, final String message) throws UserError {
         super(id, commandSettings);
         this.serviceType = serviceType;
-        this.channelName = channelName;
+        this.channelId = channelId;
         setMessage(message);
-
-        Validation.validateStringLength(channelName, Validation.MAX_CHANNEL_NAME_LENGTH, "Channel name");
     }
 
     public void setMessage(final String message) throws UserError {
@@ -49,9 +47,8 @@ public class MessageChannelCommand extends HomeCommand {
     @Override
     public void perform(final HomeEvent homeEvent) throws BotHomeError, UserError {
         ServiceHome serviceHome = homeEvent.getServiceHome(serviceType);
-        Channel channel = serviceHome.getChannel(channelName);
+        Channel channel = serviceHome.getChannel(channelId);
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
-        symbolTable.addValue("commandCount", "");
         Scope commandScope = new Scope(homeEvent.getScope(), symbolTable);
         homeEvent.say(channel, commandScope, message);
     }

@@ -84,13 +84,15 @@ public class StreamStartRegulator implements Runnable {
                 LOGGER.trace("  > stream {} wasStreaming: {}, isStreaming: {}", id, wasStreaming, isStreaming);
 
                 if (!wasStreaming && isStreaming) {
-                    String channelName = homeMap.get(id).getServiceHome(TwitchService.TYPE).getName();
+                    BotHome home = homeMap.get(id);
+                    String channelName = home.getServiceHome(TwitchService.TYPE).getName();
                     Instant previousStart = previousStartMap.get(id);
                     Instant now = Instant.now();
-                    if (previousStart == null || Duration.between(previousStart, now).toMinutes() > 5) {
+                    if (previousStart == null || Duration.between(previousStart, now).toMinutes() > 20) {
                         LOGGER.info("Stream is starting for {}", channelName);
+                        long channelId = ((TwitchServiceHome) home.getServiceHome(TwitchService.TYPE)).getChannelId();
                         eventListener.onStreamStart(
-                                new TwitchStreamStartEvent(client, homeMap.get(id), channelName));
+                                new TwitchStreamStartEvent(client, homeMap.get(id), channelName, channelId));
                         previousStartMap.put(id, now);
                     }
                 }

@@ -52,6 +52,7 @@ import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.model.storage.StringStorageValue;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
+import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -563,7 +564,7 @@ public class HomeEditor {
                     int flags = Command.DEFAULT_FLAGS | Command.TEMPORARY_FLAG;
                     Command alertCommand = new MessageChannelCommand(Command.UNREGISTERED_ID,
                             new CommandSettings(flags, Permission.ANYONE, new RateLimit()),
-                            TwitchService.TYPE, getTwitchChannelName(), alertMessage);
+                            TwitchService.TYPE, getTwitchChannelId(), alertMessage);
 
                     alertCommands.add(alertCommand);
                     giveawayEdit.merge(commandTable.addCommand(alertCommand));
@@ -647,6 +648,10 @@ public class HomeEditor {
 
         emoteLinks.remove(emoteLink);
         serializers.getEmoteLinkSerializer().delete(emoteLink);
+    }
+
+    public long getTwitchChannelId() {
+        return ((TwitchServiceHome) botHome.getServiceHome(TwitchService.TYPE)).getChannelId();
     }
 
     public String getTwitchChannelName() {

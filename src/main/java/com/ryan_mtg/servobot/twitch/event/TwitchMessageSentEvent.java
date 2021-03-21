@@ -16,8 +16,8 @@ public class TwitchMessageSentEvent extends TwitchHomeEvent implements MessageHo
     private TwitchUser sender;
 
     public TwitchMessageSentEvent(final TwitchClient client, final ChannelMessageEvent event, final BotHome botHome,
-                                  final TwitchUser sender) {
-        super(client, botHome, event.getChannel().getName());
+            final TwitchUser sender) {
+        super(client, botHome, event.getChannel().getName(), Long.parseLong(event.getChannel().getId()));
         this.event = event;
         this.sender = sender;
     }
