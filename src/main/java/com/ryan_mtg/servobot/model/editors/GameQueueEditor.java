@@ -114,7 +114,15 @@ public class GameQueueEditor {
     public GameQueueAction unreadyUser(final int gameQueueId, final HomedUser player) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.unready(player, edit);
+        GameQueueAction action = gameQueue.unready(contextId, player, edit);
+        gameQueueSerializer.commit(edit);
+        return action;
+    }
+
+    public GameQueueAction noShowUser(final int gameQueueId, final HomedUser player) throws UserError {
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueEdit edit = new GameQueueEdit();
+        GameQueueAction action = gameQueue.noShow(contextId, player, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }

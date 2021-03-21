@@ -7,6 +7,7 @@ public enum PlayerState {
     ON_CALL,
     READY,
     ON_DECK,
+    NO_SHOW,
     PERMANENT,
     PLAYING,
     LG;

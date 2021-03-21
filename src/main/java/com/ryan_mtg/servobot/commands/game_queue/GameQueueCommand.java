@@ -111,6 +111,8 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "ready":
             case "here":
                 return (event, parsedCommand) -> ready(event, parseResult.getInput());
+            case "noshow":
+                return (event, parsedCommand) -> noShow(event, parseResult.getInput());
             case "cut":
             case "rig":
             case "rigged":
@@ -416,6 +418,20 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showOrUpdateQueue(event, action);
     }
 
+    private void noShow(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueueAction action = GameQueueAction.emptyAction();
+        if (Strings.isBlank(input)) {
+            throw new UserError("Who didn't show up?");
+        }
+
+        List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+        for(HomedUser user : users) {
+            action.merge(gameQueueEditor.noShowUser(gameQueueId, user));
+        }
+        showOrUpdateQueue(event, action);
+    }
+
     private void cut(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         GameQueueAction action = GameQueueAction.emptyAction();
@@ -613,7 +629,8 @@ public class GameQueueCommand extends InvokedHomedCommand {
         text.append("\n");
         text.append("move: Moves the user specified to the given position in the queue.\n");
         text.append("ready: Sets the user(s) specified as ready to play if they are on deck.\n");
-        text.append("unready: Returns the users(s) specified to the queue if they are on deck or in the game.\n");
+        text.append("unready: Returns the user(s) specified to the queue if they are on deck or in the game.\n");
+        text.append("noshow: Removes the user(s) specified from the on deck area and if necessary adds the next person from the queue.\n");
         text.append("cut: Moves the user(s) specified to on deck.\n");
         text.append("remove: dequeue: Removes removes the user(s) specified from the queue.\n");
         text.append("last: LG: Marks the user(s) specified as being in their last game. all is a special user which LGs everyone playing.\n");

@@ -67,8 +67,6 @@ public class AmongUsBehavior implements GameBehavior {
         if (isOnBeta != null) {
             if (isOnBeta) {
                 text.append(". Use the **Beta**");
-            } else {
-                //text.append(". Do **not** use the Beta");
             }
         }
     }
