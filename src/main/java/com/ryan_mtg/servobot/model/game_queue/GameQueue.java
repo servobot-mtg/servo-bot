@@ -234,7 +234,6 @@ public class GameQueue {
             GameQueueEntry entry = userMap.get(playerId);
 
             if (entry.getState() == PlayerState.RSVPED) {
-
                 edit.save(getId(), entry);
                 GameQueueAction action = GameQueueAction.playerQueued(player);
                 promotePlayersToOnDeck(botHomeId, edit, action, entry);
@@ -713,12 +712,12 @@ public class GameQueue {
         }
 
         long activelyPlayingCount = playing.stream().filter(entry -> entry.getState().isActivelyPlaying()).count();
-        long onDeckWaiting = onDeck.stream().filter(entry -> entry.getState() != PlayerState.NO_SHOW).count();
+        long noShowCount = onDeck.stream().filter(entry -> entry.getState() == PlayerState.NO_SHOW).count();
 
-        if (waitQueue.size() + onDeckWaiting + activelyPlayingCount >= getMinPlayers()) {
+        if (waitQueue.size() + (onDeck.size() - noShowCount) + activelyPlayingCount >= getMinPlayers()) {
             Collections.sort(waitQueue);
 
-            while (!waitQueue.isEmpty() && activelyPlayingCount + onDeckWaiting < getMaxPlayers()) {
+            while (!waitQueue.isEmpty() && activelyPlayingCount + (onDeck.size() - noShowCount) < getMaxPlayers()) {
                 GameQueueEntry joiningEntry = waitQueue.remove(0);
                 joiningEntry.setState(PlayerState.ON_DECK);
                 gameQueueEdit.save(getId(), joiningEntry);
