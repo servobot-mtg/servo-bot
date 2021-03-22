@@ -397,7 +397,11 @@ public class GameQueue {
     public GameQueueAction noShow(final int botHomeId, final HomedUser player, final GameQueueEdit edit)
             throws UserError {
         int playerId = player.getId();
-        if (!userMap.get(playerId).getState().isOnDeck()) {
+        if (userMap.containsKey(playerId) && userMap.get(playerId).getState() == PlayerState.NO_SHOW) {
+            throw new UserError("%s is already marked as a no-show.", player.getName());
+        }
+
+        if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isOnDeck()) {
             throw new UserError("%s is not on deck.", player.getName());
         }
 

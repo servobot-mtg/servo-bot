@@ -124,7 +124,7 @@ public class GameQueueUtils {
         }
 
         if (!action.getNoShowedPlayers().isEmpty()) {
-            response = combine(response, GameQueueUtils.getPlayersNoShowedMessage(action.getOnDeckedPlayers()));
+            response = combine(response, GameQueueUtils.getPlayersNoShowedMessage(action.getNoShowedPlayers()));
         }
 
         if (!action.getOnDeckedPlayers().isEmpty()) {

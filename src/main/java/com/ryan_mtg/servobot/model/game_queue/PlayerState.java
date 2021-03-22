@@ -21,7 +21,7 @@ public enum PlayerState {
     }
 
     public boolean isOnDeck() {
-        return this == READY || this == ON_DECK;
+        return this == READY || this == ON_DECK || this == NO_SHOW;
     }
 
     public boolean isWaiting() {
