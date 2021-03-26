@@ -54,6 +54,7 @@ public class ChatDraftEdit {
         savedDraftEntrants.putAll(chatDraftEdit.savedDraftEntrants);
         deletedDraftEntrants.addAll(chatDraftEdit.deletedDraftEntrants);
         savedChatDraftPicks.putAll(chatDraftEdit.savedChatDraftPicks);
+        deletedChatDraftPicks.addAll(chatDraftEdit.deletedChatDraftPicks);
     }
 
     public void merge(final CommandTableEdit commandTableEdit) {
