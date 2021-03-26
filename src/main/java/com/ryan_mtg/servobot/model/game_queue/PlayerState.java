@@ -7,6 +7,7 @@ public enum PlayerState {
     ON_CALL,
     READY,
     ON_DECK,
+    NO_SHOW,
     PERMANENT,
     PLAYING,
     LG;
@@ -20,7 +21,7 @@ public enum PlayerState {
     }
 
     public boolean isOnDeck() {
-        return this == READY || this == ON_DECK;
+        return this == READY || this == ON_DECK || this == NO_SHOW;
     }
 
     public boolean isWaiting() {

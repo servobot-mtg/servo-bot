@@ -75,6 +75,10 @@ public class GameQueueUtils {
             response = combine(response, "The game is about to start!");
         }
 
+        if (action.hasEvent(GameQueueAction.Event.GAME_OPENED) && verbose) {
+            response = combine(response, "The game queue is now open!");
+        }
+
         if (action.hasEvent(GameQueueAction.Event.MIN_PLAYERS) && verbose) {
             response = combine(response, GameQueueUtils.getMinimumPlayersSetMessage(action.getMiniumumPlayers()));
         }
@@ -119,6 +123,10 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getPlayersEnterGameMessage(action.getEnteredGamePlayers()));
         }
 
+        if (!action.getNoShowedPlayers().isEmpty()) {
+            response = combine(response, GameQueueUtils.getPlayersNoShowedMessage(action.getNoShowedPlayers()));
+        }
+
         if (!action.getOnDeckedPlayers().isEmpty()) {
             response = combine(response, GameQueueUtils.getPlayersOnDeckedMessage(action.getOnDeckedPlayers()));
         }
@@ -153,6 +161,11 @@ public class GameQueueUtils {
             final String timeZone) {
         StringBuilder text = new StringBuilder();
         Game game = gameQueue.getGame();
+
+        if (gameQueue.isClosed()) {
+            text.append("The **").append(game.getName()).append("** Game Queue has been closed.\n");
+            return text.toString();
+        }
         text.append("**").append(game.getName()).append("** Game Queue\n");
 
         if (gameQueue.getStartTime() != null) {
@@ -180,16 +193,25 @@ public class GameQueueUtils {
 
         List<HomedUser> onDeckPlayers = gameQueue.getOnDeckPlayers();
         if (!onDeckPlayers.isEmpty()) {
+            boolean hasNoShows = onDeckPlayers.stream().anyMatch(player -> gameQueue.isNoShow(player));
             appendPlayerList(text, onDeckPlayers, "Diff", "On Deck", null,
                 (player, t) -> {
                     if (gameQueue.isReady(player)) {
                         t.append("+ ");
-                    } else {
+                    } else if (gameQueue.isNoShow(player)) {
                         t.append("- ");
+                    } else {
+                        if (hasNoShows) {
+                            t.append("~ ");
+                        } else {
+                            t.append("- ");
+                        }
                     }
             } , (player, t) -> {
                     if (gameQueue.isReady(player)) {
                         t.append(" (ready)");
+                    } else if (gameQueue.isNoShow(player)) {
+                        t.append(" (no show)");
                     } else {
                         t.append(" (not ready)");
                     }
@@ -285,6 +307,13 @@ public class GameQueueUtils {
 
     public static String getPlayersRsvpedMessage(final List<HomedUser> players) {
         return getPlayersMessage(null, (players.size() > 1 ? "have": "has") + " made a reservation.", players);
+    }
+
+    public static String getPlayersNoShowedMessage(final List<HomedUser> players) {
+        StringBuilder text = new StringBuilder();
+        appendPlayerList(text, players, true);
+        text.append(" did not show up and have been placed in time out!");
+        return text.toString();
     }
 
     public static String getPlayersOnDeckedMessage(final List<HomedUser> players) {

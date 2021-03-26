@@ -98,6 +98,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/script/privileged.js").access("isPrivileged()")
             .antMatchers("/script/invite.js").access("isInvited()")
             .antMatchers("/home/{bot}/{home}").permitAll()
+            .antMatchers("/home/{bot}/{home}/chat_draft").permitAll()
             .antMatchers("/home/{bot}/{home}/**").access("isPrivileged(#bot, #home)")
             .antMatchers("/", "/login**", "/images/**", "/script/**", "/style/**", "/home", "favicon.ico",
                 "/api/public/**", "/help", "/help/**", "/tournament**", "/tournament/**", "/mpl", "/rivals",

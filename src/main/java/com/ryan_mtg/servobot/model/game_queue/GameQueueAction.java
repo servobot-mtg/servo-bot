@@ -23,30 +23,11 @@ public class GameQueueAction {
         GAMER_TAG_VARIABLE,
         ON_BETA,
         START_TIME,
+        GAME_OPENED,
         GAME_STARTED,
         MIN_PLAYERS,
         MAX_PLAYERS,
     }
-
-    /*
-    @Getter
-    private String code;
-
-    @Getter
-    private String server;
-
-    @Getter
-    private String proximityServer;
-
-    @Getter
-    private Boolean onBeta;
-
-    @Getter
-    private Instant startTime;
-
-    @Getter
-    private boolean gameStarted;
-     */
 
     @Getter @Builder.Default
     private List<HomedUser> queuedPlayers = new ArrayList<>();
@@ -65,6 +46,9 @@ public class GameQueueAction {
 
     @Getter @Builder.Default
     private List<HomedUser> unreadiedPlayers = new ArrayList<>();
+
+    @Getter @Builder.Default
+    private List<HomedUser> noShowedPlayers = new ArrayList<>();
 
     @Getter @Builder.Default
     private List<HomedUser> lgedPlayers = new ArrayList<>();
@@ -134,6 +118,7 @@ public class GameQueueAction {
         enteredGamePlayers = merge(enteredGamePlayers, action.enteredGamePlayers);
         readiedPlayers = merge(readiedPlayers, action.readiedPlayers);
         unreadiedPlayers = merge(unreadiedPlayers, action.unreadiedPlayers);
+        noShowedPlayers = merge(noShowedPlayers, action.noShowedPlayers);
         lgedPlayers = merge(lgedPlayers, action.lgedPlayers);
         permanentPlayers = merge(permanentPlayers, action.permanentPlayers);
         onCallPlayers = merge(onCallPlayers, action.onCallPlayers);
@@ -145,6 +130,10 @@ public class GameQueueAction {
 
     public static GameQueueAction emptyAction() {
         return GameQueueAction.builder().build();
+    }
+
+    public static GameQueueAction gameOpened() {
+        return GameQueueAction.builder().eventMap(createMap(Event.GAME_OPENED, null)).build();
     }
 
     public static GameQueueAction gameStarted() {
@@ -188,6 +177,10 @@ public class GameQueueAction {
 
     public static GameQueueAction playerUnreadied(final HomedUser player) {
         return GameQueueAction.builder().unreadiedPlayers(Collections.singletonList(player)).build();
+    }
+
+    public static GameQueueAction playerNoShowed(HomedUser player) {
+        return GameQueueAction.builder().noShowedPlayers(Collections.singletonList(player)).build();
     }
 
     public static GameQueueAction playerEnteredGame(final HomedUser player) {

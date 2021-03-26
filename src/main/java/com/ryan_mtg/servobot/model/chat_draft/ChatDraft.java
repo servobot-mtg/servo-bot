@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class ChatDraft {
     public static final int UNREGISTERED_ID = 0;
 
-    private static final int DEFAULT_COMMAND_FLAGS = Command.TEMPORARY_FLAG | Command.TWITCH_FLAG;
+    private static final int DEFAULT_COMMAND_FLAGS = Command.TEMPORARY_FLAG | Command.TWITCH_FLAG | Command.DISCORD_FLAG;
     private static final int MINIMUM_ENTRANTS = 1;
     private static final int PICKS_PER_PACK = 8;
     private static final int PACKS = 3;
@@ -96,14 +96,16 @@ public class ChatDraft {
     public ChatDraft() {
         this(UNREGISTERED_ID, State.CONFIGURING, 0, 0, new ArrayList<>(), new ArrayList<>());
 
+        String howToEnter = "To take part in it type !%chatDraft.enter%";
         openCommandSettings = new GiveawayCommandSettings("chatDraft", DEFAULT_COMMAND_FLAGS,
-                Permission.STREAMER, "A chat draft is about to start! To take part in it type !%chatDraft.enter%");
+                Permission.STREAMER, String.format("A chat draft is about to start! %s", howToEnter));
         enterCommandSettings = new GiveawayCommandSettings("enter", DEFAULT_COMMAND_FLAGS,
                 Permission.ANYONE, "%sender% has joined the chat draft.");
-        statusCommandSettings = new GiveawayCommandSettings("status", DEFAULT_COMMAND_FLAGS,
-                Permission.ANYONE, "%chatDraft.entrantCount% people have joined the chat draft.");
-        beginCommandSettings = new GiveawayCommandSettings("start", DEFAULT_COMMAND_FLAGS,
-                Permission.ANYONE, "The chat draft is starting!");
+        statusCommandSettings =
+                new GiveawayCommandSettings("status", DEFAULT_COMMAND_FLAGS, Permission.ANYONE,
+                    String.format("%%chatDraft.entrantCount%% people have joined the chat draft. %s", howToEnter));
+        beginCommandSettings = new GiveawayCommandSettings("start", DEFAULT_COMMAND_FLAGS, Permission.MOD,
+                "The chat draft is starting!");
         nextCommandSettings = new GiveawayCommandSettings("next", DEFAULT_COMMAND_FLAGS, Permission.MOD,
             "The next pick is pack %chatDraft.pack% pick %chatDraft.pick% and belongs to %chatDraft.currentDrafter%.");
         closeCommandSettings = new GiveawayCommandSettings("end", DEFAULT_COMMAND_FLAGS,
@@ -127,7 +129,7 @@ public class ChatDraft {
 
     public ChatDraftPack getCurrentPack() {
         if (state == State.ACTIVE && 1 <= pack && pack <= picks.getPacks().size()) {
-            return picks.getPacks().get(pack);
+            return picks.getPacks().get(pack - 1);
         }
         return null;
     }
@@ -222,7 +224,9 @@ public class ChatDraft {
         ChatDraftPack pack = null;
         for (ChatDraftPick pick : chatDraftPicks) {
             if (pack == null || pack.getPackNumber() != pick.getPack()) {
-                picks.addPack(pack);
+                if (pack != null) {
+                    picks.addPack(pack);
+                }
                 pack = new ChatDraftPack();
             }
             pack.addPick(pick);

@@ -132,7 +132,7 @@ public class ChatDraftEditor {
         CloseChatDraftCommand closeCommand = new CloseChatDraftCommand(Command.UNREGISTERED_ID,
                 createCommandSettings(closeSettings), chatDraft.getId(), closeSettings.getMessage());
         chatDraft.setCloseCommand(closeCommand);
-        commandTableEdit.merge(commandTableEditor.addCommandEdit(closeCommandName, nextCommand));
+        commandTableEdit.merge(commandTableEditor.addCommandEdit(closeCommandName, closeCommand));
 
         SystemError.filter(() -> {
             commandTableEditor.deleteCommand(chatDraft.getEnterCommand().getId(), commandTableEdit);
