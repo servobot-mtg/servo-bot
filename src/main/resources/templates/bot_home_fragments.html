@@ -329,6 +329,16 @@
                         </th:block>
                     </select>
                 </div>
+                <div id="add-command-channel-div" class="hidden">
+                    <label id="add-command-channel-label">Emote</label><br>
+                    <select id='add-command-channel-input'>
+                        <th:block th:each="channel, status : ${channels}">
+                            <option th:value="${channel.id}" th:text="${channel.name}"
+                                    th:attr="data-service-type=${channel.serviceType}"
+                                    th:selected="${status.index == 0}"/>
+                        </th:block>
+                    </select>
+                </div>
                 <input type="submit" value="Create Command">
             </form>
         </div>

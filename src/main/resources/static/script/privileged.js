@@ -674,6 +674,7 @@ function getParameterName(parameterId) {
         case 'role':
             return 'longParameter';
         case 'role-2':
+        case 'channel':
             return 'longParameter2';
     }
 }
@@ -718,8 +719,8 @@ const commandData = [
     {name: 'Respond Command', parameters: [{id: 'text', name: 'Text'}]}, //1
     {name: 'Random Statement Command', parameters: [{id: 'book', name: 'Book'}]}, //2
     {name: 'Friendship Tier Command', parameters: []}, //3
-    {name: 'Message Channel Command', parameters: [{id: 'text', name: 'Channel Name'}, {id: 'text-2', name: 'Text'},
-        {id: 'service', name: 'Service'}]}, //4
+    {name: 'Message Channel Command', parameters: [{id: 'channel', name: 'Channel'}, {id: 'text', name: 'Text'},
+        {id: 'service', name: 'Service', onchange: changeChannelService}]}, //4
     {name: 'Add Command', parameters: []}, //5
     {name: 'Delete Command', parameters: []}, //6
     {name: 'Game Queue Command', parameters: [{id: 'game-type', name: 'Game Type'}]}, //7
@@ -768,6 +769,15 @@ function changeAddCommandType(selectElement) {
         let parameter = data.parameters[i];
         setElementText('add-command-' +  parameter.id + '-label', parameter.name);
         elementIds.push('add-command-' +  parameter.id + '-div');
+        let inputElement = document.getElementById('add-command-' +  parameter.id + '-input');
+        if (inputElement.tagName == 'SELECT' && parameter.hasOwnProperty('onchange')) {
+            inputElement.onchange = function (event) {
+                parameter.onchange(event.target);
+            }
+            parameter.onchange(inputElement);
+        } else {
+            inputElement.removeAttribute('onchange');
+        }
     }
 
     showAddCommandElements(elementIds);
@@ -775,6 +785,32 @@ function changeAddCommandType(selectElement) {
     if (data.parameters.length > 0) {
         let parameter = data.parameters[0];
         document.getElementById('add-command-' +  parameter.id + '-input').focus();
+    }
+}
+
+function changeChannelService(serviceTypeElement) {
+    const serviceType = serviceTypeElement.value;
+    const channelInputElement = document.getElementById('add-command-channel-input');
+
+    let anyOptionSelected = false;
+    let firstOption = null;
+    for (let i = 0; i < channelInputElement.options.length; i++) {
+        let option = channelInputElement.options[i];
+        const optionServiceType = option.dataset.serviceType;
+        if (optionServiceType == serviceType) {
+            showElement(option);
+            if (option.selected) {
+                anyOptionSelected = true;
+            } else if (firstOption == null) {
+                firstOption = option;
+            }
+        } else {
+            hideElement(option);
+        }
+    }
+
+    if (!anyOptionSelected && firstOption != null) {
+        channelInputElement.value = firstOption.value;
     }
 }
 
@@ -827,8 +863,8 @@ function setElementText(elementId, text) {
 }
 
 const addCommandElements = ['add-command-text-div', 'add-command-text-2-div', 'add-command-service-div',
-    'add-command-book-div', 'add-command-role-div', 'add-command-role-2-div', 'add-command-emote-div',
-    'add-command-game-type-div', 'add-command-integer-div'];
+    'add-command-book-div', 'add-command-role-div', 'add-command-role-2-div', 'add-command-channel-div',
+    'add-command-emote-div', 'add-command-game-type-div', 'add-command-integer-div'];
 
 function showAddCommandElements(elementIds) {
     for (let i = 0; i < addCommandElements.length; i++) {

@@ -7,6 +7,9 @@ import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
 import com.ryan_mtg.servobot.discord.model.DiscordService;
+import com.ryan_mtg.servobot.model.Channel;
+import com.ryan_mtg.servobot.model.Emote;
+import com.ryan_mtg.servobot.model.Role;
 import com.ryan_mtg.servobot.model.ServiceHome;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.BotHome;
@@ -269,16 +272,19 @@ public class BotController {
         model.addAttribute("userTable", serializers.getUserTable());
         model.addAttribute("gameTypes", Arrays.asList(Game.ARENA, Game.AMONG_US, Game.BATTLEGROUNDS));
 
-        ServiceHome serviceHome = botHome.getServiceHome(DiscordService.TYPE);
-        if (serviceHome != null) {
-            model.addAttribute("emotes", serviceHome.getEmotes());
-            model.addAttribute("roles", serviceHome.getRoles());
-            model.addAttribute("channels", serviceHome.getChannels());
-        } else {
-            model.addAttribute("emotes", Lists.newArrayList());
-            model.addAttribute("roles", Lists.newArrayList());
-            model.addAttribute("channels", Lists.newArrayList());
+        List<Emote> emotes = new ArrayList<>();
+        List<Role> roles = new ArrayList<>();
+        List<Channel> channels = new ArrayList<>();
+
+        for (ServiceHome serviceHome : botHome.getServiceHomes().values()) {
+            emotes.addAll(serviceHome.getEmotes());
+            roles.addAll(serviceHome.getRoles());
+            channels.addAll(serviceHome.getChannels());
         }
+
+        model.addAttribute("emotes", emotes);
+        model.addAttribute("roles", roles);
+        model.addAttribute("channels", channels);
     }
 
     private boolean isPrivledged(final Model model, final BotHome botHome) {
