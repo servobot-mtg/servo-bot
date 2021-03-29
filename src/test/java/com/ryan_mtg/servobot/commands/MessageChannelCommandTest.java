@@ -28,7 +28,7 @@ public class MessageChannelCommandTest {
             new CommandSettings(Command.DEFAULT_FLAGS, Permission.MOD, new RateLimit());
     private static final int SERVICE_TYPE = 3;
     private static final int OTHER_SERVICE_TYPE = 2;
-    private static final String CHANNEL_NAME = "channel_name";
+    private static final long CHANNEL_ID = 101;
     private static final String MESSAGE = "message";
 
     private MessageChannelCommand command;
@@ -37,14 +37,14 @@ public class MessageChannelCommandTest {
 
     @Before
     public void setUp() throws UserError {
-        command = new MessageChannelCommand(ID, COMMAND_SETTINGS, SERVICE_TYPE, CHANNEL_NAME, MESSAGE);
+        command = new MessageChannelCommand(ID, COMMAND_SETTINGS, SERVICE_TYPE, CHANNEL_ID, MESSAGE);
         serviceHome = mockServiceHome();
         channel = mockChannel();
     }
 
     @Test
     public void testPerformOnSameService() throws BotHomeError, UserError {
-        when(serviceHome.getChannel(CHANNEL_NAME)).thenReturn(channel);
+        when(serviceHome.getChannel(CHANNEL_ID)).thenReturn(channel);
         HomeEvent homeEvent = mockHomeEvent(serviceHome, SERVICE_TYPE);
 
         command.perform(homeEvent);
@@ -55,7 +55,7 @@ public class MessageChannelCommandTest {
     @Test
     public void testPerformOnDifferentService() throws BotHomeError, UserError {
         ServiceHome serviceHome = mock(ServiceHome.class);
-        when(serviceHome.getChannel(CHANNEL_NAME)).thenReturn(channel);
+        when(serviceHome.getChannel(CHANNEL_ID)).thenReturn(channel);
 
         HomeEvent homeEvent = mockHomeEvent(serviceHome, OTHER_SERVICE_TYPE);
         when(homeEvent.getServiceHome(SERVICE_TYPE)).thenReturn(serviceHome);
