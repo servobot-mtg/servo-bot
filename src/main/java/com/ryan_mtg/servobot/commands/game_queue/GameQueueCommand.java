@@ -94,6 +94,8 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
         switch (command.toLowerCase()) {
             case "close":
+            case "stop":
+            case "end":
             case "shutdown":
                 return (event, parsedCommand) -> closeQueue(event);
             case "show":
