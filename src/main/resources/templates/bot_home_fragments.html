@@ -458,7 +458,7 @@
                     <label>Role</label><br>
                     <select id='add-role-role-input'>
                         <th:block th:each="role, status : ${roles}">
-                            <option th:value="${role.name}" th:text="${role.name}" th:selected="${status.index == 0}"/>
+                            <option th:value="${role.id}" th:text="${role.name}" th:selected="${status.index == 0}"/>
                         </th:block>
                     </select>
                 </div>

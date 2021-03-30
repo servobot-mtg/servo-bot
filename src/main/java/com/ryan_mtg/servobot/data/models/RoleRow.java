@@ -28,6 +28,9 @@ public class RoleRow {
     @Size(max = Validation.MAX_ROLE_LENGTH)
     private String role;
 
+    @Column(name = "role_id")
+    private long roleId;
+
     @Size(max = Validation.MAX_EMOTE_LENGTH)
     private String emote;
 }

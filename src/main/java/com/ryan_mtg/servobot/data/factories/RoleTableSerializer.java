@@ -65,7 +65,7 @@ public class RoleTableSerializer {
 
     private Role createRole(final RoleRow roleRow) {
         boolean append = (roleRow.getFlags() & APPEND_FLAG) != 0;
-        return new Role(roleRow.getId(), roleRow.getRole(), roleRow.getEmote(), append);
+        return new Role(roleRow.getId(), roleRow.getRole(), roleRow.getRoleId(), roleRow.getEmote(), append);
     }
 
     private void saveRole(final int contextId, final Role role) {
@@ -74,6 +74,7 @@ public class RoleTableSerializer {
         roleRow.setBotHomeId(contextId);
         roleRow.setFlags(role.isAppendEmote() ? APPEND_FLAG : 0);
         roleRow.setRole(role.getRole());
+        roleRow.setRoleId(role.getRoleId());
         roleRow.setEmote(role.getEmote());
         roleRepository.save(roleRow);
         role.setId(roleRow.getId());

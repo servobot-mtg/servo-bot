@@ -15,6 +15,9 @@ public class Role {
     private String role;
 
     @Getter
+    private long roleId;
+
+    @Getter
     private String emote;
 
     @Getter @Setter

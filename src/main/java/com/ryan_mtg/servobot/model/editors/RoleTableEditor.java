@@ -20,8 +20,8 @@ public class RoleTableEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public Role addRole(final String roleName, final String emote, final boolean append) {
-        Role role = new Role(Role.UNREGISTERED_ID, roleName, emote, append);
+    public Role addRole(final String roleName, final long roleId, final String emote, final boolean append) {
+        Role role = new Role(Role.UNREGISTERED_ID, roleName, roleId, emote, append);
         RoleTableEdit roleTableEdit = roleTable.addRole(role);
         roleTableSerializer.commit(roleTableEdit);
         return role;

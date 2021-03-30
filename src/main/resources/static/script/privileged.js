@@ -1135,17 +1135,14 @@ function showAddRoleForm() {
     showForm('add-role', addRoleFormData);
 }
 
-function addRole(botHomeId) {
-    //TODO
-    const role = document.getElementById('add-role-role-input').value;
+async function addRole(botHomeId) {
+    const roleInput = document.getElementById('add-role-role-input');
+    const roleId = roleInput.value;
+    const roleName = roleInput.options[roleInput.selectedIndex].text;
     const emote = document.getElementById('add-role-emote-input').value;
     const append = document.getElementById('add-role-append-input').checked;
-    postAddRole(botHomeId, role, emote, append);
-}
-
-async function postAddRole(botHomeId, roleName, emote, append) {
     const label = 'add-role';
-    const parameters = {botHomeId: botHomeId, role: roleName, emote: emote, append: append};
+    const parameters = {botHomeId, role: roleName, roleId: roleId, emote, append};
     let response = await makePost('/api/add_role', parameters, [], false);
 
     if (response.ok) {

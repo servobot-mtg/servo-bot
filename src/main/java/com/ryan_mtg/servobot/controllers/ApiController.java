@@ -421,12 +421,13 @@ public class ApiController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Role addRole(@RequestBody final AddRoleRequest request) throws UserError {
         RoleTableEditor roleTableEditor = getRoleTableEditor(request.getBotHomeId());
-        return roleTableEditor.addRole(request.getRole(), request.getEmote(), request.isAppend());
+        return roleTableEditor.addRole(request.getRole(), request.getRoleId(), request.getEmote(), request.isAppend());
     }
 
     @Getter
     public static class AddRoleRequest extends BotHomeRequest {
         private String role;
+        private long roleId;
         private String emote;
         private boolean append;
     }

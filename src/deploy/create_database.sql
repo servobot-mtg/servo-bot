@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS reaction (id INTEGER AUTO_INCREMENT PRIMARY KEY, emot
                                      filter INTEGER, filter_value INTEGER, bot_home_id INTEGER);
 
 CREATE TABLE IF NOT EXISTS role (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, flags INTEGER,
-                                 role VARCHAR(50), emote VARCHAR(30));
+                                 role VARCHAR(50), role_id BIGINT, emote VARCHAR(30));
 
 CREATE TABLE IF NOT EXISTS role_table (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_home_id INTEGER, channel_id BIGINT,
                                        message_id BIGINT);

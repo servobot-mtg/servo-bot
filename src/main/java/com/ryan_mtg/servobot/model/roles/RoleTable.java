@@ -1,6 +1,6 @@
 package com.ryan_mtg.servobot.model.roles;
 
-import com.ryan_mtg.servobot.error.UserError;
+import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.events.EmoteHomeEvent;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.ServiceHome;
@@ -9,9 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -38,13 +36,13 @@ public class RoleTable {
         roles.add(role);
     }
 
-    public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) throws UserError {
+    public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) throws BotHomeError {
         String emoteName = emoteHomeEvent.getEmote().getName();
         ServiceHome serviceHome = emoteHomeEvent.getServiceHome();
         User reactor = emoteHomeEvent.getSender();
         for (Role role : roles) {
             if (emoteName.equals(role.getEmote())) {
-                serviceHome.setRole(reactor, role.getRole());
+                serviceHome.setRole(reactor, role.getRoleId());
                 if (role.isAppendEmote() && !nameEndingHasEmote(emoteName, reactor)) {
                     serviceHome.setNickName(reactor, reactor.getName() + ' ' + emoteName);
                 }
@@ -52,13 +50,13 @@ public class RoleTable {
         }
     }
 
-    public void onEmoteRemoved(final EmoteHomeEvent emoteHomeEvent) throws UserError {
+    public void onEmoteRemoved(final EmoteHomeEvent emoteHomeEvent) throws BotHomeError {
         String emoteName = emoteHomeEvent.getEmote().getName();
         ServiceHome serviceHome = emoteHomeEvent.getServiceHome();
         for (Role role : roles) {
             if (emoteName.equals(role.getEmote())) {
                 User reactor = emoteHomeEvent.getSender();
-                serviceHome.clearRole(reactor, role.getRole());
+                serviceHome.clearRole(reactor, role.getRoleId());
             }
         }
     }
