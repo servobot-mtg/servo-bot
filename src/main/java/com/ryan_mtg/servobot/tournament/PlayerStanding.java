@@ -5,17 +5,17 @@ import lombok.Getter;
 
 @Getter @AllArgsConstructor
 public class PlayerStanding implements Comparable<PlayerStanding> {
-    private Player player;
-    private int rank;
-    private boolean important;
-    private boolean leader;
-    private Record record;
-    private Result result;
-    private DecklistDescription decklist;
-    private boolean hasDropped;
-    private Player opponent;
-    private DecklistDescription opponentsDecklist;
-    private boolean bounty;
+    private final Player player;
+    private final int rank;
+    private final boolean important;
+    private final boolean leader;
+    private final Record record;
+    private final Result result;
+    private final DecklistDescription decklist;
+    private final boolean hasDropped;
+    private final Player opponent;
+    private final DecklistDescription opponentsDecklist;
+    private final boolean bounty;
 
     public enum Result {
         NONE,

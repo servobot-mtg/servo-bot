@@ -13,13 +13,13 @@ import java.util.function.Function;
 
 @Getter
 public class ChatDraftEdit {
-    private CommandTableEdit commandTableEdit = new CommandTableEdit();
-    private Map<ChatDraft, Integer> savedChatDrafts = new HashMap<>();
-    private Map<ChatDraft, Function<ChatDraft, Command>> chatDraftSaveCallbackMap = new HashMap<>();
-    private Map<DraftEntrant, Integer> savedDraftEntrants = new HashMap<>();
-    private Set<DraftEntrant> deletedDraftEntrants = new HashSet<>();
-    private Map<ChatDraftPick, Integer> savedChatDraftPicks = new HashMap<>();
-    private Set<ChatDraftPick> deletedChatDraftPicks = new HashSet<>();
+    private final CommandTableEdit commandTableEdit = new CommandTableEdit();
+    private final Map<ChatDraft, Integer> savedChatDrafts = new HashMap<>();
+    private final Map<ChatDraft, Function<ChatDraft, Command>> chatDraftSaveCallbackMap = new HashMap<>();
+    private final Map<DraftEntrant, Integer> savedDraftEntrants = new HashMap<>();
+    private final Set<DraftEntrant> deletedDraftEntrants = new HashSet<>();
+    private final Map<ChatDraftPick, Integer> savedChatDraftPicks = new HashMap<>();
+    private final Set<ChatDraftPick> deletedChatDraftPicks = new HashSet<>();
 
     public void saveChatDraft(final int botHomeId, final ChatDraft chatDraft) {
         savedChatDrafts.put(chatDraft, botHomeId);

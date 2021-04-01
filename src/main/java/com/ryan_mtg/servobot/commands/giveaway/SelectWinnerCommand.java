@@ -28,13 +28,13 @@ public class SelectWinnerCommand extends HomeCommand {
     public static final CommandType TYPE = CommandType.SELECT_WINNER_COMMAND_TYPE;
 
     @Getter
-    private int giveawayId;
+    private final int giveawayId;
 
     @Getter
-    private String discordChannel;
+    private final String discordChannel;
 
     @Getter
-    private String response;
+    private final String response;
 
     public SelectWinnerCommand(final int id, final CommandSettings commandSettings, final int giveawayId,
                                final String response, final String discordChannel) {

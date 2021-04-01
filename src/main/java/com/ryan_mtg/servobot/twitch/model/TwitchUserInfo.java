@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter @AllArgsConstructor
 public class TwitchUserInfo {
-    private int id;
-    private String username;
+    private final int id;
+    private final String username;
 }

@@ -71,33 +71,33 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class HomeEditor {
-    private static Logger LOGGER = LoggerFactory.getLogger(HomeEditor.class);
-    private Bot bot;
-    private BotHome botHome;
-    private SerializerContainer serializers;
-
-    @Getter
-    private CommandTableEditor commandTableEditor;
-
-    @Getter
-    private RoleTableEditor roleTableEditor;
-
-    @Getter
-    private GiveawayEditor giveawayEditor;
-
-    @Getter
-    private ChatDraftEditor chatDraftEditor;
-
-    @Getter
-    private BookTableEditor bookTableEditor;
-
-    @Getter
-    private GameQueueEditor gameQueueEditor;
-
-    @Getter
-    private StorageValueEditor storageValueEditor;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(HomeEditor.class);
     private static final String REQUEST_PRIZE_DESCRIPTION = "Request prize command name";
+
+    private final Bot bot;
+    private final BotHome botHome;
+    private final SerializerContainer serializers;
+
+    @Getter
+    private final CommandTableEditor commandTableEditor;
+
+    @Getter
+    private final RoleTableEditor roleTableEditor;
+
+    @Getter
+    private final GiveawayEditor giveawayEditor;
+
+    @Getter
+    private final ChatDraftEditor chatDraftEditor;
+
+    @Getter
+    private final BookTableEditor bookTableEditor;
+
+    @Getter
+    private final GameQueueEditor gameQueueEditor;
+
+    @Getter
+    private final StorageValueEditor storageValueEditor;
 
     public HomeEditor(final Bot bot, final BotHome botHome) {
         this.bot = bot;
@@ -287,7 +287,7 @@ public class HomeEditor {
 
     @Transactional(rollbackOn = Exception.class)
     public StorageValue addStorageValue(final int type, final String name, final String value) throws UserError {
-        StorageValue storageValue = null;
+        StorageValue storageValue;
         switch (type) {
             case IntegerStorageValue.TYPE:
                 storageValue = new IntegerStorageValue(StorageValue.UNREGISTERED_ID, StorageValue.GLOBAL_USER, name,
@@ -684,7 +684,7 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    private void save(final Consumer<BotHomeRow> homeModifier) {
+    public void save(final Consumer<BotHomeRow> homeModifier) {
         BotHomeRepository botHomeRepository = serializers.getBotHomeRepository();
         BotHomeRow botHomeRow = botHomeRepository.findById(botHome.getId());
         homeModifier.accept(botHomeRow);

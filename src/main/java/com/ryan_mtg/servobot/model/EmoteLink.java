@@ -12,10 +12,10 @@ public class EmoteLink {
     private int id;
 
     @Getter
-    private String twitchEmote;
+    private final String twitchEmote;
 
     @Getter
-    private String discordEmote;
+    private final String discordEmote;
 
     public EmoteLink(final int id, final String twitchEmote, final String discordEmote) throws UserError {
         this.id = id;

@@ -46,7 +46,7 @@ public class ChatDraftSerializer {
 
         if (!chatDraftEdit.getDeletedDraftEntrants().isEmpty()) {
             draftEntrantRepository.deleteByIdIn(chatDraftEdit.getDeletedDraftEntrants().stream()
-                    .map(draftEntrant -> draftEntrant.getId()).collect(Collectors.toList()));
+                    .map(DraftEntrant::getId).collect(Collectors.toList()));
         }
 
         chatDraftEdit.getSavedDraftEntrants()
@@ -56,7 +56,7 @@ public class ChatDraftSerializer {
 
         if (!chatDraftEdit.getDeletedChatDraftPicks().isEmpty()) {
             chatDraftPickRepository.deleteByIdIn(chatDraftEdit.getDeletedChatDraftPicks().stream()
-                    .map(chatDraftPick -> chatDraftPick.getId()).collect(Collectors.toList()));
+                    .map(ChatDraftPick::getId).collect(Collectors.toList()));
         }
 
 
@@ -139,12 +139,10 @@ public class ChatDraftSerializer {
                         chatDraftIds, ChatDraftPickRow::getChatDraftId);
 
         Set<Integer> userIds = new HashSet<>();
-        draftEntrantRowMap.forEach((giveawayId, draftEntrantRows) -> draftEntrantRows.forEach(draftEntrantRow -> {
-            userIds.add(draftEntrantRow.getUserId());
-        }));
-        chatDraftPickRowMap.forEach((giveawayId, chatDraftPickRows) -> chatDraftPickRows.forEach(chatDraftPickRow -> {
-            userIds.add(chatDraftPickRow.getPickerId());
-        }));
+        draftEntrantRowMap.forEach((giveawayId, draftEntrantRows) -> draftEntrantRows.forEach(draftEntrantRow ->
+            userIds.add(draftEntrantRow.getUserId())));
+        chatDraftPickRowMap.forEach((giveawayId, chatDraftPickRows) -> chatDraftPickRows.forEach(chatDraftPickRow ->
+            userIds.add(chatDraftPickRow.getPickerId())));
 
         Map<Integer, HomedUser> homedUserMap = new HashMap<>();
         homedUserTable.getHomedUsers(userIds).forEach(homedUser -> homedUserMap.put(homedUser.getId(), homedUser));

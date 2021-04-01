@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 public class DiscordRole implements Role {
-    private long id;
-    private String name;
+    private final long id;
+    private final String name;
 
     public DiscordRole(final net.dv8tion.jda.api.entities.Role role) {
         this.id = role.getIdLong();

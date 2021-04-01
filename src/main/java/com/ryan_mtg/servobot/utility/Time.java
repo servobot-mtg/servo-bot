@@ -64,16 +64,16 @@ public class Time {
 
     private static class UnitDescriptor {
         @Getter
-        private Function<Duration, Long> extractor;
+        private final Function<Duration, Long> extractor;
 
         @Getter
-        private int conversion;
+        private final int conversion;
 
         @Getter
-        private String name;
+        private final String name;
 
         @Getter
-        private String article;
+        private final String article;
 
         public UnitDescriptor(final String name, final Function<Duration, Long> extractor, final int conversion,
                               final String article) {

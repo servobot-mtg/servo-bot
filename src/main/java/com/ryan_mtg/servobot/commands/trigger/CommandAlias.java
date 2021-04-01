@@ -12,7 +12,7 @@ public class CommandAlias extends Trigger {
     private static final Pattern ALIAS_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
     @Getter
-    private String alias;
+    private final String alias;
 
     public CommandAlias(final int id, final String alias) throws UserError {
         super(id);

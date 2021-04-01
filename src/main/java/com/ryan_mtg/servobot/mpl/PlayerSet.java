@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayerSet {
-    private Map<String, Player> byNameMap;
-    private Map<String, String> aliasMap;
+    private final Map<String, Player> byNameMap;
+    private final Map<String, String> aliasMap;
 
     public PlayerSet(final Map<String, Player> byNameMap, final Map<String, String> aliasMap) {
         this.byNameMap = byNameMap;

@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Component
 public class ScryfallQuerier {
-    private ScryfallClient scryfallClient;
+    private final ScryfallClient scryfallClient;
 
     public ScryfallQuerier() {
         scryfallClient = ScryfallClient.newClient();

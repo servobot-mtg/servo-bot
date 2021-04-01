@@ -35,7 +35,7 @@ public class NextPickCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError {
         ChatDraftEditor chatDraftEditor = event.getChatDraftEditor();
 
         ChatDraft chatDraft = chatDraftEditor.nextPick(chatDraftId);

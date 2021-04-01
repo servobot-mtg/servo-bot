@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.guild.member.GenericGuildMemberEvent;
 
 public class DiscordNewUserEvent extends AbstractHomedEvent implements UserHomeEvent {
     @Getter
-    private User user;
+    private final User user;
 
     public DiscordNewUserEvent(final GenericGuildMemberEvent event, final BotHome botHome, final User user) {
         super(botHome);

@@ -64,7 +64,7 @@ public class CommandEditor {
     }
 
     private class CommandEditVisitor implements CommandVisitor {
-        private String text;
+        private final String text;
 
         @Getter
         private UserError userError;

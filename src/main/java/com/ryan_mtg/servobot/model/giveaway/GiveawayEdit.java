@@ -11,10 +11,10 @@ import java.util.Map;
 
 @Getter
 public class GiveawayEdit {
-    private CommandTableEdit commandTableEdit = new CommandTableEdit();
-    private Map<Giveaway, Integer> savedGiveaways = new HashMap<>();
-    private Map<Prize, Integer> savedPrizes = new IdentityHashMap<>();
-    private List<Prize> deletedPrizes = new ArrayList<>();
+    private final CommandTableEdit commandTableEdit = new CommandTableEdit();
+    private final Map<Giveaway, Integer> savedGiveaways = new HashMap<>();
+    private final Map<Prize, Integer> savedPrizes = new IdentityHashMap<>();
+    private final List<Prize> deletedPrizes = new ArrayList<>();
 
     public void addGiveaway(final int botHomeId, final Giveaway giveaway) {
         savedGiveaways.put(giveaway, botHomeId);

@@ -17,7 +17,7 @@ public interface UserHomeRepository extends CrudRepository<UserHomeRow, UserHome
     Iterable<UserHomeRow> findByUserIdIn(Iterable<Integer> userIds);
 
     Iterable<UserHomeRow> findByBotHomeIdAndUserIdIn(int botHomeId, Iterable<Integer> userIds);
-    List<UserHomeRow> findByBotHomeId(int botHomeId);
+    Iterable<UserHomeRow> findByBotHomeId(int botHomeId);
 
     @Query(value = "SELECT userId FROM UserHomeRow WHERE bot_home_id = :bot_home_id")
     Iterable<Integer> getAllUserIds(@Param("bot_home_id") int botHomeId);

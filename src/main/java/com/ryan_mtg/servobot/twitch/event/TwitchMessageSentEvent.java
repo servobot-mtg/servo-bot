@@ -10,10 +10,10 @@ import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 import lombok.Getter;
 
 public class TwitchMessageSentEvent extends TwitchHomeEvent implements MessageHomeEvent {
-    private ChannelMessageEvent event;
+    private final ChannelMessageEvent event;
 
     @Getter
-    private TwitchUser sender;
+    private final TwitchUser sender;
 
     public TwitchMessageSentEvent(final TwitchClient client, final ChannelMessageEvent event, final BotHome botHome,
             final TwitchUser sender) {

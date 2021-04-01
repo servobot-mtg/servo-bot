@@ -23,7 +23,7 @@ import java.util.stream.StreamSupport;
 
 @Component
 public class UserSerializer {
-    private static Logger LOGGER = LoggerFactory.getLogger(UserSerializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserSerializer.class);
 
     private final UserRepository userRepository;
     private final UserHomeRepository userHomeRepository;
@@ -173,9 +173,8 @@ public class UserSerializer {
         );
         userHomeRepository.saveAll(userHomeRows);
 
-        userHomeEdit.getDeletedHomeUsers().forEach(userHomeId -> {
-            userHomeRepository.deleteByBotHomeIdAndUserId(userHomeId.getBotHomeId(), userHomeId.getUserId());
-        });
+        userHomeEdit.getDeletedHomeUsers().forEach(userHomeId ->
+            userHomeRepository.deleteByBotHomeIdAndUserId(userHomeId.getBotHomeId(), userHomeId.getUserId()));
     }
 
     private User createUser(final UserRow userRow) {

@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 
 public class TwitchRaidEvent extends TwitchHomeEvent implements UserHomeEvent {
-    private TwitchUser raider;
+    private final TwitchUser raider;
 
     public TwitchRaidEvent(final TwitchClient client, final RaidEvent event, final BotHome botHome,
                            final TwitchUser raider) {

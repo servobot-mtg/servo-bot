@@ -14,7 +14,7 @@ public abstract class AlertGenerator {
     private int id;
 
     @Getter
-    private String alertToken;
+    private final String alertToken;
 
     AlertGenerator(final int id, final String alertToken) throws UserError {
         this.id = id;

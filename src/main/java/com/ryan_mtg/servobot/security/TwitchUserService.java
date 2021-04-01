@@ -4,7 +4,6 @@ import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.UserInfo;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
-import com.ryan_mtg.servobot.twitch.model.TwitchUserInfo;
 import com.ryan_mtg.servobot.user.User;
 import com.ryan_mtg.servobot.user.UserTable;
 import org.springframework.security.core.GrantedAuthority;

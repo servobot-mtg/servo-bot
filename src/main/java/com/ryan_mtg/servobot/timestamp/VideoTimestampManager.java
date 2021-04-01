@@ -19,7 +19,7 @@ public class VideoTimestampManager {
     private final VideoTimestampSerializer videoTimestampSerializer;
 
     @Getter
-    private List<VideoTimestamp> videoTimestamps;
+    private final List<VideoTimestamp> videoTimestamps;
 
     public VideoTimestampManager(final TwitchService twitchService,
             final VideoTimestampSerializer videoTimestampSerializer) {

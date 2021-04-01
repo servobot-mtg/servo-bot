@@ -18,13 +18,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class AlertQueue {
-    private static Logger LOGGER = LoggerFactory.getLogger(AlertQueue.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlertQueue.class);
 
-    private Bot bot;
+    private final Bot bot;
+    private final Map<AlertGenerator, RepeatingAlertable> alertableMap = new HashMap<>();
+    private final Set<Alertable> alertables = new HashSet<>();
+    private final Timer timer = new Timer();
     private boolean active = false;
-    private Map<AlertGenerator, RepeatingAlertable> alertableMap = new HashMap<>();
-    private Set<Alertable> alertables = new HashSet<>();
-    private Timer timer = new Timer();
 
     public AlertQueue(final Bot bot) {
         this.bot = bot;
@@ -95,9 +95,9 @@ public class AlertQueue {
     }
 
     private class OneShotAlertable implements Alertable {
-        private BotHome botHome;
-        private Duration waitTime;
-        private String alertToken;
+        private final BotHome botHome;
+        private final Duration waitTime;
+        private final String alertToken;
         private AlertTask alertTask;
 
         OneShotAlertable(final BotHome botHome, final Duration waitTime, final String alertToken) {
@@ -131,8 +131,8 @@ public class AlertQueue {
     }
 
     private class RepeatingAlertable implements Alertable {
-        private BotHome home;
-        private AlertGenerator generator;
+        private final BotHome home;
+        private final AlertGenerator generator;
         private AlertTask alertTask;
 
         RepeatingAlertable(final BotHome home, final AlertGenerator generator) {
@@ -191,8 +191,8 @@ public class AlertQueue {
     }
 
     private class AlertTask extends TimerTask {
-        private Alertable alertable;
-        private Instant alertTime;
+        private final Alertable alertable;
+        private final Instant alertTime;
         private boolean alive = true;
 
         AlertTask(final Alertable alertable, final Instant alertTime) {

@@ -284,8 +284,8 @@ public class ApiController {
     @AllArgsConstructor
     @Getter
     public static class AddTriggerResponse {
-        private Trigger addedTrigger;
-        private Trigger deletedTrigger;
+        private final Trigger addedTrigger;
+        private final Trigger deletedTrigger;
     }
 
     @PostMapping(value = "/trigger_alert", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -419,7 +419,7 @@ public class ApiController {
 
     @PostMapping(value = "/add_role", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Role addRole(@RequestBody final AddRoleRequest request) throws UserError {
+    public Role addRole(@RequestBody final AddRoleRequest request) {
         RoleTableEditor roleTableEditor = getRoleTableEditor(request.getBotHomeId());
         return roleTableEditor.addRole(request.getRole(), request.getRoleId(), request.getEmote(), request.isAppend());
     }

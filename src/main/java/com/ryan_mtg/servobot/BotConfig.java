@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 @Configuration
 public class BotConfig {
-    private static Logger LOGGER = LoggerFactory.getLogger(BotConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BotConfig.class);
 
     private final BotRepository botRepository;
     private final BotFactory botFactory;

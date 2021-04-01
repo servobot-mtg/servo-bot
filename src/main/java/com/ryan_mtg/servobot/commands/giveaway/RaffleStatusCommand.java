@@ -20,7 +20,7 @@ public class RaffleStatusCommand extends InvokedHomedCommand {
     private int giveawayId;
 
     @Getter
-    private String response;
+    private final String response;
 
     public RaffleStatusCommand(final int id, final CommandSettings commandSettings, final int giveawayId,
             final String response) throws UserError {

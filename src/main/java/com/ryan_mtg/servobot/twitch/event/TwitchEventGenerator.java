@@ -2,7 +2,6 @@ package com.ryan_mtg.servobot.twitch.event;
 
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
-import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.chat.events.channel.HostOnEvent;
 import com.github.twitch4j.chat.events.channel.RaidEvent;
@@ -22,10 +21,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class TwitchEventGenerator {
-    private static Logger LOGGER = LoggerFactory.getLogger(TwitchEventGenerator.class);
-    private TwitchClient client;
-    private EventListener eventListener;
-    private Map<Long, BotHome> homeMap;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchEventGenerator.class);
+    private final TwitchClient client;
+    private final EventListener eventListener;
+    private final Map<Long, BotHome> homeMap;
 
     public TwitchEventGenerator(final TwitchClient client, final EventListener eventListener,
                                 final Map<Long, BotHome> homeMap) {

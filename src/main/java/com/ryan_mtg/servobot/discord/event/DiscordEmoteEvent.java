@@ -12,9 +12,9 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 public class DiscordEmoteEvent extends DiscordBotHomeEvent implements EmoteHomeEvent {
-    private GenericGuildMessageReactionEvent event;
-    private User reactor;
-    private Emote emote;
+    private final GenericGuildMessageReactionEvent event;
+    private final User reactor;
+    private final Emote emote;
 
     public DiscordEmoteEvent(final GenericGuildMessageReactionEvent event, final BotHome botHome,
             final User reactor, final Emote emote) {

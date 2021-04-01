@@ -8,8 +8,8 @@ import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.twitch.model.TwitchServiceHome;
 
 public class TwitchHomeEvent extends TwitchEvent implements HomeEvent {
-    private String channelName;
-    private long channelId;
+    private final String channelName;
+    private final long channelId;
     private TwitchChannel twitchChannel;
 
     public TwitchHomeEvent(final TwitchClient client, final BotHome botHome, final String channelName,

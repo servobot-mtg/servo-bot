@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CommandListener implements EventListener {
-    private static Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
 
-    private CommandPerformer commandPerformer;
-    private CommandTable commandTable;
+    private final CommandPerformer commandPerformer;
+    private final CommandTable commandTable;
 
     public CommandListener(final CommandPerformer commandPerformer, final CommandTable commandTable) {
         this.commandPerformer = commandPerformer;

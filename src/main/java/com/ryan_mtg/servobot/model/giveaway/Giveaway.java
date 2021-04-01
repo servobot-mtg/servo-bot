@@ -32,9 +32,9 @@ public class Giveaway {
     }
 
     private int id;
-    private String name;
-    private boolean selfService;
-    private boolean rafflesEnabled;
+    private final String name;
+    private final boolean selfService;
+    private final boolean rafflesEnabled;
     private State state;
 
     // Self Service
@@ -42,14 +42,14 @@ public class Giveaway {
     private RequestPrizeCommand requestPrizeCommand;
     private int prizeRequestLimit = 50;
     private int prizeRequestUserLimit = 1;
-    private int prizeRequests = 0;
+    private final int prizeRequests = 0;
 
     // Raffle
     private RaffleSettings raffleSettings;
     private StartRaffleCommand startRaffleCommand;
 
-    private List<Prize> prizes = new ArrayList<>();
-    private List<Raffle> raffles = new ArrayList<>();
+    private final List<Prize> prizes = new ArrayList<>();
+    private final List<Raffle> raffles = new ArrayList<>();
 
     public Giveaway(final int id, final String name, final boolean selfService, final boolean rafflesEnabled)
             throws UserError {

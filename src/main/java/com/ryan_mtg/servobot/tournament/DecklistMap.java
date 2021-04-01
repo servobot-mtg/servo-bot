@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class DecklistMap {
-    private Map<DecklistKey, DecklistDescription> map = new HashMap<>();
+    private final Map<DecklistKey, DecklistDescription> map = new HashMap<>();
 
     public void put(final Player player, final String format, final DecklistDescription decklistDescription) {
        map.put(new DecklistKey(player, format), decklistDescription);

@@ -37,7 +37,7 @@ import java.util.Map;
 
 @Component
 public class BotFactory {
-    private static Logger LOGGER = LoggerFactory.getLogger(BotFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BotFactory.class);
 
     private final ServiceHomeRepository serviceHomeRepository;
     private final SerializerContainer serializers;
@@ -77,7 +77,7 @@ public class BotFactory {
 
             StorageTable storageTable = serializers.getStorageTableSerializer().createStorageTable(contextId);
 
-            List<GameManager> gameManagers = new ArrayList<GameManager>();
+            List<GameManager> gameManagers = new ArrayList<>();
             gameManagers.add(new SusGameManager());
 
             Bot bot = new Bot(botId, botRow.getName(), globalScope, services, serializers, commandTable, bookTable,

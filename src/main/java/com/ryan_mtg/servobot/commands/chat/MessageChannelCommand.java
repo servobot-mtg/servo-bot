@@ -45,7 +45,7 @@ public class MessageChannelCommand extends HomeCommand {
     }
 
     @Override
-    public void perform(final HomeEvent homeEvent) throws BotHomeError, UserError {
+    public void perform(final HomeEvent homeEvent) throws BotHomeError {
         ServiceHome serviceHome = homeEvent.getServiceHome(serviceType);
         Channel channel = serviceHome.getChannel(channelId);
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();

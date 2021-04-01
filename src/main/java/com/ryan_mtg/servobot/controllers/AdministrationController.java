@@ -104,10 +104,8 @@ public class AdministrationController {
     public String run() {
         if (adminTask != null) {
             adminTask.run();
-            return "redirect:/admin";
-        } else {
-            return "redirect:/admin";
         }
+        return "redirect:/admin";
     }
 
     private void addUsers(final Model model) {

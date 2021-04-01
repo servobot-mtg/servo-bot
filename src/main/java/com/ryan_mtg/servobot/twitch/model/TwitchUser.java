@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TwitchUser implements User {
-    private static Logger LOGGER = LoggerFactory.getLogger(TwitchUser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitchUser.class);
 
-    private HomedUser user;
+    private final HomedUser user;
 
     public TwitchUser(final HomedUser user) {
         this.user = user;

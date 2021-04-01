@@ -12,11 +12,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class PlayerSet implements Iterable<Player> {
-    private Map<String, Player> arenaNameMap = new HashMap<>();
-    private Map<String, Player> realNameMap = new HashMap<>();
-    private Map<String, Player> discordNameMap = new HashMap<>();
-    private Map<String, Player> shortArenaNameMap = new HashMap<>();
-    private Set<Player> players = new HashSet<>();
+    private final Map<String, Player> arenaNameMap = new HashMap<>();
+    private final Map<String, Player> realNameMap = new HashMap<>();
+    private final Map<String, Player> discordNameMap = new HashMap<>();
+    private final Map<String, Player> shortArenaNameMap = new HashMap<>();
+    private final Set<Player> players = new HashSet<>();
 
     public Collection<Player> getPlayers() {
         return players;

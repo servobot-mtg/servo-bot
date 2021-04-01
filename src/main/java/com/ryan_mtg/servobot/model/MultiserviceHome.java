@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MultiserviceHome implements ServiceHome {
-    private Map<Integer, ServiceHome> serviceHomes;
+    private final Map<Integer, ServiceHome> serviceHomes;
 
     @Getter @Setter
     private HomeEditor homeEditor;
@@ -190,7 +190,7 @@ public class MultiserviceHome implements ServiceHome {
 
     @Override
     public void updateEmotes() {
-        serviceHomes.values().forEach(serviceHome -> serviceHome.updateEmotes());
+        serviceHomes.values().forEach(ServiceHome::updateEmotes);
     }
 
     @Override

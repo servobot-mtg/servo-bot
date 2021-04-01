@@ -10,7 +10,7 @@ public interface Channel {
     int getServiceType();
 
     void say(String message);
-    Message sayAndWait(String text) throws UserError;
+    Message sayAndWait(String text);
     void sendImage(String url, String fileName, String description) throws UserError;
     void sendImages(List<String> url, String fileName, List<String> description) throws UserError;
 }

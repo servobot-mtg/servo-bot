@@ -21,16 +21,16 @@ public class RaffleSettings {
     private static final int TIMED_FLAG = 1;
 
     @Getter
-    private GiveawayCommandSettings startRaffle;
+    private final GiveawayCommandSettings startRaffle;
 
     @Getter
-    private GiveawayCommandSettings enterRaffle;
+    private final GiveawayCommandSettings enterRaffle;
 
     @Getter
-    private GiveawayCommandSettings raffleStatus;
+    private final GiveawayCommandSettings raffleStatus;
 
     @Getter
-    private GiveawayCommandSettings selectWinner;
+    private final GiveawayCommandSettings selectWinner;
 
     @Getter
     private Duration duration = Duration.of(10, ChronoUnit.MINUTES);

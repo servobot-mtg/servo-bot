@@ -3,7 +3,6 @@ package com.ryan_mtg.servobot.data.models;
 import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.utility.Validation;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 

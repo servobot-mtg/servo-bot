@@ -30,9 +30,9 @@ import static com.ryan_mtg.servobot.model.parser.Token.Type.OPEN_PARENTHESIS;
 
 public class Parser {
     private Lexer lexer;
-    private Scope scope;
-    private StorageValueEditor storageValueEditor;
-    private Map<String, Object> constants = new HashMap<>();
+    private final Scope scope;
+    private final StorageValueEditor storageValueEditor;
+    private final Map<String, Object> constants = new HashMap<>();
 
     public Parser(final Scope scope, final StorageValueEditor storageValueEditor) {
         this.scope = scope;

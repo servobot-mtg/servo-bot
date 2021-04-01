@@ -15,7 +15,7 @@ public class DiscordGlobalUser implements User {
 
     @Override
     public String getName() {
-        return user.getName();
+        return discordUser.getName();
     }
 
     @Override

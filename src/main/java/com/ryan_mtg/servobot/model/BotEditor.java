@@ -53,18 +53,18 @@ import java.util.Map;
 import java.util.Set;
 
 public class BotEditor {
-    private static Logger LOGGER = LoggerFactory.getLogger(BotEditor.class);
-    private Bot bot;
-    private SerializerContainer serializers;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BotEditor.class);
+    private final Bot bot;
+    private final SerializerContainer serializers;
 
     @Getter
-    private CommandTableEditor commandTableEditor;
+    private final CommandTableEditor commandTableEditor;
 
     @Getter
-    private BookTableEditor bookTableEditor;
+    private final BookTableEditor bookTableEditor;
 
     @Getter
-    private StorageValueEditor storageValueEditor;
+    private final StorageValueEditor storageValueEditor;
 
     public BotEditor(final Bot bot) {
         this.bot = bot;

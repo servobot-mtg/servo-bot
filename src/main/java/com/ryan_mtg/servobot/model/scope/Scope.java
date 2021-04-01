@@ -1,8 +1,8 @@
 package com.ryan_mtg.servobot.model.scope;
 
 public class Scope {
-    private Scope parentScope;
-    private SymbolTable symbolTable;
+    private final Scope parentScope;
+    private final SymbolTable symbolTable;
 
     public Scope(final Scope parentScope, final SymbolTable symbolTable) {
         this.parentScope = parentScope;

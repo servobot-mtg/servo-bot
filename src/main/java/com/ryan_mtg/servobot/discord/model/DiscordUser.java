@@ -6,10 +6,10 @@ import lombok.Getter;
 
 public class DiscordUser implements User {
     @Getter
-    private com.ryan_mtg.servobot.user.User user;
+    private final com.ryan_mtg.servobot.user.User user;
 
     @Getter
-    private net.dv8tion.jda.api.entities.User discordUser;
+    private final net.dv8tion.jda.api.entities.User discordUser;
 
     public DiscordUser(final com.ryan_mtg.servobot.user.User user,
                             final net.dv8tion.jda.api.entities.User discordUser) {

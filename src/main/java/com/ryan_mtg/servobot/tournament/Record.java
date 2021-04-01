@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter @EqualsAndHashCode
 public class Record implements Comparable<Record> {
-    private int wins;
-    private int losses;
-    private int draws;
-    private boolean dropped;
+    private final int wins;
+    private final int losses;
+    private final int draws;
+    private final boolean dropped;
 
     private Record(final int wins, final int losses, final int draws, final boolean dropped) {
         this.wins = wins;

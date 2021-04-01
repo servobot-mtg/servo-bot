@@ -14,7 +14,7 @@ public abstract class AbstractHomedEvent implements BotHomeEvent {
     @Getter @Setter
     private HomeEditor homeEditor;
 
-    private BotHome botHome;
+    private final BotHome botHome;
 
     protected AbstractHomedEvent(final BotHome botHome) {
         this.botHome = botHome;

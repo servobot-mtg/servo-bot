@@ -3,7 +3,7 @@ package com.ryan_mtg.servobot.discord.model;
 import com.ryan_mtg.servobot.model.Emote;
 
 public class DiscordEmoji implements Emote {
-    private String name;
+    private final String name;
 
     public DiscordEmoji(final String name) {
         this.name = name;

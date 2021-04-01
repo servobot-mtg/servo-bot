@@ -12,7 +12,7 @@ import java.time.Duration;
 public class DelayedAlertCommand extends HomeCommand {
     public static final CommandType TYPE = CommandType.DELAYED_ALERT_COMMAND_TYPE;
     private Alert alert;
-    private Duration delay;
+    private final Duration delay;
 
     public DelayedAlertCommand(final int id, final CommandSettings commandSettings, final Duration delay,
             final String alertToken) throws UserError {

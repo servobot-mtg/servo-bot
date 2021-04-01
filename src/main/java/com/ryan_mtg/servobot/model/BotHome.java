@@ -52,7 +52,7 @@ public class BotHome implements Context {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("H:mm");
 
     @Getter
-    private int id;
+    private final int id;
 
     @Getter
     private int flags;
@@ -61,7 +61,7 @@ public class BotHome implements Context {
     private Bot bot;
 
     @Getter
-    private String name;
+    private final String name;
 
     @Getter
     private String botName;
@@ -73,45 +73,46 @@ public class BotHome implements Context {
     private Scope botHomeScope;
 
     @Getter
-    private HomedUserTable homedUserTable;
+    private final HomedUserTable homedUserTable;
 
     @Getter
-    private CommandTable commandTable;
+    private final CommandTable commandTable;
 
     @Getter
-    private BookTable bookTable;
+    private final BookTable bookTable;
 
     @Getter
-    private ReactionTable reactionTable;
+    private final ReactionTable reactionTable;
 
     @Getter
-    private RoleTable roleTable;
+    private final RoleTable roleTable;
 
     @Getter
-    private StorageTable storageTable;
+    private final StorageTable storageTable;
 
     @Getter
-    private Schedule schedule;
+    private final Schedule schedule;
 
     @Getter
-    private Map<Integer, ServiceHome> serviceHomes;
+    private final Map<Integer, ServiceHome> serviceHomes;
 
     @Getter
-    private GameQueueTable gameQueueTable;
+    private final GameQueueTable gameQueueTable;
 
     @Getter
-    private List<Giveaway> giveaways;
+    private final List<Giveaway> giveaways;
 
     @Getter
-    private List<EmoteLink> emoteLinks;
+    private final List<EmoteLink> emoteLinks;
 
-    @Getter ChatDraftTable chatDraftTable;
+    @Getter
+    private final ChatDraftTable chatDraftTable;
 
     @Getter
     private boolean active = false;
 
     @Getter
-    private MultiDelegatingListener eventListener;
+    private final MultiDelegatingListener eventListener;
 
     public BotHome(final int id, final int flags, final String name, final String botName, final String timeZone,
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
@@ -294,7 +295,7 @@ public class BotHome implements Context {
         timeSymbolTable.addFunctor("dayOfWeek",
                 () -> Strings.capitalize(now().getDayOfWeek().toString().toLowerCase()));
         timeSymbolTable.addFunctor("timeOfDay", () -> dateTimeFormatter.format(now()));
-        timeSymbolTable.addFunctor("now", () -> now());
+        timeSymbolTable.addFunctor("now", this::now);
 
         timeSymbolTable.addValue("hasUser", (Function<String, Boolean>)this::hasUser);
         timeSymbolTable.addValue("findUser", (Function<String, HomedUser>)this::findUser);

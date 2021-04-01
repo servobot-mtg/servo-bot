@@ -22,7 +22,7 @@ public class SusGameState implements GameState {
         AWAITING_PLAYERS,
         STARTED,
         FINISHED,
-    };
+    }
 
     public boolean isImposter(final User player) {
         return hasPlayer(imposters, player);

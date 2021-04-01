@@ -69,10 +69,10 @@ public class GameQueueAction {
     private List<HomedUser> onCallPlayers = new ArrayList<>();
 
     @Getter @Builder.Default
-    private Map<HomedUser, String> gamerTagMap = new HashMap<>();
+    private final Map<HomedUser, String> gamerTagMap = new HashMap<>();
 
     @Builder.Default
-    private Map<Event, Object> eventMap = new HashMap<>();
+    private final Map<Event, Object> eventMap = new HashMap<>();
 
     public boolean hasEvent(final Event event) {
         return eventMap.containsKey(event);

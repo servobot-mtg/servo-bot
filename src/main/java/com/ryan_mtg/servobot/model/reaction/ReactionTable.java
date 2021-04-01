@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class ReactionTable implements Iterable<Reaction> {
     @Getter
-    private List<Reaction> reactions = new ArrayList<>();
+    private final List<Reaction> reactions = new ArrayList<>();
 
     public void registerReaction(final Reaction reaction) {
         reactions.add(reaction);

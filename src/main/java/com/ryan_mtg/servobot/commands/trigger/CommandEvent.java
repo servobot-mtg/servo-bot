@@ -15,7 +15,7 @@ public class CommandEvent extends Trigger {
     }
 
     @Getter
-    private Type eventType;
+    private final Type eventType;
 
     public CommandEvent(final int id, final Type eventType) {
         super(id);

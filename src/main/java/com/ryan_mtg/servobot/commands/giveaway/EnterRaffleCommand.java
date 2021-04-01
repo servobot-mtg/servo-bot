@@ -17,10 +17,10 @@ public class EnterRaffleCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.ENTER_RAFFLE_COMMAND_TYPE;
 
     @Getter
-    private int giveawayId;
+    private final int giveawayId;
 
     @Getter
-    private String response;
+    private final String response;
 
     public EnterRaffleCommand(final int id, final CommandSettings commandSettings, final int giveawayId,
             final String response) throws UserError {

@@ -10,8 +10,8 @@ import java.util.Map;
 
 @Getter
 public class UserHomeEdit {
-    private Map<HomedUser, Integer> savedHomeUsers = new HashMap<>();
-    private List<UserHomeRow.UserHomeId> deletedHomeUsers = new ArrayList<>();
+    private final Map<HomedUser, Integer> savedHomeUsers = new HashMap<>();
+    private final List<UserHomeRow.UserHomeId> deletedHomeUsers = new ArrayList<>();
 
     public void save(final int botHomeId, final HomedUser homedUser) {
         savedHomeUsers.put(homedUser, botHomeId);

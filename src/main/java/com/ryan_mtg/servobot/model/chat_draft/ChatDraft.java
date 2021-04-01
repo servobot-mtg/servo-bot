@@ -250,8 +250,7 @@ public class ChatDraft {
             chatDraftPicks.addPack(chatDraftPack[p]);
         }
 
-        List<HomedUser> shuffledEntrants = entrants.stream()
-                .map(entrant -> entrant.getUser()).collect(Collectors.toList());
+        List<HomedUser> shuffledEntrants = entrants.stream().map(DraftEntrant::getUser).collect(Collectors.toList());
         Collections.shuffle(shuffledEntrants);
 
         for (int i = 0; i < pickOrder.length; i++) {
@@ -300,9 +299,7 @@ public class ChatDraft {
         int[] newPickOrder = new int[pickOrder.length];
         int[] position = new int[PACKS], best = new int[PACKS + 1];
         for (int i = 0; i < pickOrder.length; i+=PACKS) {
-            for (int j = 0; j < PACKS; j++) {
-                position[j] = pickOrder[i + j];
-            }
+            System.arraycopy(pickOrder, i, position, 0, PACKS);
 
             best[PACKS] = Integer.MAX_VALUE;
             minimizeCost(packSets, position[0], position[1], position[2], best);
@@ -312,9 +309,7 @@ public class ChatDraft {
             minimizeCost(packSets, position[2], position[0], position[1], best);
             minimizeCost(packSets, position[2], position[1], position[0], best);
 
-            for (int j = 0; j < PACKS; j++) {
-                newPickOrder[i + j] = best[j];
-            }
+            System.arraycopy(best, 0, newPickOrder, i, PACKS);
         }
 
         return newPickOrder;

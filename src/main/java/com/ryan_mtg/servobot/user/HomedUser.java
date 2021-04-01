@@ -4,9 +4,10 @@ import lombok.Getter;
 
 public class HomedUser {
     @Getter
-    private User user;
+    private final User user;
+
     @Getter
-    private UserStatus userStatus;
+    private final UserStatus userStatus;
 
     public HomedUser(final User user, final UserStatus userStatus) {
         this.user = user;

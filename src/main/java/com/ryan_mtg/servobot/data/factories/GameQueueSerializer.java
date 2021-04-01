@@ -79,9 +79,8 @@ public class GameQueueSerializer {
         }
 
         List<GameQueueEntryRow> gameQueueEntryRowsToDelete = new ArrayList<>();
-        gameQueueEdit.getDeletedGameQueueEntries().forEach((gameQueueEntry, gameQueueId) -> {
-            gameQueueEntryRowsToDelete.add(createGameQueueEntryRow(gameQueueId, gameQueueEntry));
-        });
+        gameQueueEdit.getDeletedGameQueueEntries().forEach((gameQueueEntry, gameQueueId) ->
+            gameQueueEntryRowsToDelete.add(createGameQueueEntryRow(gameQueueId, gameQueueEntry)));
         gameQueueEntryRepository.deleteAll(gameQueueEntryRowsToDelete);
 
         List<GameQueueEntryRow> gameQueueEntryRowsToSave = new ArrayList<>();

@@ -15,8 +15,8 @@ import java.util.List;
 public class SusGameManager implements GameManager {
     @Setter
     private Responder responder;
-    private List<Game> activeGames = new ArrayList<>();
-    private List<Game> completedGames = new ArrayList<>();
+    private final List<Game> activeGames = new ArrayList<>();
+    private final List<Game> completedGames = new ArrayList<>();
 
     @Override
     public boolean joinGame(final User player) {

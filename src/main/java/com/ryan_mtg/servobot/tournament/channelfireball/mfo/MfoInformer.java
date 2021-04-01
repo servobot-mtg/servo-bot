@@ -49,9 +49,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class MfoInformer implements Informer {
-    private MfoClient mfoClient;
-    private Clock clock;
-    private Map<String, String> decklistNameCache = new HashMap<>();
+    private final MfoClient mfoClient;
+    private final Clock clock;
+    private final Map<String, String> decklistNameCache = new HashMap<>();
 
     public MfoInformer() {
         this(MfoClient.newClient(), Clock.systemUTC());
@@ -391,12 +391,11 @@ public class MfoInformer implements Informer {
                 return deckName;
             }
 
-            String url = decklistUrl;
             HttpClient httpClient = HttpClients.createDefault();
-            HttpGet httpGet = new HttpGet(url);
+            HttpGet httpGet = new HttpGet(decklistUrl);
             HttpResponse response = httpClient.execute(httpGet);
 
-            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
+            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), decklistUrl);
 
             List<String> headers = new ArrayList<>();
             document.select("h1").forEach(header -> headers.add(header.text()));

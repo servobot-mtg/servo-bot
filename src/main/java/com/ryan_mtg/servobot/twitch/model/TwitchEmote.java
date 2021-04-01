@@ -5,10 +5,10 @@ import lombok.Getter;
 
 public class TwitchEmote implements Emote {
     @Getter
-    private String name;
+    private final String name;
 
     @Getter
-    private long id;
+    private final long id;
 
     public TwitchEmote(final String name, final long id) {
         this.name = name;

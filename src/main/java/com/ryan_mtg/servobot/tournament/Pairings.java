@@ -11,19 +11,19 @@ import java.util.Map;
 
 public class Pairings {
     @Getter
-    private PlayerSet playerSet;
+    private final PlayerSet playerSet;
 
     @Getter
-    private int round;
+    private final int round;
 
     @Getter
-    private Instant roundStartTime;
+    private final Instant roundStartTime;
 
     @Getter
-    private String format;
+    private final String format;
 
-    private Map<Player, Player> opponentMap = new HashMap<>();
-    private Map<Player, PlayerStanding.Result> resultMap = new HashMap<>();
+    private final Map<Player, Player> opponentMap = new HashMap<>();
+    private final Map<Player, PlayerStanding.Result> resultMap = new HashMap<>();
     private int playersLeft = 0;
 
     public boolean isDone() {

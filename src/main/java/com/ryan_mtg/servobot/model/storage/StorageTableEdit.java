@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Getter
 public class StorageTableEdit {
-    private Map<StorageValue, Integer> savedStorageValues = new HashMap<>();
+    private final Map<StorageValue, Integer> savedStorageValues = new HashMap<>();
 
     public void save(final int botHomeId, final StorageValue storageValue) {
         savedStorageValues.put(storageValue, botHomeId);

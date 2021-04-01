@@ -8,8 +8,8 @@ import java.time.Duration;
 @AllArgsConstructor
 public class Alert {
     @Getter
-    private Duration delay;
+    private final Duration delay;
 
     @Getter
-    private String token;
+    private final String token;
 }

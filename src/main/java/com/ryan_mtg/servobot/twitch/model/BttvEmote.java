@@ -5,10 +5,10 @@ import lombok.Getter;
 
 public class BttvEmote implements Emote {
     @Getter
-    private String name;
+    private final String name;
 
     @Getter
-    private String id;
+    private final String id;
 
     public BttvEmote(final String name, final String id) {
         this.name = name;

@@ -24,9 +24,9 @@ public class DiscordChannel implements Channel {
     private static final Pattern NAME_PATTERN = Pattern.compile("@[a-z_A-Z][a-z_A-Z0-9-]*");
     private static final Pattern EMOTE_PATTERN =
             Pattern.compile("(\\b[a-z_A-Z][a-z_A-Z0-9]*\\b)|(:[a-z_A-Z][a-z_A-Z0-9]*:)");
-    private MessageChannel channel;
+    private final MessageChannel channel;
 
-    private DiscordServiceHome serviceHome;
+    private final DiscordServiceHome serviceHome;
 
     public DiscordChannel(final DiscordServiceHome serviceHome, final MessageChannel channel) {
         this.channel = channel;

@@ -193,7 +193,7 @@ public class GameQueueUtils {
 
         List<HomedUser> onDeckPlayers = gameQueue.getOnDeckPlayers();
         if (!onDeckPlayers.isEmpty()) {
-            boolean hasNoShows = onDeckPlayers.stream().anyMatch(player -> gameQueue.isNoShow(player));
+            boolean hasNoShows = onDeckPlayers.stream().anyMatch(gameQueue::isNoShow);
             appendPlayerList(text, onDeckPlayers, "Diff", "On Deck", null,
                 (player, t) -> {
                     if (gameQueue.isReady(player)) {

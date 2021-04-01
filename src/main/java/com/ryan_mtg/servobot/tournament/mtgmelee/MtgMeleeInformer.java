@@ -46,9 +46,9 @@ public class MtgMeleeInformer implements Informer {
     private static final String CFB = "Channelfireball";
     private static final String BBP = "The Bash Bros Podcast";
 
-    private MtgMeleeWebParser parser;
-    private MtgMeleeClient client;
-    private Clock clock;
+    private final MtgMeleeWebParser parser;
+    private final MtgMeleeClient client;
+    private final Clock clock;
 
     public MtgMeleeInformer() {
         this(new MtgMeleeWebParser(), MtgMeleeClient.newClient(), Clock.systemUTC());
@@ -63,13 +63,12 @@ public class MtgMeleeInformer implements Informer {
     public List<Tournament> findTournaments(final TournamentManager tournamentManager) {
         return findTournaments(SCG, BBP, WOTC, CFB).stream()
                 .filter(tournamentJson -> tournamentManager.getScgTournament(tournamentJson.getId()) == null)
-                .map(tournamentJson -> createTournament(tournamentJson)).collect(Collectors.toList());
+                .map(this::createTournament).collect(Collectors.toList());
     }
 
     @Override
     public List<Tournament> getTournaments() {
-        return getCurrentTournaments(true).stream().map(meleeTournament -> createTournament(meleeTournament))
-                .collect(Collectors.toList());
+        return getCurrentTournaments(true).stream().map(this::createTournament).collect(Collectors.toList());
     }
 
     @Override
@@ -117,7 +116,7 @@ public class MtgMeleeInformer implements Informer {
             }
             Record record = standings.getRecord(player);
             if (record.isDropped()) {
-                return String.format("%s dropped.");
+                return String.format("%s dropped.", player.getName());
             } else {
                 int round = getCurrentRound(tournament);
                 PairingsJson pairingsJson = client.getPairings(tournament.getPairingsIdMap().get(round), 500);

@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public abstract class DiscordBotHomeEvent extends DiscordEvent implements BotHomeEvent {
-    private BotHome botHome;
+    private final BotHome botHome;
 
     @Getter @Setter
     private HomeEditor homeEditor;

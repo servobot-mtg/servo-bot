@@ -24,7 +24,7 @@ public class RoleTable {
     private Message message;
 
     @Getter
-    private List<Role> roles = new ArrayList<>();
+    private final List<Role> roles = new ArrayList<>();
 
     public RoleTable(final int id, final int contextId, final Message message) {
         this.id = id;

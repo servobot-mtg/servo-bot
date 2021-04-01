@@ -17,10 +17,10 @@ public class StartRaffleCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.START_RAFFLE_COMMAND_TYPE;
 
     @Getter
-    private int giveawayId;
+    private final int giveawayId;
 
     @Getter
-    private String message;
+    private final String message;
 
     public StartRaffleCommand(final int id, final CommandSettings commandSettings, final int giveawayId,
             final String message) throws UserError {

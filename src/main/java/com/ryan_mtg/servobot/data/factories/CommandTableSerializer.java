@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Component
 public class CommandTableSerializer {
-    private static Logger LOGGER = LoggerFactory.getLogger(CommandTableSerializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandTableSerializer.class);
 
     private final AlertGeneratorRepository alertGeneratorRepository;
     private final AlertGeneratorSerializer alertGeneratorSerializer;

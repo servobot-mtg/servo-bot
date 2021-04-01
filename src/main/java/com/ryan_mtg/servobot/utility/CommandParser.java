@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
 public class CommandParser {
     @Getter
     public static class ParseResult {
-        private ParseStatus status;
-        private String command;
-        private String input;
-        private List<String> flags;
+        private final ParseStatus status;
+        private final String command;
+        private final String input;
+        private final List<String> flags;
 
         public ParseResult(final ParseStatus status) {
             this(status, null);
@@ -43,8 +43,8 @@ public class CommandParser {
         COMMAND_MISMATCH
     }
 
-    private Pattern commandPattern;
-    private Pattern flagPattern;
+    private final Pattern commandPattern;
+    private final Pattern flagPattern;
 
     public CommandParser(final Pattern commandPattern) {
         this(commandPattern, null);

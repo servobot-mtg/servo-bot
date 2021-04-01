@@ -69,7 +69,7 @@ import java.util.function.Consumer;
 
 @Component
 public class CommandSerializer {
-    private static Logger LOGGER = LoggerFactory.getLogger(CommandSerializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandSerializer.class);
 
     private final CommandRepository commandRepository;
     private final TriggerRepository triggerRepository;
@@ -247,7 +247,7 @@ public class CommandSerializer {
     }
 
     private class TriggerSerializationVisitor implements TriggerVisitor {
-        private int commandId;
+        private final int commandId;
 
         public TriggerSerializationVisitor(final int commandId) {
             this.commandId = commandId;

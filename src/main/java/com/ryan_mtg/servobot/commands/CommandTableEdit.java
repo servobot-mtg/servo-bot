@@ -15,26 +15,26 @@ import java.util.function.Consumer;
 
 public class CommandTableEdit {
     @Getter
-    private List<Command> deletedCommands = new ArrayList<>();
+    private final List<Command> deletedCommands = new ArrayList<>();
 
     @Getter
-    private Map<Command, Integer> savedCommands = new HashMap<>();
+    private final Map<Command, Integer> savedCommands = new HashMap<>();
 
     @Getter
-    private List<Trigger> deletedTriggers = new ArrayList<>();
+    private final List<Trigger> deletedTriggers = new ArrayList<>();
 
     @Getter
-    private Map<Trigger, Integer> savedTriggers = new IdentityHashMap<>();
-    private Map<Command, List<Trigger>> savedCommandToTriggersMap = new HashMap<>();
-    private Map<Trigger, Command> savedTriggerToCommandMap = new IdentityHashMap<>();
-    private Map<Command, Consumer<Command>> commandSaveCallbackMap = new HashMap<>();
-    private Map<Trigger, BiConsumer<Command, Trigger>> triggerSaveCallbackMap = new IdentityHashMap<>();
+    private final Map<Trigger, Integer> savedTriggers = new IdentityHashMap<>();
+    private final Map<Command, List<Trigger>> savedCommandToTriggersMap = new HashMap<>();
+    private final Map<Trigger, Command> savedTriggerToCommandMap = new IdentityHashMap<>();
+    private final Map<Command, Consumer<Command>> commandSaveCallbackMap = new HashMap<>();
+    private final Map<Trigger, BiConsumer<Command, Trigger>> triggerSaveCallbackMap = new IdentityHashMap<>();
 
     @Getter
-    private Map<AlertGenerator, Integer> savedAlertGenerators = new HashMap<>();
+    private final Map<AlertGenerator, Integer> savedAlertGenerators = new HashMap<>();
 
     @Getter
-    private List<AlertGenerator> deletedAlertGenerators = new ArrayList<>();
+    private final List<AlertGenerator> deletedAlertGenerators = new ArrayList<>();
 
     public void delete(final Command command) {
         deletedCommands.add(command);

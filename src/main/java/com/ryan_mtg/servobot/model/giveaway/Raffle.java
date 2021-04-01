@@ -35,17 +35,17 @@ public class Raffle {
     private Status status;
 
     @Getter
-    private String enterRaffleCommandName;
+    private final String enterRaffleCommandName;
 
-    private EnterRaffleCommand enterRaffleCommand;
-    private RaffleStatusCommand raffleStatusCommand;
-    private SelectWinnerCommand selectWinnerCommand;
-    private List<Command> alertCommands;
+    private final EnterRaffleCommand enterRaffleCommand;
+    private final RaffleStatusCommand raffleStatusCommand;
+    private final SelectWinnerCommand selectWinnerCommand;
+    private final List<Command> alertCommands;
 
     @Getter
-    private List<Prize> prizes;
-    private Instant stopTime;
-    private List<Entrant> entrants = new ArrayList<>();
+    private final List<Prize> prizes;
+    private final Instant stopTime;
+    private final List<Entrant> entrants = new ArrayList<>();
 
     public Raffle(final int id, final String enterRaffleCommandName, final EnterRaffleCommand enterRaffleCommand,
                   final RaffleStatusCommand raffleStatusCommand, SelectWinnerCommand selectWinnerCommand,

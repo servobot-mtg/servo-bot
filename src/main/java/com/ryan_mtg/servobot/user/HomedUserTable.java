@@ -18,10 +18,10 @@ import java.util.function.Predicate;
 public class HomedUserTable {
     private static final Logger LOGGER = LoggerFactory.getLogger(HomedUserTable.class);
 
-    private UserSerializer userSerializer;
-    private UserTable userTable;
-    private int botHomeId;
-    private Map<Integer, WeakReference<HomedUser>> userMap = new HashMap<>();
+    private final UserSerializer userSerializer;
+    private final UserTable userTable;
+    private final int botHomeId;
+    private final Map<Integer, WeakReference<HomedUser>> userMap = new HashMap<>();
 
     public HomedUserTable(final UserSerializer userSerializer, final UserTable userTable, final int botHomeId) {
         this.userSerializer = userSerializer;

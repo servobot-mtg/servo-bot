@@ -33,8 +33,8 @@ public class TwitchServiceHome implements ServiceHome {
     private static TwitchEmotesClient twitchEmotesClient;
     private static BetterTtvClient bttvEmotesClient;
 
-    private TwitchService twitchService;
-    private long channelId;
+    private final TwitchService twitchService;
+    private final long channelId;
 
     @Getter @Setter
     private HomeEditor homeEditor;

@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter @AllArgsConstructor
 public class GameCommand {
-    private String game;
-    private String commandLine;
+    private final String game;
+    private final String commandLine;
 }

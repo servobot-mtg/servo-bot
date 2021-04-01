@@ -18,17 +18,17 @@ public class Reaction {
     private int id;
 
     @Getter
-    private String emoteName;
+    private final String emoteName;
 
     @Getter @Setter
     private boolean secure;
 
     @Getter
-    private ReactionFilter filter;
+    private final ReactionFilter filter;
 
     @Getter
-    private List<Pattern> patterns;
-    private List<ReactionCommand> commands;
+    private final List<Pattern> patterns;
+    private final List<ReactionCommand> commands;
 
     public Reaction(final int id, final String emoteName, final boolean secure, final ReactionFilter filter,
                     final List<Pattern> patterns, final List<ReactionCommand> commands) throws UserError {

@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RateLimiter {
-    private Map<Access, Instant> lastUserAccess = new HashMap<>();
-    private Map<Integer, Instant> lastGlobalAccess = new HashMap<>();
+    private final Map<Access, Instant> lastUserAccess = new HashMap<>();
+    private final Map<Integer, Instant> lastGlobalAccess = new HashMap<>();
 
-    private Clock clock;
+    private final Clock clock;
 
     public RateLimiter() {
         this(Clock.systemUTC());

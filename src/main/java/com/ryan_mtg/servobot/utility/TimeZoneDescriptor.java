@@ -20,8 +20,8 @@ public class TimeZoneDescriptor {
         TIME_ZONES.add(new TimeZoneDescriptor("Asia/Tokyo", "Japan", "JST"));
     }
 
-    private String value;
-    private String name;
-    private String abbreviation;
+    private final String value;
+    private final String name;
+    private final String abbreviation;
 }
 

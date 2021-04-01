@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class ChatDraftTable {
     @Getter
-    private List<ChatDraft> chatDrafts = new ArrayList<>();
+    private final List<ChatDraft> chatDrafts = new ArrayList<>();
 
     public void add(final ChatDraft chatDraft) {
         chatDrafts.add(chatDraft);

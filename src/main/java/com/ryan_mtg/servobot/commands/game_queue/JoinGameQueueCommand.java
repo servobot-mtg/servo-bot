@@ -4,17 +4,14 @@ import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.CommandType;
 import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.InvokedHomedCommand;
-import com.ryan_mtg.servobot.error.BotHomeError;
-import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandInvokedHomeEvent;
-import com.ryan_mtg.servobot.model.User;
 import lombok.Getter;
 
 public class JoinGameQueueCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.JOIN_GAME_QUEUE_COMMAND_TYPE;
 
     @Getter
-    private int gameQueueId;
+    private final int gameQueueId;
 
     public JoinGameQueueCommand(final int id, final CommandSettings commandSettings, final int gameQueueId) {
         super(id, commandSettings);
@@ -22,7 +19,7 @@ public class JoinGameQueueCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+    public void perform(final CommandInvokedHomeEvent event) {
         /** TODO: fix this, maybe delete?
         User user = event.getSender();
         int position = event.getHomeEditor().joinGameQueue(gameQueueId, tuser);

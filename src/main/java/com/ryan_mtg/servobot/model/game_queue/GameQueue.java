@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
 public class GameQueue {
     public static final int UNREGISTERED_ID = 0;
 
-    private static int ON_BETA_FLAG = 1;
-    private static int CLOSED_FLAG = 1 << 1;
+    private static final int ON_BETA_FLAG = 1;
+    private static final int CLOSED_FLAG = 1 << 1;
 
     @Getter @Setter
     private int id;
 
     @Getter
-    private Game game;
+    private final Game game;
 
     @Getter @Setter
     private int flags;
@@ -59,11 +59,11 @@ public class GameQueue {
     @Getter @Setter
     private Message message;
 
-    private List<GameQueueEntry> playing = new ArrayList<>();
-    private List<GameQueueEntry> waitQueue = new ArrayList<>();
-    private List<GameQueueEntry> rsvped = new ArrayList<>();
-    private List<GameQueueEntry> onDeck = new ArrayList<>();
-    private Map<Integer, GameQueueEntry> userMap = new HashMap<>();
+    private final List<GameQueueEntry> playing = new ArrayList<>();
+    private final List<GameQueueEntry> waitQueue = new ArrayList<>();
+    private final List<GameQueueEntry> rsvped = new ArrayList<>();
+    private final List<GameQueueEntry> onDeck = new ArrayList<>();
+    private final Map<Integer, GameQueueEntry> userMap = new HashMap<>();
 
     public enum State {
         IDLE,
@@ -753,6 +753,6 @@ public class GameQueue {
 
     private List<HomedUser> makeList(final List<GameQueueEntry> gameQueueEntries) {
         Collections.sort(gameQueueEntries);
-        return gameQueueEntries.stream().map(entry -> entry.getUser()).collect(Collectors.toList());
+        return gameQueueEntries.stream().map(GameQueueEntry::getUser).collect(Collectors.toList());
     }
 }

@@ -12,13 +12,13 @@ public class Role {
     private int id;
 
     @Getter
-    private String role;
+    private final String role;
 
     @Getter
-    private long roleId;
+    private final long roleId;
 
     @Getter
-    private String emote;
+    private final String emote;
 
     @Getter @Setter
     private boolean appendEmote;

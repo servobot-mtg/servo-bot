@@ -5,10 +5,10 @@ import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.model.User;
 
 public class DiscordSavedMessage implements Message {
-    private DiscordServiceHome serviceHome;
+    private final DiscordServiceHome serviceHome;
+    private final long channelId;
+    private final long messageId;
     private DiscordMessage message;
-    private long channelId;
-    private long messageId;
 
     public DiscordSavedMessage(final DiscordServiceHome serviceHome, final long channelId, final long messageId) {
         this.serviceHome = serviceHome;

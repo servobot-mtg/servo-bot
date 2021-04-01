@@ -6,10 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SusResponseSerializer {
-    private final SusResponseRepository susResponseRepository;
-
     public SusResponseSerializer(final SusResponseRepository susResponseRepository) {
-        this.susResponseRepository = susResponseRepository;
     }
 
     public SusResponder createResponder() {

@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct;
 @SpringBootApplication
 @Import(SecurityConfig.class)
 public class Application {
-    private static Logger LOGGER = LoggerFactory.getLogger(Application.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     private final Environment environment;
     private final BotRegistrar botRegistrar;

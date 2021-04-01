@@ -42,9 +42,8 @@ public class StorageTableSerializer {
     @Transactional
     public void commit(final StorageTableEdit storageTableEdit) {
         List<StorageValueRow> storageValueRows = new ArrayList<>();
-        storageTableEdit.getSavedStorageValues().forEach((storageValue, botHomeId) -> {
-            storageValueRows.add(storageValueSerializer.createStorageValueRow(botHomeId, storageValue));
-        });
+        storageTableEdit.getSavedStorageValues().forEach((storageValue, botHomeId) ->
+            storageValueRows.add(storageValueSerializer.createStorageValueRow(botHomeId, storageValue)));
         storageValueRepository.saveAll(storageValueRows);
     }
 }

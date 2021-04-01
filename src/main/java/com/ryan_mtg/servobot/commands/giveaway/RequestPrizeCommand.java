@@ -19,7 +19,7 @@ public class RequestPrizeCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.REQUEST_PRIZE_COMMAND_TYPE;
 
     @Getter
-    private int giveawayId;
+    private final int giveawayId;
 
     public RequestPrizeCommand(final int id, final CommandSettings commandSettings, final int giveawayId) {
         super(id, commandSettings);

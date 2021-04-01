@@ -22,10 +22,10 @@ public class Book implements Evaluatable, Function<Integer, String> {
     private int id;
 
     @Getter
-    private String name;
+    private final String name;
 
     @Getter
-    private List<Statement> statements;
+    private final List<Statement> statements;
 
     public Book(final int id, final String name) throws UserError {
         this(id, name, new ArrayList<>());

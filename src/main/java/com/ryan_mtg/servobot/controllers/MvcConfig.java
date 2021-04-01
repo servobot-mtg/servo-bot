@@ -65,7 +65,7 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     @Component
-    public class ServerPortCustomizer implements WebServerFactoryCustomizer<ConfigurableWebServerFactory> {
+    public static class ServerPortCustomizer implements WebServerFactoryCustomizer<ConfigurableWebServerFactory> {
         @Override
         public void customize(final ConfigurableWebServerFactory factory) {
             //TODO: remove when deployed with HTTPS

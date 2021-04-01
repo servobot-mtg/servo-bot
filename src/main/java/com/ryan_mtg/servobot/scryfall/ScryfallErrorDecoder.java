@@ -7,7 +7,7 @@ import feign.codec.ErrorDecoder;
 import java.io.IOException;
 
 public class ScryfallErrorDecoder implements ErrorDecoder {
-    private Decoder decoder;
+    private final Decoder decoder;
 
     public ScryfallErrorDecoder(final Decoder decoder) {
         this.decoder = decoder;

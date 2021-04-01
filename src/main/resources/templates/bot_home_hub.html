@@ -1,17 +1,17 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${botHome.name}"/>
-    <div th:replace="fragments :: includes" />
+    <title th:text="${botHome.name}"></title>
+    <div th:replace="fragments :: includes"></div>
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)}"
             type="text/javascript" src="/script/privileged.js"></script>
 </head>
 <body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + botHome.id)},
       streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
       exalted=${user.admin || streamer}">
-    <div th:include="fragments :: header" />
+    <div th:include="fragments :: header"></div>
     <div class="content">
-        <h1 th:text="'Moderation Hub for ' + ${botHome.name}"/>
+        <h1 th:text="'Moderation Hub for ' + ${botHome.name}"></h1>
 
         <div th:if="${privileged}">
             <h2>Links</h2>
@@ -24,18 +24,18 @@
             </ul>
         </div>
 
-        <div th:include="bot_home_fragments :: services"/>
+        <div th:include="bot_home_fragments :: services"></div>
 
-        <div th:include="bot_home_fragments :: books (container=${botHome})"/>
+        <div th:include="bot_home_fragments :: books (container=${botHome})"></div>
 
-        <div th:include="bot_home_fragments :: reactions"/>
+        <div th:include="bot_home_fragments :: reactions"></div>
 
-        <div th:include="bot_home_fragments :: roles"/>
+        <div th:include="bot_home_fragments :: roles"></div>
 
-        <div th:include="bot_home_fragments :: alerts"/>
+        <div th:include="bot_home_fragments :: alerts"></div>
 
-        <div th:include="bot_home_fragments :: storage_values"/>
+        <div th:include="bot_home_fragments :: storage_values"></div>
     </div>
-    <div th:include="fragments :: footer" />
+    <div th:include="fragments :: footer"></div>
 </body>
 </html>

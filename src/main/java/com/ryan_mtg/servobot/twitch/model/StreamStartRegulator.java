@@ -16,14 +16,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class StreamStartRegulator implements Runnable {
-    private static Logger LOGGER = LoggerFactory.getLogger(StreamStartRegulator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamStartRegulator.class);
 
-    private TwitchService twitchService;
+    private final TwitchService twitchService;
     private TwitchClient client;
     private EventListener eventListener;
-    private Map<Long, BotHome> homeMap;
-    private Map<Long, Boolean> isStreamingMap = new HashMap<>();
-    private Map<Long, Instant> previousStartMap = new HashMap<>();
+    private final Map<Long, BotHome> homeMap;
+    private final Map<Long, Boolean> isStreamingMap = new HashMap<>();
+    private final Map<Long, Instant> previousStartMap = new HashMap<>();
 
     public StreamStartRegulator(final TwitchService twitchService, final Map<Long, BotHome> homeMap) {
         this.twitchService = twitchService;

@@ -19,7 +19,7 @@ public class Tournament {
     private static final int LEADERS = 16;
 
     @Getter
-    private String name;
+    private final String name;
 
     @Getter @Setter
     private String nickName;
@@ -46,7 +46,7 @@ public class Tournament {
     private Standings standings;
 
     @Getter
-    private Map<Integer, Pairings> pairingsMap = new HashMap<>();
+    private final Map<Integer, Pairings> pairingsMap = new HashMap<>();
 
     @Getter @Setter
     private Instant startTime;
@@ -57,13 +57,13 @@ public class Tournament {
     @Getter @Setter
     private List<String> formats;
 
-    private Informer informer;
+    private final Informer informer;
 
     @Getter @Setter
     private DecklistMap decklistMap;
 
     @Getter
-    private int id;
+    private final int id;
 
     public Tournament(final Informer informer, final String name, final int id) {
         this.informer = informer;

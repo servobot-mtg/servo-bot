@@ -5,7 +5,6 @@ import com.ryan_mtg.servobot.data.models.StatementRow;
 import com.ryan_mtg.servobot.data.repositories.BookRepository;
 import com.ryan_mtg.servobot.data.repositories.StatementRepository;
 import com.ryan_mtg.servobot.error.SystemError;
-import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.books.Book;
 import com.ryan_mtg.servobot.model.books.BookTable;
 import com.ryan_mtg.servobot.model.books.BookTableEdit;

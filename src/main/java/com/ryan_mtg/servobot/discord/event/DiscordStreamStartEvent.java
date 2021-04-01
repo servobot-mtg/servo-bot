@@ -6,11 +6,8 @@ import com.ryan_mtg.servobot.model.BotHome;
 import net.dv8tion.jda.api.events.user.update.GenericUserPresenceEvent;
 
 public class DiscordStreamStartEvent extends DiscordBotHomeEvent implements StreamStartEvent  {
-    private GenericUserPresenceEvent event;
-
     public DiscordStreamStartEvent(final GenericUserPresenceEvent event, final BotHome botHome) {
         super(botHome);
-        this.event = event;
     }
 
     @Override

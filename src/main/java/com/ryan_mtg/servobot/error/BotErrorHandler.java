@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BotErrorHandler {
-    private static Logger LOGGER = LoggerFactory.getLogger(BotErrorHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BotErrorHandler.class);
 
     public interface ThrowingFunction {
         void apply() throws Exception;
-    };
+    }
 
     public static void handleError(final ThrowingFunction throwingFunction) {
         try {

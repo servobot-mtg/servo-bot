@@ -5,8 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DiscordEmote implements Emote {
-    private static Logger LOGGER = LoggerFactory.getLogger(DiscordEmote.class);
-    private net.dv8tion.jda.api.entities.Emote emote;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscordEmote.class);
+    private final net.dv8tion.jda.api.entities.Emote emote;
 
     public DiscordEmote(final net.dv8tion.jda.api.entities.Emote emote) {
         this.emote = emote;

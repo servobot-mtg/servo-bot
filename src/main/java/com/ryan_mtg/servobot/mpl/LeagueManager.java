@@ -16,17 +16,17 @@ import java.util.Scanner;
 @Component
 public class LeagueManager {
     @Getter
-    private PlayerSet mpl;
+    private final PlayerSet mpl;
 
     @Getter
-    private PlayerSet rivals;
+    private final PlayerSet rivals;
 
-    private Map<Integer, Round> mplRounds;
+    private final Map<Integer, Round> mplRounds;
 
-    private Map<Integer, Round> rivalsRounds;
+    private final Map<Integer, Round> rivalsRounds;
 
     @Getter
-    private List<Schedule> schedules;
+    private final List<Schedule> schedules;
 
     public LeagueManager() {
         mpl = loadPlayers("mpl");

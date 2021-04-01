@@ -7,10 +7,10 @@ import lombok.Getter;
 
 public class BotHomeAlertEvent extends AbstractHomedEvent implements AlertEvent {
     @Getter
-    private String alertToken;
+    private final String alertToken;
 
     @Getter
-    private ServiceHome serviceHome;
+    private final ServiceHome serviceHome;
 
     public BotHomeAlertEvent(final BotHome botHome, final String alertToken, final ServiceHome serviceHome) {
         super(botHome);

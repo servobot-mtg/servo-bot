@@ -8,8 +8,7 @@ import java.util.Random;
 public class SusResponder {
     private final Random RANDOM = new Random();
 
-    private SusResponse defaultResponse;
-    private Map<String, SusResponse> responseMap = new HashMap<>();
+    private final Map<String, SusResponse> responseMap = new HashMap<>();
 
     public void add(final List<String> aliases, final SusResponse response) {
         aliases.forEach(alias -> responseMap.put(alias.toLowerCase(), response));
@@ -52,11 +51,6 @@ public class SusResponder {
         add("<name> is still alive? Seems awfully sus to me.", "ondrej", "ondrejStrasky", "honey");
         add("<name> is a good crewmate... Oh no! I can't do it. <name> is sus. <name> is the imposter!",
                 "riley", "rileyquarytower");
-
-        defaultResponse = SusResponse.create(3,"<name> is extremely sus.",
-                "Even a bot can tell that <name> is being sus.", "I've got a very sus feeling about <name>.",
-                "Error, error! <name> is sus. Does not compute!", "Never trust, always sus of <name>.",
-                "<name> is sus. I'm not saying they're an imposter, but they might just be the 3rd imposter.");
     }
 
     public String respond(final String name, final String sender) {

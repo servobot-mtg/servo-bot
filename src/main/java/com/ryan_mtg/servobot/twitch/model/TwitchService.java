@@ -43,14 +43,13 @@ public class TwitchService implements Service {
     private final String oauthToken;
     private final String authToken;
     private TwitchEventGenerator generator;
-    private StreamStartRegulator regulator;
-    private Map<Long, BotHome> homeMap = new HashMap<>();
-    private Map<Long, String> channelNameMap = new HashMap<>();
-    private Map<Long, String> channelImageMap = new HashMap<>();
+    private final StreamStartRegulator regulator;
+    private final Map<Long, BotHome> homeMap = new HashMap<>();
+    private final Map<Long, String> channelNameMap = new HashMap<>();
+    private final Map<Long, String> channelImageMap = new HashMap<>();
     private TwitchClient client;
-    private UserTable userTable;
-    private ScheduledExecutorService executorService;
-    private LoggedMessageSerializer loggedMessageSerializer;
+    private final ScheduledExecutorService executorService;
+    private final LoggedMessageSerializer loggedMessageSerializer;
 
     public TwitchService(final String clientId, final String secret, final String oauthToken, final UserTable userTable,
             final ScheduledExecutorService executorService, final LoggedMessageSerializer loggedMessageSerializer)
@@ -59,7 +58,6 @@ public class TwitchService implements Service {
         this.secret = secret;
         this.oauthToken = oauthToken;
         this.authToken = oauthToken.substring(oauthToken.indexOf(':') + 1);
-        this.userTable = userTable;
         this.executorService = executorService;
         this.regulator = new StreamStartRegulator(this, homeMap);
         this.loggedMessageSerializer = loggedMessageSerializer;

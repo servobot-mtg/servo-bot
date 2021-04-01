@@ -11,7 +11,7 @@ public class DraftEntrant {
     @Setter
     private int id;
 
-    private HomedUser user;
+    private final HomedUser user;
 
     public DraftEntrant(final int id, final HomedUser user) {
         this.id = id;

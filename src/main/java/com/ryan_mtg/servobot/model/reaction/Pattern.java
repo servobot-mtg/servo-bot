@@ -12,9 +12,9 @@ public class Pattern {
     private int id;
 
     @Getter
-    private String patternString;
+    private final String patternString;
 
-    private java.util.regex.Pattern pattern;
+    private final java.util.regex.Pattern pattern;
 
     public Pattern(final int id, final String patternString) throws UserError {
         this.id = id;

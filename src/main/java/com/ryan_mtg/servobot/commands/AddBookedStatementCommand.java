@@ -14,10 +14,10 @@ import lombok.Getter;
 
 public class AddBookedStatementCommand extends InvokedCommand {
     @Getter
-    private Book book;
+    private final Book book;
 
     @Getter
-    private String response;
+    private final String response;
 
     public AddBookedStatementCommand(final int id, final CommandSettings commandSettings, final Book book,
             final String response) throws UserError {

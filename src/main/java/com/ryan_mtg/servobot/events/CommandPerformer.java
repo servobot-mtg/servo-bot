@@ -22,11 +22,11 @@ import java.util.regex.Pattern;
 import static com.ryan_mtg.servobot.user.User.UNREGISTERED_ID;
 
 public class CommandPerformer {
-    private static Logger LOGGER = LoggerFactory.getLogger(CommandPerformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandPerformer.class);
     private static final Pattern COMMAND_PATTERN = Pattern.compile("!\\w+");
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
 
-    private RateLimiter rateLimiter;
+    private final RateLimiter rateLimiter;
 
     public CommandPerformer(final RateLimiter rateLimiter) {
         this.rateLimiter = rateLimiter;
@@ -55,15 +55,11 @@ public class CommandPerformer {
     }
 
     public void perform(final CommandInvokedHomeEvent event, final Command command) {
-        wrapForInvokedErrorHandling(event, command, () -> {
-            dynamicPerform(event, command);
-        });
+        wrapForInvokedErrorHandling(event, command, () -> dynamicPerform(event, command));
     }
 
     public void perform(final CommandInvokedEvent event, final Command command) {
-        wrapForInvokedErrorHandling(event, command, () -> {
-            dynamicPerform(event, command);
-        });
+        wrapForInvokedErrorHandling(event, command, () -> dynamicPerform(event, command));
     }
 
     public void perform(final MessageHomeEvent messageHomeEvent, final Command command) {

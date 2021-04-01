@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MultiDelegatingListener implements EventListener {
-    private List<EventListener> listeners = new ArrayList<>();
+    private final List<EventListener> listeners = new ArrayList<>();
     private boolean active = false;
 
     public MultiDelegatingListener(final EventListener... listeners) {

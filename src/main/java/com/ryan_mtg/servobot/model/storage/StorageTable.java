@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class StorageTable implements Iterable<StorageValue>, SymbolTable {
-    private Map<StorageKey, StorageValue> storageMap = new HashMap<>();
+    private final Map<StorageKey, StorageValue> storageMap = new HashMap<>();
 
     public boolean isEmpty() {
         return storageMap.isEmpty();
@@ -67,7 +67,7 @@ public class StorageTable implements Iterable<StorageValue>, SymbolTable {
         Set<StorageKey> keysToRemove = new HashSet<>();
         storageMap.keySet().stream()
                 .filter(key -> key.getName().equalsIgnoreCase(name)).forEach(keysToRemove::add);
-        keysToRemove.forEach(key -> storageMap.remove(key));
+        keysToRemove.forEach(storageMap::remove);
     }
 
     public StorageTableEdit mergeUser(final int botHomeId, final int newUserId, final List<StorageKey> keys) {

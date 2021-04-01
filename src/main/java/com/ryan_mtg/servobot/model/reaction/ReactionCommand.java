@@ -6,13 +6,10 @@ import lombok.Getter;
 public class ReactionCommand {
     public static final int UNREGISTERED_ID = 0;
 
-    private int id;
-
     @Getter
-    private Command command;
+    private final Command command;
 
     public ReactionCommand(final int id, final Command command) {
-        this.id = id;
         this.command = command;
     }
 }

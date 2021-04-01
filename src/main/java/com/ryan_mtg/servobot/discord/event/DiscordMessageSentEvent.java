@@ -10,8 +10,8 @@ import com.ryan_mtg.servobot.model.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class DiscordMessageSentEvent extends DiscordBotHomeEvent implements MessageHomeEvent {
-    private GuildMessageReceivedEvent event;
-    private User sender;
+    private final GuildMessageReceivedEvent event;
+    private final User sender;
 
     public DiscordMessageSentEvent(final GuildMessageReceivedEvent event, final BotHome botHome, final User sender) {
         super(botHome);

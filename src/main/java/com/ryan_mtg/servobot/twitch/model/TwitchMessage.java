@@ -7,7 +7,7 @@ import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.event.TwitchMessageSentEvent;
 
 public class TwitchMessage implements Message {
-    private TwitchMessageSentEvent messageSentEvent;
+    private final TwitchMessageSentEvent messageSentEvent;
 
     public TwitchMessage(final TwitchMessageSentEvent messageSentEvent) {
         this.messageSentEvent = messageSentEvent;

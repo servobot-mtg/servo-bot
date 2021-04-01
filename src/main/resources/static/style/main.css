@@ -54,7 +54,7 @@ input[type=number] {
 }
 
 .command-line {
-    font-family: "Courier New";
+    font-family: monospace;
     font-weight: bold;
     background-color: whitesmoke;
 }
@@ -127,7 +127,6 @@ input[type=number] {
 
 .delete-button {
     float: left;
-    font-weight: 300;
     font-family: Arial, sans-serif;
 
     text-align: center;
@@ -383,14 +382,14 @@ table {
 }
 
 table#player-table {
-    border: 0px solid black;
+    border: 0 solid black;
 }
 
 #player-table td {
     padding-left: 10px;
     padding-right: 15px;
     border-collapse: collapse;
-    border: 0px solid black;
+    border: 0 solid black;
 }
 
 .bounty {

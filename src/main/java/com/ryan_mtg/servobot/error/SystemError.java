@@ -9,7 +9,7 @@ public class SystemError extends RuntimeException {
         super(String.format(format, args));
     }
 
-    public static void filter(final ThrowingRunnable function) throws UserError {
+    public static void filter(final ThrowingRunnable function) {
         try {
             function.run();
         } catch (Exception e) {

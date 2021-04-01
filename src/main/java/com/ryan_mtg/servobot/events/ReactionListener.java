@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReactionListener implements EventListener {
-    private static Logger LOGGER = LoggerFactory.getLogger(ReactionListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReactionListener.class);
     private final ReactionTable reactionTable;
     private final RoleTable roleTable;
     private final CommandPerformer commandPerformer;
@@ -65,9 +65,7 @@ public class ReactionListener implements EventListener {
         BotErrorHandler.handleError(() -> {
             GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
             if (gameQueue != null) {
-                BotErrorHandler.handleError(() -> {
-                    GameQueueUtils.addEmote(emoteHomeEvent, gameQueue, reactor);
-                });
+                BotErrorHandler.handleError(() -> GameQueueUtils.addEmote(emoteHomeEvent, gameQueue, reactor));
             }
 
             roleTable.onEmoteAdded(emoteHomeEvent);
@@ -84,9 +82,7 @@ public class ReactionListener implements EventListener {
         BotErrorHandler.handleError(() -> {
             GameQueue gameQueue = gameQueueTable.matchesQueue(emoteHomeEvent.getMessage());
             if (gameQueue != null) {
-                BotErrorHandler.handleError(() -> {
-                    GameQueueUtils.removeEmote(emoteHomeEvent, gameQueue, reactor);
-                });
+                BotErrorHandler.handleError(() -> GameQueueUtils.removeEmote(emoteHomeEvent, gameQueue, reactor));
             }
 
             roleTable.onEmoteRemoved(emoteHomeEvent);

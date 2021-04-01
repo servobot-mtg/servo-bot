@@ -8,8 +8,8 @@ import java.time.ZonedDateTime;
 
 @Getter
 public class WeeklyTime {
-    private DayOfWeek dayOfWeek;
-    private LocalTime localTime;
+    private final DayOfWeek dayOfWeek;
+    private final LocalTime localTime;
 
     public WeeklyTime(final DayOfWeek dayOfWeek, final LocalTime localTime) {
         this.dayOfWeek = dayOfWeek;

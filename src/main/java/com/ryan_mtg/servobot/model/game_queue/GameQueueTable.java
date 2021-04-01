@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameQueueTable {
-    private List<GameQueue> gameQueues = new ArrayList<>();
+    private final List<GameQueue> gameQueues = new ArrayList<>();
 
     public void add(final GameQueue gameQueue) {
         gameQueues.add(gameQueue);

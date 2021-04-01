@@ -39,7 +39,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
     private static final CommandParser COMMAND_PARSER = new CommandParser(COMMAND_PATTERN);
 
     @Getter
-    private int gameQueueId;
+    private final int gameQueueId;
 
     public GameQueueCommand(final int id, final CommandSettings commandSettings, final int gameQueueId) {
         super(id, commandSettings);
@@ -222,7 +222,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         }
     }
 
-    private void showQueue(final CommandInvokedHomeEvent event) throws UserError {
+    private void showQueue(final CommandInvokedHomeEvent event) {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
 

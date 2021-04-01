@@ -126,7 +126,7 @@ public class CommandDescriptor {
         }
     }
 
-    private class DescriptorVisitor implements CommandVisitor {
+    private static class DescriptorVisitor implements CommandVisitor {
         private String description;
         private String edit;
 
@@ -140,7 +140,7 @@ public class CommandDescriptor {
 
         @Override
         public void visitAddBookedStatementCommand(final AddBookedStatementCommand addBookedStatementCommand) {
-            description = String.format("Used to add new statements to the %s book and responsed with '%s'",
+            description = String.format("Used to add new statements to the %s book and responds with '%s'",
                     addBookedStatementCommand.getBook().getName(), addBookedStatementCommand.getResponse());
         }
 

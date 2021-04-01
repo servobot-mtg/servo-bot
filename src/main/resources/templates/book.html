@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Book</title>
-    <div th:replace="fragments :: includes" />
+    <div th:replace="fragments :: includes"></div>
     <script th:if="${user.admin || user.roles.contains('ROLE_MOD:' + contextId)}"
             type="text/javascript" src="/script/privileged.js"></script>
 </head>
 <body th:with="privileged=${user.admin || user.roles.contains('ROLE_MOD:' + contextId)}">
-    <div th:include="fragments :: header" />
+    <div th:include="fragments :: header"></div>
     <div class="content">
-        <h1 th:text="${book.name}"/>
+        <h1 th:text="${book.name}"></h1>
         <table th:id="'book-' + ${book.id} + '-table'" class="data-table">
             <thead><tr>
                 <th>Text</th>
@@ -19,7 +19,7 @@
                 <tr th:id="${label} + '-row'">
                     <td th:if="${privileged}">
                         <div th:id="${label} + '-display'">
-                            <span th:text="${statement.text}" th:id="${label} + '-value'"/>
+                            <span th:text="${statement.text}" th:id="${label} + '-value'"></span>
                             <span class="pseudo-link" th:onclick="'editStatement(' + ${statement.id} + ')'">
                                 &#x270F;&#xFE0F;
                             </span>
@@ -33,7 +33,7 @@
                             </span>
                         </div>
                     </td>
-                    <td th:if="${!privileged}" th:text="${statement.text}"/>
+                    <td th:if="${!privileged}" th:text="${statement.text}"></td>
                     <td th:if="${privileged}" class="pseudo-link" th:onclick=
                             "'deleteStatement(' + ${contextId} + ', ' + ${book.id} + ', '+ ${statement.id} + ')'">
                         &#x1F5D1;&#xFE0F;
@@ -54,6 +54,6 @@
             </form>
         </div>
     </div>
-    <div th:include="fragments :: footer" />
+    <div th:include="fragments :: footer"></div>
 </body>
 </html>

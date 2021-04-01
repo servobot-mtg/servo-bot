@@ -1,6 +1,5 @@
 package com.ryan_mtg.servobot.discord.model;
 
-import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.user.User;
@@ -43,7 +42,7 @@ public class DiscordPrivateChannel implements Channel {
     }
 
     @Override
-    public Message sayAndWait(final String text) throws UserError {
+    public Message sayAndWait(final String text) {
         discordService.logSendMessage(user, text);
         return new DiscordMessage(discordService.getBotUser(), channel.sendMessage(text).complete());
     }

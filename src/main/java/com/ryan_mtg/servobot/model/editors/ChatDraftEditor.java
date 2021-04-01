@@ -147,7 +147,7 @@ public class ChatDraftEditor {
         return chatDraft;
     }
 
-    public ChatDraft closeChatDraft(final int chatDraftId) throws UserError {
+    public ChatDraft closeChatDraft(final int chatDraftId) {
         ChatDraft chatDraft = getChatDraft(chatDraftId);
 
         CommandTableEdit commandTableEdit = new CommandTableEdit();

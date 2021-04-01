@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.mpl;
 
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
 
 @Data
 public class Match implements Comparable<Match> {

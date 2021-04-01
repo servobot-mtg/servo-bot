@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BotWebSecurityExpressionHandler extends DefaultWebSecurityExpressionHandler {
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     private final BotRegistrar botRegistrar;
     private final WebsiteUserFactory websiteUserFactory;
@@ -37,8 +37,8 @@ public class BotWebSecurityExpressionHandler extends DefaultWebSecurityExpressio
     }
 
     private static class BotWebSecurityExpressionRoot extends WebSecurityExpressionRoot {
-        private BotRegistrar botRegistrar;
-        private WebsiteUser websiteUser;
+        private final BotRegistrar botRegistrar;
+        private final WebsiteUser websiteUser;
 
         public BotWebSecurityExpressionRoot(final Authentication authentication, final WebsiteUser websiteUser,
                 final FilterInvocation filterInvocation, final BotRegistrar botRegistrar) {

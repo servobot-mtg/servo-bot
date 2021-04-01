@@ -18,7 +18,7 @@ import java.util.List;
 public class ScryfallSearchCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.SCRYFALL_SEARCH_COMMAND_TYPE;
 
-    private ScryfallQuerier scryfallQuerier;
+    private final ScryfallQuerier scryfallQuerier;
 
     public ScryfallSearchCommand(final int id, final CommandSettings commandSettings,
                                  final ScryfallQuerier scryfallQuerier) {

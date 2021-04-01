@@ -11,12 +11,12 @@ import java.util.Map;
 
 @Getter
 public class BookTableEdit {
-    private List<Book> savedBooks = new ArrayList<>();
-    private Map<Statement, Integer> savedStatements = new IdentityHashMap<>();
-    private List<Statement> deletedStatements = new ArrayList<>();
+    private final List<Book> savedBooks = new ArrayList<>();
+    private final Map<Statement, Integer> savedStatements = new IdentityHashMap<>();
+    private final List<Statement> deletedStatements = new ArrayList<>();
 
     @Getter(AccessLevel.NONE)
-    private Map<Book, Statement> savedBookToStatementMap = new HashMap<>();
+    private final Map<Book, Statement> savedBookToStatementMap = new HashMap<>();
 
     public void save(final Book book) {
         savedBooks.add(book);

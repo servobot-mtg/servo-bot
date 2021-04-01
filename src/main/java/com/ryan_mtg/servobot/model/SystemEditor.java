@@ -186,7 +186,7 @@ public class SystemEditor {
     }
 
     @Data @AllArgsConstructor
-    private class UserMerge {
+    private static class UserMerge {
         private User mergedUser;
         private List<Integer> usersToDelete;
     }

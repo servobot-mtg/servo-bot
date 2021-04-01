@@ -11,7 +11,7 @@ public class ContinualGenerator extends AlertGenerator {
     public static final int TYPE = 1;
 
     @Getter
-    private Duration duration;
+    private final Duration duration;
 
     private Instant goal;
 

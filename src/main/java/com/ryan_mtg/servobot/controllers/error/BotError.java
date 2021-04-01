@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class BotError {
     @Getter
-    private String message;
+    private final String message;
 }

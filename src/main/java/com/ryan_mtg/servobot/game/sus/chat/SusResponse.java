@@ -10,7 +10,7 @@ public class SusResponse {
     @Getter
     private int id;
 
-    private List<WeightedResponse> responses = new ArrayList<>();
+    private final List<WeightedResponse> responses = new ArrayList<>();
 
     public static SusResponse create(final String... responses) {
         SusResponse susResponse = new SusResponse();

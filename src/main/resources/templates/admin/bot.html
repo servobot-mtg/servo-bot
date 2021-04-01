@@ -1,19 +1,19 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${bot.name}"/>
-    <div th:replace="fragments :: includes"/>
+    <title th:text="${bot.name}"></title>
+    <div th:replace="fragments :: includes"></div>
     <script th:if="${user.admin}" type="text/javascript" src="/script/privileged.js"></script>
 </head>
 <body th:with="privileged=${user.admin}">
-<div th:include="fragments :: header" />
-<div class="content">
-    <h1 th:text="${bot.name}" />
+    <div th:include="fragments :: header"></div>
+    <div class="content">
+        <h1 th:text="${bot.name}"></h1>
 
-    <div th:include="bot_home_fragments :: commands (container=${bot}, contextId=${bot.contextId})"/>
+        <div th:include="bot_home_fragments :: commands (container=${bot}, contextId=${bot.contextId})"></div>
 
-    <div th:include="bot_home_fragments :: books (container=${bot})"/>
-</div>
-<div th:include="fragments :: footer" />
+        <div th:include="bot_home_fragments :: books (container=${bot})"></div>
+    </div>
+    <div th:include="fragments :: footer"></div>
 </body>
 </html>

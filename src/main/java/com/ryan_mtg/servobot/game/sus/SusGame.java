@@ -22,7 +22,6 @@ public class SusGame implements Game {
 
     private final GameManager gameManager;
     private final Responder responder;
-    private int id;
     private final SusGameState gameState;
 
     public SusGame(final SusGameManager gameManager, final Responder responder) {
@@ -35,7 +34,6 @@ public class SusGame implements Game {
             final SusGameState gameState) {
         this.gameManager = gameManager;
         this.responder = responder;
-        this.id = id;
         this.gameState = gameState;
     }
 
@@ -117,7 +115,6 @@ public class SusGame implements Game {
                 return;
             default:
                 respond(player, "%s isn't a known command for %s. %s", gameName, command, commandNudge);
-                return;
         }
     }
 

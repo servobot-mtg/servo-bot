@@ -28,7 +28,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @ComponentScan
 @EnableJpaRepositories
 public class DatabaseConfig {
-    private static Logger LOGGER = LoggerFactory.getLogger(DatabaseConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConfig.class);
 
     @Value("${database.username}")
     private String username;

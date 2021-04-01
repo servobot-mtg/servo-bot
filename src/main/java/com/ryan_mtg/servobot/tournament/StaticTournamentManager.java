@@ -8,8 +8,8 @@ import java.util.List;
 
 @Component
 public class StaticTournamentManager implements TournamentManager {
-    private MfoInformer mfoInformer;
-    private MtgMeleeInformer meleeInformer;
+    private final MfoInformer mfoInformer;
+    private final MtgMeleeInformer meleeInformer;
 
     public StaticTournamentManager(final MfoInformer mfoInformer, final MtgMeleeInformer meleeInformer) {
         this.mfoInformer = mfoInformer;

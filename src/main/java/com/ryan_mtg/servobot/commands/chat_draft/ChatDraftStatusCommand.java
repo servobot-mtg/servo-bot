@@ -36,7 +36,7 @@ public class ChatDraftStatusCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
+    public void perform(final CommandInvokedHomeEvent event) throws BotHomeError {
         ChatDraftEditor chatDraftEditor = event.getChatDraftEditor();
 
         ChatDraft chatDraft = chatDraftEditor.getChatDraft(chatDraftId);

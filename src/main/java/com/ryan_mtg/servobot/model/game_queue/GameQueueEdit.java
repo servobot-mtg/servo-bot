@@ -8,10 +8,10 @@ import java.util.function.Consumer;
 
 @Getter
 public class GameQueueEdit {
-    private Map<GameQueue, Integer> savedGameQueues = new HashMap<>();
-    private Map<GameQueueEntry, Integer> savedGameQueueEntries = new HashMap<>();
-    private Map<GameQueueEntry, Integer> deletedGameQueueEntries = new HashMap<>();
-    private Map<GameQueue, Consumer<GameQueue>> gameQueueCallbackMap = new HashMap<>();
+    private final Map<GameQueue, Integer> savedGameQueues = new HashMap<>();
+    private final Map<GameQueueEntry, Integer> savedGameQueueEntries = new HashMap<>();
+    private final Map<GameQueueEntry, Integer> deletedGameQueueEntries = new HashMap<>();
+    private final Map<GameQueue, Consumer<GameQueue>> gameQueueCallbackMap = new HashMap<>();
 
     public void save(final int botHomeId, final GameQueue gameQueue) {
         savedGameQueues.put(gameQueue, botHomeId);

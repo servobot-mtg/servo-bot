@@ -7,10 +7,10 @@ import net.dv8tion.jda.api.entities.Member;
 
 public class DiscordHomedUser implements User {
     @Getter
-    private HomedUser homedUser;
+    private final HomedUser homedUser;
 
     @Getter
-    private Member member;
+    private final Member member;
 
     public DiscordHomedUser(final HomedUser homedUser, final Member member) {
         this.homedUser = homedUser;

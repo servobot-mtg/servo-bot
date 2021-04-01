@@ -14,11 +14,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class DailyGenerator extends AlertGenerator {
-    static Logger LOGGER = LoggerFactory.getLogger(DailyGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DailyGenerator.class);
     public static final int TYPE = 2;
 
     @Getter
-    private LocalTime time;
+    private final LocalTime time;
     private String timeZone;
     private ZonedDateTime goal;
 

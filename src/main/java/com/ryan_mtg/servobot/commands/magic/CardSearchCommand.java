@@ -18,9 +18,9 @@ import java.util.List;
 public class CardSearchCommand extends InvokedCommand {
     public static final CommandType TYPE = CommandType.CARD_SEARCH_COMMAND_TYPE;
 
-    private ScryfallQuerier scryfallQuerier;
+    private final ScryfallQuerier scryfallQuerier;
 
-    private boolean usesEasterEggs;
+    private final boolean usesEasterEggs;
 
     public CardSearchCommand(final int id, final CommandSettings commandSettings, final boolean usesEasterEggs,
             final ScryfallQuerier scryfallQuerier) {

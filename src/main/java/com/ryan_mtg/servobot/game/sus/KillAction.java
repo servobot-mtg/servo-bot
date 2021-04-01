@@ -6,8 +6,8 @@ import lombok.Getter;
 
 @Getter @AllArgsConstructor
 public class KillAction implements SusAction {
-    private User killer;
-    private User victim;
+    private final User killer;
+    private final User victim;
 
     @Override
     public User getActor() {

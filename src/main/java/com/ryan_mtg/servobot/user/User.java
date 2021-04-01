@@ -14,16 +14,16 @@ public class User {
     private static final int EDITOR_FLAG = 1<<2;
 
     @Getter
-    private int id;
+    private final int id;
 
     @Getter
     private int flags;
 
     @Getter
-    private int twitchId;
+    private final int twitchId;
 
     @Getter
-    private long discordId;
+    private final long discordId;
 
     @Getter @Setter
     private String twitchUsername;

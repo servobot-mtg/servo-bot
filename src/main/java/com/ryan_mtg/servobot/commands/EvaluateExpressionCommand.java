@@ -21,8 +21,8 @@ public class EvaluateExpressionCommand extends InvokedCommand {
     public static final Pattern gabyEasterEggPattern = Pattern.compile("2\\s*\\+\\s*2");
     public static final Pattern tronEasterEggPattern = Pattern.compile("1\\s*\\+\\s*1\\s*\\+\\s*1");
 
-    private static Logger LOGGER = LoggerFactory.getLogger(EvaluateExpressionCommand.class);
-    private boolean useEasterEggs;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EvaluateExpressionCommand.class);
+    private final boolean useEasterEggs;
 
     public EvaluateExpressionCommand(final int id, CommandSettings commandSettings, final boolean useEasterEggs) {
         super(id, commandSettings);

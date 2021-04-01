@@ -9,13 +9,13 @@ import java.util.Set;
 
 public class RoleTableEdit {
     @Getter
-    private Map<RoleTable, Integer> savedRoleTables = new HashMap<>();
+    private final Map<RoleTable, Integer> savedRoleTables = new HashMap<>();
 
     @Getter
-    private Map<Role, Integer> savedRoles = new HashMap<>();
+    private final Map<Role, Integer> savedRoles = new HashMap<>();
 
     @Getter
-    private Set<Role> deletedRoles = new HashSet<>();
+    private final Set<Role> deletedRoles = new HashSet<>();
 
     public void saveRole(final int contextId, final Role role) {
         savedRoles.put(role, contextId);

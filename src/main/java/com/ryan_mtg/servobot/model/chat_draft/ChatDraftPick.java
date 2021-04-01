@@ -11,13 +11,13 @@ public class ChatDraftPick {
     private int id;
 
     @Getter
-    private int pack;
+    private final int pack;
 
     @Getter
-    private int pick;
+    private final int pick;
 
     @Getter
-    private HomedUser picker;
+    private final HomedUser picker;
 
     public ChatDraftPick(final int id, final int pack, final int pick, final HomedUser picker) {
         this.id =  id;

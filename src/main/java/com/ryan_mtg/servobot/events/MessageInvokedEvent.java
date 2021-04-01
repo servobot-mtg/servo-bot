@@ -10,9 +10,9 @@ import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.scope.Scope;
 
 public class MessageInvokedEvent implements CommandInvokedEvent {
-    private MessageEvent messageEvent;
-    private String command;
-    private String arguments;
+    private final MessageEvent messageEvent;
+    private final String command;
+    private final String arguments;
 
     public MessageInvokedEvent(final MessageEvent messageEvent, final String command, final String arguments) {
         this.messageEvent = messageEvent;

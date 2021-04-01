@@ -8,11 +8,9 @@ import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.CommandPerformer;
 import com.ryan_mtg.servobot.events.HomeDelegatingListener;
 import com.ryan_mtg.servobot.game.GameManager;
-import com.ryan_mtg.servobot.game.Responder;
 import com.ryan_mtg.servobot.model.alerts.Alert;
 import com.ryan_mtg.servobot.model.alerts.AlertQueue;
 import com.ryan_mtg.servobot.model.books.BookTable;
-import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,38 +35,38 @@ public class Bot implements Context {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bot.class);
 
     @Getter
-    private int id;
+    private final int id;
 
     @Getter
-    private String name;
+    private final String name;
 
     @Getter
-    private Scope botScope;
+    private final Scope botScope;
 
     @Getter
-    private BotEditor botEditor;
-    private List<BotHome> homes = new ArrayList<>();
-    private HomeDelegatingListener listener;
-    private Map<Integer, Service> services;
-    private Map<Integer, HomeEditor> homeEditorMap = new HashMap<>();
+    private final BotEditor botEditor;
+    private final List<BotHome> homes = new ArrayList<>();
+    private final HomeDelegatingListener listener;
+    private final Map<Integer, Service> services;
+    private final Map<Integer, HomeEditor> homeEditorMap = new HashMap<>();
 
     @Getter
-    private SerializerContainer serializers;
+    private final SerializerContainer serializers;
 
     @Getter
-    private CommandTable commandTable;
+    private final CommandTable commandTable;
 
     @Getter
-    private BookTable bookTable;
+    private final BookTable bookTable;
 
     @Getter
-    private StorageTable storageTable;
+    private final StorageTable storageTable;
 
     @Getter
-    private List<GameManager> gameManagers;
+    private final List<GameManager> gameManagers;
 
     @Getter
-    private AlertQueue alertQueue = new AlertQueue(this);
+    private final AlertQueue alertQueue = new AlertQueue(this);
 
     public Bot(final int id, final String name, final Scope globalScope, final Map<Integer, Service> services,
             final SerializerContainer serializers, final CommandTable commandTable, final BookTable bookTable,

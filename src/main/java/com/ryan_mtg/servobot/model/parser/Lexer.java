@@ -1,7 +1,7 @@
 package com.ryan_mtg.servobot.model.parser;
 
 public class Lexer {
-    private String input;
+    private final String input;
     private int position;
     private Token nextToken;
 

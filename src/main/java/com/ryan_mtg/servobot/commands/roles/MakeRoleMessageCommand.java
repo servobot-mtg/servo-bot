@@ -22,7 +22,7 @@ public class MakeRoleMessageCommand extends InvokedHomedCommand {
     }
 
     @Override
-    public void perform(final CommandInvokedHomeEvent commandInvokedHomeEvent) throws BotHomeError, UserError {
+    public void perform(final CommandInvokedHomeEvent commandInvokedHomeEvent) throws BotHomeError {
         RoleTableEditor roleTableEditor = commandInvokedHomeEvent.getRoleTableEditor();
         List<Role> roles = roleTableEditor.getRoles();
 

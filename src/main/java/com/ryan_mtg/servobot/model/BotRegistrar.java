@@ -5,10 +5,10 @@ import com.ryan_mtg.servobot.error.SystemError;
 import java.util.List;
 
 public class BotRegistrar {
-    private static int DEFAULT_BOT_CONTEXT_ID = -2;
-    private static int INVITE_BOT_CONTEXT_ID = -1;
+    private static final int DEFAULT_BOT_CONTEXT_ID = -2;
+    private static final int INVITE_BOT_CONTEXT_ID = -1;
 
-    private List<Bot> bots;
+    private final List<Bot> bots;
 
     public BotRegistrar(final List<Bot> bots) {
         this.bots = bots;

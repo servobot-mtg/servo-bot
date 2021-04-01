@@ -5,7 +5,7 @@ import lombok.Getter;
 
 public class Entrant {
     @Getter
-    private HomedUser user;
+    private final HomedUser user;
 
     public Entrant(final HomedUser user) {
         this.user = user;

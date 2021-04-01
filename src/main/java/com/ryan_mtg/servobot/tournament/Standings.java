@@ -13,13 +13,13 @@ public class Standings {
     public static final int UNKNOWN_RANK = 999999;
 
     @Getter
-    private PlayerSet playerSet;
+    private final PlayerSet playerSet;
 
     @Getter
-    private int round;
+    private final int round;
 
-    private Map<Player, Record> playerRecord = new HashMap<>();
-    private Map<Player, Integer> playerRank = new HashMap<>();
+    private final Map<Player, Record> playerRecord = new HashMap<>();
+    private final Map<Player, Integer> playerRank = new HashMap<>();
 
     public Standings(final PlayerSet playerSet, final int round) {
         this.playerSet = playerSet;

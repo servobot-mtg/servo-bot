@@ -18,10 +18,10 @@ public class SetUsersRoleCommand extends InvokedHomedCommand {
     public static final CommandType TYPE = CommandType.SET_USERS_ROLE_COMMAND_TYPE;
 
     @Getter
-    private long setRoleId;
+    private final long setRoleId;
 
     @Getter
-    private long unsetRoleId;
+    private final long unsetRoleId;
 
     @Getter
     private String response;

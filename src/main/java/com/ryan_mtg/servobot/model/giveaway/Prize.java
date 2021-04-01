@@ -29,10 +29,10 @@ public class Prize {
     private HomedUser winner;
 
     @Getter
-    private String reward;
+    private final String reward;
 
     @Getter
-    private String description;
+    private final String description;
 
     public Prize(final int id, final String reward, final String description) throws UserError {
         this.id = id;

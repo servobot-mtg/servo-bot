@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public class CardQuery {
-    private String query;
-    private String set;
+    private final String query;
+    private final String set;
 
     public CardQuery(final String query) {
-        this.query = query;
+        this(query, null);
     }
 
     public CardQuery(final String query, final String set) {

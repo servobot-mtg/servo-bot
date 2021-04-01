@@ -8,7 +8,7 @@ import com.ryan_mtg.servobot.model.User;
 import com.ryan_mtg.servobot.twitch.model.TwitchUser;
 
 public class TwitchSubscriptionEvent extends TwitchHomeEvent implements UserHomeEvent {
-    private TwitchUser subscriber;
+    private final TwitchUser subscriber;
 
     public TwitchSubscriptionEvent(final TwitchClient client, final SubscriptionEvent event, final BotHome botHome,
                                    final TwitchUser subscriber) {

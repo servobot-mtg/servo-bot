@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class SimpleSymbolTable implements SymbolTable {
-    private Map<String, Supplier<Object>> functorMap = new HashMap<>();
+    private final Map<String, Supplier<Object>> functorMap = new HashMap<>();
 
     public void addFunctor(final String name, final Supplier<Object> functor) {
         functorMap.put(name, functor);

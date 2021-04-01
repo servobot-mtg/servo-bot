@@ -22,26 +22,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CommandTable {
-    private static Logger LOGGER = LoggerFactory.getLogger(CommandTable.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandTable.class);
 
     @Getter
     private final int contextId;
     private final boolean isCaseSensitive;
 
-    private Map<Integer, Command> idToCommandMap = new HashMap<>();
+    private final Map<Integer, Command> idToCommandMap = new HashMap<>();
 
-    private Map<Trigger, Command> triggerCommandMap = new IdentityHashMap<>();
-    private Map<Command, List<Trigger>> reverseTriggerMap = new HashMap<>();
+    private final Map<Trigger, Command> triggerCommandMap = new IdentityHashMap<>();
+    private final Map<Command, List<Trigger>> reverseTriggerMap = new HashMap<>();
 
     @Getter
-    private List<Trigger> triggers = new ArrayList<>();
+    private final List<Trigger> triggers = new ArrayList<>();
 
-    private Map<String, Command> commandMap = new HashMap<>();
-    private Map<String, CommandAlias> aliasMap = new HashMap<>();
-    private Map<CommandEvent.Type, List<CommandEvent>> eventMap = new HashMap<>();
-    private Map<String, List<CommandAlert>> alertMap = new HashMap<>();
+    private final Map<String, Command> commandMap = new HashMap<>();
+    private final Map<String, CommandAlias> aliasMap = new HashMap<>();
+    private final Map<CommandEvent.Type, List<CommandEvent>> eventMap = new HashMap<>();
+    private final Map<String, List<CommandAlert>> alertMap = new HashMap<>();
 
-    private List<AlertGenerator> alertGenerators = new ArrayList<>();
+    private final List<AlertGenerator> alertGenerators = new ArrayList<>();
 
     public CommandTable(final int contextId, final boolean isCaseSensitive) {
         this.contextId = contextId;
@@ -201,7 +201,7 @@ public class CommandTable {
                                                        final Class<CommandType> commandClass) {
         List<CommandEvent> events = eventMap.get(eventType);
         if (events != null) {
-            return events.stream().map(event -> triggerCommandMap.get(event)).filter(commandClass::isInstance)
+            return events.stream().map(triggerCommandMap::get).filter(commandClass::isInstance)
                     .map(commandClass::cast).collect(Collectors.toList());
         }
         return new ArrayList<>();
@@ -211,7 +211,7 @@ public class CommandTable {
                                                        final Class<CommandType> commandClass) {
         List<CommandAlert> alerts = alertMap.get(alertToken);
         if (alerts != null) {
-            return alerts.stream().map(alert -> triggerCommandMap.get(alert)).filter(commandClass::isInstance)
+            return alerts.stream().map(triggerCommandMap::get).filter(commandClass::isInstance)
                     .map(commandClass::cast).collect(Collectors.toList());
         }
         return new ArrayList<>();
@@ -303,7 +303,7 @@ public class CommandTable {
     }
 
     private class RegisterTriggerVisitor implements TriggerVisitor {
-        private Command command;
+        private final Command command;
 
         public RegisterTriggerVisitor(final Command command) {
             this.command = command;

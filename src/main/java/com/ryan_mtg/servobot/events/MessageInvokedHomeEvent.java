@@ -9,7 +9,7 @@ import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.scope.SimpleSymbolTable;
 
 public class MessageInvokedHomeEvent extends MessageInvokedEvent implements CommandInvokedHomeEvent {
-    private MessageHomeEvent messageHomeEvent;
+    private final MessageHomeEvent messageHomeEvent;
 
     public MessageInvokedHomeEvent(final MessageHomeEvent messageHomeEvent, final String command,
             final String arguments) {

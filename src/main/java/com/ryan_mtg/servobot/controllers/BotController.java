@@ -6,7 +6,6 @@ import com.ryan_mtg.servobot.commands.trigger.CommandEvent;
 import com.ryan_mtg.servobot.commands.Permission;
 import com.ryan_mtg.servobot.controllers.error.ResourceNotFoundException;
 import com.ryan_mtg.servobot.data.factories.SerializerContainer;
-import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.model.Channel;
 import com.ryan_mtg.servobot.model.Emote;
 import com.ryan_mtg.servobot.model.Role;
@@ -205,7 +204,7 @@ public class BotController {
     public String showHub(final Model model, final BotHome botHome) {
         model.addAttribute("page", "hub");
 
-        if (!isPrivledged(model, botHome)) {
+        if (!isPriviledged(model, botHome)) {
             return String.format("redirect:/home/%s/%s", botHome.getBot().getName(), botHome.getName());
         }
 
@@ -215,7 +214,7 @@ public class BotController {
     }
 
     public String showUsers(final Model model, final BotHome botHome) {
-        if (!isPrivledged(model, botHome)) {
+        if (!isPriviledged(model, botHome)) {
             return String.format("redirect:/home/%s/%s", botHome.getBot().getName(), botHome.getName());
         }
 
@@ -227,7 +226,7 @@ public class BotController {
     }
 
     public String showGiveaways(final Model model, final BotHome botHome) {
-        if (!isPrivledged(model, botHome)) {
+        if (!isPriviledged(model, botHome)) {
             return String.format("redirect:/home/%s/%s", botHome.getBot().getName(), botHome.getName());
         }
 
@@ -287,7 +286,7 @@ public class BotController {
         model.addAttribute("channels", channels);
     }
 
-    private boolean isPrivledged(final Model model, final BotHome botHome) {
+    private boolean isPriviledged(final Model model, final BotHome botHome) {
         WebsiteUser websiteUser = (WebsiteUser) model.asMap().get("user");
         return websiteUser.isPrivileged(botHome);
     }

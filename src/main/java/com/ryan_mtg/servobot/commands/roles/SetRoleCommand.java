@@ -5,7 +5,6 @@ import com.ryan_mtg.servobot.commands.CommandVisitor;
 import com.ryan_mtg.servobot.commands.hierarchy.CommandSettings;
 import com.ryan_mtg.servobot.commands.hierarchy.UserHomedCommand;
 import com.ryan_mtg.servobot.error.BotHomeError;
-import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.UserHomeEvent;
 import lombok.Getter;
 
@@ -13,9 +12,9 @@ public class SetRoleCommand extends UserHomedCommand {
     public static final CommandType TYPE = CommandType.SET_ROLE_COMMAND_TYPE;
 
     @Getter
-    private long roleId;
+    private final long roleId;
 
-    public SetRoleCommand(final int id, final CommandSettings commandSettings, final long roleId) throws UserError {
+    public SetRoleCommand(final int id, final CommandSettings commandSettings, final long roleId) {
         super(id, commandSettings);
         this.roleId = roleId;
     }

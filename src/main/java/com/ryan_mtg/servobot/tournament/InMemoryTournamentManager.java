@@ -1,7 +1,6 @@
 package com.ryan_mtg.servobot.tournament;
 
 import com.ryan_mtg.servobot.tournament.mtgmelee.MtgMeleeInformer;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;

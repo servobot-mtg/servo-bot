@@ -25,7 +25,7 @@ public class Schedule {
     }
 
     private List<WeeklyTime> getDefaultWeeklyStreamTimes() {
-        return Arrays.asList(new WeeklyTime(DayOfWeek.WEDNESDAY, LocalTime.of(18, 00)),
-                new WeeklyTime(DayOfWeek.SATURDAY, LocalTime.of(19, 00)));
+        return Arrays.asList(new WeeklyTime(DayOfWeek.WEDNESDAY, LocalTime.of(18, 0)),
+                new WeeklyTime(DayOfWeek.SATURDAY, LocalTime.of(19, 0)));
     }
 }

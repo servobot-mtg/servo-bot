@@ -15,13 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HomeDelegatingListener implements EventListener {
-    private static Logger LOGGER = LoggerFactory.getLogger(HomeDelegatingListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HomeDelegatingListener.class);
 
-    private BotEditor botEditor;
-    private CommandPerformer commandPerformer;
-    private CommandTable commandTable;
-    private Map<Integer, HomeEditor> homeEditorMap;
-    private Map<Integer, EventListener> botHomeMap = new HashMap<>();
+    private final BotEditor botEditor;
+    private final CommandPerformer commandPerformer;
+    private final CommandTable commandTable;
+    private final Map<Integer, HomeEditor> homeEditorMap;
+    private final Map<Integer, EventListener> botHomeMap = new HashMap<>();
 
     public HomeDelegatingListener(final BotEditor botEditor, final Map<Integer, HomeEditor> homeEditorMap,
             final CommandPerformer commandPerformer, final CommandTable commandTable) {

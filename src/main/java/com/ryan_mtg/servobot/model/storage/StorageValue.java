@@ -19,7 +19,7 @@ public abstract class StorageValue implements Evaluatable {
     private int userId;
 
     @Getter
-    private String name;
+    private final String name;
 
     public StorageValue(final int id, final int userId, final String name) throws UserError {
         this.id = id;

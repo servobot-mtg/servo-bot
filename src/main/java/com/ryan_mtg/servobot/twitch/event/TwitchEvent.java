@@ -13,12 +13,12 @@ import lombok.Setter;
 
 public abstract class TwitchEvent implements BotHomeEvent {
     @Getter(value = AccessLevel.PROTECTED)
-    private TwitchClient client;
+    private final TwitchClient client;
 
     @Getter @Setter
     private BotEditor botEditor;
 
-    private BotHome botHome;
+    private final BotHome botHome;
 
     @Getter @Setter
     private HomeEditor homeEditor;

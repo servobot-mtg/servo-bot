@@ -9,10 +9,10 @@ import java.util.Map;
 
 @Getter
 public class ReactionTableEdit {
-    private List<Reaction> deletedReactions = new ArrayList<>();
-    private List<Reaction> savedReactions = new ArrayList<>();
-    private List<Pattern> deletedPatterns = new ArrayList<>();
-    private Map<Pattern, Integer> savedPatterns = new IdentityHashMap<>();
+    private final List<Reaction> deletedReactions = new ArrayList<>();
+    private final List<Reaction> savedReactions = new ArrayList<>();
+    private final List<Pattern> deletedPatterns = new ArrayList<>();
+    private final Map<Pattern, Integer> savedPatterns = new IdentityHashMap<>();
 
     public void delete(final Reaction reaction) {
         deletedReactions.add(reaction);

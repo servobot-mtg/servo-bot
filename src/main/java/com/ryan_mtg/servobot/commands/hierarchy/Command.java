@@ -24,7 +24,7 @@ public abstract class Command {
     @Getter @Setter
     private int id;
 
-    private CommandSettings commandSettings;
+    private final CommandSettings commandSettings;
 
     public Command(final int id, final CommandSettings commandSettings) {
         this.id = id;

@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WebsiteUser implements Principal {
-    private UserTable userTable;
-    private OAuth2AuthenticationToken oAuth2AuthenticationToken;
-    private User user;
+    private final UserTable userTable;
+    private final OAuth2AuthenticationToken oAuth2AuthenticationToken;
+    private final User user;
 
     public WebsiteUser(final UserTable userTable, final OAuth2AuthenticationToken oAuth2AuthenticationToken,
             final User user) {

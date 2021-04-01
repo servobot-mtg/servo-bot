@@ -17,7 +17,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DiscordServiceHome implements ServiceHome {
-    private static Logger LOGGER = LoggerFactory.getLogger(DiscordServiceHome.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscordServiceHome.class);
 
     private final DiscordService discordService;
 
@@ -209,7 +208,7 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public boolean isHigherRanked(final User user, final User otherUser) throws UserError {
+    public boolean isHigherRanked(final User user, final User otherUser) {
         Member firstMember = getMember(user);
         Member secondMember = getMember(otherUser);
         return getPosition(firstMember) > getPosition(secondMember);
@@ -297,7 +296,7 @@ public class DiscordServiceHome implements ServiceHome {
     public void updateEmotes() {
         if (guild != null) {
             List<net.dv8tion.jda.api.entities.Emote> emotes = guild.getEmotes();
-            cachedEmotes = emotes.stream().map(emote -> new DiscordEmote(emote)).collect(Collectors.toList());
+            cachedEmotes = emotes.stream().map(DiscordEmote::new).collect(Collectors.toList());
         } else {
             cachedEmotes = new ArrayList<>();
         }

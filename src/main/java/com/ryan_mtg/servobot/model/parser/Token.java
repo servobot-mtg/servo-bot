@@ -17,14 +17,13 @@ public class Token {
         STRING_LITERAL,
         SUBTRACT,
         DECREMENT
-        ;
     }
 
     @Getter
-    private Type type;
+    private final Type type;
 
     @Getter
-    private String lexeme;
+    private final String lexeme;
 
     public Token(final Type type, final String lexeme) {
         this.type = type;
