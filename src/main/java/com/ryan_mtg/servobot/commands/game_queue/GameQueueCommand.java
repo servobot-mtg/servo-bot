@@ -22,6 +22,7 @@ import com.ryan_mtg.servobot.utility.Strings;
 import com.ryan_mtg.servobot.utility.TimeZoneDescriptor;
 import lombok.Getter;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -587,7 +588,8 @@ public class GameQueueCommand extends InvokedHomedCommand {
     }
 
     private static final Pattern TIME_PATTERN =
-            Pattern.compile("(?<hour>\\d?\\d):(?<minute>\\d\\d)(?<ampm>\\s*(A|P|a|p)(m|M))?(?<zone>\\s+\\w+(\\s+\\w+)?)?");
+            Pattern.compile("(?<hour>\\d?\\d):(?<minute>\\d\\d)(?<ampm>\\s*(A|P|a|p)(m|M))?" +
+                    "(?<zone>\\s+\\w+)?(?<day>\\s+\\w+)?");
 
     private void rsvp(final CommandInvokedHomeEvent event, final String command, final String input)
             throws BotHomeError, UserError {
@@ -699,13 +701,14 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
     private ZonedDateTime parseTime(final CommandInvokedHomeEvent event, final String command, final String input)
             throws UserError {
+        String format = "%s command requires a time formatted as HH:MM PM <time zone> [day]";
         if (Strings.isBlank(input)) {
-            throw new UserError("%s command requires a time formatted as HH:MM PM <time zone>", command);
+            throw new UserError(format, command);
         }
 
         Matcher matcher = TIME_PATTERN.matcher(input);
         if (!matcher.matches()) {
-            throw new UserError("%s command requires a time formatted as HH:MM PM <time zone>", command);
+            throw new UserError(format, command);
         }
 
         int hour = Integer.parseInt(matcher.group("hour"));
@@ -753,18 +756,61 @@ public class GameQueueCommand extends InvokedHomedCommand {
             }
 
             if (!found) {
-                throw new UserError("Unknown time zone: {}", timeZone);
+                throw new UserError("Unknown time zone: %s", timeZone);
             }
         }
 
+        String day = matcher.group("day");
         LocalTime time = LocalTime.of(hour, minutes);
-
         ZoneId zoneId = ZoneId.of(timeZone);
         ZonedDateTime now = ZonedDateTime.now(zoneId);
-        ZonedDateTime dateTime = ZonedDateTime.of(now.toLocalDate(), time, zoneId);
-        if (dateTime.compareTo(now) <= 0) {
-            dateTime = dateTime.plusDays(1);
+
+        if (Strings.isBlank(day)) {
+            ZonedDateTime dateTime = ZonedDateTime.of(now.toLocalDate(), time, zoneId);
+            if (dateTime.compareTo(now) <= 0) {
+                dateTime = dateTime.plusDays(1);
+            }
+            return dateTime;
+        } else {
+            day = day.trim();
+
+            DayOfWeek dayOfWeek = getDayOfWeek(day);
+
+            ZonedDateTime dateTime = ZonedDateTime.of(now.toLocalDate(), time, zoneId);
+
+            while (dateTime.compareTo(now) <= 0 || dateTime.getDayOfWeek() != dayOfWeek) {
+                dateTime = dateTime.plusDays(1);
+            }
+
+            return dateTime;
         }
-        return dateTime;
+    }
+
+    private DayOfWeek getDayOfWeek(final String day) throws UserError {
+        switch (day.toLowerCase()) {
+            case "sun":
+            case "sunday":
+                return DayOfWeek.SUNDAY;
+            case "mon":
+            case "monday":
+                return DayOfWeek.MONDAY;
+            case "tues":
+            case "tuesday":
+                return DayOfWeek.TUESDAY;
+            case "wed":
+            case "wednesday":
+                return DayOfWeek.WEDNESDAY;
+            case "thur":
+            case "thursday":
+                return DayOfWeek.THURSDAY;
+            case "fri":
+            case "friday":
+                return DayOfWeek.FRIDAY;
+            case "sat":
+            case "saturday":
+                return DayOfWeek.SATURDAY;
+            default:
+                throw new UserError("%s is not a day of the week.", day);
+        }
     }
 }
