@@ -10,15 +10,16 @@
       streamer=${user.roles.contains('ROLE_STREAMER:' + botHome.id)},
       privileged=${user.admin || moderator},
       exalted=${user.admin || streamer}" onload="initializeSettings()">
-<div th:include="fragments :: header" />
+    <div th:include="fragments :: header"></div>
 <div class="content">
-    <h1 th:text="'Settings for ' + ${botHome.name}"/>
+    <h1 th:text="'Settings for ' + ${botHome.name}"></h1>
 
     <div th:if="${exalted}">
         <div class="home-controls">
             <span class="home-status" id="status"
                   th:text="${botHome.active ? '&#x2714;&#xFE0F' : botHome.stopped ? '&#x274C;' : '&#x1F504;'}"
-                  th:title="${botHome.active ? 'Active' : botHome.stopped ? 'Stopped' : 'Restarting'}"/>
+                  th:title="${botHome.active ? 'Active' : botHome.stopped ? 'Stopped' : 'Restarting'}">
+            </span>
             <span id="play-button" class="pseudo-link home-control" th:onclick="'startHome(' + ${botHome.id} + ')'"
                   title="Restart Bot">
                     &#x25B6;
@@ -40,9 +41,68 @@
 
         <h2>Settings</h2>
         <ul>
-            <li><div th:include="bot_home_fragments :: bot_name"/></li>
-            <li><div th:include="bot_home_fragments :: time_zone"/></li>
+            <li><div th:include="bot_home_fragments :: bot_name"></div></li>
+            <li><div th:include="bot_home_fragments :: time_zone"></div></li>
         </ul>
+
+        <h2>Schedule</h2>
+        <div class="schedule-container" th:with="schedule=${botHome.schedule}">
+
+            <h3>Weekly</h3>
+            <table id="weekly-stream-table" class="weekly-stream data-table">
+                <thead><tr>
+                    <th>Name</th>
+                    <th>Announcement</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th th:if="${exalted}">Time</th>
+                </tr></thead>
+                <th:block th:each="weeklyStream : ${schedule.weeklyStreams}">
+                    <tr th:id="'weekly-stream-' + ${weeklyStream.id} + '-row'">
+                        <td th:text="${weeklyStream.name}"></td>
+                        <td th:text="${weeklyStream.announcement}"></td>
+                        <td th:text="${weeklyStream.day}"></td>
+                        <td th:text="${weeklyStream.time}"></td>
+                        <td th:if="${exalted}" class="pseudo-link"
+                            th:onclick="'deleteWeeklyStream(' + ${botHome.id} + ',' + ${weeklyStream.id} + ')'">
+                            &#x1F5D1;&#xFE0F;
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+
+            <div class="add-weekly-stream">
+                <div id="add-weekly-stream-button" class="pseudo-link add-button" onclick="showAddWeeklyStreamForm()"
+                     title="Add a weekly stream">+</div>
+                <form id="add-weekly-stream-form" class="add-form hidden"
+                      th:onsubmit="'addWeeklyStream(' + ${botHome.id} + '); return false;'">
+
+                    <div id="add-weekly-stream-name-div">
+                        <label>Name</label><br>
+                        <input id="add-weekly-stream-name-input" type="text" class="name"><br>
+                    </div>
+                    <div id="add-weekly-stream-day-div">
+                        <label>Day</label><br>
+                        <select id='add-weekly-stream-day-input'>
+                            <th:block th:each="day, status : ${T(java.time.DayOfWeek).values()}">
+                                <option th:value="${day.value}" th:text="${day.name()}"
+                                        th:selected="${status.index == 0}">
+                                </option>
+                            </th:block>
+                        </select><br>
+                    </div>
+                    <div id="add-weekly-stream-time-div">
+                        <label>Time</label><br>
+                        <input id="add-weekly-stream-time-input" type="time" min="00:00" max="23:59" step="60"><br>
+                    </div><br>
+                    <div id="add-weekly-stream-announcement-div">
+                        <label>Announcement</label><br>
+                        <input id="add-weekly-stream-announcement-input" type="text"><br>
+                    </div>
+                    <input type="submit" value="Create Weekly Stream">
+                </form>
+            </div>
+        </div>
 
         <h2>Emote Links</h2>
         <table id="emote-link-table" class="data-table">

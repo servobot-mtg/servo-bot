@@ -19,6 +19,7 @@ import com.ryan_mtg.servobot.model.chat_draft.ChatDraftTable;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.roles.RoleTable;
+import com.ryan_mtg.servobot.model.schedule.Schedule;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.Service;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
@@ -153,11 +154,15 @@ public class BotFactory {
         ChatDraftTable chatDraftTable =
                 serializers.getChatDraftSerializer().createChatDraftTable(botHomeId, homedUserTable, commandTable);
 
+        LOGGER.info("------ Creating Schedule: {} ", botHomeRow.getHomeName());
+        Schedule schedule =
+                serializers.getScheduleSerializer().createSchedule(botHomeId, timeZone);
+
         LOGGER.info("------ Calling BotHome() constructor: {} ", botHomeRow.getHomeName());
         return SystemError.filter(() -> {
             BotHome botHome = new BotHome(botHomeId, flags, homeName, botName, timeZone, homedUserTable, bookTable,
-                    commandTable, reactionTable, roleTable, storageTable, serviceHomes, gameQueueTable, giveaways,
-                    emoteLinks, chatDraftTable);
+                    commandTable, reactionTable, roleTable, storageTable, schedule, serviceHomes, gameQueueTable,
+                    giveaways, emoteLinks, chatDraftTable);
 
             LOGGER.info("<<<<<< Ending bot home creation: {} ", botHomeRow.getHomeName());
             return botHome;

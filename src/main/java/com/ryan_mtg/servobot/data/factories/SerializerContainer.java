@@ -41,6 +41,7 @@ public class SerializerContainer {
     private final ServiceHomeRepository serviceHomeRepository;
     private final ServiceSerializer serviceSerializer;
     private final StatementRepository statementRepository;
+    private final ScheduleSerializer scheduleSerializer;
     private final StorageTableSerializer storageTableSerializer;
     private final StorageValueRepository storageValueRepository;
     private final StorageValueSerializer storageValueSerializer;

@@ -25,6 +25,7 @@ import com.ryan_mtg.servobot.model.editors.ChatDraftEditor;
 import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.GiveawayEditor;
 import com.ryan_mtg.servobot.model.editors.RoleTableEditor;
+import com.ryan_mtg.servobot.model.editors.ScheduleEditor;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
 import com.ryan_mtg.servobot.model.giveaway.Prize;
@@ -32,6 +33,7 @@ import com.ryan_mtg.servobot.model.books.Statement;
 import com.ryan_mtg.servobot.model.reaction.Pattern;
 import com.ryan_mtg.servobot.model.reaction.Reaction;
 import com.ryan_mtg.servobot.model.roles.Role;
+import com.ryan_mtg.servobot.model.schedule.WeeklyStream;
 import com.ryan_mtg.servobot.model.storage.StorageValue;
 import com.ryan_mtg.servobot.security.WebsiteUser;
 import com.ryan_mtg.servobot.security.WebsiteUserFactory;
@@ -694,6 +696,30 @@ public class ApiController {
         return true;
     }
 
+    @PostMapping(value = "/add_weekly_stream", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public WeeklyStream addWeeklyStream(@RequestBody final AddWeeklyStreamRequest request) throws UserError {
+        ScheduleEditor scheduleEditor = getScheduleEditor(request.getBotHomeId());
+        return scheduleEditor.addWeeklyStream(request.getName(), request.getAnnouncement(), request.getDay(),
+                request.getTime());
+    }
+
+    @Getter
+    public static class AddWeeklyStreamRequest extends BotHomeRequest {
+        private String name;
+        private String announcement;
+        private int day;
+        private int time;
+    }
+
+    @PostMapping(value = "/delete_weekly_stream", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean deleteWeeklyStream(@RequestBody final DeleteHomedObjectRequest request) {
+        ScheduleEditor scheduleEditor = getScheduleEditor(request.getBotHomeId());
+        scheduleEditor.deleteWeeklyStream(request.getObjectId());
+        return true;
+    }
+
     @PostMapping(value = "/delete_timestamp", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteTimestamp(@RequestBody final DeleteRequest request) {
@@ -745,6 +771,13 @@ public class ApiController {
     private ChatDraftEditor getChatDraftEditor(final int contextId) {
         if (contextId > 0) {
             return botRegistrar.getHomeEditor(contextId).getChatDraftEditor();
+        }
+        return null;
+    }
+
+    private ScheduleEditor getScheduleEditor(final int contextId) {
+        if (contextId > 0) {
+            return botRegistrar.getHomeEditor(contextId).getScheduleEditor();
         }
         return null;
     }

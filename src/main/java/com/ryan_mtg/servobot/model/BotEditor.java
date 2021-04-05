@@ -30,6 +30,8 @@ import com.ryan_mtg.servobot.model.game_queue.GameQueueTable;
 import com.ryan_mtg.servobot.model.giveaway.Giveaway;
 import com.ryan_mtg.servobot.model.reaction.ReactionTable;
 import com.ryan_mtg.servobot.model.roles.RoleTable;
+import com.ryan_mtg.servobot.model.schedule.Schedule;
+import com.ryan_mtg.servobot.model.schedule.ScheduleEdit;
 import com.ryan_mtg.servobot.model.scope.Scope;
 import com.ryan_mtg.servobot.model.storage.StorageTable;
 import com.ryan_mtg.servobot.twitch.model.TwitchService;
@@ -179,6 +181,11 @@ public class BotEditor {
             homedUser.getUserStatus().update(new TwitchUserStatus(true, false, false, true));
             homedUserTable.save(homedUser);
 
+            Schedule schedule = new Schedule(timeZone);
+            ScheduleEdit scheduleEdit = new ScheduleEdit();
+            scheduleEdit.saveSchedule(botHomeId, schedule);
+            serializers.getScheduleSerializer().commit(scheduleEdit);
+
             GameQueueTable gameQueueTable = new GameQueueTable();
             List<Giveaway> giveaways = new ArrayList<>();
             BookTable bookTable = new BookTable();
@@ -186,8 +193,8 @@ public class BotEditor {
             List<EmoteLink> emoteLinks = new ArrayList<>();
             ChatDraftTable chatDraftTable = new ChatDraftTable();
             BotHome botHome = new BotHome(botHomeId, BotHome.DEFAULT_FLAGS, homeName, botName, timeZone, homedUserTable,
-                    bookTable, commandTable, reactionTable, roleTable, storageTable, serviceHomes, gameQueueTable,
-                    giveaways, emoteLinks, chatDraftTable);
+                    bookTable, commandTable, reactionTable, roleTable, storageTable, schedule, serviceHomes,
+                    gameQueueTable, giveaways, emoteLinks, chatDraftTable);
             bot.addHome(botHome);
             botHome.start(bot.getHomeEditor(botHomeId), bot.getAlertQueue(), false);
             return botHome;

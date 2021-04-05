@@ -117,9 +117,9 @@ public class BotHome implements Context {
     public BotHome(final int id, final int flags, final String name, final String botName, final String timeZone,
                    final HomedUserTable homedUserTable, final BookTable bookTable, final CommandTable commandTable,
                    final ReactionTable reactionTable, final RoleTable roleTable, final StorageTable storageTable,
-                   final Map<Integer, ServiceHome> serviceHomes, final GameQueueTable gameQueueTable,
-                   final List<Giveaway> giveaways, final List<EmoteLink> emoteLinks,
-                   final ChatDraftTable chatDraftTable) throws UserError {
+                   final Schedule schedule, final Map<Integer, ServiceHome> serviceHomes,
+                   final GameQueueTable gameQueueTable, final List<Giveaway> giveaways,
+                   final List<EmoteLink> emoteLinks, final ChatDraftTable chatDraftTable) throws UserError {
         this.id = id;
         this.flags = flags;
         this.name = name;
@@ -131,7 +131,7 @@ public class BotHome implements Context {
         this.reactionTable = reactionTable;
         this.roleTable = roleTable;
         this.storageTable = storageTable;
-        this.schedule = new Schedule(timeZone);
+        this.schedule = schedule;
         this.serviceHomes = serviceHomes;
         this.gameQueueTable = gameQueueTable;
         this.giveaways = giveaways;

@@ -143,6 +143,22 @@ const emoteLinkData = {
             {id: 'discord-emote', label: 'Discord Emote', name: 'discordEmote', type: 'string'}]
 };
 
+const addWeeklyStreamFormData = {
+    focus: 'name',
+    getInputBlock: getInputDiv,
+    inputs: [{name: 'name', type: 'value', value: '', hide: false},
+        {name: 'announcement', type: 'value', value: '', hide: false},
+        {name: 'day', type: 'select', value: 0, hide: false},
+        {name: 'time', type: 'value', value: 0, hide: false},
+    ],
+    parameters: [{id: 'name', name: 'name', type: 'string'},
+        {id: 'announcement', name: 'announcement', type: 'string'},
+        {id: 'day', name: 'day', type: 'string'},
+        {id: 'time', label: 'Time', name: 'time', type: 'time'},
+    ]
+};
+
+
 function createElement(type, {id = null, classType = null, classList = null, title = null, value = null,
         clickFunction = null}) {
     let element = document.createElement(type);
@@ -1263,11 +1279,8 @@ function changeAddStorageType(selectElement) {
 }
 
 function addStorageValue(contextId) {
-    try {
-        const parameters = collectTypedFormData({contextId: contextId}, 'add-storage', storageData);
-        postAddStorageValue(parameters);
-    } catch (e) {
-    }
+    const parameters = collectTypedFormData({contextId: contextId}, 'add-storage', storageData);
+    postAddStorageValue(parameters);
 }
 
 async function postAddStorageValue(parameters) {
@@ -1357,7 +1370,9 @@ function updateAddEmoteLinkEmoteImage(label) {
     const selectElement = document.getElementById(label + 'input');
     const emoteType = parseInt(selectElement.value);
     const image = document.getElementById(label + 'image');
-    image.src = selectElement.options[selectElement.selectedIndex].dataset.url;
+    if (selectElement.options.length > 0) {
+        image.src = selectElement.options[selectElement.selectedIndex].dataset.url;
+    }
 }
 
 function initializeSettings() {
@@ -1365,11 +1380,8 @@ function initializeSettings() {
     updateAddEmoteLinkDiscordEmoteImage();
 }
 function addEmoteLink(botHomeId) {
-    try {
-        const parameters = collectFormData({botHomeId: botHomeId}, 'add-emote-link', emoteLinkData);
-        postAddEmoteLink(parameters);
-    } catch (e) {
-    }
+    const parameters = collectFormData({botHomeId: botHomeId}, 'add-emote-link', emoteLinkData);
+    postAddEmoteLink(parameters);
 }
 
 async function postAddEmoteLink(parameters) {
@@ -1410,3 +1422,47 @@ function deleteTimestamp(timestampId) {
     postDelete('/api/delete_timestamp', parameters, 'timestamp-' + timestampId + '-row');
 }
 
+function showAddWeeklyStreamForm() {
+    showForm('add-weekly-stream', addWeeklyStreamFormData);
+}
+
+async function addWeeklyStream(botHomeId) {
+    const parameters =
+        collectFormData({botHomeId: botHomeId}, 'add-weekly-stream', addWeeklyStreamFormData);
+    const label = 'add-weekly-stream';
+    let response = await makePost('/api/add_weekly_stream', parameters, [], false);
+
+    if (response.ok) {
+        hideElementById(label + '-form');
+        showElementInlineById(label + '-button');
+
+        let weeklyStream = await response.json();
+        addWeeklyStreamRow(parameters.botHomeId, weeklyStream);
+    }
+}
+
+function addWeeklyStreamRow(botHomeId, weeklyStream) {
+    let weeklyStreamTable = document.getElementById('weekly-stream-table');
+    let row = weeklyStreamTable.insertRow();
+
+    const label = 'weekly-stream-' + weeklyStream.id;
+    row.id = label + '-row';
+
+    addTextCell(row, weeklyStream.name);
+    addTextCell(row, weeklyStream.announcement);
+    addTextCell(row, weeklyStream.day);
+    addTextCell(row, zeroPad(weeklyStream.time.hour, 2) + ':' + zeroPad(weeklyStream.time.minute, 2));
+
+    addDeleteCell(row, trashcanIcon, function () {
+        deleteWeeklyStream(botHomeId, weeklyStream.id);
+    });
+}
+
+function deleteWeeklyStream(botHomeId, weeklyStreamId) {
+    const parameters = {botHomeId: botHomeId, objectId: weeklyStreamId};
+    postDelete('/api/delete_weekly_stream', parameters, 'weekly-stream-' + weeklyStreamId + '-row');
+}
+
+function zeroPad(number, digits) {
+    return (number + '').padStart(digits, '0');
+}

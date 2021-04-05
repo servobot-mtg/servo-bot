@@ -33,6 +33,7 @@ import com.ryan_mtg.servobot.model.editors.CommandTableEditor;
 import com.ryan_mtg.servobot.model.editors.GameQueueEditor;
 import com.ryan_mtg.servobot.model.editors.GiveawayEditor;
 import com.ryan_mtg.servobot.model.editors.RoleTableEditor;
+import com.ryan_mtg.servobot.model.editors.ScheduleEditor;
 import com.ryan_mtg.servobot.model.editors.StorageValueEditor;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.giveaway.GiveawayCommandSettings;
@@ -91,6 +92,9 @@ public class HomeEditor {
     private final ChatDraftEditor chatDraftEditor;
 
     @Getter
+    private final ScheduleEditor scheduleEditor;
+
+    @Getter
     private final BookTableEditor bookTableEditor;
 
     @Getter
@@ -117,6 +121,8 @@ public class HomeEditor {
                 serializers.getChatDraftSerializer(), commandTableEditor, botHome.getHomedUserTable());
         this.bookTableEditor =
                 new BookTableEditor(botHome.getId(), botHome.getBookTable(), serializers.getBookSerializer());
+        this.scheduleEditor =
+                new ScheduleEditor(botHome.getId(), botHome.getSchedule(), serializers.getScheduleSerializer());
     }
 
     public String getTimeZone() {
