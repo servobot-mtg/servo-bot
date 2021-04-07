@@ -37,6 +37,9 @@ public class RoleTable {
     }
 
     public void onEmoteAdded(final EmoteHomeEvent emoteHomeEvent) throws BotHomeError {
+        if (shouldIgnore(emoteHomeEvent.getMessage())) {
+            return;
+        }
         String emoteName = emoteHomeEvent.getEmote().getName();
         ServiceHome serviceHome = emoteHomeEvent.getServiceHome();
         User reactor = emoteHomeEvent.getSender();
@@ -51,6 +54,9 @@ public class RoleTable {
     }
 
     public void onEmoteRemoved(final EmoteHomeEvent emoteHomeEvent) throws BotHomeError {
+        if (shouldIgnore(emoteHomeEvent.getMessage())) {
+            return;
+        }
         String emoteName = emoteHomeEvent.getEmote().getName();
         ServiceHome serviceHome = emoteHomeEvent.getServiceHome();
         for (Role role : roles) {
@@ -84,6 +90,11 @@ public class RoleTable {
         });
         roles.removeAll(rolesToDelete);
         return roleTableEdit;
+    }
+
+    private boolean shouldIgnore(final Message eventMessage) {
+        return message == null || message.getId() != eventMessage.getId()
+                || message.getChannelId() != eventMessage.getChannelId();
     }
 
     private boolean nameEndingHasEmote(final String emoteName, final User reactor) {

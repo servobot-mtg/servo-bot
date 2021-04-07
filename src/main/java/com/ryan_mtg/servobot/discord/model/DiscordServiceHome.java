@@ -190,7 +190,7 @@ public class DiscordServiceHome implements ServiceHome {
     }
 
     @Override
-    public void setRole(User user, long roleId) throws BotHomeError {
+    public void setRole(final User user, final long roleId) throws BotHomeError {
         Member member = getMember(user);
         guild.addRoleToMember(member, getRoleInternal(roleId)).queue();
     }
