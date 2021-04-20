@@ -91,7 +91,7 @@ public class RoleTableSerializer {
         roleTable.setId(roleTableRow.getId());
     }
 
-    private Message getMessage(final ServiceHome serviceHome, final long messageId, final long channelId) {
+    private Message getMessage(final ServiceHome serviceHome, final long channelId, final long messageId) {
         if (messageId != 0 && channelId != 0) {
             return serviceHome.getSavedMessage(channelId, messageId);
         }
