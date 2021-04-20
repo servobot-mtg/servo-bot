@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.utility;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -43,8 +46,15 @@ public class Strings {
         return Character.toUpperCase(string.charAt(0)) + string.substring(1);
     }
 
+    @Data
+    @AllArgsConstructor
+    public static class Replacement {
+        private int length;
+        private String value;
+    }
+
     public static String replace(final String text, final Pattern pattern,
-            final Function<Matcher, String> replaceFunction) {
+            final Function<Replacement, Replacement> replaceFunction) {
         Matcher matcher = pattern.matcher(text);
         StringBuilder message = new StringBuilder();
         int index = 0;
@@ -52,12 +62,13 @@ public class Strings {
             int start = matcher.start();
             int end = matcher.end();
 
-            String replacement = replaceFunction.apply(matcher);
-            if (replacement == null) {
+            Replacement replacement = replaceFunction.apply(new Replacement(end - start, text.substring(start)));
+            if (replacement == null || replacement.getValue() == null) {
                 message.append(text, index, end);
             } else {
                 message.append(text, index, start);
-                message.append(replacement);
+                message.append(replacement.getValue());
+                end = start + replacement.getLength();
             }
 
             index = end;

@@ -69,13 +69,13 @@ public class TwitchChannel implements Channel {
 
     private String replaceEmotes(final String text) {
         Map<String, Emote> emoteMap = serviceHome.getEmoteMap();
-        return Strings.replace(text, EMOTE_PATTERN, matcher -> {
-            String name = matcher.group();
+        return Strings.replace(text, EMOTE_PATTERN, match -> {
+            String name = match.getValue();
             if (name.startsWith(":")) {
                 name = name.substring(1, name.length() - 1);
             }
             if (emoteMap.containsKey(name)) {
-                return emoteMap.get(name).getMessageText();
+                return new Strings.Replacement(match.getLength(), emoteMap.get(name).getMessageText());
             }
             return null;
         });

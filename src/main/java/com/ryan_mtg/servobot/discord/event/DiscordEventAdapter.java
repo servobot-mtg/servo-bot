@@ -26,14 +26,14 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DiscordEventAdapter extends ListenerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiscordEventAdapter.class);
+    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private final DiscordService discordService;
     private final EventListener listener;
@@ -64,7 +64,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
         loggedMessageSerializer.logReceivedMessage(sender, event.getMessage().getContentRaw(), DiscordService.TYPE);
 
         DiscordGlobalUser discordSender = new DiscordGlobalUser(author, sender);
-        listener.onPrivateMessage(new DiscordPrivateMessageEvent(discordService, event, discordSender));
+        EXECUTOR.submit(() ->
+                listener.onPrivateMessage(new DiscordPrivateMessageEvent(discordService, event, discordSender)));
     }
 
     @Override
@@ -74,7 +75,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
             return;
         }
         DiscordHomedUser sender = getUser(event.getMember(), botHome);
-        listener.onMessage(new DiscordMessageSentEvent(event, botHome, sender));
+        EXECUTOR.submit(() -> listener.onMessage(new DiscordMessageSentEvent(event, botHome, sender)));
     }
 
     @Override
@@ -87,7 +88,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
+    public void onGuildMessageReactionAdd(@Nonnull final GuildMessageReactionAddEvent event) {
         BotHome botHome = homeMap.get(event.getGuild().getIdLong());
         if (botHome == null) {
             return;
@@ -100,11 +101,11 @@ public class DiscordEventAdapter extends ListenerAdapter {
         } else {
             emote = new DiscordEmoji(reactionEmote.getEmoji());
         }
-        listener.onEmoteAdded(new DiscordEmoteEvent(event, botHome, reactor, emote));
+        EXECUTOR.submit(() -> listener.onEmoteAdded(new DiscordEmoteEvent(event, botHome, reactor, emote)));
     }
 
     @Override
-    public void onGuildMessageReactionRemove(@Nonnull GuildMessageReactionRemoveEvent event) {
+    public void onGuildMessageReactionRemove(@Nonnull final GuildMessageReactionRemoveEvent event) {
         BotHome botHome = homeMap.get(event.getGuild().getIdLong());
         if (botHome == null) {
             return;
@@ -117,7 +118,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
         } else {
             emote = new DiscordEmoji(reactionEmote.getEmoji());
         }
-        listener.onEmoteRemoved(new DiscordEmoteEvent(event, botHome, reactor, emote));
+        EXECUTOR.submit(() -> listener.onEmoteRemoved(new DiscordEmoteEvent(event, botHome, reactor, emote)));
     }
 
 
@@ -140,27 +141,28 @@ public class DiscordEventAdapter extends ListenerAdapter {
             return;
         }
         DiscordHomedUser member = getUser(event.getMember(), botHome);
-        listener.onNewUser(new DiscordNewUserEvent(event, botHome, member));
+        EXECUTOR.submit(() -> listener.onNewUser(new DiscordNewUserEvent(event, botHome, member)));
     }
 
     //Emote Events
     @Override
-    public void onEmoteAdded(@Nonnull EmoteAddedEvent event) {
+    public void onEmoteAdded(@Nonnull final EmoteAddedEvent event) {
         BotHome botHome = homeMap.get(event.getGuild().getIdLong());
         if (botHome == null) {
             return;
         }
 
-        botHome.getServiceHome(DiscordService.TYPE).updateEmotes();
+        EXECUTOR.submit(() -> botHome.getServiceHome(DiscordService.TYPE).updateEmotes());
     }
 
     @Override
-    public void onEmoteRemoved(@Nonnull EmoteRemovedEvent event) {
+    public void onEmoteRemoved(@Nonnull final EmoteRemovedEvent event) {
         BotHome botHome = homeMap.get(event.getGuild().getIdLong());
         if (botHome == null) {
             return;
         }
-        botHome.getServiceHome(DiscordService.TYPE).updateEmotes();
+
+        EXECUTOR.submit(() -> botHome.getServiceHome(DiscordService.TYPE).updateEmotes());
     }
 
     private DiscordHomedUser getUser(final Member member, final BotHome botHome) {

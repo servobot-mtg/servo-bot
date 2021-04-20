@@ -93,27 +93,27 @@ public class DiscordChannel implements Channel {
 
     private String replaceNames(final String text) {
         Guild guild = serviceHome.getGuild();
-        final String nameReplacedText = Strings.replace(text, NAME_PATTERN, matcher -> {
-            String name = matcher.group().substring(1);
-            List<Member> members = guild.getMembersByEffectiveName(name, true);
-            if (!members.isEmpty()) {
-                return members.get(0).getAsMention();
-            }
-            members = guild.getMembersByName(name, true);
-            if (!members.isEmpty()) {
-                return members.get(0).getAsMention();
+        final String nameReplacedText = Strings.replace(text, NAME_PATTERN, match -> {
+            String name = match.getValue().substring(1, match.getLength());
+            List<Member> members = guild.retrieveMembersByPrefix(name, 10).get();
+
+            for (Member member : members) {
+                String memberName = member.getEffectiveName();
+                if (match.getValue().substring(1, memberName.length() + 1).equals(memberName)) {
+                    return new Strings.Replacement(memberName.length() + 1, member.getAsMention());
+                }
             }
             return null;
         });
 
         Map<String, Emote> emoteMap = serviceHome.getEmoteMap();
-        return Strings.replace(nameReplacedText, EMOTE_PATTERN, matcher -> {
-            String name = matcher.group();
+        return Strings.replace(nameReplacedText, EMOTE_PATTERN, match -> {
+            String name = match.getValue();
             if (name.startsWith(":")) {
                 name = name.substring(1, name.length() - 1);
             }
             if (emoteMap.containsKey(name)) {
-                return emoteMap.get(name).getMessageText();
+                return new Strings.Replacement(match.getLength(), emoteMap.get(name).getMessageText());
             }
             return null;
         });
