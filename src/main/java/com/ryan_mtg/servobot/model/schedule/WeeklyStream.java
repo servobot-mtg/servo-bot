@@ -26,9 +26,9 @@ public class WeeklyStream {
         this.time = time;
     }
 
-    public ZonedDateTime nextTime(final ZonedDateTime time) {
-        ZonedDateTime nextTime = time.withHour(time.getHour()).withMinute(time.getMinute());
-        while (nextTime.compareTo(time) < 0 || nextTime.getDayOfWeek() != day) {
+    public ZonedDateTime nextTime(final ZonedDateTime now) {
+        ZonedDateTime nextTime = now.withHour(time.getHour()).withMinute(time.getMinute());
+        while (nextTime.compareTo(now) < 0 || nextTime.getDayOfWeek() != day) {
             nextTime = nextTime.plusDays(1);
         }
         return nextTime;
