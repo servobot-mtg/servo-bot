@@ -498,7 +498,7 @@ public class GameQueue {
         GameQueueEntry entry = userMap.get(playerId);
         entry.setState(PlayerState.PERMANENT);
         edit.save(getId(), entry);
-        GameQueueAction action = GameQueueAction.playerPermanented(player);
+        GameQueueAction action = GameQueueAction.playerMadePermanent(player);
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 

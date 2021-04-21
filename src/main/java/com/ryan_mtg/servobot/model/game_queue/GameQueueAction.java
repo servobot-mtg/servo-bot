@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,44 +30,21 @@ public class GameQueueAction {
         MAX_PLAYERS,
     }
 
-    @Getter @Builder.Default
-    private List<HomedUser> queuedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> dequeuedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> enteredGamePlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> onDeckedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> readiedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> unreadiedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> noShowedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> lgedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> movedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> rsvpedPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> rsvpExpiredPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> permanentPlayers = new ArrayList<>();
-
-    @Getter @Builder.Default
-    private List<HomedUser> onCallPlayers = new ArrayList<>();
+    public enum PlayerAction {
+        QUEUED,
+        DEQUEUED,
+        ENTERED_GAME,
+        ON_DECKED,
+        READIED,
+        UNREADIED,
+        NO_SHOWED,
+        LGED,
+        MOVED,
+        RSVPED,
+        RSVP_EXPIRED,
+        MADE_PERMANENT,
+        ON_CALLED,
+    }
 
     @Getter @Builder.Default
     private final Map<HomedUser, String> gamerTagMap = new HashMap<>();
@@ -74,8 +52,22 @@ public class GameQueueAction {
     @Builder.Default
     private final Map<Event, Object> eventMap = new HashMap<>();
 
+    @Builder.Default
+    private final Map<PlayerAction, List<HomedUser>> playerActionMap = new HashMap<>();
+
     public boolean hasEvent(final Event event) {
         return eventMap.containsKey(event);
+    }
+
+    public boolean hasPlayers(final PlayerAction action) {
+        return playerActionMap.containsKey(action) && !playerActionMap.get(action).isEmpty();
+    }
+
+    public List<HomedUser> getPlayers(final PlayerAction action) {
+        if (playerActionMap.containsKey(action)) {
+            return playerActionMap.get(action);
+        }
+        return Collections.emptyList();
     }
 
     public String getGamerTagVariable() {
@@ -112,25 +104,17 @@ public class GameQueueAction {
 
     public void merge(final GameQueueAction action) {
         eventMap.putAll(action.eventMap);
-        queuedPlayers = merge(queuedPlayers, action.queuedPlayers);
-        dequeuedPlayers = merge(dequeuedPlayers, action.dequeuedPlayers);
-        onDeckedPlayers = merge(onDeckedPlayers, action.onDeckedPlayers);
-        enteredGamePlayers = merge(enteredGamePlayers, action.enteredGamePlayers);
-        readiedPlayers = merge(readiedPlayers, action.readiedPlayers);
-        unreadiedPlayers = merge(unreadiedPlayers, action.unreadiedPlayers);
-        noShowedPlayers = merge(noShowedPlayers, action.noShowedPlayers);
-        lgedPlayers = merge(lgedPlayers, action.lgedPlayers);
-        permanentPlayers = merge(permanentPlayers, action.permanentPlayers);
-        onCallPlayers = merge(onCallPlayers, action.onCallPlayers);
-        movedPlayers = merge(movedPlayers, action.movedPlayers);
-        rsvpedPlayers = merge(rsvpedPlayers, action.rsvpedPlayers);
-        rsvpExpiredPlayers = merge(rsvpExpiredPlayers, action.rsvpExpiredPlayers);
+        action.playerActionMap.forEach((playerAction, list)
+                -> playerActionMap.computeIfAbsent(playerAction, pa -> new ArrayList<>()).addAll(list));
+
         gamerTagMap.putAll(action.gamerTagMap);
     }
 
-    public void playerEntered(final HomedUser user) {
-        enteredGamePlayers.add(user);
-        onDeckedPlayers.remove(user);
+    public void playerEntered(final HomedUser player) {
+        playerActionMap.computeIfAbsent(PlayerAction.ENTERED_GAME, pa -> new ArrayList<>()).add(player);
+        if (playerActionMap.containsKey(PlayerAction.ON_DECKED)) {
+            playerActionMap.get(PlayerAction.ON_DECKED).remove(player);
+        }
     }
 
     public static GameQueueAction emptyAction() {
@@ -169,55 +153,55 @@ public class GameQueueAction {
     }
 
     public static GameQueueAction playerQueued(final HomedUser player) {
-        return GameQueueAction.builder().queuedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.QUEUED)).build();
     }
 
     public static GameQueueAction playerDequeued(final HomedUser player) {
-        return GameQueueAction.builder().dequeuedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.DEQUEUED)).build();
     }
 
     public static GameQueueAction playerReadied(final HomedUser player) {
-        return GameQueueAction.builder().readiedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.READIED)).build();
     }
 
     public static GameQueueAction playerUnreadied(final HomedUser player) {
-        return GameQueueAction.builder().unreadiedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.UNREADIED)).build();
     }
 
     public static GameQueueAction playerNoShowed(HomedUser player) {
-        return GameQueueAction.builder().noShowedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.NO_SHOWED)).build();
     }
 
     public static GameQueueAction playerEnteredGame(final HomedUser player) {
-        return GameQueueAction.builder().enteredGamePlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.ENTERED_GAME)).build();
     }
 
     public static GameQueueAction playerOnDecked(final HomedUser player) {
-        return GameQueueAction.builder().onDeckedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.ON_DECKED)).build();
     }
 
     public static GameQueueAction playerLged(final HomedUser player) {
-        return GameQueueAction.builder().lgedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.LGED)).build();
     }
 
     public static GameQueueAction playerMoved(final HomedUser player) {
-        return GameQueueAction.builder().movedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.MOVED)).build();
     }
 
     public static GameQueueAction playerRsvped(final HomedUser player) {
-        return GameQueueAction.builder().rsvpedPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.RSVPED)).build();
     }
 
     public static GameQueueAction playerReservationExpired(final HomedUser player) {
-        return GameQueueAction.builder().rsvpExpiredPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.RSVP_EXPIRED)).build();
     }
 
-    public static GameQueueAction playerPermanented(final HomedUser player) {
-        return GameQueueAction.builder().permanentPlayers(Collections.singletonList(player)).build();
+    public static GameQueueAction playerMadePermanent(final HomedUser player) {
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.MADE_PERMANENT)).build();
     }
 
     public static GameQueueAction playerOnCalled(final HomedUser player) {
-        return GameQueueAction.builder().onCallPlayers(Collections.singletonList(player)).build();
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.ON_CALLED)).build();
     }
 
     public static GameQueueAction gamerTagVariableChanged(final String gamerTagVariable) {
@@ -243,6 +227,14 @@ public class GameQueueAction {
     private static Map<Event, Object> createMap(final Event action, final Object value) {
         Map<Event, Object> map = new HashMap<>();
         map.put(action, value);
+        return map;
+    }
+
+    private static Map<PlayerAction, List<HomedUser>> createMap(final HomedUser player, final PlayerAction action) {
+        Map<PlayerAction, List<HomedUser>> map = new HashMap<>();
+        List<HomedUser> list = new ArrayList<>();
+        list.add(player);
+        map.put(action, list);
         return map;
     }
 }

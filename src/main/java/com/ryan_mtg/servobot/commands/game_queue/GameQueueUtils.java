@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class GameQueueUtils {
     public static final String ROTATE_EMOTE = "🔄";
@@ -87,54 +88,41 @@ public class GameQueueUtils {
             response = combine(response, GameQueueUtils.getMaximumPlayersSetMessage(action.getMaximumPlayers()));
         }
 
-        if (!action.getQueuedPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersQueuedMessage(action.getQueuedPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.QUEUED, response,
+                GameQueueUtils::getPlayersQueuedMessage);
 
-        if (!action.getDequeuedPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersDequeuedMessage(action.getDequeuedPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.DEQUEUED, response,
+                GameQueueUtils::getPlayersDequeuedMessage);
 
-        if (!action.getReadiedPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersReadyMessage(action.getReadiedPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.READIED, response,
+                GameQueueUtils::getPlayersReadyMessage);
 
-        if (!action.getUnreadiedPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersUnreadyMessage(action.getUnreadiedPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.UNREADIED, response,
+                GameQueueUtils::getPlayersUnreadyMessage);
 
-        if (!action.getLgedPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersLgedMessage(action.getLgedPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.LGED, response,
+                GameQueueUtils::getPlayersLgedMessage);
 
-        if (!action.getPermanentPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersPermanentMessage(action.getPermanentPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.MADE_PERMANENT, response,
+                GameQueueUtils::getPlayersMarkedPermanentMessage);
 
-        if (!action.getOnCallPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersOnCallMessage(action.getOnCallPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.ON_CALLED, response,
+                GameQueueUtils::getPlayersOnCallMessage);
 
-        if (!action.getRsvpedPlayers().isEmpty() && verbose) {
-            response = combine(response, GameQueueUtils.getPlayersRsvpedMessage(action.getRsvpedPlayers()));
-        }
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.RSVPED, response,
+                GameQueueUtils::getPlayersRsvpedMessage);
 
-        if (!action.getEnteredGamePlayers().isEmpty()) {
-            response = combine(response, GameQueueUtils.getPlayersEnterGameMessage(action.getEnteredGamePlayers()));
-        }
+        response = respondToPlayerAction(true, action, GameQueueAction.PlayerAction.ENTERED_GAME, response,
+                GameQueueUtils::getPlayersEnterGameMessage);
 
-        if (!action.getNoShowedPlayers().isEmpty()) {
-            response = combine(response, GameQueueUtils.getPlayersNoShowedMessage(action.getNoShowedPlayers()));
-        }
+        response = respondToPlayerAction(true, action, GameQueueAction.PlayerAction.NO_SHOWED, response,
+                GameQueueUtils::getPlayersNoShowedMessage);
 
-        if (!action.getOnDeckedPlayers().isEmpty()) {
-            response = combine(response, GameQueueUtils.getPlayersOnDeckedMessage(action.getOnDeckedPlayers()));
-        }
+        response = respondToPlayerAction(true, action, GameQueueAction.PlayerAction.ON_DECKED, response,
+                GameQueueUtils::getPlayersOnDeckedMessage);
 
-        if (!action.getRsvpExpiredPlayers().isEmpty()) {
-            response = combine(response,
-                    GameQueueUtils.getPlayersReservationExpiredMessage(action.getRsvpExpiredPlayers()));
-        }
+        response = respondToPlayerAction(true, action, GameQueueAction.PlayerAction.RSVP_EXPIRED,
+                response, GameQueueUtils::getPlayersReservationExpiredMessage);
 
         if (!action.getGamerTagMap().isEmpty() && verbose) {
             response = combine(response, GameQueueUtils.getGamerTagsChangedMessage(action.getGamerTagMap()));
@@ -293,7 +281,7 @@ public class GameQueueUtils {
         return getPlayersMessage("Marked", "as if needed.", players);
     }
 
-    public static String getPlayersPermanentMessage(final List<HomedUser> players) {
+    public static String getPlayersMarkedPermanentMessage(final List<HomedUser> players) {
         return getPlayersMessage("Marked", "as permanent.", players);
     }
 
@@ -350,6 +338,16 @@ public class GameQueueUtils {
         }
         text.append(" a reservation and should react to the queue with " + DAGGER_EMOTE + " when they are ready to play!");
         return text.toString();
+    }
+
+    private static String respondToPlayerAction(final boolean allowedToRespond, final GameQueueAction action,
+            final GameQueueAction.PlayerAction playerAction, final String response,
+            final Function<List<HomedUser>, String> buildResponse) {
+
+        if (action.hasPlayers(playerAction) && allowedToRespond) {
+            return combine(response, buildResponse.apply(action.getPlayers(playerAction)));
+        }
+        return response;
     }
 
     private static String getGamerTagsChangedMessage(final Map<HomedUser, String> gamerTagMap) {
