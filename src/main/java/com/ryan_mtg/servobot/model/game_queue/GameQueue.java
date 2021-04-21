@@ -735,7 +735,7 @@ public class GameQueue {
             onDeck.remove(readiableEntry);
             readiableEntry.setState(PlayerState.PLAYING);
             gameQueueEdit.save(getId(), readiableEntry);
-            action.merge(GameQueueAction.playerEnteredGame(readiableEntry.getUser()));
+            action.playerEntered(readiableEntry.getUser());
             playing.add(readiableEntry);
         }
     }

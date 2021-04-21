@@ -128,6 +128,11 @@ public class GameQueueAction {
         gamerTagMap.putAll(action.gamerTagMap);
     }
 
+    public void playerEntered(final HomedUser user) {
+        enteredGamePlayers.add(user);
+        onDeckedPlayers.remove(user);
+    }
+
     public static GameQueueAction emptyAction() {
         return GameQueueAction.builder().build();
     }
