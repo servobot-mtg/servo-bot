@@ -47,6 +47,10 @@ public class HomedUser {
         return user.getName();
     }
 
+    public String getName(final int serviceType) {
+        return user.getName(serviceType);
+    }
+
     public boolean isAdmin() {
         return user.isAdmin();
     }

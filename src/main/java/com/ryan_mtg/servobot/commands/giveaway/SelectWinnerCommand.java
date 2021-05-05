@@ -50,7 +50,7 @@ public class SelectWinnerCommand extends HomeCommand {
         Scope scope = homeEditor.getScope();
 
         Raffle raffle = homeEditor.getGiveaway(giveawayId).retrieveCurrentRaffle();
-        List<HomedUser> winners = homeEditor.selectRaffleWinners(giveawayId);
+        List<HomedUser> winners = homeEditor.selectRaffleWinners(giveawayId, homeEvent.getServiceType());
 
         SimpleSymbolTable symbolTable = new SimpleSymbolTable();
         String message;

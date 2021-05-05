@@ -163,7 +163,7 @@ public class TwitchService implements Service {
     @Override
     public void whisper(final User user, final String message) {
         loggedMessageSerializer.logSentMessage(user, message, TwitchService.TYPE);
-        throw new RuntimeException("Not supported");
+        client.getChat().sendPrivateMessage(user.getTwitchUsername(), message);
     }
 
     public boolean isStreaming(final long channelId) {

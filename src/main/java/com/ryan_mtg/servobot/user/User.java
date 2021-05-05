@@ -1,6 +1,8 @@
 package com.ryan_mtg.servobot.user;
 
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.UserError;
+import com.ryan_mtg.servobot.twitch.model.TwitchService;
 import com.ryan_mtg.servobot.utility.Flags;
 import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
@@ -62,6 +64,16 @@ public class User {
             return twitchUsername;
         }
         return discordUsername;
+    }
+
+    public String getName(final int serviceType) {
+        if (serviceType == TwitchService.TYPE && twitchUsername != null) {
+            return twitchUsername;
+        }
+        if (serviceType == DiscordService.TYPE && discordUsername != null) {
+            return discordUsername;
+        }
+        return getName();
     }
 
     public boolean hasInvite() {

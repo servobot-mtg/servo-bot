@@ -607,7 +607,7 @@ public class HomeEditor {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public List<HomedUser> selectRaffleWinners(int giveawayId) throws UserError {
+    public List<HomedUser> selectRaffleWinners(final int giveawayId, final int serviceType) throws UserError {
         Giveaway giveaway = getGiveaway(giveawayId);
         Raffle raffle = giveaway.retrieveCurrentRaffle();
 
@@ -618,10 +618,9 @@ public class HomeEditor {
         for (Prize prize : raffle.getPrizes()) {
             HomedUser winner = prize.getWinner();
             if (winner != null && winner.getDiscordId() != 0) {
-                // TODO: turned off because of a raffle with no code, this should be configurable
-                String prizeMessage = String.format("Congratulations %s, your code is: %s", winner.getDiscordUsername(),
+                String prizeMessage = String.format("Congratulations %s, your code is: %s", winner.getName(serviceType),
                         prize.getReward());
-                whisperMessage(DiscordService.TYPE, winner, prizeMessage);
+                whisperMessage(serviceType, winner, prizeMessage);
                 prize.bestowTo(winner);
             }
         }

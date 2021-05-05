@@ -104,8 +104,8 @@
                                 <label>Discord Channel</label><br>
                                 <select th:id="${label} + '-discord-channel'">
                                     <th:block th:each="channel : ${channels}">
-                                        <option th:value="${channel}" th:text="${channel}"
-                                                th:selected="${channel == giveaway.raffleSettings.discordChannel}">
+                                        <option th:value="${channel.id}" th:text="${channel.name}"
+                                                th:selected="${channel.name == giveaway.raffleSettings.discordChannel}">
                                         </option>
                                     </th:block>
                                 </select>
