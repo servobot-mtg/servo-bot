@@ -42,7 +42,7 @@ public class Application {
     public void printAddress(final ApplicationReadyEvent event) {
         if (isTesting()) {
             int port = Integer.parseInt(environment.getProperty("local.server.port"));
-            String botSite = String.format("http://localhost:%d", port);
+            String botSite = String.format("https://localhost", port);
             LOGGER.info(String.format("Website link: %s", botSite));
             for(Bot bot : botRegistrar.getBots()) {
                 for (BotHome home : bot.getHomes()) {

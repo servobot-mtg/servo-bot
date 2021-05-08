@@ -26,9 +26,9 @@ import java.time.Duration;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
-    private static final int HTTP_PORT = 5000;
+    private static final int HTTP_PORT = 80;
     private static final int HTTPS_PORT = 443;
-    private static final boolean USE_HTTPS = false;
+    private static final boolean USE_HTTPS = true;
     private static final String RESOURCE_DIRECTORY = "src/main/resources";
 
     @Bean
@@ -68,9 +68,7 @@ public class MvcConfig implements WebMvcConfigurer {
     public static class ServerPortCustomizer implements WebServerFactoryCustomizer<ConfigurableWebServerFactory> {
         @Override
         public void customize(final ConfigurableWebServerFactory factory) {
-            //TODO: remove when deployed with HTTPS
-            // factory.setPort(HTTPS_PORT);
-            if (USE_HTTPS && Application.isTesting()) {
+            if (USE_HTTPS) {
                 factory.setPort(HTTPS_PORT);
             } else {
                 factory.setPort(HTTP_PORT);
@@ -80,8 +78,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Bean
     public ServletWebServerFactory servletWebServerFactory() {
-        //TODO: remove when deployed with HTTPS
-        if (Application.isTesting() && USE_HTTPS) {
+        if (USE_HTTPS) {
             TomcatServletWebServerFactory tomcatFactory = new TomcatServletWebServerFactory() {
                 @Override
                 protected void postProcessContext(final Context context) {

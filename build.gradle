@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.2.4.RELEASE'
+    id 'org.hidetake.ssh' version '2.10.1'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -16,6 +17,17 @@ repositories {
     jcenter()
     maven {
         url 'https://oss.jfrog.org/artifactory/libs-release'
+    }
+}
+
+def deploymentProperties = new Properties()
+file('secret/deployment.properties').withInputStream {deploymentProperties.load(it) }
+
+remotes {
+    server {
+        host = deploymentProperties.getProperty('hostname')
+        user = deploymentProperties.getProperty('user')
+        identity = file(deploymentProperties.getProperty('keyfile'))
     }
 }
 
@@ -62,7 +74,6 @@ bootJar {
     dependsOn check
 
     archiveBaseName = 'servo-bot'
-
     mainClassName = 'com.ryan_mtg.servobot.Application'
 }
 
@@ -74,36 +85,59 @@ bootRun {
     main = 'com.ryan_mtg.servobot.Application'
 }
 
-def deployDir = "${buildDir}/generated/deploy"
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
 
-task deploy (type: Zip) {
-    group = 'build'
-    description = 'Creates a source zip file for AWS deployment.'
-    dependsOn(check)
-
+task configureResources {
     doFirst {
-        // Create Buildfile and Procfile for AWS deployment
-        mkdir deployDir
-        new File(deployDir, 'Buildfile').text = 'build: gradle build'
-        def archiveFile = projectDir.relativePath(bootJar.archiveFile.get().asFile)
-        new File(deployDir, 'Procfile').text = "web: java -jar ${archiveFile}"
-    }
+        def secretResourceDir = 'secret/local/resources'
+        if (gradle.startParameter.taskNames.contains('bootJar') || gradle.startParameter.taskNames.contains('deploy')) {
+            secretResourceDir = 'secret/deploy/resources'
+        }
+        sourceSets {
+            main {
+                resources {
+                    srcDirs 'src/main/resources', secretResourceDir
+                }
+            }
+        }
 
-    into('src') {
-        from fileTree('src')
-        exclude '**/application.properties'
-        exclude '**/log4j2-spring.xml'
     }
+}
 
-    into ('') {
-        from fileTree(projectDir)
-        include '*.gradle'
-        exclude '.gradle'
+processResources {
+    dependsOn(configureResources)
+}
+
+task deploy {
+    group = 'application'
+    description = 'Builds and uploads deployment jar to EC2 instance.'
+    dependsOn(bootJar)
+
+    doLast {
+        ssh.run {
+            session(remotes.server) {
+                // put from: bootJar.archiveFile.get().asFile, into: 'install'
+                // def result = execute 'sudo deployment.sh'
+                // println result
+            }
+        }
     }
+}
 
-    into ('') {
-        from fileTree(deployDir)
+task install {
+    group = 'application'
+    description = 'Installs the necessary files to a new server.'
+
+    doLast {
+        ssh.run {
+            session(remotes.server) {
+                execute 'mkdir install'
+                put from: file('src/deploy/deploy.sh'), into: 'install/deploy.sh'
+                execute 'chmod +x install/deploy.sh'
+                put from: file('src/deploy/servobot.service'), into: 'install/servobot.service'
+            }
+        }
     }
-
-    archiveBaseName = 'servo-bot-deploy'
 }

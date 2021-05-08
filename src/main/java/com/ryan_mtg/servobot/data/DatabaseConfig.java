@@ -7,9 +7,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import com.ryan_mtg.servobot.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +25,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 @ComponentScan
 @EnableJpaRepositories
 public class DatabaseConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConfig.class);
-
     @Value("${database.username}")
     private String username;
 
@@ -63,9 +58,6 @@ public class DatabaseConfig {
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         final String connectionUrlPattern = "jdbc:mysql://%s:3306/botdb?useUnicode=yes&characterEncoding=UTF-8";
         String url = String.format(connectionUrlPattern, server);
-        if (Application.isTesting()) {
-            url = String.format(connectionUrlPattern, "localhost");
-        }
         dataSource.setUrl(url);
         dataSource.setUsername(username);
         dataSource.setPassword(password);

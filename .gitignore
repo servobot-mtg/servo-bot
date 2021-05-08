@@ -14,9 +14,6 @@ secret/
 # Compiled class file
 *.class
 
-# Application properties files contain sensitive data
-application*.properties
-
 # Log file
 *.log
 
