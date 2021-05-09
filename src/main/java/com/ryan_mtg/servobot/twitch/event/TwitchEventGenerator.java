@@ -3,7 +3,6 @@ package com.ryan_mtg.servobot.twitch.event;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
-import com.github.twitch4j.chat.events.channel.HostOnEvent;
 import com.github.twitch4j.chat.events.channel.RaidEvent;
 import com.github.twitch4j.chat.events.channel.SubscriptionEvent;
 import com.github.twitch4j.common.enums.CommandPermission;
@@ -34,11 +33,14 @@ public class TwitchEventGenerator {
 
         client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
                 .onEvent(ChannelMessageEvent.class, this::handleMessageEvent);
-        /*
-        client.getEventManager().onEvent(SubscriptionEvent.class).subscribe(this::handleSubscriptionEvent);
-        client.getEventManager().onEvent(RaidEvent.class).subscribe(this::handleRaidEvent);
-        client.getEventManager().onEvent(HostOnEvent.class).subscribe(this::handleHostEvent);
-         */
+        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
+                .onEvent(ChannelMessageEvent.class, this::handleMessageEvent);
+        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
+                .onEvent(RaidEvent.class, this::handleRaidEvent);
+        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
+                .onEvent(RaidEvent.class, this::handleRaidEvent);
+        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
+                .onEvent(SubscriptionEvent.class, this::handleSubscriptionEvent);
     }
 
     private void handleMessageEvent(final ChannelMessageEvent event) {
@@ -65,15 +67,6 @@ public class TwitchEventGenerator {
             TwitchUser subscriber = getUser(event.getRaider(), botHome);
             eventListener.onRaid(new TwitchRaidEvent(client, event, botHome, subscriber));
         });
-    }
-
-    private void handleHostEvent(final HostOnEvent event) {
-        try {
-            LOGGER.info("Host event: " + event.getChannel() + " is targeting " + event.getTargetChannel());
-        } catch (Exception e) {
-            LOGGER.warn("Unhandled ErrorException handling host: {}", e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     private BotHome resolveBotHomeId(final String channelId) {
