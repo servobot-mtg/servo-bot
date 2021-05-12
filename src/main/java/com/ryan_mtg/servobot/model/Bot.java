@@ -179,7 +179,7 @@ public class Bot implements Context {
             executor.submit(() -> {
                 try {
                     service.start(listener);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
             });

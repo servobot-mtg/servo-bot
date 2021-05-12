@@ -235,9 +235,10 @@ public class TwitchService implements Service {
     }
 
     private com.github.twitch4j.helix.domain.User fetchChannelUser(final long channelId) {
-        return client.getHelix().
-                getUsers(authToken, Collections.singletonList(Long.toString(channelId)), null).execute()
-                .getUsers().get(0);
+        UserList userList = client.getHelix()
+                .getUsers(authToken, Collections.singletonList(Long.toString(channelId)), null).execute();
+        List<com.github.twitch4j.helix.domain.User> users = userList.getUsers();
+        return users.get(0);
     }
 
     private boolean isVideoCurrent(final Video video, final Instant now) {

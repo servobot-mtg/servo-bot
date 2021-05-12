@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.2.4.RELEASE'
+    id 'org.springframework.boot' version '2.4.4'
     id 'org.hidetake.ssh' version '2.10.1'
 }
 
@@ -36,6 +36,9 @@ configurations {
 }
 
 dependencies {
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.12.3'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.12.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
     compile 'com.google.guava:guava:28.1-jre'
     compile 'com.github.twitch4j:twitch4j:1.3.1'
     compile 'mysql:mysql-connector-java:8.0.16'
@@ -49,9 +52,10 @@ dependencies {
     compile 'org.jsoup:jsoup:1.+'
     compile 'org.springframework.boot:spring-boot-devtools'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
-    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-security:2.2.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    compile 'org.springframework.boot:spring-boot-starter-validation'
+    compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.2.4.RELEASE'
     compile 'org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE'
     compile 'org.springframework.security:spring-security-oauth2-client'
@@ -116,13 +120,15 @@ task deploy {
     dependsOn(bootJar)
 
     doLast {
+        println '< doing deploy'
         ssh.run {
             session(remotes.server) {
-                // put from: bootJar.archiveFile.get().asFile, into: 'install'
-                // def result = execute 'sudo deployment.sh'
-                // println result
+                put from: bootJar.archiveFile.get().asFile, into: 'install'
+                def result = execute 'sudo install/deploy.sh'
+                println result
             }
         }
+        println '> deploy done'
     }
 }
 
@@ -133,7 +139,7 @@ task install {
     doLast {
         ssh.run {
             session(remotes.server) {
-                execute 'mkdir install'
+                execute 'mkdir -p install'
                 put from: file('src/deploy/deploy.sh'), into: 'install/deploy.sh'
                 execute 'chmod +x install/deploy.sh'
                 put from: file('src/deploy/servobot.service'), into: 'install/servobot.service'

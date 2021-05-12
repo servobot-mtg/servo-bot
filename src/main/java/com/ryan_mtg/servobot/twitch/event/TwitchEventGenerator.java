@@ -34,10 +34,6 @@ public class TwitchEventGenerator {
         client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
                 .onEvent(ChannelMessageEvent.class, this::handleMessageEvent);
         client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
-                .onEvent(ChannelMessageEvent.class, this::handleMessageEvent);
-        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
-                .onEvent(RaidEvent.class, this::handleRaidEvent);
-        client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
                 .onEvent(RaidEvent.class, this::handleRaidEvent);
         client.getChat().getEventManager().getEventHandler(SimpleEventHandler.class)
                 .onEvent(SubscriptionEvent.class, this::handleSubscriptionEvent);
@@ -53,7 +49,6 @@ public class TwitchEventGenerator {
 
     private void handleSubscriptionEvent(final SubscriptionEvent event) {
         BotErrorHandler.handleError(() -> {
-            LOGGER.info("Subscribe event: " + event.getChannel() + " is subbed by " + event.getUser());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getUser(), botHome);
             eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome, subscriber));
