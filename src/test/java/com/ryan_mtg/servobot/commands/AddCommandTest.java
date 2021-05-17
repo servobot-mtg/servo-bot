@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 import static com.ryan_mtg.servobot.model.ObjectMother.isACommand;
 import static com.ryan_mtg.servobot.model.ObjectMother.isATextCommand;
 import static com.ryan_mtg.servobot.model.ObjectMother.mockCommandInvokedEvent;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
