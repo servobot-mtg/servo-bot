@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.model.game_queue;
 
+import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.model.Message;
 import com.ryan_mtg.servobot.user.HomedUser;
@@ -9,6 +10,7 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.rmi.ServerError;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -157,6 +159,14 @@ public class GameQueue {
         return isStatus(player, PlayerState.NO_SHOW);
     }
 
+    public String getNote(final HomedUser player) {
+        if (userMap.containsKey(player.getId())) {
+            return userMap.get(player.getId()).getNote();
+        }
+        return null;
+    }
+
+
     private boolean isStatus(final HomedUser player, final PlayerState state) {
         int playerId = player.getId();
         if (userMap.containsKey(playerId)) {
@@ -227,13 +237,14 @@ public class GameQueue {
         return action;
     }
 
-    public GameQueueAction enqueue(final int botHomeId, final HomedUser player, final GameQueueEdit edit)
-            throws UserError {
+    public GameQueueAction enqueue(final int botHomeId, final HomedUser player, final String note,
+            final GameQueueEdit edit) throws UserError {
         int playerId = player.getId();
         if (userMap.containsKey(playerId)) {
             GameQueueEntry entry = userMap.get(playerId);
 
             if (entry.getState() == PlayerState.RSVPED) {
+                entry.setNote(note);
                 edit.save(getId(), entry);
                 GameQueueAction action = GameQueueAction.playerQueued(player);
                 promotePlayersToOnDeck(botHomeId, edit, action, entry);
@@ -244,7 +255,7 @@ public class GameQueue {
             }
         }
 
-        GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.WAITING);
+        GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.WAITING, note);
         edit.save(getId(), newEntry);
         waitQueue.add(newEntry);
         userMap.put(player.getId(), newEntry);
@@ -274,13 +285,14 @@ public class GameQueue {
             throws UserError {
         int playerId = player.getId();
         if (!userMap.containsKey(playerId)) {
-            return enqueue(botHomeId, player, edit);
+            return enqueue(botHomeId, player, null, edit);
         }
 
         GameQueueEntry entry = userMap.get(playerId);
         removeFromLists(entry);
         entry.setState(PlayerState.WAITING);
         entry.setEnqueueTime(Instant.now());
+        entry.clearNote();
         waitQueue.add(entry);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerQueued(player);
@@ -510,7 +522,7 @@ public class GameQueue {
         int playerId = player.getId();
 
         if (!userMap.containsKey(playerId)) {
-            GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.ON_CALL);
+            GameQueueEntry newEntry = new GameQueueEntry(player, Instant.now(), PlayerState.ON_CALL, null);
             edit.save(getId(), newEntry);
             waitQueue.add(newEntry);
             userMap.put(player.getId(), newEntry);
@@ -560,7 +572,7 @@ public class GameQueue {
             entry.setState(PlayerState.RSVPED);
             entry.setEnqueueTime(rsvpTime);
         } else {
-            entry = new GameQueueEntry(player, rsvpTime, PlayerState.RSVPED);
+            entry = new GameQueueEntry(player, rsvpTime, PlayerState.RSVPED, null);
             userMap.put(playerId, entry);
             rsvped.add(entry);
         }
@@ -571,6 +583,19 @@ public class GameQueue {
 
         return action;
     }
+
+    public GameQueueAction addNote(final GameQueueEdit gameQueueEdit, final HomedUser player, final String note)
+            throws UserError {
+        int playerId = player.getId();
+        if (!userMap.containsKey(playerId)) {
+            throw new UserError("%s is not in the queue.", player.getName());
+        }
+        GameQueueEntry entry = userMap.get(playerId);
+        entry.setNote(sanitize(note));
+        gameQueueEdit.save(getId(), entry);
+        return GameQueueAction.noteAdded(player);
+    }
+
 
     public GameQueueEdit clear(final int botHomeId) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
@@ -682,7 +707,10 @@ public class GameQueue {
                     newEntry.setState(playerState);
                 }
             } else {
-                newEntry = new GameQueueEntry(homedUserTable.getById(newUserId), minEnqueueTime, playerState);
+                final Instant enqueueTime = minEnqueueTime;
+                final PlayerState newPlayerState = playerState;
+                newEntry = SystemError.filter(() ->
+                    new GameQueueEntry(homedUserTable.getById(newUserId), enqueueTime, newPlayerState, null));
                 userMap.put(newUserId, newEntry);
             }
             gameQueueEdit.save(id, newEntry);
@@ -734,6 +762,7 @@ public class GameQueue {
                 && readiableEntry.getState() == PlayerState.ON_DECK) {
             onDeck.remove(readiableEntry);
             readiableEntry.setState(PlayerState.PLAYING);
+            readiableEntry.clearNote();
             gameQueueEdit.save(getId(), readiableEntry);
             action.playerEntered(readiableEntry.getUser());
             playing.add(readiableEntry);
@@ -754,5 +783,12 @@ public class GameQueue {
     private List<HomedUser> makeList(final List<GameQueueEntry> gameQueueEntries) {
         Collections.sort(gameQueueEntries);
         return gameQueueEntries.stream().map(GameQueueEntry::getUser).collect(Collectors.toList());
+    }
+
+    private String sanitize(final String note) {
+        if (note.contains("\n")) {
+            return note.replace("\n", "");
+        }
+        return note;
     }
 }

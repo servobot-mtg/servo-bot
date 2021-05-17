@@ -1,6 +1,7 @@
 package com.ryan_mtg.servobot.data.models;
 
 import com.ryan_mtg.servobot.model.game_queue.PlayerState;
+import com.ryan_mtg.servobot.utility.Validation;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
@@ -28,6 +30,9 @@ public class GameQueueEntryRow {
 
     @Column(name = "enqueue_time")
     private long enqueueTime;
+
+    @Size(max = Validation.MAX_TEXT_LENGTH)
+    private String note;
 
     private PlayerState state;
 

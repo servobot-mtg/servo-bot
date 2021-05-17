@@ -27,6 +27,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -113,6 +114,9 @@ public class GameQueueCommand extends InvokedHomedCommand {
             case "exit":
             case "out":
                 return (event, parsedCommand) -> dequeueUser(event, parseResult.getInput());
+            case "note":
+            case "remember":
+                return (event, parseCommand) -> addNote(event, parseResult.getInput());
             case "clear":
             case "reset":
                 return (event, parsedCommand) -> clear(event);
@@ -404,11 +408,22 @@ public class GameQueueCommand extends InvokedHomedCommand {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
         GameQueueAction action = GameQueueAction.emptyAction();
         if (Strings.isBlank(input)) {
-            action.merge(gameQueueEditor.addUser(gameQueueId, event.getSender().getHomedUser()));
+            action.merge(gameQueueEditor.addUser(gameQueueId, event.getSender().getHomedUser(), null));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
-            for(HomedUser user : users) {
-                action.merge(gameQueueEditor.addUser(gameQueueId, user));
+            String note = null, names = input;
+            if (input.contains(":")) {
+                int index = input.indexOf(':');
+                note = input.substring(index + 1).trim();
+                names = input.substring(0, index);
+            }
+
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), names, true);
+            if (users == null) {
+                action.merge(gameQueueEditor.addUser(gameQueueId, event.getSender().getHomedUser(), input));
+            } else {
+                for(HomedUser user : users) {
+                    action.merge(gameQueueEditor.addUser(gameQueueId, user, note));
+                }
             }
         }
         showOrUpdateQueue(event, action);
@@ -420,7 +435,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.readyUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.readyUser(gameQueueId, user));
             }
@@ -434,7 +449,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.unreadyUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.unreadyUser(gameQueueId, user));
             }
@@ -449,7 +464,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
             throw new UserError("Who didn't show up?");
         }
 
-        List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+        List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
         for(HomedUser user : users) {
             action.merge(gameQueueEditor.noShowUser(gameQueueId, user));
         }
@@ -462,7 +477,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.cutUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.cutUser(gameQueueId, user));
             }
@@ -479,7 +494,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
             if (input.equalsIgnoreCase("all")) {
                 action.merge(gameQueueEditor.lgAll(gameQueueId));
             } else {
-                List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+                List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
                 for(HomedUser user : users) {
                     action.merge(gameQueueEditor.lgUser(gameQueueId, user));
                 }
@@ -487,6 +502,23 @@ public class GameQueueCommand extends InvokedHomedCommand {
         }
         showOrUpdateQueue(event, action);
     }
+
+    private void addNote(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+
+        if (!Strings.isBlank(input) && input.contains(":")) {
+            int index = input.indexOf(':');
+            String name = input.substring(0, index);
+            String note = input.substring(index + 1).trim();
+            HomedUser player = getUser(event.getServiceHome(), name);
+            GameQueueAction action = gameQueueEditor.addNote(gameQueueId, player, note);
+            showOrUpdateQueue(event, action);
+        } else {
+            GameQueueAction action = gameQueueEditor.addNote(gameQueueId, event.getSender().getHomedUser(), input);
+            showOrUpdateQueue(event, action);
+        }
+    }
+
 
     private void lgAll(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
@@ -500,7 +532,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.permanentUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.permanentUser(gameQueueId, user));
             }
@@ -514,7 +546,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.onCallUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.onCallUser(gameQueueId, user));
             }
@@ -522,12 +554,21 @@ public class GameQueueCommand extends InvokedHomedCommand {
         showOrUpdateQueue(event, action);
     }
 
-    private List<HomedUser> getPlayerList(final ServiceHome serviceHome, final String list) throws UserError {
-        List<HomedUser> users = new ArrayList<>();
-        for(String name : list.split(",")) {
-            users.add(getUser(serviceHome, name));
+    private List<HomedUser> getPlayerList(final ServiceHome serviceHome, final String list, final boolean checkName)
+            throws UserError {
+        if (list.contains(",") || !checkName) {
+            List<HomedUser> users = new ArrayList<>();
+            for(String name : list.split(",")) {
+                users.add(getUser(serviceHome, name));
+            }
+            return users;
+        } else {
+            try {
+                return Collections.singletonList(getUser(serviceHome, list));
+            } catch (UserError e) {
+                return null;
+            }
         }
-        return users;
     }
 
     private void dequeueUser(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
@@ -537,7 +578,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (Strings.isBlank(input)) {
             action.merge(gameQueueEditor.dequeueUser(gameQueueId, event.getSender().getHomedUser()));
         } else {
-            List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+            List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
             for(HomedUser user : users) {
                 action.merge(gameQueueEditor.dequeueUser(gameQueueId, user));
             }
@@ -574,7 +615,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
             if (input.equalsIgnoreCase("lg")) {
                 action.merge(gameQueueEditor.rotateLg(gameQueueId));
             } else {
-                List<HomedUser> users = getPlayerList(event.getServiceHome(), input);
+                List<HomedUser> users = getPlayerList(event.getServiceHome(), input, false);
                 for(HomedUser user : users) {
                     action.merge(gameQueueEditor.rotateUser(gameQueueId, user));
                 }

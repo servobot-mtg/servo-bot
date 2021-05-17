@@ -44,6 +44,7 @@ public class GameQueueAction {
         RSVP_EXPIRED,
         MADE_PERMANENT,
         ON_CALLED,
+        NOTE_ADDED,
     }
 
     @Getter @Builder.Default
@@ -158,6 +159,10 @@ public class GameQueueAction {
 
     public static GameQueueAction playerDequeued(final HomedUser player) {
         return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.DEQUEUED)).build();
+    }
+
+    public static GameQueueAction noteAdded(final HomedUser player) {
+        return GameQueueAction.builder().playerActionMap(createMap(player, PlayerAction.NOTE_ADDED)).build();
     }
 
     public static GameQueueAction playerReadied(final HomedUser player) {

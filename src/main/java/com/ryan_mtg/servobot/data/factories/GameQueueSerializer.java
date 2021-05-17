@@ -114,7 +114,8 @@ public class GameQueueSerializer {
             final GameQueueEntryRow gameQueueEntryRow) {
         HomedUser player = homedUserTable.getById(gameQueueEntryRow.getUserId());
         Instant enqueueTime = Instant.ofEpochMilli(gameQueueEntryRow.getEnqueueTime());
-        return new GameQueueEntry(player, enqueueTime, gameQueueEntryRow.getState());
+        String note = gameQueueEntryRow.getNote();
+        return SystemError.filter(() -> new GameQueueEntry(player, enqueueTime, gameQueueEntryRow.getState(), note));
     }
 
     private GameQueueEntryRow createGameQueueEntryRow(final int gameQueueId, final GameQueueEntry gameQueueEntry) {
@@ -123,6 +124,7 @@ public class GameQueueSerializer {
         gameQueueEntryRow.setUserId(gameQueueEntry.getUser().getId());
         gameQueueEntryRow.setEnqueueTime(gameQueueEntry.getEnqueueTime().toEpochMilli());
         gameQueueEntryRow.setState(gameQueueEntry.getState());
+        gameQueueEntryRow.setNote(gameQueueEntry.getNote());
 
         return gameQueueEntryRow;
     }

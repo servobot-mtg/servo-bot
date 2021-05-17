@@ -35,7 +35,7 @@ public class GameQueueUtils {
             GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
             String emoteName = event.getEmote().getName();
             if (emoteName.equals(DAGGER_EMOTE)) {
-                GameQueueAction action = gameQueueEditor.addUser(gameQueue.getId(), reactor.getHomedUser());
+                GameQueueAction action = gameQueueEditor.addUser(gameQueue.getId(), reactor.getHomedUser(), null);
                 updateMessage(event, gameQueue, event.getMessage(), action, false);
             } else if (emoteName.equals(ROTATE_EMOTE)) {
                 GameQueueAction action = gameQueueEditor.rotateUser(gameQueue.getId(), reactor.getHomedUser());
@@ -87,6 +87,9 @@ public class GameQueueUtils {
         if (action.hasEvent(GameQueueAction.Event.MAX_PLAYERS) && verbose) {
             response = combine(response, GameQueueUtils.getMaximumPlayersSetMessage(action.getMaximumPlayers()));
         }
+
+        response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.NOTE_ADDED, response,
+                GameQueueUtils::getNoteAddedMessage);
 
         response = respondToPlayerAction(verbose, action, GameQueueAction.PlayerAction.QUEUED, response,
                 GameQueueUtils::getPlayersQueuedMessage);
@@ -177,6 +180,8 @@ public class GameQueueUtils {
                 } else if (gameQueue.isPermanent(player)) {
                     t.append(" (" + STREAMING_EMOTE + ")");
                 }
+
+                appendNote(gameQueue, t, player);
             });
 
         List<HomedUser> onDeckPlayers = gameQueue.getOnDeckPlayers();
@@ -203,6 +208,8 @@ public class GameQueueUtils {
                     } else {
                         t.append(" (not ready)");
                     }
+
+                    appendNote(gameQueue, t, player);
             });
         }
 
@@ -213,6 +220,8 @@ public class GameQueueUtils {
                 if (gameQueue.isOnCall(player)) {
                     t.append(" (if needed " + ON_CALL_EMOTE + ")");
                 }
+
+                appendNote(gameQueue, t, player);
             });
         }
 
@@ -231,6 +240,8 @@ public class GameQueueUtils {
                         }
                     } catch (UserError e) {
                     }
+
+                    appendNote(gameQueue, t, player);
                 });
         }
 
@@ -267,6 +278,13 @@ public class GameQueueUtils {
 
     public static String getPlayersQueuedMessage(final List<HomedUser> players) {
         return getPlayersMessage("Added", "to the queue.", players);
+    }
+
+    public static String getNoteAddedMessage(final List<HomedUser> players) {
+        if (players.size() == 1) {
+            return "Note added.";
+        }
+        return "Notes added.";
     }
 
     public static String getPlayersDequeuedMessage(final List<HomedUser> players) {
@@ -421,6 +439,13 @@ public class GameQueueUtils {
                 text.append('\n');
             }
             text.append("```\n");
+        }
+    }
+
+    private static void appendNote(final GameQueue gameQueue, final StringBuilder text, final HomedUser player) {
+        String note = gameQueue.getNote(player);
+        if (!Strings.isBlank(note)) {
+            text.append(" [").append(note).append(']');
         }
     }
 

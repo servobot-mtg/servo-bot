@@ -87,10 +87,10 @@ public class GameQueueEditor {
         return GameQueueAction.proximityServerChanged(gameQueue.getProximityServer());
     }
 
-    public GameQueueAction addUser(final int gameQueueId, final HomedUser player) throws UserError {
+    public GameQueueAction addUser(final int gameQueueId, final HomedUser player, final String note) throws UserError {
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueEdit edit = new GameQueueEdit();
-        GameQueueAction action = gameQueue.enqueue(contextId, player, edit);
+        GameQueueAction action = gameQueue.enqueue(contextId, player, note, edit);
         gameQueueSerializer.commit(edit);
         return action;
     }
@@ -254,6 +254,14 @@ public class GameQueueEditor {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueue gameQueue = getGameQueue(gameQueueId);
         GameQueueAction action = gameQueue.setMaximumPlayers(contextId, gameQueueEdit, maximum, check);
+        gameQueueSerializer.commit(gameQueueEdit);
+        return action;
+    }
+
+    public GameQueueAction addNote(final int gameQueueId, final HomedUser player, final String note) throws UserError {
+        GameQueueEdit gameQueueEdit = new GameQueueEdit();
+        GameQueue gameQueue = getGameQueue(gameQueueId);
+        GameQueueAction action = gameQueue.addNote(gameQueueEdit, player, note);
         gameQueueSerializer.commit(gameQueueEdit);
         return action;
     }
