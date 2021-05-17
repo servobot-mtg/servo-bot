@@ -79,14 +79,14 @@ public class CommandListener implements EventListener {
 
     @Override
     public void onRaid(final UserHomeEvent raidEvent) {
-        for (UserHomedCommand  command : commandTable.getCommands(CommandEvent.Type.RAID, UserHomedCommand.class)) {
-            commandPerformer.perform(raidEvent,command);
+        for (Command  command : commandTable.getCommands(CommandEvent.Type.RAID, Command.class)) {
+            commandPerformer.perform(raidEvent, command);
         }
     }
 
     @Override
     public void onSubscribe(final UserHomeEvent subscribeEvent) {
-        for (UserHomedCommand command : commandTable.getCommands(CommandEvent.Type.SUBSCRIBE, UserHomedCommand.class)) {
+        for (Command command : commandTable.getCommands(CommandEvent.Type.SUBSCRIBE, Command.class)) {
             commandPerformer.perform(subscribeEvent, command);
         }
     }

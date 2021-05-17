@@ -1,9 +1,12 @@
 package com.ryan_mtg.servobot.events;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 public class MultiDelegatingListener implements EventListener {
     private final List<EventListener> listeners = new ArrayList<>();
     private boolean active = false;

@@ -36,20 +36,18 @@ public class CommandPerformer {
         return COMMAND_PARSER;
     }
 
-    public void perform(final UserHomeEvent userEvent, final UserHomedCommand command) {
+    public void perform(final UserHomeEvent userHomeEvent, final Command command) {
         BotErrorHandler.handleError(() -> {
-            if (shouldPerform(userEvent.getUser().getId(), command, userEvent)) {
-                LOGGER.info("Performing {} at {}", command.getId(), userEvent.getServiceHome().getName());
-                command.perform(userEvent);
+            if (shouldPerform(userHomeEvent.getUser().getId(), command, userHomeEvent)) {
+                dynamicPerform(userHomeEvent, command);
             }
         });
     }
 
-    public void perform(final HomeEvent homeEvent, final HomeCommand command) {
+    public void perform(final HomeEvent homeEvent, final Command command) {
         BotErrorHandler.handleError(() -> {
             if (shouldPerform(UNREGISTERED_ID, command, homeEvent)) {
-                LOGGER.info("Performing command {} for {}", command.getId(), homeEvent.getServiceHome().getName());
-                command.perform(homeEvent);
+                dynamicPerform(homeEvent, command);
             }
         });
     }
@@ -70,6 +68,26 @@ public class CommandPerformer {
                 dynamicPerform(messageHomeEvent, command);
             }
         });
+    }
+
+    private void dynamicPerform(final HomeEvent event, final Command command) throws Exception {
+        if (command instanceof HomeCommand) {
+            ((HomeCommand) command).perform(event);
+        } else {
+            throw new SystemError("Command type %s cannot be applied to a HomeEvent.", command.getClass());
+        }
+    }
+
+    private void dynamicPerform(final UserHomeEvent event, final Command command) throws Exception {
+        if (command instanceof UserHomedCommand) {
+            ((UserHomedCommand) command).perform(event);
+        }else if (command instanceof HomeCommand) {
+            ((HomeCommand) command).perform(event);
+        } else if (command instanceof UserCommand) {
+            ((UserCommand) command).perform(event);
+        } else {
+            throw new SystemError("Command type %s cannot be applied to a UserHomeEvent.", command.getClass());
+        }
     }
 
     private void dynamicPerform(final MessageHomeEvent event, final Command command) throws Exception {

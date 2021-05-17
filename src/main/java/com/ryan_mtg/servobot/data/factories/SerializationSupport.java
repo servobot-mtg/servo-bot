@@ -28,7 +28,6 @@ public class SerializationSupport {
         return rowMap;
     }
 
-
     public static <RowType> Iterable<Integer> getIds(final Iterable<RowType> rows,
             final Function<RowType, Integer> extractId) {
         return StreamSupport.stream(rows.spliterator(), false).map(extractId::apply)

@@ -34,5 +34,4 @@ public class TwitchSubscriptionEvent extends TwitchHomeEvent implements UserHome
 
         return new Scope(homeEditor.getScope(), messageSymbolTable);
     }
-
 }

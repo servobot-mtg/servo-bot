@@ -26,7 +26,7 @@ public class TwitchEventGenerator {
     private final Map<Long, BotHome> homeMap;
 
     public TwitchEventGenerator(final TwitchClient client, final EventListener eventListener,
-                                final Map<Long, BotHome> homeMap) {
+            final Map<Long, BotHome> homeMap) {
         this.client = client;
         this.eventListener = eventListener;
         this.homeMap = homeMap;
@@ -49,6 +49,7 @@ public class TwitchEventGenerator {
 
     private void handleSubscriptionEvent(final SubscriptionEvent event) {
         BotErrorHandler.handleError(() -> {
+            LOGGER.info("Subscribe event: " + event.getChannel() + " is subbed by " + event.getUser());
             BotHome botHome = resolveBotHomeId(event.getChannel().getId());
             TwitchUser subscriber = getUser(event.getUser(), botHome);
             eventListener.onSubscribe(new TwitchSubscriptionEvent(client, event, botHome, subscriber));

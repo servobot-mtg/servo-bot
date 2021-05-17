@@ -198,7 +198,7 @@ public class CommandTable {
     }
 
     public <CommandType extends Command> List<CommandType> getCommands(final CommandEvent.Type eventType,
-                                                       final Class<CommandType> commandClass) {
+            final Class<CommandType> commandClass) {
         List<CommandEvent> events = eventMap.get(eventType);
         if (events != null) {
             return events.stream().map(triggerCommandMap::get).filter(commandClass::isInstance)

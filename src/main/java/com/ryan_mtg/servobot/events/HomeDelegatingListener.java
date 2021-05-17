@@ -123,7 +123,7 @@ public class HomeDelegatingListener implements EventListener {
     public void onSubscribe(final UserHomeEvent subscribeEvent) {
         EventListener listener = getListener(subscribeEvent);
         if (listener != null) {
-            listener.onRaid(subscribeEvent);
+            listener.onSubscribe(subscribeEvent);
         }
     }
 
