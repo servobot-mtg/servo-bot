@@ -233,12 +233,14 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 event.getHomeEditor().getTimeZone());
 
         Message message = event.getChannel().sayAndWait(text);
-        message.addEmote(new DiscordEmoji(GameQueueUtils.DAGGER_EMOTE));
-        message.addEmote(new DiscordEmoji(GameQueueUtils.ON_CALL_EMOTE));
-        message.addEmote(new DiscordEmoji(GameQueueUtils.READY_EMOTE));
-        message.addEmote(new DiscordEmoji(GameQueueUtils.LG_EMOTE));
-        message.addEmote(new DiscordEmoji(GameQueueUtils.ROTATE_EMOTE));
-        message.addEmote(new DiscordEmoji(GameQueueUtils.LEAVE_EMOTE));
+        if (!gameQueue.isClosed()) {
+            message.addEmote(new DiscordEmoji(GameQueueUtils.DAGGER_EMOTE));
+            message.addEmote(new DiscordEmoji(GameQueueUtils.ON_CALL_EMOTE));
+            message.addEmote(new DiscordEmoji(GameQueueUtils.READY_EMOTE));
+            message.addEmote(new DiscordEmoji(GameQueueUtils.LG_EMOTE));
+            message.addEmote(new DiscordEmoji(GameQueueUtils.ROTATE_EMOTE));
+            message.addEmote(new DiscordEmoji(GameQueueUtils.LEAVE_EMOTE));
+        }
         if (event.getServiceType() == DiscordService.TYPE) {
             gameQueueEditor.setMessage(gameQueue, message);
         }

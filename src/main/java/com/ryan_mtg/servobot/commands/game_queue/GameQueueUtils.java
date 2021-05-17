@@ -28,7 +28,7 @@ public class GameQueueUtils {
     public static final String LG_EMOTE = "😴";
     public static final String LEAVE_EMOTE = "🏠";
     public static final String STREAMING_EMOTE = "📺";
-    public static final String ON_CALL_EMOTE = "📞";
+    public static final String ON_CALL_EMOTE = "☎";
 
     public static void addEmote(final EmoteHomeEvent event, final GameQueue gameQueue, final User reactor) {
         try {
