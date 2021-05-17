@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS game_queue (id INTEGER AUTO_INCREMENT PRIMARY KEY, bo
                     channel_id BIGINT, start_time BIGINT);
 
 CREATE TABLE IF NOT EXISTS game_queue_entry (game_queue_id INTEGER, user_id INTEGER, enqueue_time BIGINT,
-                    state INTEGER);
+                    state INTEGER, note VARCHAR(200));
 
 CREATE TABLE IF NOT EXISTS command_trigger (id INTEGER AUTO_INCREMENT PRIMARY KEY, type INTEGER, command_id INTEGER,
                                             text VARCHAR(50));
