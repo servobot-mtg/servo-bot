@@ -12,6 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -30,7 +31,7 @@ public class MtgMeleeWebParser {
             HttpGet httpGet = new HttpGet(url);
             HttpResponse response = httpClient.execute(httpGet);
 
-            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
+            Document document = Jsoup.parse(response.getEntity().getContent(), StandardCharsets.UTF_8.name(), url);
 
             MtgMeleeTournament tournament = new MtgMeleeTournament();
             tournament.setId(tournamentId);

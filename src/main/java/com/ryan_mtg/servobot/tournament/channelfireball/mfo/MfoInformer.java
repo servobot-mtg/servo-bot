@@ -20,7 +20,6 @@ import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.TournamentSerie
 import com.ryan_mtg.servobot.tournament.channelfireball.mfo.json.TournamentSeriesList;
 import com.ryan_mtg.servobot.utility.Strings;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -31,6 +30,7 @@ import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -271,7 +271,7 @@ public class MfoInformer implements Informer {
             HttpGet httpGet = new HttpGet(url);
             HttpResponse response = httpClient.execute(httpGet);
 
-            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
+            Document document = Jsoup.parse(response.getEntity().getContent(),  StandardCharsets.UTF_8.name(), url);
 
             DecklistMap decklistMap = new DecklistMap();
             document.select("tr").forEach(row -> {
@@ -354,7 +354,7 @@ public class MfoInformer implements Informer {
             HttpGet httpGet = new HttpGet(url);
             HttpResponse response = httpClient.execute(httpGet);
 
-            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), url);
+            Document document = Jsoup.parse(response.getEntity().getContent(), StandardCharsets.UTF_8.name(), url);
 
             List<String> urls = new ArrayList<>();
             document.select("tr").forEach(row -> {
@@ -395,7 +395,7 @@ public class MfoInformer implements Informer {
             HttpGet httpGet = new HttpGet(decklistUrl);
             HttpResponse response = httpClient.execute(httpGet);
 
-            Document document = Jsoup.parse(response.getEntity().getContent(), Charsets.UTF_8.name(), decklistUrl);
+            Document document = Jsoup.parse(response.getEntity().getContent(), StandardCharsets.UTF_8.name(), decklistUrl);
 
             List<String> headers = new ArrayList<>();
             document.select("h1").forEach(header -> headers.add(header.text()));
