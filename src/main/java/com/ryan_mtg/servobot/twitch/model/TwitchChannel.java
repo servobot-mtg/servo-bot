@@ -70,7 +70,7 @@ public class TwitchChannel implements Channel {
     private String replaceEmotes(final String text) {
         Map<String, Emote> emoteMap = serviceHome.getEmoteMap();
         return Strings.replace(text, EMOTE_PATTERN, match -> {
-            String name = match.getValue();
+            String name = match.getValue().substring(0, match.getLength());
             if (name.startsWith(":")) {
                 name = name.substring(1, name.length() - 1);
             }
