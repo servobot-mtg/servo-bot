@@ -55,6 +55,7 @@
                     <th>Announcement</th>
                     <th>Day</th>
                     <th>Time</th>
+                    <th>Enabled</th>
                     <th th:if="${exalted}">Time</th>
                 </tr></thead>
                 <th:block th:each="weeklyStream : ${schedule.weeklyStreams}">
@@ -63,6 +64,10 @@
                         <td th:text="${weeklyStream.announcement}"></td>
                         <td th:text="${weeklyStream.day}"></td>
                         <td th:text="${weeklyStream.time}"></td>
+                        <td><input type="checkbox" th:id="'weekly-stream-' + ${weeklyStream.id} + '-enabled'"
+                               th:checked="${weeklyStream.enabled}"
+                               th:onchange="'updateWeeklyStreamEnabled(' + ${botHome.id} + ',' + ${weeklyStream.id} + ')'">
+                        </td>
                         <td th:if="${exalted}" class="pseudo-link"
                             th:onclick="'deleteWeeklyStream(' + ${botHome.id} + ',' + ${weeklyStream.id} + ')'">
                             &#x1F5D1;&#xFE0F;

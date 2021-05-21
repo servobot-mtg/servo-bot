@@ -3,12 +3,9 @@ package com.ryan_mtg.servobot.model.schedule;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Schedule {
@@ -39,17 +36,12 @@ public class Schedule {
 
     public ZonedDateTime getNextStream() {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of(timeZone));
-        return getWeeklyStreams().stream().map(weeklyStream -> weeklyStream.nextTime(now))
-                .min(ZonedDateTime::compareTo).get();
+        return getWeeklyStreams().stream().filter(weeklyStream -> weeklyStream.isEnabled())
+                .map(weeklyStream -> weeklyStream.nextTime(now)).min(ZonedDateTime::compareTo).get();
     }
 
     public void setTimeZone(final String timeZone) {
         this.timeZone = timeZone;
-    }
-
-    private List<WeeklyStream> getDefaultWeeklyStreams() {
-        return Arrays.asList(new WeeklyStream(WeeklyStream.UNREGISTERED_ID, "", "", DayOfWeek.WEDNESDAY, LocalTime.of(18, 0)),
-                new WeeklyStream(WeeklyStream.UNREGISTERED_ID, "", "", DayOfWeek.SATURDAY, LocalTime.of(19, 0)));
     }
 
     public ScheduleEdit addWeeklyStream(final WeeklyStream weeklyStream) {
@@ -60,11 +52,14 @@ public class Schedule {
     }
 
     public ScheduleEdit deleteWeeklyStream(final int weeklyStreamId) {
-        WeeklyStream weeklyStream = weeklyStreams.stream().filter(stream -> stream.getId() == weeklyStreamId)
-                .findFirst().get();
+        WeeklyStream weeklyStream = getWeeklyStream(weeklyStreamId);
         ScheduleEdit scheduleEdit = new ScheduleEdit();
         scheduleEdit.deleteWeeklyStream(weeklyStream);
         weeklyStreams.remove(weeklyStream);
         return scheduleEdit;
+    }
+
+    public WeeklyStream getWeeklyStream(final int weeklyStreamId) {
+        return weeklyStreams.stream().filter(stream -> stream.getId() == weeklyStreamId).findFirst().get();
     }
 }

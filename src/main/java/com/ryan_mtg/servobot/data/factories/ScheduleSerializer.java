@@ -69,6 +69,7 @@ public class ScheduleSerializer {
 
     private WeeklyStream createWeeklyStream(final WeeklyStreamRow weeklyStreamRow) {
         return new WeeklyStream(weeklyStreamRow.getId(), weeklyStreamRow.getName(), weeklyStreamRow.getAnnouncement(),
-                weeklyStreamRow.getDay(), LocalTime.ofSecondOfDay(weeklyStreamRow.getTime()));
+                weeklyStreamRow.isEnabled(), weeklyStreamRow.getDay(),
+                LocalTime.ofSecondOfDay(weeklyStreamRow.getTime()));
     }
 }

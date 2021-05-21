@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS schedule (id INTEGER AUTO_INCREMENT PRIMARY KEY, bot_
                                           default_announcement VARCHAR(200));
 
 CREATE TABLE IF NOT EXISTS weekly_stream (id INTEGER AUTO_INCREMENT PRIMARY KEY, schedule_id BIGINT, name VARCHAR(30),
-                                          announcement VARCHAR(200), day INTEGER, time INTEGER);
+                                          announcement VARCHAR(200), enabled BIT, day INTEGER, time INTEGER);
 
 CREATE TABLE IF NOT EXISTS session (primary_id CHAR(36) NOT NULL, session_id CHAR(36) NOT NULL,
         creation_time BIGINT NOT NULL, last_access_time BIGINT NOT NULL, max_inactive_interval INT NOT NULL,

@@ -30,6 +30,7 @@ public class WeeklyStreamRow {
     @Size(max = Validation.MAX_TEXT_LENGTH)
     private String announcement;
 
+    private boolean enabled;
     private DayOfWeek day;
     private int time;
 }

@@ -24,7 +24,8 @@ public class ScheduleEditor {
         Validation.validateRange(time, "Time", 1, 24 * 60 * 60);
 
         WeeklyStream weeklyStream = new WeeklyStream(WeeklyStream.UNREGISTERED_ID, name,
-                Strings.isBlank(announcement) ? null : announcement, DayOfWeek.of(day), LocalTime.ofSecondOfDay(time));
+                Strings.isBlank(announcement) ? null : announcement, true, DayOfWeek.of(day),
+                LocalTime.ofSecondOfDay(time));
 
         ScheduleEdit scheduleEdit = schedule.addWeeklyStream(weeklyStream);
         scheduleSerializer.commit(scheduleEdit);
@@ -33,6 +34,14 @@ public class ScheduleEditor {
 
     public void deleteWeeklyStream(final int weeklyScheduleId) {
         ScheduleEdit scheduleEdit = schedule.deleteWeeklyStream(weeklyScheduleId);
+        scheduleSerializer.commit(scheduleEdit);
+    }
+
+    public void updateWeeklyStreamEnabled(final int weeklyStreamId, final boolean enabled) {
+        ScheduleEdit scheduleEdit = new ScheduleEdit();
+        WeeklyStream weeklyStream = schedule.getWeeklyStream(weeklyStreamId);
+        weeklyStream.setEnabled(enabled);
+        scheduleEdit.saveWeeklyStream(schedule.getId(), weeklyStream);
         scheduleSerializer.commit(scheduleEdit);
     }
 }

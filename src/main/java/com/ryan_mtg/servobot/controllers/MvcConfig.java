@@ -1,5 +1,8 @@
 package com.ryan_mtg.servobot.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ryan_mtg.servobot.Application;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
@@ -62,6 +65,14 @@ public class MvcConfig implements WebMvcConfigurer {
 
         resourceHandlerRegistry.addResourceHandler("/favicon.ico")
                 .addResourceLocations("classpath:/static/images/");
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        return mapper;
     }
 
     @Component

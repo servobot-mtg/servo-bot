@@ -14,14 +14,16 @@ public class WeeklyStream {
     private int id;
     private String name;
     private String announcement;
+    private boolean enabled;
     private final DayOfWeek day;
     private final LocalTime time;
 
-    public WeeklyStream(final int id, final String name, final String announcement, final DayOfWeek day,
-            final LocalTime time) {
+    public WeeklyStream(final int id, final String name, final String announcement, final boolean enabled,
+            final DayOfWeek day, final LocalTime time) {
         this.id = id;
         this.name = name;
         this.announcement = announcement;
+        this.enabled = enabled;
         this.day = day;
         this.time = time;
     }

@@ -1451,11 +1451,30 @@ function addWeeklyStreamRow(botHomeId, weeklyStream) {
     addTextCell(row, weeklyStream.name);
     addTextCell(row, weeklyStream.announcement);
     addTextCell(row, weeklyStream.day);
-    addTextCell(row, zeroPad(weeklyStream.time.hour, 2) + ':' + zeroPad(weeklyStream.time.minute, 2));
+    addTextCell(row, zeroPad(weeklyStream.time[0], 2) + ':' + zeroPad(weeklyStream.time[1], 2));
+
+    let enabledCell = row.insertCell();
+    const checkbox = createInput({id: label + '-enabled', type: 'checkbox'});
+    checkbox.checked = weeklyStream.enabled;
+    checkbox.onchange = function () {
+        updateWeeklyStreamEnabled(botHomeId, weeklyStream.id);
+    };
+    enabledCell.appendChild(checkbox);
 
     addDeleteCell(row, trashcanIcon, function () {
         deleteWeeklyStream(botHomeId, weeklyStream.id);
     });
+}
+
+async function updateWeeklyStreamEnabled(botHomeId, weeklyStreamId) {
+    const label = 'weekly-stream-' + weeklyStreamId;
+    const enabled = document.getElementById(label + '-enabled').checked;
+    const parameters = {botHomeId, weeklyStreamId, enabled};
+    let response = await makePost('/api/update_weekly_stream_enabled', parameters, [], false);
+
+    if (!response.ok) {
+        document.getElementById(label + '-enabled').checked = !enabled;
+    }
 }
 
 function deleteWeeklyStream(botHomeId, weeklyStreamId) {

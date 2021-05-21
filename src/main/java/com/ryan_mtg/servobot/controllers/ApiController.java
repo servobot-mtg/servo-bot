@@ -712,6 +712,20 @@ public class ApiController {
         private int time;
     }
 
+    @PostMapping(value = "/update_weekly_stream_enabled", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean addWeeklyStream(@RequestBody final UpdateWeeklyStreamEnabledRequest request) throws UserError {
+        ScheduleEditor scheduleEditor = getScheduleEditor(request.getBotHomeId());
+        scheduleEditor.updateWeeklyStreamEnabled(request.getWeeklyStreamId(), request.isEnabled());
+        return true;
+    }
+
+    @Getter
+    public static class UpdateWeeklyStreamEnabledRequest extends BotHomeRequest {
+        private int weeklyStreamId;
+        private boolean enabled;
+    }
+
     @PostMapping(value = "/delete_weekly_stream", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean deleteWeeklyStream(@RequestBody final DeleteHomedObjectRequest request) {
@@ -792,12 +806,5 @@ public class ApiController {
     public ResponseEntity<BotError> botErrorHandler(final Exception exception) {
         exception.printStackTrace();
         return new ResponseEntity<>(new BotError(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        return mapper;
     }
 }
