@@ -506,19 +506,22 @@ public class GameQueueCommand extends InvokedHomedCommand {
     private void addNote(final CommandInvokedHomeEvent event, final String input) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
 
+        GameQueueAction action;
         if (!Strings.isBlank(input) && input.contains(":")) {
             int index = input.indexOf(':');
             String name = input.substring(0, index);
-            String note = input.substring(index + 1).trim();
-            HomedUser player = getUser(event.getServiceHome(), name);
-            GameQueueAction action = gameQueueEditor.addNote(gameQueueId, player, note);
-            showOrUpdateQueue(event, action);
+            if (hasUser(event.getServiceHome(), name)) {
+                String note = input.substring(index + 1).trim();
+                HomedUser player = getUser(event.getServiceHome(), name);
+                action = gameQueueEditor.addNote(gameQueueId, player, note);
+            } else {
+                action = gameQueueEditor.addNote(gameQueueId, event.getSender().getHomedUser(), input);
+            }
         } else {
-            GameQueueAction action = gameQueueEditor.addNote(gameQueueId, event.getSender().getHomedUser(), input);
-            showOrUpdateQueue(event, action);
+            action = gameQueueEditor.addNote(gameQueueId, event.getSender().getHomedUser(), input);
         }
+        showOrUpdateQueue(event, action);
     }
-
 
     private void lgAll(final CommandInvokedHomeEvent event) throws BotHomeError, UserError {
         GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
@@ -728,6 +731,10 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
     private HomedUser getUser(final ServiceHome serviceHome, final String name) throws UserError {
         return serviceHome.getUser(name.trim()).getHomedUser();
+    }
+
+    private boolean hasUser(final ServiceHome serviceHome, final String name) {
+        return serviceHome.hasUser(name.trim());
     }
 
     private String extractTrailingInt(final String input) {
