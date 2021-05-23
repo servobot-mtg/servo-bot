@@ -370,12 +370,14 @@ public class GameQueue {
             throw new UserError("Position %d is too low.", position);
         }
 
-        if (position > waitQueue.size()) {
+        long waitingCount = waitQueue.stream().filter(e -> e.getState() == PlayerState.WAITING).count();
+
+        if (position > waitingCount) {
             throw new UserError("Position %d is too high.", position);
         }
 
-        //TODO: fix bug about position not accounting for player being moved when moving to higher number
-        if (waitQueue.get(position-1).getUser().getId() == playerId) {
+        int previousPosition = getPosition(waitQueue, player);
+        if (previousPosition == position) {
             throw new UserError("%s is already in position %d.", player.getName(), position);
         }
 
@@ -383,12 +385,18 @@ public class GameQueue {
 
         if (position == 1) {
             entry.setEnqueueTime(Instant.ofEpochMilli(waitQueue.get(0).getEnqueueTime().toEpochMilli() - 512));
-        } else if (position == waitQueue.size()) {
+        } else if (position == waitingCount) {
             entry.setEnqueueTime(Instant.ofEpochMilli(waitQueue.get(position-1).getEnqueueTime().toEpochMilli() + 512));
         } else {
-            long beforeTime = waitQueue.get(position-2).getEnqueueTime().toEpochMilli();
-            long afterTime = waitQueue.get(position-1).getEnqueueTime().toEpochMilli();
+            int afterPosition = position - 1;
+            if (previousPosition < position) {
+                afterPosition = position;
+            }
+
+            long beforeTime = waitQueue.get(afterPosition-1).getEnqueueTime().toEpochMilli();
+            long afterTime = waitQueue.get(afterPosition).getEnqueueTime().toEpochMilli();
             long setTime = (beforeTime + afterTime) / 2;
+
             entry.setEnqueueTime(Instant.ofEpochMilli(setTime));
         }
         Collections.sort(waitQueue);
@@ -846,5 +854,14 @@ public class GameQueue {
         while (history.size() > 20) {
             history.remove(0);
         }
+    }
+
+    private int getPosition(final List<GameQueueEntry> waitQueue, final HomedUser player) {
+        for (int i = 0; i < waitQueue.size(); i++) {
+            if (waitQueue.get(i).getUser().getId() == player.getId()) {
+                return i + 1;
+            }
+        }
+        return -1;
     }
 }
