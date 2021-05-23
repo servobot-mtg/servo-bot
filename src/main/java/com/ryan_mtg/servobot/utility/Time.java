@@ -39,6 +39,10 @@ public class Time {
         return toReadableString(ZonedDateTime.ofInstant(time, ZoneId.of("America/Chicago")));
     }
 
+    public static String toReadableString(final Instant time, final String timeZone) {
+        return toReadableString(ZonedDateTime.ofInstant(time, ZoneId.of(timeZone)));
+    }
+
     public static String toReadableString(final LocalTime localTime) {
         return SHORT_FORMATTER.format(localTime);
     }

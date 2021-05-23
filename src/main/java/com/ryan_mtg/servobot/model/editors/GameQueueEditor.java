@@ -105,7 +105,7 @@ public class GameQueueEditor {
 
     public void clear(final int gameQueueId) {
         GameQueue gameQueue = getGameQueue(gameQueueId);
-        GameQueueEdit gameQueueEdit = gameQueue.clear(contextId);
+        GameQueueEdit gameQueueEdit = gameQueue.clear(contextId, true);
         gameQueueSerializer.commit(gameQueueEdit);
     }
 

@@ -16,6 +16,7 @@ import com.ryan_mtg.servobot.model.game_queue.AmongUsBehavior;
 import com.ryan_mtg.servobot.model.game_queue.Game;
 import com.ryan_mtg.servobot.model.game_queue.GameQueue;
 import com.ryan_mtg.servobot.model.game_queue.GameQueueAction;
+import com.ryan_mtg.servobot.model.game_queue.HistoryEvent;
 import com.ryan_mtg.servobot.user.HomedUser;
 import com.ryan_mtg.servobot.utility.CommandParser;
 import com.ryan_mtg.servobot.utility.Strings;
@@ -102,6 +103,8 @@ public class GameQueueCommand extends InvokedHomedCommand {
                 return (event, parsedCommand) -> closeQueue(event);
             case "show":
                 return (event, parsedCommand) -> showQueue(event);
+            case "history":
+                return (event, parsedCommand) -> showHistory(event);
             case "add":
             case "join":
             case "queue":
@@ -252,6 +255,25 @@ public class GameQueueCommand extends InvokedHomedCommand {
         if (previousMessage != null) {
             previousMessage.updateText("The game queue has been displayed below.");
         }
+    }
+
+    private void showHistory(final CommandInvokedHomeEvent event) throws BotHomeError {
+        GameQueueEditor gameQueueEditor = event.getGameQueueEditor();
+        GameQueue gameQueue = gameQueueEditor.getGameQueue(gameQueueId);
+
+        List<HistoryEvent> history = gameQueue.getHistory();
+        String timeZone = event.getHomeEditor().getTimeZone();
+        if (history.isEmpty()) {
+            event.say("The history is empty.");
+        } else {
+            StringBuilder message = new StringBuilder();
+            for (HistoryEvent historyEvent : gameQueue.getHistory()) {
+                historyEvent.append(message, timeZone);
+                message.append('\n');
+            }
+            event.say(message.toString());
+        }
+
     }
 
     private void setCode(final CommandInvokedHomeEvent event, final String command, final String input)

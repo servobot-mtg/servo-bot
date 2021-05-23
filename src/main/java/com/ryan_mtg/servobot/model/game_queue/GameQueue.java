@@ -73,6 +73,7 @@ public class GameQueue {
     private final List<GameQueueEntry> rsvped = new ArrayList<>();
     private final List<GameQueueEntry> onDeck = new ArrayList<>();
     private final Map<Integer, GameQueueEntry> userMap = new HashMap<>();
+    private final List<HistoryEvent> history = new ArrayList<>();
 
     public enum State {
         IDLE,
@@ -124,6 +125,10 @@ public class GameQueue {
                     break;
             }
         }
+    }
+
+    public List<HistoryEvent> getHistory() {
+        return history;
     }
 
     public Version getVersion() {
@@ -183,7 +188,6 @@ public class GameQueue {
         }
         return null;
     }
-
 
     private boolean isStatus(final HomedUser player, final PlayerState state) {
         int playerId = player.getId();
@@ -251,6 +255,7 @@ public class GameQueue {
         open();
         startTime = null;
         edit.save(botHomeId, this);
+        addHistory(new HistoryEvent("Game started."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         return action;
     }
@@ -265,6 +270,7 @@ public class GameQueue {
                 entry.setNote(note);
                 edit.save(getId(), entry);
                 GameQueueAction action = GameQueueAction.playerQueued(player);
+                addHistory(new HistoryEvent(player, " queued from rsvp."));
                 promotePlayersToOnDeck(botHomeId, edit, action, entry);
                 checkForRsvpExpirations(edit, action);
                 return action;
@@ -277,6 +283,7 @@ public class GameQueue {
         edit.save(getId(), newEntry);
         waitQueue.add(newEntry);
         userMap.put(player.getId(), newEntry);
+        addHistory(new HistoryEvent(player, " queued."));
 
         GameQueueAction action = GameQueueAction.playerQueued(player);
         promotePlayersToOnDeck(botHomeId, edit, action, newEntry);
@@ -291,6 +298,7 @@ public class GameQueue {
             throw new UserError("%s is not in the queue.", player.getName());
         }
 
+        addHistory(new HistoryEvent(player, " dequeued."));
         removeEntry(edit, playerId);
         GameQueueAction action = GameQueueAction.playerDequeued(player);
         promotePlayersToOnDeck(botHomeId, edit, action, null);
@@ -306,6 +314,7 @@ public class GameQueue {
             return enqueue(botHomeId, player, null, edit);
         }
 
+        addHistory(new HistoryEvent(player, " rotated."));
         GameQueueEntry entry = userMap.get(playerId);
         removeFromLists(entry);
         entry.setState(PlayerState.WAITING);
@@ -334,6 +343,7 @@ public class GameQueue {
             throw new UserError("No players have been marked LG. ");
         }
 
+        addHistory(new HistoryEvent("Rotated LG players."));
         GameQueueAction action = GameQueueAction.emptyAction();
         for (GameQueueEntry entry : playersToRotate) {
             removeFromLists(entry);
@@ -364,6 +374,7 @@ public class GameQueue {
             throw new UserError("Position %d is too high.", position);
         }
 
+        //TODO: fix bug about position not accounting for player being moved when moving to higher number
         if (waitQueue.get(position-1).getUser().getId() == playerId) {
             throw new UserError("%s is already in position %d.", player.getName(), position);
         }
@@ -382,6 +393,7 @@ public class GameQueue {
         }
         Collections.sort(waitQueue);
         gameQueueEdit.save(getId(), entry);
+        addHistory(new HistoryEvent(player, String.format(" moved to position %d.", position)));
 
         return gameQueueEdit;
     }
@@ -398,6 +410,7 @@ public class GameQueue {
         entry.setState(PlayerState.READY);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerReadied(player);
+        addHistory(new HistoryEvent(player, " marked as ready."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 
@@ -418,6 +431,7 @@ public class GameQueue {
         waitQueue.add(entry);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerUnreadied(player);
+        addHistory(new HistoryEvent(player, " moved back into the queue."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 
@@ -439,6 +453,7 @@ public class GameQueue {
         entry.setState(PlayerState.NO_SHOW);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerNoShowed(player);
+        addHistory(new HistoryEvent(player, " set as a no-show."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 
@@ -457,6 +472,7 @@ public class GameQueue {
         onDeck.add(entry);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerOnDecked(player);
+        addHistory(new HistoryEvent(player, " cut in line."));
         checkForRsvpExpirations(edit, action);
 
         return action;
@@ -477,6 +493,7 @@ public class GameQueue {
         entry.setState(PlayerState.LG);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerLged(player);
+        addHistory(new HistoryEvent(player, " LG'd."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 
@@ -507,6 +524,7 @@ public class GameQueue {
             }
         }
 
+        addHistory(new HistoryEvent("LG for all players."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 
@@ -518,7 +536,7 @@ public class GameQueue {
             throws UserError {
         int playerId = player.getId();
         if (userMap.containsKey(playerId) && userMap.get(playerId).getState() == PlayerState.PERMANENT) {
-            throw new UserError("%s is already marked LG.", player.getName());
+            throw new UserError("%s is already marked permanent.", player.getName());
         }
 
         if (!userMap.containsKey(playerId) || !userMap.get(playerId).getState().isPlaying()) {
@@ -529,6 +547,7 @@ public class GameQueue {
         entry.setState(PlayerState.PERMANENT);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerMadePermanent(player);
+        addHistory(new HistoryEvent(player, " set to permanent."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 
@@ -546,6 +565,7 @@ public class GameQueue {
             userMap.put(player.getId(), newEntry);
 
             GameQueueAction action = GameQueueAction.playerQueued(player);
+            addHistory(new HistoryEvent(player, " set to on call."));
             promotePlayersToOnDeck(botHomeId, edit, action, null);
             checkForRsvpExpirations(edit, action);
             return action;
@@ -563,6 +583,7 @@ public class GameQueue {
         entry.setState(PlayerState.ON_CALL);
         edit.save(getId(), entry);
         GameQueueAction action = GameQueueAction.playerOnCalled(player);
+        addHistory(new HistoryEvent(player, " set to on call."));
         promotePlayersToOnDeck(botHomeId, edit, action, null);
         checkForRsvpExpirations(edit, action);
 
@@ -596,6 +617,7 @@ public class GameQueue {
         }
 
         edit.save(getId(), entry);
+        addHistory(new HistoryEvent(player, " RSVP'd."));
         GameQueueAction action = GameQueueAction.playerRsvped(player);
         checkForRsvpExpirations(edit, action);
 
@@ -615,7 +637,7 @@ public class GameQueue {
     }
 
 
-    public GameQueueEdit clear(final int botHomeId) {
+    public GameQueueEdit clear(final int botHomeId, final boolean addHistory) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
 
         for (GameQueueEntry entry : userMap.values()) {
@@ -630,6 +652,9 @@ public class GameQueue {
         onDeck.clear();
         userMap.clear();
 
+        if (addHistory) {
+            addHistory(new HistoryEvent("Queue cleared."));
+        }
         gameQueueEdit.save(botHomeId, this);
 
         return gameQueueEdit;
@@ -637,7 +662,8 @@ public class GameQueue {
 
     public GameQueueEdit close(final int botHomeId) {
         flags = Flags.setFlag(flags, CLOSED_FLAG, true);
-        return clear(botHomeId);
+        addHistory(new HistoryEvent("Queue closed."));
+        return clear(botHomeId, false);
     }
 
 
@@ -744,6 +770,7 @@ public class GameQueue {
                 return;
             } else {
                 startTime = null;
+                addHistory(new HistoryEvent("Game started."));
                 gameQueueEdit.save(botHomeId, this);
             }
         }
@@ -757,6 +784,7 @@ public class GameQueue {
                 joiningEntry.setState(PlayerState.PLAYING);
                 gameQueueEdit.save(getId(), joiningEntry);
                 action.merge(GameQueueAction.playerEnteredGame(joiningEntry.getUser()));
+                addHistory(new HistoryEvent(joiningEntry.getUser(), " joined the game."));
                 playing.add(joiningEntry);
             }
         }
@@ -773,6 +801,7 @@ public class GameQueue {
                 gameQueueEdit.save(getId(), joiningEntry);
                 action.merge(GameQueueAction.playerOnDecked(joiningEntry.getUser()));
                 onDeck.add(joiningEntry);
+                addHistory(new HistoryEvent(joiningEntry.getUser(), " put on deck."));
             }
         }
 
@@ -784,6 +813,7 @@ public class GameQueue {
             gameQueueEdit.save(getId(), readiableEntry);
             action.playerEntered(readiableEntry.getUser());
             playing.add(readiableEntry);
+            addHistory(new HistoryEvent(readiableEntry.getUser(), " joined the game."));
         }
     }
 
@@ -794,6 +824,7 @@ public class GameQueue {
                 gameQueueEdit.save(getId(), entry);
                 entry.setState(PlayerState.RSVP_EXPIRED);
                 action.merge(GameQueueAction.playerReservationExpired(entry.getUser()));
+                addHistory(new HistoryEvent(entry.getUser(), "'s reservation expired."));
             }
         }
     }
@@ -808,5 +839,12 @@ public class GameQueue {
             return note.replace("\n", "");
         }
         return note;
+    }
+
+    private void addHistory(final HistoryEvent historyEvent) {
+        history.add(historyEvent);
+        while (history.size() > 20) {
+            history.remove(0);
+        }
     }
 }
