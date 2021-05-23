@@ -49,6 +49,11 @@ public class TwitchMessage implements Message {
     }
 
     @Override
+    public void removeEmotes() {
+        throw new IllegalStateException("Twitch doesn't have reactions");
+    }
+
+    @Override
     public void updateText(final String text) {
         throw new SystemError("Twitch doesn't support updating messages.");
     }

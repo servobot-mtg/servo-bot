@@ -8,6 +8,7 @@ public interface Message {
     boolean canEmote();
     void addEmote(Emote emote);
     void removeEmote(Emote emote, User user);
+    void removeEmotes();
 
     void updateText(String text);
     boolean isOld();

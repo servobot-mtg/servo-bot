@@ -61,6 +61,11 @@ public class DiscordMessage implements Message {
     }
 
     @Override
+    public void removeEmotes() {
+        message.clearReactions().queue();
+    }
+
+    @Override
     public void updateText(final String text) {
         message.editMessage(text).queue();
     }

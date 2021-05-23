@@ -52,6 +52,11 @@ public class DiscordSavedMessage implements Message {
     }
 
     @Override
+    public void removeEmotes() {
+        resolveMessage().removeEmotes();
+    }
+
+    @Override
     public void updateText(final String text) {
         resolveMessage().updateText(text);
     }

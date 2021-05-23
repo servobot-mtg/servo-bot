@@ -254,6 +254,7 @@ public class GameQueueCommand extends InvokedHomedCommand {
 
         if (previousMessage != null) {
             previousMessage.updateText("The game queue has been displayed below.");
+            previousMessage.removeEmotes();
         }
     }
 
