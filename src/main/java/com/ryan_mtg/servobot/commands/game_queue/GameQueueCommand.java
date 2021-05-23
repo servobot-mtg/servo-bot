@@ -265,11 +265,12 @@ public class GameQueueCommand extends InvokedHomedCommand {
         Scanner scanner = new Scanner(input);
         String code = null;
         String server = null;
-        Boolean onBeta = null;
+        GameQueue.Version version = null;
 
         while (scanner.hasNext()) {
             String token = scanner.next();
-            if (CODE_PATTERN.matcher(token).matches() && !token.equalsIgnoreCase("europe")) {
+            if (CODE_PATTERN.matcher(token).matches() && !token.equalsIgnoreCase("europe")
+                    && !token.equalsIgnoreCase("modded")) {
                 code = token;
                 continue;
             }
@@ -288,16 +289,25 @@ public class GameQueueCommand extends InvokedHomedCommand {
                     server = "NA";
                     continue;
                 case "beta":
-                    onBeta = true;
+                    version = GameQueue.Version.BETA;
+                    continue;
+                case "modded":
+                case "mod":
+                case "townofus":
+                    version = GameQueue.Version.MODDED;
+                    continue;
+                case "proximity":
+                    version = GameQueue.Version.PROXIMITY;
                     continue;
                 case "main":
-                    onBeta = false;
+                case "regular":
+                    version = GameQueue.Version.REGULAR;
                     continue;
             }
             throw new UserError("Unrecognized %s: %s", command, token);
         }
 
-        GameQueueAction action = gameQueueEditor.setCode(gameQueueId, code, server, onBeta);
+        GameQueueAction action = gameQueueEditor.setCode(gameQueueId, code, server, version);
         showOrUpdateQueue(event, action);
     }
 

@@ -6,7 +6,6 @@ import lombok.Getter;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +21,7 @@ public class GameQueueAction {
         PROXIMITY_SERVER,
         GAMER_TAG,
         GAMER_TAG_VARIABLE,
-        ON_BETA,
+        VERSION,
         START_TIME,
         GAME_OPENED,
         GAME_STARTED,
@@ -99,8 +98,8 @@ public class GameQueueAction {
         return (String) eventMap.get(Event.PROXIMITY_SERVER);
     }
 
-    public Boolean getOnBeta() {
-        return (Boolean) eventMap.get(Event.ON_BETA);
+    public GameQueue.Version getVersion() {
+        return (GameQueue.Version) eventMap.get(Event.VERSION);
     }
 
     public void merge(final GameQueueAction action) {
@@ -130,10 +129,10 @@ public class GameQueueAction {
         return GameQueueAction.builder().eventMap(createMap(Event.GAME_STARTED, null)).build();
     }
 
-    public static GameQueueAction codeChanged(final String code, final String server, final boolean isOnBeta) {
+    public static GameQueueAction codeChanged(final String code, final String server, final GameQueue.Version version) {
         Map<Event, Object> eventMap = createMap(Event.CODE, code);
         eventMap.put(Event.SERVER, server);
-        eventMap.put(Event.ON_BETA, isOnBeta);
+        eventMap.put(Event.VERSION, version);
         return GameQueueAction.builder().eventMap(eventMap).build();
     }
 

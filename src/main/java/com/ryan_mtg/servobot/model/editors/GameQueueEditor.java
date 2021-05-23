@@ -49,7 +49,7 @@ public class GameQueueEditor {
     }
 
     public GameQueueAction setCode(final int gameQueueId, final String code, final String server,
-                                   final Boolean onBeta) {
+            final GameQueue.Version version) {
         GameQueueEdit gameQueueEdit = new GameQueueEdit();
         GameQueue gameQueue = getGameQueue(gameQueueId);
         if (code != null) {
@@ -58,12 +58,12 @@ public class GameQueueEditor {
         if (server != null) {
             gameQueue.setServer(server);
         }
-        if (onBeta != null) {
-            gameQueue.setVersion(onBeta);
+        if (version != null) {
+            gameQueue.setVersion(version);
         }
         gameQueueEdit.save(contextId, gameQueue);
         gameQueueSerializer.commit(gameQueueEdit);
-        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+        return GameQueueAction.codeChanged(gameQueue.getCode(), gameQueue.getServer(), version);
     }
 
     public GameQueueAction setGamerTagVariable(final int gameQueueId, final String gamerTagVariable) {

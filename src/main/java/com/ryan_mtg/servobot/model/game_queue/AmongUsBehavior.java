@@ -8,9 +8,9 @@ public class AmongUsBehavior implements GameBehavior {
         String response = "";
 
         if ((action.hasEvent(GameQueueAction.Event.CODE) || action.hasEvent(GameQueueAction.Event.SERVER)
-                || action.hasEvent(GameQueueAction.Event.ON_BETA) ) && verbose) {
+                || action.hasEvent(GameQueueAction.Event.VERSION) ) && verbose) {
             response = GameQueueUtils.combine(response,
-                    getCodeMessage(action.getCode(), action.getServer(), action.getOnBeta()));
+                    getCodeMessage(action.getCode(), action.getServer(), action.getVersion()));
         }
 
         if (action.hasEvent(GameQueueAction.Event.PROXIMITY_SERVER) && verbose) {
@@ -37,8 +37,8 @@ public class AmongUsBehavior implements GameBehavior {
 
     @Override
     public void appendMessageHeader(final StringBuilder text, final GameQueue gameQueue) {
-        appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
-        if (gameQueue.getProximityServer() != null) {
+        appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.getVersion());
+        if (gameQueue.getVersion() == GameQueue.Version.PROXIMITY && gameQueue.getProximityServer() != null) {
             text.append(". The proximity voice server is `").append(gameQueue.getProximityServer()).append("`.");
         }
         text.append("\n");
@@ -47,13 +47,13 @@ public class AmongUsBehavior implements GameBehavior {
     @Override
     public void appendMessageFooter(final StringBuilder text, final GameQueue gameQueue) {
         if (gameQueue.getCode() != null) {
-            appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+            appendCode(text, gameQueue.getCode(), gameQueue.getServer(), gameQueue.getVersion());
             text.append("\n\n");
         }
     }
 
     private static void appendCode(final StringBuilder text, final String code, final String server,
-                                   final Boolean isOnBeta) {
+            final GameQueue.Version version) {
         if (code != null) {
             text.append("🔑 **").append(code.toUpperCase()).append("**");
             if (server != null) {
@@ -64,27 +64,37 @@ public class AmongUsBehavior implements GameBehavior {
         } else {
             text.append("No code set");
         }
-        if (isOnBeta != null) {
-            if (isOnBeta) {
-                text.append(". Use the **Beta**");
+        if (version != null) {
+            switch (version) {
+                case REGULAR:
+                    text.append(". Use the **regular** version");
+                    break;
+                case BETA:
+                    text.append(". Use the **Beta**");
+                    break;
+                case MODDED:
+                    text.append(". Use the **Town of Us Mod**");
+                    break;
+                case PROXIMITY:
+                    text.append(". Use the **Proximity mod**");
+                    break;
             }
         }
     }
 
     public static String getCodeMessage(final GameQueue gameQueue) {
-        return getCodeMessage(gameQueue.getCode(), gameQueue.getServer(), gameQueue.isOnBeta());
+        return getCodeMessage(gameQueue.getCode(), gameQueue.getServer(), gameQueue.getVersion());
     }
 
-    private static String getCodeMessage(final String code, final String server, final Boolean isOnBeta) {
+    private static String getCodeMessage(final String code, final String server, final GameQueue.Version version) {
         StringBuilder text = new StringBuilder();
         if (code != null) {
             text.append("The code is ");
         } else if (server != null) {
             text.append("The server is ");
         }
-        appendCode(text, code, server, isOnBeta);
+        appendCode(text, code, server, version);
         text.append('.');
         return text.toString();
     }
-
 }

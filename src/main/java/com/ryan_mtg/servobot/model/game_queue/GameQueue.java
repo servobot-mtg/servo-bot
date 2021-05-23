@@ -10,7 +10,6 @@ import com.ryan_mtg.servobot.utility.Validation;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.rmi.ServerError;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +23,14 @@ public class GameQueue {
 
     private static final int ON_BETA_FLAG = 1;
     private static final int CLOSED_FLAG = 1 << 1;
+    private static final int MODDED_FLAG = 1 << 2;
+
+    public enum Version {
+        REGULAR,
+        BETA,
+        MODDED,
+        PROXIMITY,
+    }
 
     @Getter @Setter
     private int id;
@@ -119,8 +126,18 @@ public class GameQueue {
         }
     }
 
-    public boolean isOnBeta() {
-        return Flags.hasFlag(flags, ON_BETA_FLAG);
+    public Version getVersion() {
+        if (Flags.hasFlag(flags, MODDED_FLAG)) {
+            if (Flags.hasFlag(flags, ON_BETA_FLAG)) {
+                return Version.PROXIMITY;
+            }
+            return Version.MODDED;
+        }
+
+        if (Flags.hasFlag(flags, ON_BETA_FLAG)) {
+            return Version.BETA;
+        }
+        return Version.REGULAR;
     }
 
     public boolean isClosed() {
@@ -131,8 +148,9 @@ public class GameQueue {
         flags = Flags.setFlag(flags, CLOSED_FLAG, false);
     }
 
-    public void setVersion(final boolean onBeta) {
-        flags = Flags.setFlag(flags, ON_BETA_FLAG, onBeta);
+    public void setVersion(final Version version) {
+        flags = Flags.setFlag(flags, ON_BETA_FLAG, version == Version.BETA || version == Version.PROXIMITY);
+        flags = Flags.setFlag(flags, MODDED_FLAG, version == Version.MODDED || version == Version.PROXIMITY);
     }
 
     public boolean matches(final Message message) {
