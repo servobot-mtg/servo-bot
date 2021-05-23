@@ -25,6 +25,8 @@ public class GameQueue {
     private static final int CLOSED_FLAG = 1 << 1;
     private static final int MODDED_FLAG = 1 << 2;
 
+    private static final int MULLI_ID = 44;
+
     public enum Version {
         REGULAR,
         BETA,
@@ -286,6 +288,10 @@ public class GameQueue {
         addHistory(new HistoryEvent(player, " queued."));
 
         GameQueueAction action = GameQueueAction.playerQueued(player);
+        if (player.getId() == MULLI_ID) {
+            action.merge(GameQueueAction.mulliQueued());
+        }
+
         promotePlayersToOnDeck(botHomeId, edit, action, newEntry);
         checkForRsvpExpirations(edit, action);
         return action;

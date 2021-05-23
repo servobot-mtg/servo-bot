@@ -1,5 +1,6 @@
 package com.ryan_mtg.servobot.commands.game_queue;
 
+import com.ryan_mtg.servobot.discord.model.DiscordService;
 import com.ryan_mtg.servobot.error.BotHomeError;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.events.EmoteHomeEvent;
@@ -29,6 +30,8 @@ public class GameQueueUtils {
     public static final String LEAVE_EMOTE = "🏠";
     public static final String STREAMING_EMOTE = "📺";
     public static final String ON_CALL_EMOTE = "☎";
+
+    private static final int NOTIFY_USER_ID = 143;
 
     public static void addEmote(final EmoteHomeEvent event, final GameQueue gameQueue, final User reactor) {
         try {
@@ -141,6 +144,12 @@ public class GameQueueUtils {
         if (action.hasEvent(GameQueueAction.Event.START_TIME) && verbose) {
             response = combine(response, GameQueueUtils.getStartTimeScheduledMessage(action.getStartTime(),
                     event.getHomeEditor().getTimeZone()));
+        }
+
+        if (action.hasEvent(GameQueueAction.Event.MULLI_QUEUED)) {
+            String notifyUser = event.getHomeEditor().getUserById(NOTIFY_USER_ID).getName(DiscordService.TYPE);
+            response = combine(response,
+                    String.format("\n@%s, I would like to let you know that Mooleh joined the queue!!!", notifyUser));
         }
 
         if (!Strings.isBlank(response)) {

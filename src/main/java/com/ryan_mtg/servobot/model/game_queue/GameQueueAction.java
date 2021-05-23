@@ -27,6 +27,7 @@ public class GameQueueAction {
         GAME_STARTED,
         MIN_PLAYERS,
         MAX_PLAYERS,
+        MULLI_QUEUED,
     }
 
     public enum PlayerAction {
@@ -134,6 +135,10 @@ public class GameQueueAction {
         eventMap.put(Event.SERVER, server);
         eventMap.put(Event.VERSION, version);
         return GameQueueAction.builder().eventMap(eventMap).build();
+    }
+
+    public static GameQueueAction mulliQueued() {
+        return GameQueueAction.builder().eventMap(createMap(Event.MULLI_QUEUED, null)).build();
     }
 
     public static GameQueueAction proximityServerChanged(final String proximityServer) {
