@@ -66,24 +66,26 @@ function printDebug(statement) {
 }
 
 function hideColumn(columnId, columnIndex) {
-    document.getElementById(columnId).style.visibility = 'collapse';
     const browser = getBrowser();
     if (browser == 'chrome' || browser == 'safari') {
         let playerTable = document.getElementById('player-table');
         for (let i = 0, row; row = playerTable.rows[i]; i++) {
             row.cells[columnIndex].style.display = 'none';
         }
+    } else {
+        document.getElementById(columnId).style.visibility = 'collapse';
     }
 }
 
 function showColumn(columnId, columnIndex) {
-    document.getElementById(columnId).style.visibility = 'visible';
     const browser = getBrowser();
     if (browser == 'chrome' || browser == 'safari') {
         let playerTable = document.getElementById('player-table');
         for (let i = 0, row; row = playerTable.rows[i]; i++) {
             row.cells[columnIndex].style.display = 'table-cell';
         }
+    } else {
+        document.getElementById(columnId).style.visibility = 'visible';
     }
 }
 

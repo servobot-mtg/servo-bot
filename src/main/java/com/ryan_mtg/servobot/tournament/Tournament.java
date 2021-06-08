@@ -90,6 +90,9 @@ public class Tournament {
             Player.createFromName("Simon Nielsen"),
             Player.createFromName("Ben Weitz"),
             Player.createFromName("Nicholas Price"),
+            Player.createFromName("Tania Russell"),
+            Player.createFromName("Smdster"),
+            Player.createFromName("hogpog_98"),
 
             Player.createFromName("Brian Braun-Duin", Player.League.MPL),
             Player.createFromName("Autumn Burchett", Player.League.MPL),
@@ -155,7 +158,7 @@ public class Tournament {
             Player.createFromName("Bernardo Santos", Player.League.RIVALS),
             Player.createFromName("Luis Scott-Vargas", "🌯", Player.League.RIVALS),
             Player.createFromName("Thoralf Severin", Player.League.RIVALS),
-            Player.createFromName("Mike Sigrist", "💖", Player.League.RIVALS),
+            Player.createFromName("Mike Sigrist", Player.League.RIVALS),
             Player.createFromName("Miguel Simoes", Player.League.RIVALS),
             Player.createFromName("Matt Sperling", Player.League.RIVALS),
             Player.createFromName("Ben Stark", "🎖️", Player.League.RIVALS),
