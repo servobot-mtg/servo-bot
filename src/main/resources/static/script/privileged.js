@@ -99,6 +99,8 @@ const alertData = [
             {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //1
     {name: 'Daily', parameters: [{id: 'time', label: 'Time', name: 'time', type: 'time'},
             {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //2
+    {name: 'Weekend', parameters: [{id: 'time', label: 'Time', name: 'time', type: 'time'},
+            {id: 'keyword', label: 'Keyword', name: 'keyword', type: 'string'}]}, //2
 ];
 
 const addAlertElements = ['add-alert-time-div', 'add-alert-duration-div', 'add-alert-keyword-div'];

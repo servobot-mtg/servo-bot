@@ -6,6 +6,7 @@ import com.ryan_mtg.servobot.error.SystemError;
 import com.ryan_mtg.servobot.model.alerts.AlertGenerator;
 import com.ryan_mtg.servobot.model.alerts.ContinualGenerator;
 import com.ryan_mtg.servobot.model.alerts.DailyGenerator;
+import com.ryan_mtg.servobot.model.alerts.WeekendGenerator;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -25,6 +26,9 @@ public class AlertGeneratorSerializer {
                 case DailyGenerator.TYPE:
                     LocalTime time = LocalTime.ofSecondOfDay(alertGeneratorRow.getTime());
                     return new DailyGenerator(alertGeneratorRow.getId(), alertGeneratorRow.getAlertToken(), time);
+                case WeekendGenerator.TYPE:
+                    time = LocalTime.ofSecondOfDay(alertGeneratorRow.getTime());
+                    return new WeekendGenerator(alertGeneratorRow.getId(), alertGeneratorRow.getAlertToken(), time);
                 case ContinualGenerator.TYPE:
                     Duration duration = Duration.ofSeconds(alertGeneratorRow.getTime());
                     return new ContinualGenerator(alertGeneratorRow.getId(), alertGeneratorRow.getAlertToken(), duration);
@@ -42,6 +46,9 @@ public class AlertGeneratorSerializer {
         switch (alertGenerator.getType()) {
             case DailyGenerator.TYPE:
                 alertGeneratorRow.setTime(((DailyGenerator)alertGenerator).getTime().toSecondOfDay());
+                break;
+            case WeekendGenerator.TYPE:
+                alertGeneratorRow.setTime(((WeekendGenerator)alertGenerator).getTime().toSecondOfDay());
                 break;
             case ContinualGenerator.TYPE:
                 alertGeneratorRow.setTime((int)((ContinualGenerator)alertGenerator).getDuration().getSeconds());

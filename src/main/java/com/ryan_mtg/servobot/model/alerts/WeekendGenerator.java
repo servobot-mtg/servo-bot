@@ -3,9 +3,8 @@ package com.ryan_mtg.servobot.model.alerts;
 import com.ryan_mtg.servobot.error.UserError;
 import com.ryan_mtg.servobot.utility.Time;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -13,16 +12,15 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class DailyGenerator extends AlertGenerator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DailyGenerator.class);
-    public static final int TYPE = 2;
+public class WeekendGenerator extends AlertGenerator {
+    public static final int TYPE = 3;
 
     @Getter
     private final LocalTime time;
     private String timeZone;
     private ZonedDateTime goal;
 
-    public DailyGenerator(final int id, final String alertToken, final LocalTime time) throws UserError {
+    public WeekendGenerator(final int id, final String alertToken, final LocalTime time) throws UserError {
         super(id, alertToken);
         this.time = time;
     }
@@ -34,7 +32,7 @@ public class DailyGenerator extends AlertGenerator {
 
     @Override
     public String getDescription() {
-        return String.format("Daily alert at %s (%s), within %s", Time.toReadableString(time), timeZone,
+        return String.format("Weekend alert at %s (%s), within %s", Time.toReadableString(time), timeZone,
                 Time.toReadableString(Duration.between(Instant.now(), goal)));
     }
 
@@ -60,5 +58,13 @@ public class DailyGenerator extends AlertGenerator {
         while (goal.toInstant().isBefore(now)) {
             goal = goal.plusDays(1);
         }
+
+        while (!isWeekend(goal.getDayOfWeek())) {
+            goal = goal.plusDays(1);
+        }
+    }
+
+    private boolean isWeekend(final DayOfWeek dayOfWeek) {
+        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
 }
